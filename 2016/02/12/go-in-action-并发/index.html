@@ -1,0 +1,691 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Go," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="通常一个程序能被编写成直线型代码，用于执行完成单个任务。若这样做是可能的，应当总是选择这样做，因为这种类型的程序通常易于编写和维护。但也有时候并发地执行多个任务会带来更大的好处。一个例子是 web service 在同一时间能够接受多个 socket 上的数据请求。每个 socket 都是独一无二的，并且能够被独立地处理而无需互相依赖。拥有这种并发地处理请求的能力，就能极大地提高这种类型的系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【翻译】Go in Action：并发">
+<meta property="og:url" content="http://yoursite.com/2016/02/12/go-in-action-并发/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="通常一个程序能被编写成直线型代码，用于执行完成单个任务。若这样做是可能的，应当总是选择这样做，因为这种类型的程序通常易于编写和维护。但也有时候并发地执行多个任务会带来更大的好处。一个例子是 web service 在同一时间能够接受多个 socket 上的数据请求。每个 socket 都是独一无二的，并且能够被独立地处理而无需互相依赖。拥有这种并发地处理请求的能力，就能极大地提高这种类型的系统">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/go-6.1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/go-6.2.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/go-6.3.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/go-6.4.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/go1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/go-6.6.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/go6.7.png">
+<meta property="og:updated_time" content="2016-02-29T11:55:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【翻译】Go in Action：并发">
+<meta name="twitter:description" content="通常一个程序能被编写成直线型代码，用于执行完成单个任务。若这样做是可能的，应当总是选择这样做，因为这种类型的程序通常易于编写和维护。但也有时候并发地执行多个任务会带来更大的好处。一个例子是 web service 在同一时间能够接受多个 socket 上的数据请求。每个 socket 都是独一无二的，并且能够被独立地处理而无需互相依赖。拥有这种并发地处理请求的能力，就能极大地提高这种类型的系统">
+<meta name="twitter:image" content="http://yoursite.com/images/data-structure/go-6.1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/02/12/go-in-action-并发/"/>
+
+  <title> 【翻译】Go in Action：并发 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                【翻译】Go in Action：并发
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-12T16:00:46+08:00" content="2016-02-12">
+              2016-02-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>　　通常一个程序能被编写成直线型代码，用于执行完成单个任务。若这样做是可能的，应当总是选择这样做，因为这种类型的程序通常易于编写和维护。但也有时候并发地执行多个任务会带来更大的好处。一个例子是 web service 在同一时间能够接受多个 socket 上的数据请求。每个 socket 都是独一无二的，并且能够被独立地处理而无需互相依赖。拥有这种并发地处理请求的能力，就能极大地提高这种类型的系统的性能。有了这个想法，Go 语言及其运行时已经直接提供了对并发的支持。</p>
+<p>　　Go 的并发使得函数不用相互依赖地独立运行。将一个函数创建成 goroutine，那么它将被当成独立的工作单元，并且之后将会在可用的逻辑处理器上执行。Go 的运行时调度器是复杂的软件，用于管理那些需要处理器时间的 goroutine。调度器位于操作系统之上，将操作系统的线程绑定到用于执行 goroutine 的逻辑处理器上。在任何时间，调度器都将控制与“哪个 goroutine 运行在哪个逻辑处理器”相关的所有事。</p>
+<p>　　并发的同步来自一个范式，这个范式是 communication sequential processes 即 CSP。CSP 是一个消息传递模型，用于在 goroutine 之间进行数据通信，而不是对数据上锁来提供同步访问。用于在 goroutine 之间同步和传递消息的关键数据类型是 channel。对于那些从未使用过 channel 来编写并发程序的许多开发者来说，它们将感到敬畏和兴奋，你也将感同身受。使用 channel 使得编写并发的程序变得更加简单，并且更少出现错误。</p>
+<h2 id="并发-VS-并行"><a href="#并发-VS-并行" class="headerlink" title="并发 VS 并行"></a>并发 VS 并行</h2><p>　　让我们从宏观的角度了解操作系统的进程和线程分别是什么。这会帮助你理解 Go 运行时的调度器和操作系统是怎样并发地运行 goroutine 的。当你运行一个应用程序，例如 IDE 或编辑器，操作系统将会为它启动一个进程。你可以将进程想象一个容器，用来容纳程序执行时使用和管理的所有资源。</p>
+<p>　　图 6.1 显示了一个包含了通用资源的进程，这些资源可由进程分配。这些资源包含但不限于内存地址空间，文件句柄，设备和线程。线程是一个执行路径，操作系统调度线程去执行你在函数中所写的代码。每个进程至少包含一个线程，并且每个进程的初始化线程称为主线程。当主线程终结，则程序终结，因为这个执行路径是程序的起始点。操作系统调度线程运行在处理器上，而不用管这些线程属于哪个进程。不同操作系统所使用的线程调度算法总是在改变的，并且对程序员来说是抽象的。<br><img src="/images/data-structure/go-6.1.png" alt=""></p>
+<p>　　操作系统调度线程运行在物理处理器上，Go 的运行时则调度 goroutine 运行在逻辑处理器之上，每个逻辑处理器分别绑定到一个操作系统的线程。在 Go 1.5 版本中，默认情况下是为每个可用的物理处理器都分配一个逻辑处理器，而在 1.5 版本之前，默认则是只分配一个逻辑处理器。这些逻辑处理器用来执行所有创建的 goroutine。即使在单个逻辑处理器，成千上万的 goroutine 也可以被调度成并发地运行，同时拥有惊人的高效和性能。</p>
+<p>　　在图 6.2 中，你可以看到操作系统线程，逻辑处理器和本地运行队列之间的关系。当 goroutine 被创建并准备运行时，它们将被放置在调度器的全局运行队列。接下来，它们将赋给逻辑处理器，并放置在逻辑处理器的本地运行队列。在此之后，goroutine 将等待被逻辑处理器执行。<br><img src="/images/data-structure/go-6.2.png" alt=""></p>
+<p>　　有时一个正在运行中的 goroutine 可能需要执行阻塞的系统调用，例如打开文件，这时线程和 goroutine 将从逻辑处理器中分离，线程将继续阻塞，等待系统调用返回。在这个期间，这个逻辑处理器没有绑定线程，所以调度器将创建新的线程，并将它绑定到逻辑处理器，接着调度器将从本地运行队列中选择另一个 goroutine，并运行它。一旦系统调用返回，goroutine 将放置在本地运行队列，并且线程将被放置到一边，用于将来使用。</p>
+<p>　　如果 goroutine 需要执行网络 I/O 调用，这个过程将有所不同。在这种情况下，goroutine 将从逻辑处理器上分离，并移动到集成于运行时的网络 poller。一旦 poller 发觉网络的读或写的操作准备好了，goroutine 将重新赋给逻辑处理器，用于处理这些操作。调度器并没有限定可以创建的逻辑处理器的数目。但运行时默认情况下限定每个程序最多能拥有 10000 个线程。这个值可以通过 runtime/debug 包中的 SetMaxThreads 函数来改变。如果任何程序需要使用更多的线程，那么程序将会 crashes。</p>
+<p>　　并发不同于并行。只有当多个代码段分别在不同的物理处理器上同时执行的时候，才称作是并行。并行是关于同一时间做很多事情，并发则是关于同一时间管理很多事情。在很多情况下，并发可以超过并行，因为它对操作系统和硬件的压力更小，这允许系统去做得更多。这就是经常所说的 less-is-more 的哲学。</p>
+<p>　　如果你想要以并行的方式运行 goroutine，你使用的逻辑处理器必须多于一个。如果有多个逻辑处理器，那么调度器则会将这些 goroutine 平均分配给这些逻辑处理器。这将使得这些 goroutine 运行在不同的线程中。但为了实现真实的并行，你仍然需要将你的程序运行在拥有多个物理处理器的机器上。如果不是这样，即使 Go 的运行时使用多个线程，这些 goroutine 仍会并发地在单个物理处理器上运行。</p>
+<p>　　图 6.3 显示了在单个逻辑处理器上并发地执行 goroutine 和在两个逻辑处理器上并行地执行协程之间的区别。实际上并不推荐盲目地改变运行时为逻辑处理器设定的默认配置。调度器包含智能的算法，随着每次 Go 新版本的发布，这个算法都会得到更新和改善。如果你发现性能的问题，并且这个问题可以通过改变逻辑处理器的数目来解决，那么你可以去改变它。接下来你将学到更多。<br><img src="/images/data-structure/go-6.3.png" alt=""></p>
+<h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>　　让我们了解更多调度器的行为，以及怎样创建 goroutine 并管理它们的生命周期。在讨论如何并行地运行 goroutine 之前，我们将展示一个例子，这个例子使用单个逻辑处理器。这个程序创建两个 goroutine，以并发的方式分别展示大写和小写的英文字母表。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to create goroutines and</span></div><div class="line"><span class="comment">// how the scheduler behaves.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"runtime"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Allocate 1 logical processor for the scheduler to use.</span></div><div class="line">	runtime.GOMAXPROCS(<span class="number">1</span>)</div><div class="line"></div><div class="line">	<span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line">	<span class="comment">// Add a count of two, one for each goroutine.</span></div><div class="line">	<span class="keyword">var</span> wg sync.WaitGroup</div><div class="line">	wg.Add(<span class="number">2</span>)</div><div class="line"></div><div class="line">	fmt.Println(<span class="string">"Start Goroutines"</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Declare an anonymous function and create a goroutine.</span></div><div class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">		<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">		<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">		<span class="comment">// Display the alphabet three times</span></div><div class="line">		<span class="keyword">for</span> count := <span class="number">0</span>; count &lt; <span class="number">3</span>; count++ &#123;</div><div class="line">			<span class="keyword">for</span> char := <span class="string">'a'</span>; char &lt; <span class="string">'a'</span>+<span class="number">26</span>; char++ &#123;</div><div class="line">				fmt.Printf(<span class="string">"%c "</span>, char)</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;()</div><div class="line"></div><div class="line">	<span class="comment">// Declare an anonymous function and create a goroutine.</span></div><div class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">		<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">		<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">		<span class="comment">// Display the alphabet three times</span></div><div class="line">		<span class="keyword">for</span> count := <span class="number">0</span>; count &lt; <span class="number">3</span>; count++ &#123;</div><div class="line">			<span class="keyword">for</span> char := <span class="string">'A'</span>; char &lt; <span class="string">'A'</span>+<span class="number">26</span>; char++ &#123;</div><div class="line">				fmt.Printf(<span class="string">"%c "</span>, char)</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;()</div><div class="line"></div><div class="line">	<span class="comment">// Wait for the goroutines to finish.</span></div><div class="line">	fmt.Println(<span class="string">"Waiting To Finish"</span>)</div><div class="line">	wg.Wait()</div><div class="line"></div><div class="line">	fmt.Println(<span class="string">"\nTerminating Program"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　在第 14 行，可以看到调用了 runtime 包的 GOMAXPROCS 函数，这个函数允许程序更改由调度器使用的逻辑处理器的数目。如果你不想在程序中显示地调用这个函数，也可以设置同名的环境变量。通过传递 1 这个值，我们告诉调度器使用单个逻辑处理器。</p>
+<p>　　24 到 37 行，我们声明了两个匿名函数用来展示英文字母表。通过使用 go 关键词，这两个函数均被创建成 goroutine。你可以从程序的输出看到每个 goroutine 中的代码都并发地运行在单个处理器上。<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Start Goroutines</div><div class="line">Waiting To Finish</div><div class="line">A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M</div><div class="line">N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</div><div class="line">a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m</div><div class="line">n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z </div><div class="line">Terminating Program</div></pre></td></tr></table></figure></p>
+<p>　　第一个 goroutine 展示完字母表的时间是非常短的，因此在调度器换出到第二个 goroutine 之前，第一个 goroutine 已经完成了它的任务。这就是为什么你先看到大写的字母表，其次才看到小写的字母表。我们创建的两个 goroutine 并发地运行，一个接着一个地执行它们各自展示字母表的任务。</p>
+<p>　　一旦两个匿名函数被创建成 goroutine，main 函数中的代码将保持运行。这意味着在两个 goroutine 完成它们的工作之前，main 函数可以退出。若这种情况发生，在两个 goroutine 有机会运行之前，程序将会终止。因此在第 51 行中，main 函数将会使用 WaitGroup 等待两个 goroutine 完成它们的工作。</p>
+<p>　　WaitGroup 是一个计数的信号量，用来为运行的 goroutine 维持记录。当 WaitGroup 的值大于 0，Wait 函数将会阻塞。第 26 行和 39 行在 defer 语句作用域中调用 Done 方法，将使得 WaitGroup 的值减少并最终退出 main 函数。</p>
+<p>　　当正在执行的函数返回时，这个函数中由 defer 指定的函数将被调度运行。在程序中，我们使用 defer 关键词保证，一旦每个 goroutine 完成它的任务之后，Done 方法将被调用。</p>
+<p>　　基于调度器的内部算法，一个正在运行的 goroutine 在完成它的任务之前，可以被停止并且再次被调度成运行状态。调度器这样做是为了防止单个 goroutine 劫持了逻辑处理器。调度器会停止当前运行的 goroutine，并且为另一个 runnable 的 goroutine 提供机会去运行。</p>
+<p>　　图 6.4 从逻辑处理器的观点来看待这个场景。在 Step 1 中，调度器开始执行 goroutine A 而 goroutine B 则在运行队列中等待轮到它运行。接着，在 Step 2 中，调度器将为 goroutine B 换出 goroutine A。由于 goroutine A 还没有执行结束，它将被放置在运行队列的末尾。接着，在 Step 3 中，goroutine B 完成了它的任务并消失了。这就允许了 goroutine A 继续运行。<br><img src="/images/data-structure/go-6.4.png" alt=""><br>　　调度器可以在单个逻辑处理器上并发地运行多个 goroutine。像前面所说的，Go 的标准库的 runtime 包中拥有 GOMAXPROCS 函数，允许你指定由调度器使用的逻辑处理器的个数。这就是你怎样改变运行时（ runtime ）去为每个可用的物理处理器分配一个逻辑处理器。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> <span class="string">"runtime"</span></div><div class="line"></div><div class="line"><span class="comment">// Allocate a logical processor for every available core.</span></div><div class="line">runtime.GOMAXPROCS(runtime.NumCPU())</div></pre></td></tr></table></figure></p>
+<p>　　runtime 包提供支持用于改变 Go 运行时的配置参数。NumCPU 函数返回可用的物理处理器的个数。因此，上面的语句调用 GOMAXPROCS 来为每个可用的物理处理器分配一个逻辑处理器。有一点需要注意，使用超过一个逻辑处理器并不一定意味着更好的性能。当你改变任何的 runtime 配置参数，你需要一个基准用于衡量程序的性能变化。</p>
+<p>　　如果我们给调度器使用的逻辑处理器多于一个，我们将看到不同的输出。让我们将逻辑处理器的数目改成 2，并且运行第一个例子，用于输出英文字母表。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to create goroutines and</span></div><div class="line"><span class="comment">// how the goroutine scheduler behaves with two logical processor.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"runtime"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Allocate two logical processors for the scheduler to use.</span></div><div class="line">	runtime.GOMAXPROCS(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line">	<span class="comment">// Add a count of two, one for each goroutine.</span></div><div class="line">	<span class="keyword">var</span> wg sync.WaitGroup</div><div class="line">	wg.Add(<span class="number">2</span>)</div><div class="line"></div><div class="line">	fmt.Println(<span class="string">"Start Goroutines"</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Declare an anonymous function and create a goroutine.</span></div><div class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">		<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">		<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">		<span class="comment">// Display the alphabet three times.</span></div><div class="line">		<span class="keyword">for</span> count := <span class="number">0</span>; count &lt; <span class="number">3</span>; count++ &#123;</div><div class="line">			<span class="keyword">for</span> char := <span class="string">'a'</span>; char &lt; <span class="string">'a'</span>+<span class="number">26</span>; char++ &#123;</div><div class="line">				fmt.Printf(<span class="string">"%c "</span>, char)</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;()</div><div class="line"></div><div class="line">	<span class="comment">// Declare an anonymous function and create a goroutine.</span></div><div class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">		<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">		<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">		<span class="comment">// Display the alphabet three times.</span></div><div class="line">		<span class="keyword">for</span> count := <span class="number">0</span>; count &lt; <span class="number">3</span>; count++ &#123;</div><div class="line">			<span class="keyword">for</span> char := <span class="string">'A'</span>; char &lt; <span class="string">'A'</span>+<span class="number">26</span>; char++ &#123;</div><div class="line">				fmt.Printf(<span class="string">"%c "</span>, char)</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;()</div><div class="line"></div><div class="line">	<span class="comment">// Wait for the goroutines to finish.</span></div><div class="line">	fmt.Println(<span class="string">"Waiting To Finish"</span>)</div><div class="line">	wg.Wait()</div><div class="line"></div><div class="line">	fmt.Println(<span class="string">"\nTerminating Program"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　程序中通过 GOMAXPROCS 函数创建两个逻辑处理器，这允许了 goroutine 以并行的方式运行。<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Start Goroutines</div><div class="line">Waiting To Finish</div><div class="line">A B C D E F G H I J K a L b M c N d O e P f Q g R h S i T j U k V l W m X n Y</div><div class="line">o Z p A q B r C s D t E u F v G w H x I y J z K a L b M c N d O e P f Q g R h</div><div class="line">S i T j U k V l W m X n Y o Z p A q B r C s D t E u F v G w H x I y J z K a L</div><div class="line">b M c N d O e P f Q g R h S i T j U k V l W m X n Y o Z p q r s t u v w x y z </div><div class="line">Terminating Program</div></pre></td></tr></table></figure></p>
+<p>　　如果你仔细看上面的输出，你会看到 goroutine 并行地执行。两个 goroutine 开始运行，并且交互地输出字母。我们的程序运行在八核的机器上，所以每个 goroutine 都运行它自己的核上。记住，只有当逻辑处理器的个数多于一个，并且存在可用的物理处理器能够同时运行每个 goroutine，那么这些 goroutine 才能并行地运行。</p>
+<h2 id="竞争条件"><a href="#竞争条件" class="headerlink" title="竞争条件"></a>竞争条件</h2><p>　　当两个或更多的 goroutine 没有同步地访问共享资源，并试图同时读取和写入共享资源，这就称为竞争条件。并发程序之所以复杂和有很大的潜在 bug 就是因为竞争条件。对共享资源的读和写必须总是原子的，也就是说，在同一时间只能有一个 goroutine 执行这些操作。</p>
+<p>　　这个程序包含了竞争条件。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to create race</span></div><div class="line"><span class="comment">// conditions in our programs. We don't want to do this.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"runtime"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">var</span> (</div><div class="line">	<span class="comment">// counter is a variable incremented by all goroutines.</span></div><div class="line">	counter <span class="keyword">int</span></div><div class="line"></div><div class="line">	<span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line">	wg sync.WaitGroup</div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Add a count of two, one for each goroutine.</span></div><div class="line">	wg.Add(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Create two goroutines.</span></div><div class="line">	<span class="keyword">go</span> incCounter(<span class="number">1</span>)</div><div class="line">	<span class="keyword">go</span> incCounter(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Wait for the goroutines to finish.</span></div><div class="line">	wg.Wait()</div><div class="line">	fmt.Println(<span class="string">"Final Counter:"</span>, counter)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// incCounter increments the package level counter variable.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">incCounter</span><span class="params">(id <span class="keyword">int</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">	<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">	<span class="keyword">for</span> count := <span class="number">0</span>; count &lt; <span class="number">2</span>; count++ &#123;</div><div class="line">		<span class="comment">// Capture the value of Counter.</span></div><div class="line">		value := counter</div><div class="line"></div><div class="line">		<span class="comment">// Yield the thread and be placed back in queue.</span></div><div class="line">		runtime.Gosched()</div><div class="line"></div><div class="line">		<span class="comment">// Increment our local value of Counter.</span></div><div class="line">		value++</div><div class="line"></div><div class="line">		<span class="comment">// Store the value back into Counter.</span></div><div class="line">		counter = value</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　程序输出：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Final Counter: 2</div></pre></td></tr></table></figure></p>
+<p>　　counter 变量被读取和写入 4 次，每次 goroutine 2 次，但当程序结束时，counter 的值是 2。图 6.5 说明了为什么会这样。<br><img src="/images/data-structure/go1.png" alt=""></p>
+<p>　　每个协程覆写了另一 goroutine 的工作，这发生在当 goroutine 交换的时候。每个 goroutine 都得到它自己的 counter 变量的副本，之后换出到另一 goroutine。当 goroutine 得到时间再次运行时，counter 变量已经被修改，但 goroutine 并没有更新它的 counter 副本的值。相反，goroutine 增加它拥有的 counter 副本的值，并将这个副本的值写入到原来 counter 变量，这样就覆盖了另一 goroutine 所做的工作。</p>
+<p>　　Go 拥有特殊的工具用于侦测代码中的竞争条件。这时极有用的工具用来查找这类的 bug。<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">go build -race    // Build the code using the race detector flag</div><div class="line">./example         // Run the code</div><div class="line"></div><div class="line">==================</div><div class="line">WARNING: DATA RACE</div><div class="line">Write by goroutine 5:</div><div class="line"></div><div class="line">main.incCounter()</div><div class="line">/example/main.go:49 +0x96</div><div class="line">Previous read by goroutine 6:</div><div class="line">main.incCounter()</div><div class="line">/example/main.go:40 +0x66</div><div class="line">Goroutine 5 (running) created at:</div><div class="line">main.main()</div><div class="line">/example/main.go:25 +0x5c</div><div class="line">Goroutine 6 (running) created at:</div><div class="line">main.main()</div><div class="line">/example/main.go:26 +0x73</div><div class="line">==================</div><div class="line">Final Counter: 2</div><div class="line">Found 1 data race(s)</div></pre></td></tr></table></figure></p>
+<p>　　竞争侦测器指出了下面 4 行代码：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Line 49: counter = value</div><div class="line">Line 40: value := counter</div><div class="line">Line 25: go incCounter(1)</div><div class="line">Line 26: go incCounter(2)</div></pre></td></tr></table></figure></p>
+<p>　　竞争侦测器告诉我们哪个 goroutine 导致了数据竞争，并且哪两行代码产生了冲突。</p>
+<h2 id="为共享资源上锁"><a href="#为共享资源上锁" class="headerlink" title="为共享资源上锁"></a>为共享资源上锁</h2><p>　　Go 提供了传统的同步 goroutine 的方式，即是对共享资源的访问上锁。如果你需要顺序地访问整数变量或代码段，那么 atomic 和 sync 包中的函数则是很好的选择。我们会看下 atomic 包中的函数，和 sync 包中的 mutex 类型。</p>
+<h3 id="原子函数"><a href="#原子函数" class="headerlink" title="原子函数"></a>原子函数</h3><p>　　原子函数提供了底层的上锁机制，用于同步访问整数和指针。我们可以使用原子函数来解决竞争条件。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to use the atomic</span></div><div class="line"><span class="comment">// package to provide safe access to numeric types.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"runtime"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"sync/atomic"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">var</span> (</div><div class="line">	<span class="comment">// counter is a variable incremented by all goroutines.</span></div><div class="line">	counter <span class="keyword">int64</span></div><div class="line"></div><div class="line">	<span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line">	wg sync.WaitGroup</div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Add a count of two, one for each goroutine.</span></div><div class="line">	wg.Add(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Create two goroutines.</span></div><div class="line">	<span class="keyword">go</span> incCounter(<span class="number">1</span>)</div><div class="line">	<span class="keyword">go</span> incCounter(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Wait for the goroutines to finish.</span></div><div class="line">	wg.Wait()</div><div class="line"></div><div class="line">	<span class="comment">// Display the final value.</span></div><div class="line">	fmt.Println(<span class="string">"Final Counter:"</span>, counter)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// incCounter increments the package level counter variable.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">incCounter</span><span class="params">(id <span class="keyword">int</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">	<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">	<span class="keyword">for</span> count := <span class="number">0</span>; count &lt; <span class="number">2</span>; count++ &#123;</div><div class="line">		<span class="comment">// Safely Add One To Counter.</span></div><div class="line">		atomic.AddInt64(&amp;counter, <span class="number">1</span>)</div><div class="line"></div><div class="line">		<span class="comment">// Yield the thread and be placed back in queue.</span></div><div class="line">		runtime.Gosched()</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　程序的输出：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Final Counter: 4</div></pre></td></tr></table></figure></p>
+<p>　　程序第 43 行中使用 atomic 中的 AddInt64 函数，这个函数强制在同一时间内，只有一个 goroutine 来执行并完成增加操作，因此这个函数能以同步的方式来增加整数的值。当 goroutine 试图调用任何原子函数，它们自动地同步所引用的变量。现在我们得到正确的值 4。</p>
+<p>　　atomic 中另外两个有用的函数是 LoadInt64 和 StoreInt64。这些函数提供了安全的方式用于读取和写入整数变量的值。下面的例子使用 LoadInt64 和 StoreInt64 函数来创建一个同步标志，这个标志代表程序的特殊条件，以此来改变 goroutine 的行为。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to use the atomic</span></div><div class="line"><span class="comment">// package functions Store and Load to provide safe access</span></div><div class="line"><span class="comment">// to numeric types.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"sync/atomic"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">var</span> (</div><div class="line">	<span class="comment">// shutdown is a flag to alert running goroutines to shutdown.</span></div><div class="line">	shutdown <span class="keyword">int64</span></div><div class="line"></div><div class="line">	<span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line">	wg sync.WaitGroup</div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Add a count of two, one for each goroutine.</span></div><div class="line">	wg.Add(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Create two goroutines.</span></div><div class="line">	<span class="keyword">go</span> doWork(<span class="string">"A"</span>)</div><div class="line">	<span class="keyword">go</span> doWork(<span class="string">"B"</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Give the goroutines time to run.</span></div><div class="line">	time.Sleep(<span class="number">1</span> * time.Second)</div><div class="line"></div><div class="line">	<span class="comment">// Safely flag it is time to shutdown.</span></div><div class="line">	fmt.Println(<span class="string">"Shutdown Now"</span>)</div><div class="line">	atomic.StoreInt64(&amp;shutdown, <span class="number">1</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Wait for the goroutines to finish.</span></div><div class="line">	wg.Wait()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// doWork simulates a goroutine performing work and</span></div><div class="line"><span class="comment">// checking the Shutdown flag to terminate early.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">doWork</span><span class="params">(name <span class="keyword">string</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">	<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">	<span class="keyword">for</span> &#123;</div><div class="line">		fmt.Printf(<span class="string">"Doing %s Work\n"</span>, name)</div><div class="line">		time.Sleep(<span class="number">250</span> * time.Millisecond)</div><div class="line"></div><div class="line">		<span class="comment">// Do we need to shutdown.</span></div><div class="line">		<span class="keyword">if</span> atomic.LoadInt64(&amp;shutdown) == <span class="number">1</span> &#123;</div><div class="line">			fmt.Printf(<span class="string">"Shutting %s Down\n"</span>, name)</div><div class="line">			<span class="keyword">break</span></div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　这个例子启动两个 goroutine 并开始执行一些工作。在 goroutine 各自循环的每次迭代中，在第 52 行中 goroutine 通过 LoadInt64 来检测 shutdown 变量的值。这个函数返回 shutdown 变量的一个安全的拷贝，如果这个值等于 1，goroutine 将退出循环并终止。</p>
+<p>　　在第 35 行中，main 函数使用 StoreInt64 函数来安全地改变 shutdown 变量的值。在 main 函数调用 StoreInt64 函数的同时，如果任何一个 goroutine 试图调用 LoadInt64 函数，那么这些原子函数将会同步这些调用，并操持所有的操作都是安全的，不会出现竞争条件的。</p>
+<h3 id="互斥量"><a href="#互斥量" class="headerlink" title="互斥量"></a>互斥量</h3><p>　　另一种方式来同步访问共享资源则是使用互斥量。互斥量是根据互相排斥来命名的。为代码中的关键部分创建互斥量，可以保证同一时间只有一个 goroutine 能执行这个关键部分的代码。我们可以使用互斥量来改正程序中出现的竞争条件。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to use a mutex</span></div><div class="line"><span class="comment">// to define critical sections of code that need synchronous</span></div><div class="line"><span class="comment">// access.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"runtime"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">var</span> (</div><div class="line">	<span class="comment">// counter is a variable incremented by all goroutines.</span></div><div class="line">	counter <span class="keyword">int</span></div><div class="line"></div><div class="line">	<span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line">	wg sync.WaitGroup</div><div class="line"></div><div class="line">	<span class="comment">// mutex is used to define a critical section of code.</span></div><div class="line">	mutex sync.Mutex</div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Add a count of two, one for each goroutine.</span></div><div class="line">	wg.Add(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Create two goroutines.</span></div><div class="line">	<span class="keyword">go</span> incCounter(<span class="number">1</span>)</div><div class="line">	<span class="keyword">go</span> incCounter(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Wait for the goroutines to finish.</span></div><div class="line">	wg.Wait()</div><div class="line">	fmt.Printf(<span class="string">"Final Counter: %d\n"</span>, counter)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// incCounter increments the package level Counter variable</span></div><div class="line"><span class="comment">// using the Mutex to synchronize and provide safe access.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">incCounter</span><span class="params">(id <span class="keyword">int</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">	<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">	<span class="keyword">for</span> count := <span class="number">0</span>; count &lt; <span class="number">2</span>; count++ &#123;</div><div class="line">		<span class="comment">// Only allow one goroutine through this</span></div><div class="line">		<span class="comment">// critical section at a time.</span></div><div class="line">		mutex.Lock()</div><div class="line">		&#123;</div><div class="line">			<span class="comment">// Capture the value of counter.</span></div><div class="line">			value := counter</div><div class="line"></div><div class="line">			<span class="comment">// Yield the thread and be placed back in queue.</span></div><div class="line">			runtime.Gosched()</div><div class="line"></div><div class="line">			<span class="comment">// Increment our local value of counter.</span></div><div class="line">			value++</div><div class="line"></div><div class="line">			<span class="comment">// Store the value back into counter.</span></div><div class="line">			counter = value</div><div class="line">		&#125;</div><div class="line">		mutex.Unlock()</div><div class="line">		<span class="comment">// Release the lock and allow any</span></div><div class="line">		<span class="comment">// waiting goroutine through.</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　对 counter 变量执行的操作现在被保护在 Lock() 和 Unklock() 之间。使用花括号仅仅是确保这个关键部分更容易被看见，花括号不是必须的。每次只能有一个 goroutine 能进入这个关键部分。直到 Unlock() 函数调用之后，另一个 goroutine 才能进入这个关键部分。当线程在第 52 行被让出时，调度器将让另一个相同的 goroutine 继续运行。在程序终止之后，我们得到正确的值 4，不会出现竞争条件。</p>
+<h2 id="Channels"><a href="#Channels" class="headerlink" title="Channels"></a>Channels</h2><p>　　尽管原子函数和互斥量可以工作，但它们并没有使得并发的程序变得更加简单，更少错误或更有趣。在 Go 中，你并不只有原子函数和互斥量用来保持共享资源安全和消除竞争条件。当 goroutine 之间需要发送和接收它们需要共享的资源时，你还可以使用 channels 来同步 goroutine。</p>
+<p>　　当资源需要在 goroutine 之间共享，channel 将充当 goroutine 之间的导管，提供一种机制用于保证同步的数据交换。当我们声明一个 channel，要指定需要共享的数据的类型。内置类型，命名类型，struct 和引用类型的值和指针都能通过 channel 共享。</p>
+<p>　　在 Go 中创建 channel 需要使用内置的 make 函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Unbuffered channel of integers.</span></div><div class="line">unbuffered := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</div><div class="line"></div><div class="line"><span class="comment">// Buffered channel of strings.</span></div><div class="line">buffered := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>, <span class="number">10</span>)</div></pre></td></tr></table></figure></p>
+<p>　　我们可以看到使用内置的 make 函数来创建 unbuffered 和 buffered channel。make 的第一个参数要求使用 chan 关键词和 channel 允许交换的数据的类型。如果你创建了 buffered channel，那么你要将第二个参数指定未缓冲区的大小。</p>
+<p>　　发送一个值或指针给 channel 要求使用 &lt;- 操作符。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Buffered channel of strings.</span></div><div class="line">buffered := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>, <span class="number">10</span>)</div><div class="line"></div><div class="line"><span class="comment">// Send a string through the channel.</span></div><div class="line">buffered &lt;- <span class="string">"Gopher"</span></div></pre></td></tr></table></figure></p>
+<p>　　上面的代码创建了 string 类型的 buffered channel，缓冲区大小为 10。接着我们发送字符串 Gopher 给 channel，为了另一 goroutine 能从 channel 中接收字符串，我们使用 &lt;- 操作符，但这次是作为一元操作符使用。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Receive a string from the channel.</span></div><div class="line">value := &lt;-buffered</div></pre></td></tr></table></figure></p>
+<p>　　当从 channel 中接收值或指针时，&lt;- 操作符绑定在 channel 变量的左侧。</p>
+<h3 id="Unbuffered-channels"><a href="#Unbuffered-channels" class="headerlink" title="Unbuffered channels"></a>Unbuffered channels</h3><p>　　在任何值被接收之前，unbuffered channel 都没有容量去容纳任何值。这种类型的 channel 要求在任何发送或接收操作可以完成之前，发送者 goroutine 和接收者 goroutine 都要同时准备好。如果两个 goroutine 没有同时准备好，channel 将使得执行它各自的发送或接收操作的goroutine首先等待。基于 channel 的发送和接收之间的交互都是同步的。</p>
+<p>　　在图 6.6 中，可以看到两个 goroutine 通过 unbuffered channel 来共享一个值。在 Step 1 中，两个 goroutine 都接近 channel，但都没有发起一个发送或请求。在 Step 2 中，左边的 goroutine 将它的手伸入 channel 中，这模拟了一个到 channel 的发送。这个时候，这个 goroutine 锁在了 channel 中，等待两个 goroutine 完成交换。在 Step 3 中，右边的 goroutine 伸手进 channel 中，这模拟了 channel 中的一个接收，这个 goroutine 现在所在了 channel 中，等待两个 goroutine 完成交换。Step 4 和 Step 5 执行了交换，最后，在 Step 6 中，两个 goroutine 可以自由地移开它们的双手，这模拟了锁的释放。<br><img src="/images/data-structure/go-6.6.png" alt=""><br>　　<br>　　为了更清晰的阐述，让我们看看两个例子，使用 unbuffered channel 来同步两个 goroutine 之间的数据交换。</p>
+<p>　　在网球比赛中，两个选手将球在彼此间来回打动。两个选手总是处于这两种状态中的一种：等待接收球，或将球打给对方。你可以使用两个 goroutine 来模拟这个比赛，使用 unbuffered channel 来模拟球的交换。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to use an unbuffered</span></div><div class="line"><span class="comment">// channel to simulate a game of tennis between two goroutines.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"math/rand"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line"><span class="keyword">var</span> wg sync.WaitGroup</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</div><div class="line">	rand.Seed(time.Now().UnixNano())</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Create an unbuffered channel.</span></div><div class="line">	court := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Add a count of two, one for each goroutine.</span></div><div class="line">	wg.Add(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Launch two players.</span></div><div class="line">	<span class="keyword">go</span> player(<span class="string">"Nadal"</span>, court)</div><div class="line">	<span class="keyword">go</span> player(<span class="string">"Djokovic"</span>, court)</div><div class="line"></div><div class="line">	<span class="comment">// Start the set.</span></div><div class="line">	court &lt;- <span class="number">1</span></div><div class="line"></div><div class="line">	<span class="comment">// Wait for the game to finish.</span></div><div class="line">	wg.Wait()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// player simulates a person playing the game of tennis.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">player</span><span class="params">(name <span class="keyword">string</span>, court <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// Schedule the call to Done to tell main we are done.</span></div><div class="line">	<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">	<span class="keyword">for</span> &#123;</div><div class="line">		<span class="comment">// Wait for the ball to be hit back to us.</span></div><div class="line">		ball, ok := &lt;-court</div><div class="line">		<span class="keyword">if</span> !ok &#123;</div><div class="line">			<span class="comment">// If the channel was closed we won.</span></div><div class="line">			fmt.Printf(<span class="string">"Player %s Won\n"</span>, name)</div><div class="line">			<span class="keyword">return</span></div><div class="line">		&#125;</div><div class="line"></div><div class="line">		<span class="comment">// Pick a random number and see if we miss the ball.</span></div><div class="line">		n := rand.Intn(<span class="number">100</span>)</div><div class="line">		<span class="keyword">if</span> n%<span class="number">13</span> == <span class="number">0</span> &#123;</div><div class="line">			fmt.Printf(<span class="string">"Player %s Missed\n"</span>, name)</div><div class="line"></div><div class="line">			<span class="comment">// Close the channel to signal we lost.</span></div><div class="line">			<span class="built_in">close</span>(court)</div><div class="line">			<span class="keyword">return</span></div><div class="line">		&#125;</div><div class="line"></div><div class="line">		<span class="comment">// Display and then increment the hit count by one.</span></div><div class="line">		fmt.Printf(<span class="string">"Player %s Hit %d\n"</span>, name, ball)</div><div class="line">		ball++</div><div class="line"></div><div class="line">		<span class="comment">// Hit the ball back to the opposing player.</span></div><div class="line">		court &lt;- ball</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　当你运行程序，得到下面的输出：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Player Djokovic Hit 1</div><div class="line">Player Nadal Hit 2</div><div class="line">Player Djokovic Hit 3</div><div class="line">Player Nadal Missed</div><div class="line">Player Djokovic Won</div></pre></td></tr></table></figure></p>
+<p>　　第 22 行创建 int 类型的 unbuffered channel，用来同步两个 goroutine 之间球的交换。第 28 和 29 行创建了两个用于打比赛的 goroutine，这个时候两个 goroutine 都被锁住，用于等待接收球。第 32 行球发送到 channel 中，这时比赛开始了，直到其中一个 goroutine 关闭比赛才结束。</p>
+<p>　　在 palyer 函数中，可以看到一个无穷的 for 循环，在循环中比赛正在进行中。第 45 行，goroutine 等待从 channel 中接收球。这将锁住 goroutine，直到 channel 执行发送操作。一旦 channel 的接收操作返回，第 46 行将检测 ok 是否为 false，若 ok 为 false，说明 channel 已经关闭并且比赛已经结束。第 53 行到 60 行，生成随机数用于判断 goroutine 是否击中了球，若球被击中，那么第 64 行中球的值将加 1，在 67 行中球将被击回对方选手，这时两个 goroutine 将被锁定直到交换完成。最后，第 58 行中，其中一个 goroutine 将错失球，同时 channel 将关闭。这时两个 goroutine 都将返回，defer 语句中的 Done 方法将被调用，程序终止。</p>
+<hr>
+<p>　　另一个例子使用不同的模式来同步 goroutine，通过 unbuffered channel 来模拟接力赛。在接力赛中，4 个选手轮流绕着跑道跑。第二、第三、第四个选手在接到前一个选手的接力棒之后才能起跑。接力棒的传递是接力赛中重要的一环，并且需要同步。为了这个同步顺利发生，交换接力棒的两个选手需要确切地在同一时间准备好。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to use an unbuffered</span></div><div class="line"><span class="comment">// channel to simulate a relay race between four goroutines.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line"><span class="keyword">var</span> wg sync.WaitGroup</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Create an unbuffered channel.</span></div><div class="line">	baton := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Add a count of one for the last runner.</span></div><div class="line">	wg.Add(<span class="number">1</span>)</div><div class="line"></div><div class="line">	<span class="comment">// First runner to his mark.</span></div><div class="line">	<span class="keyword">go</span> Runner(baton)</div><div class="line"></div><div class="line">	<span class="comment">// Start the race.</span></div><div class="line">	baton &lt;- <span class="number">1</span></div><div class="line"></div><div class="line">	<span class="comment">// Wait for the race to finish.</span></div><div class="line">	wg.Wait()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Runner simulates a person running in the relay race.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Runner</span><span class="params">(baton <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</div><div class="line">	<span class="keyword">var</span> newRunner <span class="keyword">int</span></div><div class="line"></div><div class="line">	<span class="comment">// Wait to receive the baton.</span></div><div class="line">	runner := &lt;-baton</div><div class="line"></div><div class="line">	<span class="comment">// Start running around the track.</span></div><div class="line">	fmt.Printf(<span class="string">"Runner %d Running With Baton\n"</span>, runner)</div><div class="line"></div><div class="line">	<span class="comment">// New runner to the line.</span></div><div class="line">	<span class="keyword">if</span> runner != <span class="number">4</span> &#123;</div><div class="line">		newRunner = runner + <span class="number">1</span></div><div class="line">		fmt.Printf(<span class="string">"Runner %d To The Line\n"</span>, newRunner)</div><div class="line">		<span class="keyword">go</span> Runner(baton)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// Running around the track.</span></div><div class="line">	time.Sleep(<span class="number">100</span> * time.Millisecond)</div><div class="line"></div><div class="line">	<span class="comment">// Is the race over.</span></div><div class="line">	<span class="keyword">if</span> runner == <span class="number">4</span> &#123;</div><div class="line">		fmt.Printf(<span class="string">"Runner %d Finished, Race Over\n"</span>, runner)</div><div class="line">		wg.Done()</div><div class="line">		<span class="keyword">return</span></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// Exchange the baton for the next runner.</span></div><div class="line">	fmt.Printf(<span class="string">"Runner %d Exchange With Runner %d\n"</span>,</div><div class="line">		runner,</div><div class="line">		newRunner)</div><div class="line"></div><div class="line">	baton &lt;- newRunner</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　运行程序，将得到这样的输出：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">Runner 1 Running With Baton</div><div class="line">Runner 2 To The Line</div><div class="line">Runner 1 Exchange With Runner 2</div><div class="line">Runner 2 Running With Baton</div><div class="line">Runner 3 To The Line</div><div class="line">Runner 2 Exchange With Runner 3</div><div class="line">Runner 3 Running With Baton</div><div class="line">Runner 4 To The Line</div><div class="line">Runner 3 Exchange With Runner 4</div><div class="line">Runner 4 Running With Baton</div><div class="line">Runner 4 Finished, Race Over</div></pre></td></tr></table></figure></p>
+<p>　　在 main 函数第 17 行中，创建了 int 类型的 unbuffered channel 用来同步接力棒的交换。第 20 行中，我们为 WaitGroup 增加 1，因此 main 函数能够等待最后一位选手跑完。第 23 行创建 goroutine，表示第一位选手到达跑道的位置，第 26 行接力棒交给了这位选手，比赛开始了。最后，第 29 行，main 函数中 WaitGroup 等待最后一位选手跑完。</p>
+<p>　　在 Runner goroutine 中，你可以看到接力棒是如何从一位选手传递到另一位选手的。第 37 行中，goroutine 通过 channel 用于等待接收接力棒。一旦接收到接力棒，除非 goroutine 代表第 4 位选手，否则第 46 行中下一位选手将到达他的起跑位置。第 50 行选手将用 100 毫秒来跑完跑道。第 55 行如果第 4 位选手跑完，将调用 Done 方法使 WaitGroup 的值将减 1，这时 goroutine 返回。如果 goroutine 不是第 4 位选手，那么第 64 行接力棒将传递给下一位正在等待的选手，此时两个 goroutine 将被锁住直到完成了接力棒的交换。</p>
+<p>　　在上面的两个例子，我们使用 unbuffered channel 来同步 goroutine，用于模拟网球比赛和接力赛。现在你知道了 unbuffered channel 是怎样工作的，接下来将学习 buffered channel 是怎样工作的。</p>
+<h3 id="Buffered-channels"><a href="#Buffered-channels" class="headerlink" title="Buffered channels"></a>Buffered channels</h3><p>　　当一个或多个值被接收之前，buffered channel 有容量去容纳它们。这种类型的 channel 不会强迫两个 goroutine 在同一时间准备好去执行发送和接收操作。发送或接收操作会阻塞的条件也是不同的。如果 channel 中没有值可以接收，那么接收操作就会阻塞。当 channel 中没有足够的缓冲区去放置 goroutine 发送的值，这时发送操作才会阻塞。这导致了 unbuffered 和 buffered channel 之间的较大差异：unbuffered channel 保证了当发送和接收操作发生的同一时间，两个 goroutine 将会进行数据交换，而 buffered channel 则不会这样保证。</p>
+<p>　　从图 6.7 可以看到，两个 goroutine 各自从 buffered channel 中增加和删除值。Step 1 中，右边的 goroutine 正从 channel 中接收值。在 Step 2 中，右边的 goroutine 能够完成接收操作，左边的 goroutine 发送新的值到 channel 中，这两个操作互相独立。Step 3 中，左边的 goroutine 正发送新的值到 channel 中，右边的 goroutine 正接收不同的值，这两个操作之间并不是同步的，也不会阻塞。最后，在 Step 4 中，所有发送和接收操作都完成了，channel 中拥有几个值，还有空间容纳更多的值。<br><img src="/images/data-structure/go6.7.png" alt=""><br>　　下面的例子使用 buffered channel 来管理一系列 goroutine，用于接收和处理任务。buffered channel 提供了一种间接和直观的方式来实现程序代码。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// This sample program demonstrates how to use a buffered</span></div><div class="line"><span class="comment">// channel to work on multiple tasks with a predefined number</span></div><div class="line"><span class="comment">// of goroutines.</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"math/rand"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">const</span> (</div><div class="line">	numberGoroutines = <span class="number">4</span>  <span class="comment">// Number of goroutines to use.</span></div><div class="line">	taskLoad         = <span class="number">10</span> <span class="comment">// Amount of work to process.</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="comment">// wg is used to wait for the program to finish.</span></div><div class="line"><span class="keyword">var</span> wg sync.WaitGroup</div><div class="line"></div><div class="line"><span class="comment">// init is called to initialize the package by the</span></div><div class="line"><span class="comment">// Go runtime prior to any other code being executed.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Seed the random number generator.</span></div><div class="line">	rand.Seed(time.Now().Unix())</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// main is the entry point for all Go programs.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Create a buffered channel to manage the task load.</span></div><div class="line">	tasks := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>, taskLoad)</div><div class="line"></div><div class="line">	<span class="comment">// Launch goroutines to handle the work.</span></div><div class="line">	wg.Add(numberGoroutines)</div><div class="line">	<span class="keyword">for</span> gr := <span class="number">1</span>; gr &lt;= numberGoroutines; gr++ &#123;</div><div class="line">		<span class="keyword">go</span> worker(tasks, gr)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// Add a bunch of work to get done.</span></div><div class="line">	<span class="keyword">for</span> post := <span class="number">1</span>; post &lt;= taskLoad; post++ &#123;</div><div class="line">		tasks &lt;- fmt.Sprintf(<span class="string">"Task : %d"</span>, post)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// Close the channel so the goroutines will quit</span></div><div class="line">	<span class="comment">// when all the work is done.</span></div><div class="line">	<span class="built_in">close</span>(tasks)</div><div class="line"></div><div class="line">	<span class="comment">// Wait for all the work to get done.</span></div><div class="line">	wg.Wait()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// worker is launched as a goroutine to process work from</span></div><div class="line"><span class="comment">// the buffered channel.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(tasks <span class="keyword">chan</span> <span class="keyword">string</span>, worker <span class="keyword">int</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// Report that we just returned.</span></div><div class="line">	<span class="keyword">defer</span> wg.Done()</div><div class="line"></div><div class="line">	<span class="keyword">for</span> &#123;</div><div class="line">		<span class="comment">// Wait for work to be assigned.</span></div><div class="line">		task, ok := &lt;-tasks</div><div class="line">		<span class="keyword">if</span> !ok &#123;</div><div class="line">			<span class="comment">// This means the channel is empty and closed.</span></div><div class="line">			fmt.Printf(<span class="string">"Worker: %d : Shutting Down\n"</span>, worker)</div><div class="line">			<span class="keyword">return</span></div><div class="line">		&#125;</div><div class="line"></div><div class="line">		<span class="comment">// Display we are starting the work.</span></div><div class="line">		fmt.Printf(<span class="string">"Worker: %d : Started %s\n"</span>, worker, task)</div><div class="line"></div><div class="line">		<span class="comment">// Randomly wait to simulate work time.</span></div><div class="line">		sleep := rand.Int63n(<span class="number">100</span>)</div><div class="line">		time.Sleep(time.Duration(sleep) * time.Millisecond)</div><div class="line"></div><div class="line">		<span class="comment">// Display we finished the work.</span></div><div class="line">		fmt.Printf(<span class="string">"Worker: %d : Completed %s\n"</span>, worker, task)</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　运行程序，将得到这样的输出。<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">Worker: 1 : Started Task : 1</div><div class="line">Worker: 2 : Started Task : 3</div><div class="line">Worker: 3 : Started Task : 4</div><div class="line">Worker: 4 : Started Task : 2</div><div class="line">Worker: 1 : Completed Task : 1</div><div class="line">Worker: 1 : Started Task : 5</div><div class="line">Worker: 4 : Completed Task : 2</div><div class="line">Worker: 4 : Started Task : 6</div><div class="line">Worker: 1 : Completed Task : 5</div><div class="line">Worker: 1 : Started Task : 7</div><div class="line">Worker: 1 : Completed Task : 7</div><div class="line">Worker: 1 : Started Task : 8</div><div class="line">Worker: 3 : Completed Task : 4</div><div class="line">Worker: 3 : Started Task : 9</div><div class="line">Worker: 2 : Completed Task : 3</div><div class="line">Worker: 2 : Started Task : 10</div><div class="line">Worker: 4 : Completed Task : 6</div><div class="line">Worker: 4 : Shutting Down</div><div class="line">Worker: 2 : Completed Task : 10</div><div class="line">Worker: 2 : Shutting Down</div><div class="line">Worker: 1 : Completed Task : 8</div><div class="line">Worker: 1 : Shutting Down</div><div class="line">Worker: 3 : Completed Task : 9</div><div class="line">Worker: 3 : Shutting Down</div></pre></td></tr></table></figure></p>
+<p>　　由于程序的随机性和 Go 的调度器，每次运行时程序的输出都会不同的。但使用 4 个 goroutine 来处理 buffered channel 中的任务则是不变的。你可以从输出中观察到goroutine是怎样接收 channel 分配的任务的。</p>
+<p>　　第 31 行创建了 string 类型的 buffered channel，其容量为 10。第 34 行给定 WaitGroup 数值为 4，对应于将要创建的 4 个goroutine。第 35 到 37 行，创建了 4 个goroutine，并且传递 channel 给它们，用于从中接收任务。第 40 行到 42 行，10 个字符串被发送到 channel 中，用于模拟 goroutine 将接收的任务。一旦最后一个字符串发送到 channel 中，第 46 行将会关闭 channel，第 49 行 main 函数将会等待所有的工作完成。</p>
+<p>　　第 46 行关闭 channel 是至关重要的，当 channel 关闭时，goroutine仍然能从 channel 中接收，但却不能发送给 channel。能够从已关闭的 channel 中接收是很重要的，因为这样允许在以后的接收中，channel 能够清空它的所有值，所以 channel 中不会丢失任何值。从已经关闭和空的 channel 中执行接收总会立即返回，并提供一个零值，其类型是这个 channel 声明的类型。从 channel 中接收，若你还要可选的标志，那么你能通过这个标志得到 channel 的状态信息。</p>
+<p>　　在 worker 函数的 for 循环中，所有接收的任务都将被处理。第 60 行，每个 goroutine 将阻塞，等待从 channel 中接收任务。一旦接收返回，ok 标志将用来检测 channel 是否已经关闭并且是空的。若 ok 为 false，则 goroutine 将终止，这将导致 56 行中的 defer 语句调用 Done 方法。</p>
+<p>　　若 ok 标志是 true，那么接收到的值是合法的。第 71 和 72 行模拟了处理任务的场景，一旦任务完成了，第 60 行 goroutine 将再次阻塞，等待从 channel 中接收。一旦 channel 关闭并且是空的，从 channel 中接收将立即返回并且 goroutine 将终止其自身。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Go/" rel="tag">#Go</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/05/Python并发/" rel="next" title="【翻译】Effective Python：并发与并行">
+                <i class="fa fa-chevron-left"></i> 【翻译】Effective Python：并发与并行
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/20/go类型系统/" rel="prev" title="Go语言：类型系统">
+                Go语言：类型系统 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#并发-VS-并行"><span class="nav-number">1.</span> <span class="nav-text">并发 VS 并行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#协程"><span class="nav-number">2.</span> <span class="nav-text">协程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#竞争条件"><span class="nav-number">3.</span> <span class="nav-text">竞争条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为共享资源上锁"><span class="nav-number">4.</span> <span class="nav-text">为共享资源上锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#原子函数"><span class="nav-number">4.1.</span> <span class="nav-text">原子函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#互斥量"><span class="nav-number">4.2.</span> <span class="nav-text">互斥量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Channels"><span class="nav-number">5.</span> <span class="nav-text">Channels</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Unbuffered-channels"><span class="nav-number">5.1.</span> <span class="nav-text">Unbuffered channels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Buffered-channels"><span class="nav-number">5.2.</span> <span class="nav-text">Buffered channels</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

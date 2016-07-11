@@ -1,0 +1,624 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,algorithm,STL," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="优先队列　　在自制 STL – 堆算法里面，我们实现了与堆相关的算法。实际上，优先队列priority_queue使用vector作为底层容器，这样，我们可以使用堆算法，将vector构建成二叉堆，作为优先队列的底层数据结构。　　在优先队列中，最大的节点位于其的头部，而最小的节点位于其尾部，每次调用成员函数pop()会将最大的节点从头部移出，而成员函数push()则可以往优先队列中增加新的节点，并">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自制 STL -- 优先队列">
+<meta property="og:url" content="http://yoursite.com/2015/02/10/自制STL之优先队列/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="优先队列　　在自制 STL – 堆算法里面，我们实现了与堆相关的算法。实际上，优先队列priority_queue使用vector作为底层容器，这样，我们可以使用堆算法，将vector构建成二叉堆，作为优先队列的底层数据结构。　　在优先队列中，最大的节点位于其的头部，而最小的节点位于其尾部，每次调用成员函数pop()会将最大的节点从头部移出，而成员函数push()则可以往优先队列中增加新的节点，并">
+<meta property="og:updated_time" content="2015-02-18T06:46:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自制 STL -- 优先队列">
+<meta name="twitter:description" content="优先队列　　在自制 STL – 堆算法里面，我们实现了与堆相关的算法。实际上，优先队列priority_queue使用vector作为底层容器，这样，我们可以使用堆算法，将vector构建成二叉堆，作为优先队列的底层数据结构。　　在优先队列中，最大的节点位于其的头部，而最小的节点位于其尾部，每次调用成员函数pop()会将最大的节点从头部移出，而成员函数push()则可以往优先队列中增加新的节点，并">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/02/10/自制STL之优先队列/"/>
+
+  <title> 自制 STL -- 优先队列 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自制 STL -- 优先队列
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-10T15:37:14+08:00" content="2015-02-10">
+              2015-02-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/自制STL/" itemprop="url" rel="index">
+                    <span itemprop="name">自制STL</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="优先队列"><a href="#优先队列" class="headerlink" title="优先队列"></a>优先队列</h2><p>　　在<a href="http://senlinzhan.github.io/2015/02/09/%E8%87%AA%E5%88%B6STL%E4%B9%8B%E5%A0%86%E7%AE%97%E6%B3%95/" target="_blank" rel="external">自制 STL – 堆算法</a>里面，我们实现了与堆相关的算法。实际上，优先队列<code>priority_queue</code>使用<code>vector</code>作为底层容器，这样，我们可以使用堆算法，将<code>vector</code>构建成二叉堆，作为优先队列的底层数据结构。<br>　　在优先队列中，最大的节点位于其的头部，而最小的节点位于其尾部，每次调用成员函数<code>pop()</code>会将最大的节点从头部移出，而成员函数<code>push()</code>则可以往优先队列中增加新的节点，并将节点移动到合适的位置。<br>　　例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"priority_queue.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;random&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::uniform_int_distribution&lt;<span class="keyword">unsigned</span>&gt; u&#123; <span class="number">1</span>, <span class="number">1000</span> &#125;; </div><div class="line">    <span class="built_in">std</span>::default_random_engine e; </div><div class="line">    mystl::priority_queue&lt;<span class="keyword">unsigned</span>&gt; pq;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; ++i ) &#123;</div><div class="line">        pq.push( u( e ) );</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">while</span>( !pq.empty() ) &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; pq.top() &lt;&lt; <span class="string">" "</span>;</div><div class="line">        pq.pop();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">// 935 831 756 680 679 672 533 530 520 459 384 384 219 132 67 54 48 35 8 1</span></div></pre></td></tr></table></figure></p>
+<p>　　可以看到，在优先队列中，元素按从大到小的顺序出列。<code>priority_queue</code>中的元素是按照特定次序排列的，为了维持这种次序，<code>priority_queue</code>并不提供迭代器，也就是说用户无法使用迭代器来修改优先队列中的元素，因为修改元素将会破坏优先队列的内部结构。</p>
+<h2 id="内部实现"><a href="#内部实现" class="headerlink" title="内部实现"></a>内部实现</h2><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div></pre></td><td class="code"><pre><div class="line">// priority_queue.hpp</div><div class="line">#ifndef _PRIORITY_QUEUE_H_</div><div class="line">#define _PRIORITY_QUEUE_H_</div><div class="line"></div><div class="line">#include "algorithm.hpp"</div><div class="line">#include "vector.hpp"</div><div class="line"></div><div class="line">namespace mystl &#123;</div><div class="line"></div><div class="line">template &lt;typename T, typename Container = mystl::vector&lt;T&gt;, </div><div class="line">          typename Comp = std::less&lt;typename Container::value_type&gt;&gt;</div><div class="line">class priority_queue</div><div class="line">&#123;</div><div class="line">public:</div><div class="line">    using container_type = Container;</div><div class="line">    using value_type = typename Container::value_type;</div><div class="line">    using reference = typename Container::reference;</div><div class="line">    using const_reference = typename Container::const_reference;</div><div class="line">    using size_type = typename Container::size_type;</div><div class="line"></div><div class="line">protected:</div><div class="line">    Comp comp_;                                     // 比较器</div><div class="line">    Container container_;                           // 底层容器</div><div class="line"></div><div class="line">public:</div><div class="line">    explicit priority_queue( const Comp &amp;comp = Comp&#123;&#125;, const Container &amp;c = Container&#123;&#125; )</div><div class="line">        : comp_( comp ), container_( c ) &#123;</div><div class="line">        mystl::make_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    explicit priority_queue( const Comp &amp;comp, Container &amp;&amp;container ) </div><div class="line">        : comp_( comp ), container_( std::move( container ) ) &#123;</div><div class="line">        mystl::make_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    template &lt;typename InputIterator&gt;</div><div class="line">    priority_queue( InputIterator beg, InputIterator end, </div><div class="line">                    const Comp &amp;comp = Comp(), const Container &amp;container = Container() )</div><div class="line">        : comp_( comp ), container_( container ) &#123;</div><div class="line">        container_.insert( container_.end(), beg, end );</div><div class="line">        mystl::make_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    template &lt;typename InputIterator&gt;</div><div class="line">    priority_queue( InputIterator beg, InputIterator end, </div><div class="line">                    const Comp &amp;comp, Container &amp;&amp;container )</div><div class="line">        : comp_( comp ), container_( std::move( container ) ) &#123;</div><div class="line">        container_.insert( container_.end(), beg, end );</div><div class="line">        mystl::make_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    bool empty() const &#123;</div><div class="line">        return container_.empty();</div><div class="line">    &#125;</div><div class="line">    size_type size() const &#123;</div><div class="line">        return container_.size();</div><div class="line">    &#125;</div><div class="line">    const_reference top() const &#123;</div><div class="line">        return container_.front();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    /*   </div><div class="line">        priority_queue 并不允许用户修改元素，因此，不提供成员函数 reference top();</div><div class="line">    */</div><div class="line"></div><div class="line">    void pop() &#123;</div><div class="line">        mystl::pop_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">        container_.pop_back();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    void push( const value_type &amp;elem ) &#123;</div><div class="line">        container_.push_back( elem );</div><div class="line">        mystl::push_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">    &#125;</div><div class="line">    void push( value_type &amp;&amp;elem ) &#123;</div><div class="line">        container_.push_back( std::move( elem ) );</div><div class="line">        mystl::push_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    template &lt;typename... Args&gt;</div><div class="line">    void emplace( Args&amp;&amp;... args ) &#123;</div><div class="line">        container_.emplace_back( std::forward&lt;Args&gt;( args )... );</div><div class="line">        mystl::push_heap( container_.begin(), container_.end(), comp_ );</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    void swap( priority_queue &amp;other ) </div><div class="line">        noexcept( noexcept( swap( container_, other.container_ ) ) &amp;&amp;</div><div class="line">                  noexcept( swap( comp_, other.comp_ ) ) ) &#123;</div><div class="line">        using std::swap;</div><div class="line">        swap( container_, other.container_ );</div><div class="line">        swap( comp_, other.comp_ );</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">template &lt;typename T, typename Container, typename Comp&gt;</div><div class="line">void swap( priority_queue&lt;T, Container, Comp&gt; &amp;x, priority_queue&lt;T, Container, Comp&gt; &amp;y )</div><div class="line">    noexcept( noexcept( x.swap( y ) ) ) &#123;</div><div class="line">    x.swap( y );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    // namespace mystl</div><div class="line"></div><div class="line">#endif /* _PRIORITY_QUEUE_H_ */</div></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/algorithm/" rel="tag">#algorithm</a>
+          
+            <a href="/tags/STL/" rel="tag">#STL</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/02/09/自制STL之堆算法/" rel="next" title="自制 STL -- 堆算法">
+                <i class="fa fa-chevron-left"></i> 自制 STL -- 堆算法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/02/13/自制STL之集合算法/" rel="prev" title="自制 STL -- 集合算法">
+                自制 STL -- 集合算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#优先队列"><span class="nav-number">1.</span> <span class="nav-text">优先队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内部实现"><span class="nav-number">2.</span> <span class="nav-text">内部实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

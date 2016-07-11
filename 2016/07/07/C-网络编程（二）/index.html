@@ -1,0 +1,620 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="title: Boost.Asio C++ 网络编程（二）date: 2014-11-15 19:06:37tags: [C++11,network]
+categories: 网络编程网络编程　　Asio库支持异步的数据处理，主要用于网络编程中。在网络连接中，数据的传输通常需要花费较长的时间，为了提高程序的高效性，我们并不想程序在传输数据时处于阻塞状态，这时，就需要异步地处理网络数据，这就使得在网">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://yoursite.com/2016/07/07/C-网络编程（二）/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="title: Boost.Asio C++ 网络编程（二）date: 2014-11-15 19:06:37tags: [C++11,network]
+categories: 网络编程网络编程　　Asio库支持异步的数据处理，主要用于网络编程中。在网络连接中，数据的传输通常需要花费较长的时间，为了提高程序的高效性，我们并不想程序在传输数据时处于阻塞状态，这时，就需要异步地处理网络数据，这就使得在网">
+<meta property="og:updated_time" content="2015-08-21T15:39:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hexo">
+<meta name="twitter:description" content="title: Boost.Asio C++ 网络编程（二）date: 2014-11-15 19:06:37tags: [C++11,network]
+categories: 网络编程网络编程　　Asio库支持异步的数据处理，主要用于网络编程中。在网络连接中，数据的传输通常需要花费较长的时间，为了提高程序的高效性，我们并不想程序在传输数据时处于阻塞状态，这时，就需要异步地处理网络数据，这就使得在网">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/07/07/C-网络编程（二）/"/>
+
+  <title>  | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-07T16:21:35+08:00" content="2016-07-07">
+              2016-07-07
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>title: Boost.Asio C++ 网络编程（二）<br>date: 2014-11-15 19:06:37<br>tags: [C++11,network]</p>
+<h2 id="categories-网络编程"><a href="#categories-网络编程" class="headerlink" title="categories: 网络编程"></a>categories: 网络编程</h2><h2 id="网络编程"><a href="#网络编程" class="headerlink" title="网络编程"></a><strong>网络编程</strong></h2><p>　　Asio库支持异步的数据处理，主要用于网络编程中。在网络连接中，数据的传输通常需要花费较长的时间，为了提高程序的高效性，我们并不想程序在传输数据时处于阻塞状态，这时，就需要异步地处理网络数据，这就使得在网络数据的传输过程中，程序可以执行其它的任务而不会处于阻塞状态。</p>
+<h2 id="TCP网络客户端"><a href="#TCP网络客户端" class="headerlink" title="TCP网络客户端"></a><strong>TCP网络客户端</strong></h2><p>　　当计算机需要与远程服务器建立起连接时，这时就需要使用<code>boost::asio::ip::tcp::socket</code>来建立连接，通常，客户端与服务器建立连接的过程包括： </p>
+<ul>
+<li>客户端需要对服务器的域名进行解析，以得到服务器的地址。</li>
+<li>客户端通过服务器的地址与服务器建立连接。</li>
+<li>客户端向服务器发送请求。</li>
+<li>服务器向客户端发送数据。</li>
+<li>客户端读取数据。</li>
+<li>客户端向服务器发送请求。</li>
+<li>……</li>
+<li>客户端关闭连接。</li>
+</ul>
+<p>　　<strong>程序执行的任务通常时异步的</strong>，例如，异步地解析域名、异步地建立连接、异步地读取数据，由于这些任务是异步的，因此，需要为异步任务指定相应的回调函数，这使得<strong>当异步任务执行结束时程序将调用相应的回调函数</strong>。</p>
+<p>　　<strong>使用以下程序来下载指定网址的网页：</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/write.hpp&gt;</div><div class="line">#include &lt;boost/asio/buffer.hpp&gt;</div><div class="line">#include &lt;boost/asio/ip/tcp.hpp&gt;</div><div class="line">#include &lt;array&gt;</div><div class="line">#include &lt;string&gt;</div><div class="line">#include &lt;iostream&gt;</div><div class="line"></div><div class="line">using namespace boost::asio;</div><div class="line">using namespace boost::asio::ip;</div><div class="line"></div><div class="line">io_service ioservice;</div><div class="line">tcp::resolver resolver&#123; ioservice &#125;;</div><div class="line">tcp::socket tcp_socket&#123; ioservice &#125;;</div><div class="line">std::array&lt;char, 4096&gt; bytes;</div><div class="line"></div><div class="line">// 当客户端读取到服务器传来的部分数据时，将调用 read_handler()</div><div class="line">void read_handler( const boost::system::error_code &amp;ec, std::size_t bytes_transferred ) &#123;</div><div class="line">    if( !ec ) &#123;</div><div class="line">        std::cout.write( bytes.data(), bytes_transferred );            // 向控制台写入读取到的数据</div><div class="line">        tcp_socket.async_read_some( buffer( bytes ), read_handler );   // 继续读取剩下的数据</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// 当与服务器建立连接之后，将调用 connect_handler()</div><div class="line">void connect_handler( const boost::system::error_code &amp;ec ) &#123;</div><div class="line">    if( !ec ) &#123;</div><div class="line">        std::string request = &quot;GET / HTTP/1.1\r\nHost: www.baidu.com\r\n\r\n&quot;;</div><div class="line">        write( tcp_socket, buffer( request ) );                           // 向服务端发出请求</div><div class="line">        tcp_socket.async_read_some( buffer( bytes ), read_handler );      // 读取服务器传来的部分数据</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// 当域名解析结束时，将调用 resolve_handler()</div><div class="line">void resolve_handler( const boost::system::error_code &amp;ec, tcp::resolver::iterator it ) &#123;</div><div class="line">   if( !ec ) &#123;</div><div class="line">       tcp_socket.async_connect( *it, connect_handler );    // 与服务器建立连接</div><div class="line">   &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    tcp::resolver::query query&#123; &quot;www.baidu.com&quot;, &quot;80&quot; &#125;;</div><div class="line">    resolver.async_resolve( query, resolve_handler );    // 域名解析</div><div class="line">    ioservice.run();</div><div class="line"></div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　首先，程序需要使用<code>tcp::resolver</code>的成员函数<code>async_resolve()</code>来异步地对域名进行解析，当域名解析结束时，程序将调用回调函数<code>resolve_handler()</code>，其<code>tcp::resolver::iterator</code>类型的参数用來表示解析所得到的地址，同时，<code>tcp::socket</code>需要用到<code>tcp::resolver::iterator</code>来与远程服务器建立连接，当连接建立完成时，程序将调用<code>connect_handler()</code>回调函数。</p>
+<p>　　在<code>connect_handler()</code>中，程序需要通过<code>tcp::socket</code>来向服务器发送<code>HTTP</code>请求，同时，<code>tcp::socket</code>将调用<code>async_read_some()</code>成员函数来读取从服务器发送来的部分数据，这些数据将存储在<code>std::array</code>类型的全局变量<code>bytes</code>中。当程序读取到从服务器传输的部分数据时，将调用<code>read_handler()</code>回调函数，其<code>std::size_t</code>类型的参数<code>bytes_transferred</code>用来表示接受到的数据的字节数。</p>
+<p>　　在<code>read_handler()</code>中，程序将向控制台写入所读取到的数据。由于<code>async_read_some()</code>读取到的仅是服务器传送来的部分数据，因此，在<code>read_handler()</code>中需要继续调用<code>tcp::socket</code>的<code>async_read_some()</code>成员函数来反复地读取剩下的数据，直到所有数据都被读取，这时，<code>read_handler()</code> 的参数<code>ec</code>将被设置为非<code>0</code>值，<code>read_handler()</code>将退出。 </p>
+<h2 id="TCP网络服务端"><a href="#TCP网络服务端" class="headerlink" title="TCP网络服务端"></a><strong>TCP网络服务端</strong></h2><p>　　服务端在启动时会对主机的指定端口进行监听，等待客户端的连接。一旦收到客户端的连接请求，服务端会根据客户端发送来的请求命令向客户端发送相对应的数据，当数据发送结束时，服务端需要断开与客户端的连接。</p>
+<p>　　以下是简单时间服务器，程序需要使用<code>tcp::acceptor</code>来接受客户端发送来的连接请求，此时，程序需要使用<code>tcp::endpoint</code>来指明使用的<code>IP</code>协议的版本以及需要监听的端口号，只有在确定了使用的<code>IP</code>协议的版本以及相应的端口号之后，程序才能使用<code>tcp::acceptor</code>来监听客户端的连接请求，因此，在创建<code>tcp::acceptor</code>对象时需要使用<code>tcp::endpoint</code>作为其构造函数的参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/write.hpp&gt;</div><div class="line">#include &lt;boost/asio/buffer.hpp&gt;</div><div class="line">#include &lt;boost/asio/ip/tcp.hpp&gt;</div><div class="line">#include &lt;string&gt;</div><div class="line">#include &lt;ctime&gt;</div><div class="line"></div><div class="line">using namespace boost::asio;</div><div class="line">using namespace boost::asio::ip;</div><div class="line"></div><div class="line">io_service ioservice;</div><div class="line">tcp::socket tcp_socket&#123; ioservice &#125;;</div><div class="line">tcp::endpoint tcp_endpoint&#123; tcp::v4(), 1234 &#125;;           // 使用IPv4协议，端口号为1234</div><div class="line">tcp::acceptor tcp_acceptor&#123; ioservice, tcp_endpoint &#125;;   </div><div class="line">std::string data;</div><div class="line"></div><div class="line">// 当服务端向客户端传送数据结束时，将调用 write_handler()</div><div class="line">void write_handler( const boost::system::error_code &amp;ec, std::size_t bytes_transferred ) &#123;</div><div class="line">    if( !ec ) &#123;</div><div class="line">        tcp_socket.shutdown( tcp::socket::shutdown_send );   // 数据发送结束，连接将会断开</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// 当服务端接受到客户端的连接请求时，将调用 accept_handler()</div><div class="line">void accept_handler( const boost::system::error_code &amp;ec ) &#123;</div><div class="line">    if( !ec  ) &#123;</div><div class="line">        std::time_t now = std::time( nullptr );</div><div class="line">        data = std::ctime( &amp;now );</div><div class="line">        async_write( tcp_socket, buffer( data ), write_handler );  // 向客户端传送数据</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    tcp_acceptor.listen();                                     // 开始对指定的端口进行监听</div><div class="line">    tcp_acceptor.async_accept( tcp_socket, accept_handler );   // 接受客户端的连接</div><div class="line">    ioservice.run();</div><div class="line"></div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>　　通过调用<code>tcp::acceptor</code>的成员函数<code>listen()</code>来启动监听，此外，调用<code>async_accept()</code>来接受第一个客户端的连接请求，当连接建立时，程序将调用<code>accept_handler()</code>回调函数。 在<code>accept_handler()</code>回调函数中，程序使用<code>boost::asio::async_write()</code>将<code>data</code>中的所有数据写入到<code>tcp_socket</code>中，数据将会传送给客户端。<br>　　<br>　　需要注意的是，<code>boost::asio::async_write()</code>是异步操作，因此，在<code>accept_handler()</code>函数退出之后，<code>boost::asio::async_write()</code>执行的异步写入操作可能还未完成，并且<code>buffer()</code>会将<code>data</code>作为引用传递给<code>boost::asio::async_write()</code>，因此，<code>data</code>应当是全局变量而不能是局部变量，这保证了在异步写入操作执行的过程中<code>data</code>中的数据将一直有效。</p>
+<p>　　当数据传送完毕时，服务端需要调用<code>tcp::socket</code>的<code>shutdown()</code>成员函数来关闭与客户端的连接。<br>　　<br>　　<code>tcp::socket</code>提供了成员函数<code>async_write_some()</code>用来向客户端写入部分数据，一旦至少有一个字节的数据传送给客户端时，相应的回调函数就会被调用，这时，程序为了将数据全部发送出去，需要反复多次调用<code>async_write_some()</code>。与此不同，<code>boost::asio::async_write()</code>则会等到所有的数据都传送结束时才会调用相应的回调函数。</p>
+<p>　　以下程序使用<code>tcp_server</code>类表示一个时间服务端，这个程序可以依次处理多个客户端的连接：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt; </div><div class="line">#include &lt;boost/asio/write.hpp&gt; </div><div class="line">#include &lt;boost/asio/buffer.hpp&gt; </div><div class="line">#include &lt;boost/asio/ip/tcp.hpp&gt;</div><div class="line">#include &lt;ctime&gt;</div><div class="line">#include &lt;string&gt;</div><div class="line">#include &lt;functional&gt;</div><div class="line">#include &lt;memory&gt;</div><div class="line"></div><div class="line">using boost::asio::ip::tcp;</div><div class="line"></div><div class="line">class tcp_server</div><div class="line">&#123;</div><div class="line">public:</div><div class="line">    tcp_server( boost::asio::io_service&amp; ioservice )</div><div class="line">        : acceptor_&#123; ioservice, tcp::endpoint&#123; tcp::v4(), 13 &#125; &#125;    // 监听端口为 13</div><div class="line">        &#123;</div><div class="line">            start_accept();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">private:</div><div class="line">    void start_accept() &#123;</div><div class="line">        std::shared_ptr&lt;tcp::socket&gt; socket_ptr = </div><div class="line">            std::make_shared&lt;tcp::socket&gt;( acceptor_.get_io_service() );</div><div class="line">        acceptor_.async_accept( *socket_ptr, std::bind( &amp;tcp_server::handle_accept, this, </div><div class="line">                                                        socket_ptr, std::placeholders::_1 ) );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    void handle_accept( std::shared_ptr&lt;tcp::socket&gt; socket_ptr, </div><div class="line">                        const boost::system::error_code &amp;error ) &#123;</div><div class="line">        if( !error ) &#123;</div><div class="line">            std::time_t now = std::time( nullptr );</div><div class="line">            message_ = std::ctime( &amp;now );</div><div class="line">            boost::asio::async_write( *socket_ptr, boost::asio::buffer( message_ ),</div><div class="line">                                      std::bind( &amp;tcp_server::handle_write, this, socket_ptr,</div><div class="line">                                                 std::placeholders::_1, </div><div class="line">                                                 std::placeholders::_2 ) );</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        start_accept();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    void handle_write( std::shared_ptr&lt;tcp::socket&gt; socket_ptr,</div><div class="line">                       const boost::system::error_code &amp;ec, </div><div class="line">                       size_t /*bytes_transferred*/ ) &#123;</div><div class="line">        if( !ec ) &#123;</div><div class="line">            socket_ptr-&gt;shutdown( tcp::socket::shutdown_send );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    tcp::acceptor acceptor_;</div><div class="line">    std::string message_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    try &#123;</div><div class="line">        boost::asio::io_service ioservice;</div><div class="line">        tcp_server server&#123; ioservice &#125;;</div><div class="line">        ioservice.run();</div><div class="line">    &#125; catch( std::exception &amp;e ) &#123;</div><div class="line">        std::cerr &lt;&lt; e.what() &lt;&lt; std::endl;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio.html" target="_blank" rel="external">Boost.Asio</a></li>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/29/Linux网络配置/" rel="next" title="Linux 系统：网络配置">
+                <i class="fa fa-chevron-left"></i> Linux 系统：网络配置
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/07/07/二叉搜索树/" rel="prev" title="">
+                 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#categories-网络编程"><span class="nav-number">1.</span> <span class="nav-text">categories: 网络编程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络编程"><span class="nav-number">2.</span> <span class="nav-text">网络编程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP网络客户端"><span class="nav-number">3.</span> <span class="nav-text">TCP网络客户端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP网络服务端"><span class="nav-number">4.</span> <span class="nav-text">TCP网络服务端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

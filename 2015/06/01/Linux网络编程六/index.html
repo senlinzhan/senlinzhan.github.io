@@ -1,0 +1,709 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="network,Linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="TCP Segment 格式　　首先，让我们了解 TCP segement 的格式：
+
+
+
+　　注意到，TCP segment 不包含 IP 地址，但包含源端口号和目的端口号。TCP 字节流中每个字节都有一个序号，序号用来表示字节在字节流中的位置，Sequence number 则是这个 segment 中数据的第一个字节的序号。既然每个 segment 都有一个序号，那么接收端就可以根据 seg">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 网络编程（一）-- 理解 TCP 协议">
+<meta property="og:url" content="http://yoursite.com/2015/06/01/Linux网络编程六/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="TCP Segment 格式　　首先，让我们了解 TCP segement 的格式：
+
+
+
+　　注意到，TCP segment 不包含 IP 地址，但包含源端口号和目的端口号。TCP 字节流中每个字节都有一个序号，序号用来表示字节在字节流中的位置，Sequence number 则是这个 segment 中数据的第一个字节的序号。既然每个 segment 都有一个序号，那么接收端就可以根据 seg">
+<meta property="og:image" content="http://yoursite.com/images/linux/tcp.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/tcp1.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/tcp2.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/tcp4.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/tcp5.png">
+<meta property="og:updated_time" content="2015-08-26T07:52:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 网络编程（一）-- 理解 TCP 协议">
+<meta name="twitter:description" content="TCP Segment 格式　　首先，让我们了解 TCP segement 的格式：
+
+
+
+　　注意到，TCP segment 不包含 IP 地址，但包含源端口号和目的端口号。TCP 字节流中每个字节都有一个序号，序号用来表示字节在字节流中的位置，Sequence number 则是这个 segment 中数据的第一个字节的序号。既然每个 segment 都有一个序号，那么接收端就可以根据 seg">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/tcp.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/06/01/Linux网络编程六/"/>
+
+  <title> Linux 网络编程（一）-- 理解 TCP 协议 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 网络编程（一）-- 理解 TCP 协议
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-06-01T20:41:15+08:00" content="2015-06-01">
+              2015-06-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="TCP-Segment-格式"><a href="#TCP-Segment-格式" class="headerlink" title="TCP Segment 格式"></a>TCP Segment 格式</h2><p>　　首先，让我们了解 TCP segement 的格式：</p>
+<blockquote>
+<p><img src="/images/linux/tcp.png" alt=""></p>
+</blockquote>
+<p>　　注意到，TCP segment 不包含 IP 地址，但包含源端口号和目的端口号。TCP 字节流中每个字节都有一个序号，序号用来表示字节在字节流中的位置，Sequence number 则是这个 segment 中数据的第一个字节的序号。既然每个 segment 都有一个序号，那么接收端就可以根据 segment 的序号对这些 segment 进行重新组合。</p>
+<p>　　Acknowledgement Number 即 ACK，用来确认收到 segment，当接收端收到一个 segment 之后，会返回一个 ACK，其值为接收到的 segment 最后一个字节的序号加一。</p>
+<p>　　Window size 为窗口大小，也即 Advertised window，当接收端发送 ACK 时，Window size 就表示接收端的缓冲区还有多少空间用来接收数据，从而确保发送端发送的数据不会使接收端的缓冲区溢出。</p>
+<h2 id="TCP-连接建立"><a href="#TCP-连接建立" class="headerlink" title="TCP 连接建立"></a>TCP 连接建立</h2><p>　　TCP 建立连接时，通信双方需要向对方交换自己的初始序号，即 ISN (Inital Sequence Number)，这个过程被形象地称为三次握手：</p>
+<ul>
+<li>Client 调用<code>connect()</code>主动建立连接，Client 会选择一个特定的序号作为初始序号，并发送一个 SYN segment 给 Server，目的是将 ISN 发送给 Server。</li>
+<li>接收到 Client 的 SYN segement 之后，Server 会将 ACK 连同自身的 ISN 作为一个 SYN segment 发送给 Client。</li>
+<li>Client 发送 ACK segment 给 Server。</li>
+</ul>
+<blockquote>
+<p><img src="/images/linux/tcp1.png" alt=""></p>
+</blockquote>
+<h2 id="TCP-连接的终止"><a href="#TCP-连接的终止" class="headerlink" title="TCP 连接的终止"></a>TCP 连接的终止</h2><p>　　Client 会调用<code>close()</code>请求主动关闭连接。我们知道，TCP 连接是全双工的，数据可以在两个通道上传递，那么，关闭连接的时候则需要关闭两个方向，两个 FIN segment 加上两个 ACK，这样，TCP 连接的终止则需要经过 4 次握手：</p>
+<ul>
+<li>Client 发送一个 FIN segment 给 Server。</li>
+<li>Server 会发送 ACK 作为响应，在此之后，在 Server 调用<code>read()</code>都会返回 0。</li>
+<li>Server 需要等待一段时间用于关闭连接，之后发送 FIN segment 给 Client。</li>
+<li>收到 Server 的 FIN segment 之后，Client 发送 ACK 作为响应。</li>
+</ul>
+<blockquote>
+<p><img src="/images/linux/tcp2.png" alt=""></p>
+</blockquote>
+<p>　　当 Client 接收到 Server 的 FIN segment 之后，Client 此时处于 TIME_WAIT 状态，TIME_WAIT 状态有两个作用：</p>
+<ul>
+<li>使 Client 将会等待一段时间，这有助于可靠地终止连接，</li>
+<li>等待旧的重复的 segment 在网络中消失，这样当新连接建立时，就不会收到这些 segment 了。</li>
+</ul>
+<p>　　TIME_WAIT 状态也即 2MSL 状态，TCP 的每个 segment 都有最大生存时间 (Maximum Segment Lifetime)，也即 MSL，Linux 设定 MSL 为 30 秒。<br>　　<br>　　为什么 TIME_WAIT 状态需要持续 2MSL 时间呢？好了，假定 Client 最后发送的 ACK 丢失了，为了保证可靠地关闭，Server 则需要重传 FIN，这时， Client 处于 TIME_WAIT 状态，由于这个状态将持续 2SML 时间，也就保证了 Client 在收到这个 FIN 之后能够再次发送 ACK。不过需要注意，Server 是被动关闭的一方，这样 Server 也就不需要 TIME_WAIT 状态。</p>
+<h2 id="TCP-连接的半关闭"><a href="#TCP-连接的半关闭" class="headerlink" title="TCP 连接的半关闭"></a>TCP 连接的半关闭</h2><p>　　TCP 连接是全双工的，也就是说既可以写，也可以读。当调用<code>close()</code>来关闭 socket 描述符时，则会关闭这个 socket 的写和读的功能，并会释放这个 socket 描述符。</p>
+<p>　　但有时我们需要关闭连接的一个方向，例如，Client 不想发送数据，但仍然希望从 Server 那里读取数据，那么，可以调用<code>shutdown()</code>来关闭写入通道：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">shutdown</span><span class="params">( <span class="keyword">int</span> s, <span class="keyword">int</span> how )</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　<code>how</code>参数可以是<code>SHUT_WR</code>(关闭写入通道)，<code>SHUT_RD</code>(关闭读取通道)，也可以是<code>SHUT_RDWR</code>(关闭读取通道和写入通道)。但通常来说<code>SHUT_RD</code>并不常用，由于不同版本的 Linux 对<code>SHUT_RD</code>的支持并不一致，因此，在可移植的 TCP 程序来说，应当避免使用<code>SHUT_RD</code>操作。</p>
+<blockquote>
+<p><img src="/images/linux/tcp4.png" alt=""></p>
+</blockquote>
+<p>　　当 Client 调用<code>shutdown()</code>关闭写入通道时，Client 发送一个 FIN segment，Server 则发送相应的 ACK。在此之后，Client 仍可以读取数据，Server 仍可以发送数据。当 Server 调用<code>close()</code>关闭连接时，则会发送 FIN 给 Client，接着 Client 发送 ACK 给 Server。 </p>
+<p>　　注意到<code>shutdown()</code>并不会释放 socket 描述符，即使调用<code>shutdown()</code>关闭了连接，仍然需要调用<code>close()</code>来关闭 socket 描述符。</p>
+<h2 id="TCP-的状态变迁图"><a href="#TCP-的状态变迁图" class="headerlink" title="TCP 的状态变迁图"></a>TCP 的状态变迁图</h2><p>　　可以将 TCP 连接看成一个状态机，TCP 连接的建立，数据的收发，连接的关闭，这些过程实际上就是从一个状态迁移到另一状态：</p>
+<blockquote>
+<p><img src="/images/linux/tcp5.png" alt=""></p>
+</blockquote>
+<h2 id="TCP-的超时与重传"><a href="#TCP-的超时与重传" class="headerlink" title="TCP 的超时与重传"></a>TCP 的超时与重传</h2><p>　　我们知道，TCP 协议是可靠的，面向连接的，双向字节流的。TCP 保证可靠传输就是发送一个数据，并等待对方发送 ACK，用来确认对方收到数据。但不要忘了一点，ACK 也有可能丢失啊。</p>
+<p>　　为应对 ACK 可能丢失的情况，TCP 使用一个 Timer，当 Timer 触发时，若还未收到 ACK，则会重新发送数据，这就是 TCP 的超时与重传机制。</p>
+<h2 id="TCP-的拥塞控制"><a href="#TCP-的拥塞控制" class="headerlink" title="TCP 的拥塞控制"></a>TCP 的拥塞控制</h2><p>　　TCP 的流量控制主要用来限定发送端数据不能发送过快，超过对方的接收能力，也就是说发送的数据不能使对方的缓冲区溢出。TCP segment 中有一个字段 Window size，也称为通知窗口，即 Advertised Window，接收端通过 Advertised Window 来告诉发送端，自己的缓冲区还有多少空间来接收数据，于是发送端会调整自己发送数据的快慢。</p>
+<p>　　我们知道，TCP 流量控制是限制发送端不能发送太快，防止压垮接收端，但 TCP 的流量控制则无法应对网络负载过大的情况。在网络负载过大的时候，如果发送端发送的数据过快，而路由器来不及转发，数据就会丢失，这时发送端需要重传数据，同样，重传数据又将加速网络的拥塞程度，如此循环下去，则会严重压垮网络。</p>
+<p>　　TCP 的拥塞控制则是防止发送端发送太快而压垮网络，发送会根据 segment 的丢失来检测是否发生了拥塞，若发生了丢失，则会认为发生了拥塞，这时发送端则会降低其数据传输速率。</p>
+<hr>
+<p>　　最初的拥塞控制使用<strong>慢启动</strong>（Slow Start）和<strong>拥塞避免</strong>（Congestion Avoidance）算法。</p>
+<p>　　TCP 的拥塞控制主要使用<strong>拥塞窗口</strong>（Congestion Window）来控制，拥塞窗口简称 cwnd。慢启动算法会使发送端一开始以较慢的速度发送 segment，随着接收端响应 ACK 之后，发送端的发送速率会以指数级增长。</p>
+<p>　　慢启动算法：</p>
+<ul>
+<li>连接建立之后，cwnd 初始值为 1，表示一个 MSS 的大小</li>
+<li>每当收到一个ACK，cwnd = cwnd + 1 </li>
+<li>每经过一个 RTT ( Round Trip Time )之后，cwnd = cwnd * 2</li>
+<li>当 cwnd &gt;= ssthresh ( Slow Start Threshold )之后，就会使用拥塞避免算法，ssthresh 的值通常为 65536</li>
+</ul>
+<p>　　当 cwnd &gt;= ssthresh 时，TCP 会使用拥塞避免算法来平衡负载，这样就可以避免增长过快导致网络拥塞，慢慢的增加调整到网络的最佳值。拥塞避免算法：</p>
+<ul>
+<li>收到一个ACK时，cwnd = cwnd + (1 / cwnd)</li>
+<li>当每过一个RTT时，cwnd = cwnd + 1</li>
+</ul>
+<p>　　TCP 根据是否丢包来检测是否发生了拥塞，这样当需要超时重传时，发生拥塞的可能性就比较大。TCP 应对拥塞状态的算法：</p>
+<ul>
+<li>sshthresh = cwnd /2</li>
+<li>cwnd 重置为 1</li>
+<li>进入慢启动过程</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1432537210&amp;sr=8-1&amp;keywords=linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+<li><a href="http://book.douban.com/subject/1088054/" target="_blank" rel="external">TCP/IP详解 卷1：协议</a></li>
+<li><a href="http://book.douban.com/subject/4859464/" target="_blank" rel="external">UNIX网络编程 卷1：套接字联网API（第3版）</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/network/" rel="tag">#network</a>
+          
+            <a href="/tags/Linux/" rel="tag">#Linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/27/Linux并发编程（二）/" rel="next" title="Linux 并发编程（二）-- 线程同步">
+                <i class="fa fa-chevron-left"></i> Linux 并发编程（二）-- 线程同步
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/07/Linux网络编程一/" rel="prev" title="Linux 网络编程（二）-- 基本概念">
+                Linux 网络编程（二）-- 基本概念 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-Segment-格式"><span class="nav-number">1.</span> <span class="nav-text">TCP Segment 格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-连接建立"><span class="nav-number">2.</span> <span class="nav-text">TCP 连接建立</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-连接的终止"><span class="nav-number">3.</span> <span class="nav-text">TCP 连接的终止</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-连接的半关闭"><span class="nav-number">4.</span> <span class="nav-text">TCP 连接的半关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-的状态变迁图"><span class="nav-number">5.</span> <span class="nav-text">TCP 的状态变迁图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-的超时与重传"><span class="nav-number">6.</span> <span class="nav-text">TCP 的超时与重传</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-的拥塞控制"><span class="nav-number">7.</span> <span class="nav-text">TCP 的拥塞控制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

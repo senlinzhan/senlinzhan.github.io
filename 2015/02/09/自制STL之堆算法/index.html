@@ -1,0 +1,650 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,algorithm,STL," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="二叉堆　　二叉堆实际上是完全二叉树，通常，可以使用数组来表示二叉堆，例如，对于以下的二叉堆：　　可以表示成为完全二叉树：　　注意，数组的第一个元素下标是0，因此，假定我们知道某个节点的下标是i，那么其左子节点的下标为2i + 1，其右子节点的下标为2i + 2，而其父节点的下标为(i - 1) / 2。例如，节点D的下标为3，那么它的左子节点H的下标为2 * 3 + 1 = 7，其右子节点I的下标">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自制 STL -- 堆算法">
+<meta property="og:url" content="http://yoursite.com/2015/02/09/自制STL之堆算法/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="二叉堆　　二叉堆实际上是完全二叉树，通常，可以使用数组来表示二叉堆，例如，对于以下的二叉堆：　　可以表示成为完全二叉树：　　注意，数组的第一个元素下标是0，因此，假定我们知道某个节点的下标是i，那么其左子节点的下标为2i + 1，其右子节点的下标为2i + 2，而其父节点的下标为(i - 1) / 2。例如，节点D的下标为3，那么它的左子节点H的下标为2 * 3 + 1 = 7，其右子节点I的下标">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap2.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap7.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap8.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap4.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap10.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap11.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap12.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap13.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap14.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/heap15.png">
+<meta property="og:updated_time" content="2015-08-23T04:01:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自制 STL -- 堆算法">
+<meta name="twitter:description" content="二叉堆　　二叉堆实际上是完全二叉树，通常，可以使用数组来表示二叉堆，例如，对于以下的二叉堆：　　可以表示成为完全二叉树：　　注意，数组的第一个元素下标是0，因此，假定我们知道某个节点的下标是i，那么其左子节点的下标为2i + 1，其右子节点的下标为2i + 2，而其父节点的下标为(i - 1) / 2。例如，节点D的下标为3，那么它的左子节点H的下标为2 * 3 + 1 = 7，其右子节点I的下标">
+<meta name="twitter:image" content="http://yoursite.com/images/data-structure/heap1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/02/09/自制STL之堆算法/"/>
+
+  <title> 自制 STL -- 堆算法 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自制 STL -- 堆算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-09T14:59:43+08:00" content="2015-02-09">
+              2015-02-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/自制STL/" itemprop="url" rel="index">
+                    <span itemprop="name">自制STL</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="二叉堆"><a href="#二叉堆" class="headerlink" title="二叉堆"></a>二叉堆</h2><p>　　二叉堆实际上是完全二叉树，通常，可以使用数组来表示二叉堆，例如，对于以下的二叉堆：<br><img src="/images/data-structure/heap1.png" alt=""><br>　　可以表示成为完全二叉树：<br><img src="/images/data-structure/heap2.png" alt=""><br>　　注意，数组的第一个元素下标是<code>0</code>，因此，假定我们知道某个节点的下标是<code>i</code>，那么其左子节点的下标为<code>2i + 1</code>，其右子节点的下标为<code>2i + 2</code>，而其父节点的下标为<code>(i - 1) / 2</code>。例如，节点<code>D</code>的下标为<code>3</code>，那么它的左子节点<code>H</code>的下标为<code>2 * 3 + 1 = 7</code>，其右子节点<code>I</code>的下标为<code>2 * 3 + 2 = 8</code>，而其父节点<code>B</code>的下标为<code>(3 - 1) / 2 = 1</code>。<br>　　二叉堆可分为大根堆<code>(max-heap)</code>和小根堆<code>(min-heap)</code>两种，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。在小根堆中，每个节点将小于或等于它的两个子节点，因此，根节点为小根堆的最小节点。例如，上图展示的就是小根堆。</p>
+<h2 id="压入元素"><a href="#压入元素" class="headerlink" title="压入元素"></a>压入元素</h2><p>　　在大根堆中，若满足每个节点都大于或等于它的两个子节点，那么这个大根堆就是堆有序的。例如，下图是堆有序的大根堆：<br><img src="/images/data-structure/heap7.png" alt=""><br>　　要是我们需要为二叉堆增加元素，那需要怎么做呢？实际上，可以将元素作为最后一个节点插入到大根堆中：<br><img src="/images/data-structure/heap8.png" alt=""><br>　　但是这种做法破坏了堆的有序性，例如，节点<code>88</code>大于其父节点<code>54</code>，为了维持堆的有序性，需要让节点<code>88</code>上升到合适位置：节点<code>88</code>大于它的父节点<code>54</code>，那么就交换这两个节点的位置，接着，节点<code>88</code>大于它的父节点<code>68</code>，同样交换这两个节点，最后，节点<code>88</code>小于它的父节点<code>94</code>，那么这时二叉堆就是有序的了。<br><img src="/images/data-structure/heap4.png" alt=""><br>　　我们使用<code>push_heap()</code>向二叉堆中压入元素，但注意，在执行<code>push_heap()</code>之前，需要保证<code>[beg, end - 1)</code>之间的元素是堆有序的，而<code>*(beg - 1)</code>为需要压入的元素，<code>push_heap()</code>在最坏情况下是对数时间操作。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_heap</span><span class="params">( RandomIterator beg, RandomIterator end, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span>( end - beg &lt; <span class="number">2</span> ) &#123;                            <span class="comment">// 若元素数目小于 2，则不作处理 </span></div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> elem = <span class="built_in">std</span>::move( *( end - <span class="number">1</span> ) );           <span class="comment">// elem 为压入的元素</span></div><div class="line">    <span class="keyword">auto</span> elemIndex = end - beg - <span class="number">1</span>;                  <span class="comment">// elemIndex 用来保存 elem 的下标</span></div><div class="line">    <span class="function"><span class="keyword">const</span> <span class="title">decltype</span><span class="params">(elemIndex)</span> rootIndex </span>= <span class="number">0</span>;         <span class="comment">// rootIndex 为根节点的下标</span></div><div class="line">    <span class="keyword">auto</span> parentIndex = ( elemIndex - <span class="number">1</span> ) / <span class="number">2</span>;        <span class="comment">// elem 的父节点下标</span></div><div class="line">    <span class="keyword">while</span>( elemIndex &gt; rootIndex &amp;&amp; comp( *( beg + parentIndex ), elem ) ) &#123;</div><div class="line">        *( beg + elemIndex ) = <span class="built_in">std</span>::move( *( beg + parentIndex ) );</div><div class="line">        elemIndex = parentIndex;</div><div class="line">        parentIndex = ( elemIndex - <span class="number">1</span> ) / <span class="number">2</span>;</div><div class="line">    &#125;</div><div class="line">    *( beg + elemIndex ) = <span class="built_in">std</span>::move( elem );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_heap</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    mystl::push_heap( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;() );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　例如，向二叉堆中压入元素：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">94</span>, <span class="number">68</span>, <span class="number">76</span>, <span class="number">68</span>, <span class="number">54</span>, <span class="number">22</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">46</span>, <span class="number">14</span> &#125;;</div><div class="line">vec.push_back( <span class="number">88</span> );</div><div class="line">mystl::push_heap( vec.begin(), vec.end() );</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">// 94 88 76 68 68 22 5 1 46 14 54</span></div></pre></td></tr></table></figure></p>
+<h2 id="弹出元素"><a href="#弹出元素" class="headerlink" title="弹出元素"></a>弹出元素</h2><p>　　在大根堆中，我们知道根节点是最大的节点，这样，当需要从大根堆中弹出元素时，很显然，弹出的是根节点的元素。<br>　　我们使用<code>pop_heap()</code>，将根节点与最后一个节点进行交换：<br><img src="/images/data-structure/heap10.png" alt=""><br>　　可以看到，原来的根节点成了最后一个节点，而新的根节点为原来堆的最后一个节点，这时堆并不是堆有序的。在<code>pop_heap()</code>中，我们使用<code>fixDown()</code>来使根节点下沉到合适位置，注意，<code>size</code>表示元素的总个数，但<strong>不包含</strong>被弹出的元素：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">pop_heap</span><span class="params">( RandomIterator beg, RandomIterator end, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span>( end - beg &lt; <span class="number">2</span> ) &#123;                         <span class="comment">// 元素数目小于2，则不做处理</span></div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="built_in">std</span>::swap( *beg, *( --end ) );                <span class="comment">// 交换根节点与尾节点</span></div><div class="line">    <span class="keyword">auto</span> size = end - beg;                        <span class="comment">// size 为剩下的元素的个数</span></div><div class="line">    <span class="keyword">decltype</span>(size) index = <span class="number">0</span>;                     <span class="comment">// index 为根节点的下标</span></div><div class="line">    mystl::fixDown( beg, size, index, comp );     <span class="comment">// 将根节点下沉到合适位置</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">pop_heap</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    mystl::pop_heap( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;() );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　我们可以使根节点下沉到合适的位置，来恢复二叉堆的堆有序性，需要注意，由于节点<code>84</code>已被弹出，因此，在节点<code>1</code>下沉的过程中不需要考虑节点<code>84</code>。<br>　　节点<code>1</code>拥有两个子节点<code>53</code>和<code>68</code>，在节点下沉的过程中，需要将节点与两个子节点的较大者进行交换，因此，我们将节点<code>1</code>与节点<code>68</code>进行交换，接着，由于节点<code>1</code>只存在一个子节点<code>4</code>，并且节点<code>1</code>小于节点<code>4</code>，因此将节点<code>1</code>与节点<code>4</code>交换：<br><img src="/images/data-structure/heap11.png" alt=""><br>　　那么这时二叉堆就是堆有序的了。需要注意，在节点下沉的过程中，只有当节点存在大于这个节点的子节点，才需要将节点与子节点进行交换，<strong>否则节点将不会继续下沉</strong>。我们使用<code>fixDown()</code>表示下沉操作，<code>startIndex</code>为需要下沉的节点的下标，<code>size</code>元素的总个数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> Distance, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">fixDown</span><span class="params">( RandomIterator beg, Distance size, Distance startIndex, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">auto</span> elem = <span class="built_in">std</span>::move( *( beg + startIndex ) ); <span class="comment">// elem 为需要下沉的元素</span></div><div class="line">    <span class="keyword">auto</span> nodeIndex = startIndex;                    <span class="comment">// nodeIndex 表示 elem 的下标         </span></div><div class="line">    <span class="keyword">auto</span> rightChild = startIndex;                   <span class="comment">// rightChild 表示 elem 的右子节点的下标</span></div><div class="line">    <span class="keyword">while</span>( rightChild * <span class="number">2</span> + <span class="number">2</span> &lt; size ) &#123;</div><div class="line">        rightChild = <span class="number">2</span> * rightChild + <span class="number">2</span>;        </div><div class="line">        <span class="keyword">if</span>( comp( *( beg + rightChild ), *( beg + rightChild - <span class="number">1</span> ) ) ) &#123;</div><div class="line">            --rightChild;                           <span class="comment">// rightChild 指向两个子节点的较大者</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>( !comp( elem, *( beg + rightChild ) ) ) &#123;</div><div class="line">            <span class="keyword">break</span>;                                  <span class="comment">// 若节点大于或等于其子节点，则下沉操作结束</span></div><div class="line">        &#125;</div><div class="line">        *( beg + nodeIndex ) = <span class="built_in">std</span>::move( *( beg + rightChild ) );   <span class="comment">// 子节点上移</span></div><div class="line">        nodeIndex = rightChild;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> ( rightChild * <span class="number">2</span> + <span class="number">2</span> == size ) &#123;             <span class="comment">// 只有左子节点，没有右子节点</span></div><div class="line">        rightChild = <span class="number">2</span> * rightChild + <span class="number">1</span>;            <span class="comment">// 使 rightChild 指向左子节点</span></div><div class="line">        <span class="keyword">if</span>( comp( elem, *( beg + rightChild ) ) ) &#123;</div><div class="line">            *(beg + nodeIndex ) = <span class="built_in">std</span>::move( *( beg + rightChild ) );</div><div class="line">            nodeIndex = rightChild;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    *( beg + nodeIndex ) = <span class="built_in">std</span>::move( elem );       </div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> Distance&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">fixDown</span><span class="params">( RandomIterator beg, Distance size, Distance startIndex )</span> </span>&#123;</div><div class="line">    mystl::fixDown( beg, size, startIndex, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;() );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　例如，从大根堆中弹出根节点：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">84</span>, <span class="number">53</span>, <span class="number">68</span>, <span class="number">6</span>, <span class="number">52</span>, <span class="number">4</span>, <span class="number">1</span> &#125;;</div><div class="line">mystl::pop_heap( vec.begin(), vec.end() );</div><div class="line">vec.pop_back();</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">// 68 53 4 6 52 1</span></div></pre></td></tr></table></figure></p>
+<h2 id="排序二叉堆"><a href="#排序二叉堆" class="headerlink" title="排序二叉堆"></a>排序二叉堆</h2><p>　　有时我们需要对二叉堆进行排序，使得元素在数组中按从小到达的次序排列，注意，在排序之前，需要保证二叉堆是<strong>堆有序</strong>的，在排序过后，二叉堆将不再合法，这时我们得到一个有序数组。<br>　　我们使用<code>sort_heap()</code>来排序二叉堆，首先使用<code>pop_heap()</code>将根节点移动到二叉堆的最后一个，那么最大的元素就到了数组最后一个位置，接着再将新的根节点移动倒数第二个位置，不断重复这个过程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort_heap</span><span class="params">( RandomIterator beg, RandomIterator end, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">while</span>( end - beg &gt; <span class="number">1</span> ) &#123;</div><div class="line">        mystl::pop_heap(beg, end--, comp );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort_heap</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    mystl::sort_heap( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;() );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　例如，我们对大根堆进行排序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">84</span>, <span class="number">53</span>, <span class="number">68</span>, <span class="number">6</span>, <span class="number">52</span> &#125;;    </div><div class="line">mystl::sort_heap( vec, vec.begin(), vec.end() ); </div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">// 6 52 53 68 84</span></div></pre></td></tr></table></figure></p>
+<h2 id="构造二叉堆"><a href="#构造二叉堆" class="headerlink" title="构造二叉堆"></a>构造二叉堆</h2><p>　　我们可以将任意的数组构造成为二叉堆，例如，对于以下数组：<br><img src="/images/data-structure/heap12.png" alt=""><br>　　可以使用<strong>自底而上</strong>的方式构造二叉堆，我们知道，要是节点包含子节点，那么这个节点和它的所有子节点之间就可以构成一个二叉堆。例如，节点<code>52</code>和它的子节点<code>94</code>就构成了二叉堆。同样，节点<code>46</code>拥有两个子节点<code>68</code>和<code>68</code>，那么这三个节点就构成了一个二叉堆。<br>　　由于数组最后一个下标为<code>9</code>，那么可以计算最后一个拥有子节点的节点其坐标是<code>(9 - 1) / 2 = 4</code>，也就是节点<code>52</code>，那么我们利用节点<code>52</code>跟它的子节点构造成根节点为<code>94</code>的大根堆，接着，将节点<code>46</code>和它的所有子节点构造成为根节点为<code>68</code>的大根堆：<br><img src="/images/data-structure/heap13.png" alt=""><br>　　同样，我们通过节点<code>76</code>跟它的子节点构造成根节点为<code>76</code>的大根堆，接着，将节点<code>14</code>连同它的所有子节点构造成根节点为<code>94</code>的大根堆：<br><img src="/images/data-structure/heap14.png" alt=""><br>　　最后，通过节点<code>1</code>和它的所有子节点构造成大根堆，根节点为<code>94</code>：<br><img src="/images/data-structure/heap15.png" alt=""><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_heap</span><span class="params">( RandomIterator beg, RandomIterator end, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span>( end - beg &lt; <span class="number">2</span> ) &#123;</div><div class="line">        <span class="keyword">return</span>;        </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> size = end - beg;                            <span class="comment">// 节点的总个数</span></div><div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> lastIndex = size - <span class="number">1</span>;                        <span class="comment">// 最后一个节点的下标</span></div><div class="line">    <span class="keyword">for</span>( <span class="keyword">auto</span> index = ( lastIndex - <span class="number">1</span> ) / <span class="number">2</span>; index &gt;= <span class="number">0</span>; --index ) &#123;</div><div class="line">        mystl::fixDown( beg, size, index, comp );           <span class="comment">// 将 index 指向的节点下沉</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_heap</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    mystl::make_heap( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;() );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　例如，可以将任意数组构造成大根堆：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">uniform_int_distribution&lt;<span class="keyword">unsigned</span>&gt; u&#123; <span class="number">1</span>, <span class="number">100</span> &#125;;</div><div class="line">default_random_engine e;</div><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; ++i ) &#123;</div><div class="line">    vec.push_back( u(e) );</div><div class="line">&#125;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"before mystl::make_heap() : "</span>;</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line">mystl::make_heap( vec.begin(), vec.end() );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"\nafter mystl::make_heap() : "</span>;</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">/***</span></div><div class="line">before mystl::make_heap() : 1 14 76 46 54 22 5 68 68 94 </div><div class="line">after mystl::make_heap() : 94 68 76 68 54 22 5 1 46 14 </div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　同样，我们也可以构造小根堆：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">uniform_int_distribution&lt;<span class="keyword">unsigned</span>&gt; u&#123; <span class="number">1</span>, <span class="number">100</span> &#125;;</div><div class="line">default_random_engine e;</div><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; ++i ) &#123;</div><div class="line">    vec.push_back( u(e) );</div><div class="line">&#125;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"before mystl::make_heap() : "</span>;</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line">mystl::make_heap( vec.begin(), vec.end(), greater&lt;<span class="keyword">int</span>&gt;() );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"\nafter mystl::make_heap() : "</span>;</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">/***</span></div><div class="line">before mystl::make_heap() : 1 14 76 46 54 22 5 68 68 94 </div><div class="line">after mystl::make_heap() : 1 14 5 46 54 22 76 68 68 94 </div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<h2 id="堆排序算法"><a href="#堆排序算法" class="headerlink" title="堆排序算法"></a>堆排序算法</h2><p>　　我们知道，可以使用<code>mystl::make_heap()</code>将任意数组构造成为二叉堆，并且可以使用<code>mystl::sort_heap()</code>对二叉堆排序，那么，利用这两个例程，对任意数组排序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heap_sort</span><span class="params">( RandomIterator beg, RandomIterator end, Comp comp )</span> </span>&#123;</div><div class="line">    mystl::make_heap( beg, end, comp );                 <span class="comment">// 构造二叉堆</span></div><div class="line">    mystl::sort_heap( beg, end, comp );                 <span class="comment">// 排序二叉堆</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heap_sort</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    mystl::heap_sort( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;() );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　例如，对任意数组进行排序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">uniform_int_distribution&lt;<span class="keyword">unsigned</span>&gt; u&#123; <span class="number">1</span>, <span class="number">100</span> &#125;;</div><div class="line">default_random_engine e;</div><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; ++i ) &#123;</div><div class="line">    vec.push_back( u(e) );</div><div class="line">&#125;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"before mystl::heap_sort() : "</span>;</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line">mystl::heap_sort( vec.begin(), vec.end() );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"\nafter mystl::heap_sort() : "</span>;</div><div class="line">copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">/***</span></div><div class="line">before mystl::heap_sort() : 1 14 76 46 54 22 5 68 68 94 </div><div class="line">after mystl::heap_sort() : 1 5 14 22 46 54 68 68 76 94 </div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<h2 id="判断堆有序"><a href="#判断堆有序" class="headerlink" title="判断堆有序"></a>判断堆有序</h2><p>　　我们可以使用<code>is_heap()</code>来判断输入范围<code>[beg, end)</code>是否构成二叉堆，此外，用<code>is_heap_until()</code>来返回一个迭代器，其指向的元素为第一个破坏堆有序性的元素，若二叉堆是堆有序的，则<code>is_heap_until()</code>将返回<code>end</code>迭代器。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> BinaryPredicate&gt;</div><div class="line"><span class="function">RandomIterator <span class="title">is_heap_until</span><span class="params">( RandomIterator beg, RandomIterator end, </span></span></div><div class="line">                              BinaryPredicate predicate ) &#123;</div><div class="line">    <span class="keyword">if</span>( end - beg &lt; <span class="number">2</span> ) &#123;</div><div class="line">        <span class="keyword">return</span> end;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> size = end - beg;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">decltype</span>(size) index = <span class="number">1</span>; index &lt; size; ++index ) &#123;</div><div class="line">        <span class="keyword">auto</span> parentIndex = ( index - <span class="number">1</span> ) / <span class="number">2</span>;</div><div class="line"></div><div class="line">        <span class="comment">// 若父节点小于子节点，则返回指向子节点的迭代器</span></div><div class="line">        <span class="keyword">if</span>( predicate( *( beg + parentIndex ), *( beg + index ) ) ) &#123;</div><div class="line">            <span class="keyword">return</span> beg + index;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> end;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function">RandomIterator <span class="title">is_heap_until</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mystl::is_heap_until( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;&#123;&#125; );</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> BinaryPredicate&gt;</div><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">is_heap</span><span class="params">( RandomIterator beg, RandomIterator end, BinaryPredicate predicate )</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mystl::is_heap_until( beg, end, predicate ) == end;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">is_heap</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mystl::is_heap( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;&#123;&#125; );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; coll1 = &#123; <span class="number">9</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span> &#125;;</div><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; coll2 = &#123; <span class="number">5</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">8</span>, <span class="number">6</span> &#125;;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; boolalpha &lt;&lt; <span class="string">"coll1 is heap: "</span> </div><div class="line">     &lt;&lt; mystl::is_heap( coll1.cbegin(), coll1.cend() ) &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"coll2 is heap: "</span></div><div class="line">     &lt;&lt; mystl::is_heap( coll2.cbegin(), coll2.cend() ) &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"><span class="keyword">auto</span> pos = mystl::is_heap_until( coll2.cbegin(), coll2.cend() );</div><div class="line"><span class="keyword">if</span> ( pos != coll2.end() ) &#123;</div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"first non-heap element: "</span> &lt;&lt; *pos &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">/***</span></div><div class="line">coll1 is heap: true</div><div class="line">coll2 is heap: false</div><div class="line">first non-heap element: 4</div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+<li><a href="http://www.amazon.com/Algorithms-Parts-1-4-Fundamentals-Structure/dp/0201350882" target="_blank" rel="external">Algorithms in C++ 3rd Edition by Robert Sedgewick</a></li>
+<li><a href="http://www.amazon.com/Algorithms-4th-Robert-Sedgewick/dp/032157351X/ref=sr_1_2?ie=UTF8&amp;qid=1419737520&amp;sr=8-2&amp;keywords=algorithm" target="_blank" rel="external">Algorithms 4th Edition by Robert Sedgewick</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/algorithm/" rel="tag">#algorithm</a>
+          
+            <a href="/tags/STL/" rel="tag">#STL</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/02/09/自制STL之删除算法/" rel="next" title="自制 STL -- 删除算法">
+                <i class="fa fa-chevron-left"></i> 自制 STL -- 删除算法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/02/10/自制STL之优先队列/" rel="prev" title="自制 STL -- 优先队列">
+                自制 STL -- 优先队列 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#二叉堆"><span class="nav-number">1.</span> <span class="nav-text">二叉堆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#压入元素"><span class="nav-number">2.</span> <span class="nav-text">压入元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#弹出元素"><span class="nav-number">3.</span> <span class="nav-text">弹出元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排序二叉堆"><span class="nav-number">4.</span> <span class="nav-text">排序二叉堆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#构造二叉堆"><span class="nav-number">5.</span> <span class="nav-text">构造二叉堆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#堆排序算法"><span class="nav-number">6.</span> <span class="nav-text">堆排序算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#判断堆有序"><span class="nav-number">7.</span> <span class="nav-text">判断堆有序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

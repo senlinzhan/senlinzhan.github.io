@@ -1,0 +1,725 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="racket," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="这是How to Design Programs的学习笔记，在编写程序之前，首先需要安装DrRocket编程环境，在Ubuntu可以使用以下命令来安装:
+sudo apt-get install racket
+模拟飞碟着陆　　首先，可以绘制飞碟着陆时的屏幕背景，先定义一些需要用到的常量：
+; 导入所需要的包
+(require 2htdp/image)
+(require 2htdp/univers">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Design Programs（一）">
+<meta property="og:url" content="http://yoursite.com/2014/11/30/htdp1/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这是How to Design Programs的学习笔记，在编写程序之前，首先需要安装DrRocket编程环境，在Ubuntu可以使用以下命令来安装:
+sudo apt-get install racket
+模拟飞碟着陆　　首先，可以绘制飞碟着陆时的屏幕背景，先定义一些需要用到的常量：
+; 导入所需要的包
+(require 2htdp/image)
+(require 2htdp/univers">
+<meta property="og:image" content="http://yoursite.com/images/scheme/1.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme/4.gif">
+<meta property="og:image" content="http://yoursite.com/images/scheme/editor.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme/cham.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme/cham1.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme/dd1.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme/dd2.png">
+<meta property="og:updated_time" content="2016-02-12T14:17:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How to Design Programs（一）">
+<meta name="twitter:description" content="这是How to Design Programs的学习笔记，在编写程序之前，首先需要安装DrRocket编程环境，在Ubuntu可以使用以下命令来安装:
+sudo apt-get install racket
+模拟飞碟着陆　　首先，可以绘制飞碟着陆时的屏幕背景，先定义一些需要用到的常量：
+; 导入所需要的包
+(require 2htdp/image)
+(require 2htdp/univers">
+<meta name="twitter:image" content="http://yoursite.com/images/scheme/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2014/11/30/htdp1/"/>
+
+  <title> How to Design Programs（一） | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                How to Design Programs（一）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-11-30T14:58:27+08:00" content="2014-11-30">
+              2014-11-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程方法/" itemprop="url" rel="index">
+                    <span itemprop="name">编程方法</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>　这是<a href="http://www.ccs.neu.edu/home/matthias/HtDP2e/Draft/index.html" target="_blank" rel="external">How to Design Programs</a>的学习笔记，在编写程序之前，首先需要安装<a href="http://racket-lang.org/download/" target="_blank" rel="external">DrRocket</a>编程环境，在<code>Ubuntu</code>可以使用以下命令来安装:</p>
+<pre><code>sudo apt-get install racket
+</code></pre><h2 id="模拟飞碟着陆"><a href="#模拟飞碟着陆" class="headerlink" title="模拟飞碟着陆"></a>模拟飞碟着陆</h2><p>　　首先，可以绘制飞碟着陆时的屏幕背景，先定义一些需要用到的常量：</p>
+<pre><code>; 导入所需要的包
+(require 2htdp/image)
+(require 2htdp/universe)
+; 窗口的高度和宽度
+(define HEIGHT 300)
+(define WIDTH 450)
+; 飞碟水平位置
+(define X (/ WIDTH 2))
+; 飞碟
+(define UFO (overlay (circle 10 &quot;solid&quot; &quot;green&quot;)
+                        (rectangle 40 4 &quot;solid&quot; &quot;green&quot;)))
+; 背景
+(define BACKGROUND (rectangle WIDTH HEIGHT &quot;solid&quot; &quot;blue&quot;))
+; 岩石层
+(define ROCK-BED (rectangle WIDTH 10 &quot;solid&quot; &quot;red&quot;))
+; 屏幕
+(define SCREEN (place-image 
+             ROCK-BED (/ WIDTH 2) (- HEIGHT (/ (image-height ROCK-BED) 2))
+             (place-image BACKGROUND (/ WIDTH 2) (/ HEIGHT 2) (empty-scene WIDTH HEIGHT))))
+</code></pre><p>　　我们可以使用以下语句来绘制飞碟刚开始降落时的场景：</p>
+<pre><code>(place-image UFO X 0 SCREEN)
+</code></pre><p>　　效果如下：<br><img src="/images/scheme/1.png" alt=""><br>　　    接下来需要模拟飞碟的降落运动，飞碟在位置<code>(X, 0)</code>开始减速，初速度为$v_0$，可以将飞碟的降落过程当作<strong>匀减速的直线运动</strong>，物理公式：  $$ s(t) = v_0 t - \frac{a t^2}{2}(0 &lt; t \leq t1)$$   $$ v(t) = v_0 - at(0 &lt;t&lt; t_1) $$ $$ v(t) = 0(t \ge t_1)$$<br>　　假定飞碟作匀减速运动，速度为<code>0</code>时刚好在岩石层着陆，我们使用$t_1$表示飞碟作减速运动所需要的时间。可以定义常量<code>UFO-CENTER-TO-BOTTOM</code>来表示$s(t_1)$的大小：</p>
+<pre><code>; 飞碟着陆时的垂直位置
+(define UFO-CENTER-TO-BOTTOM
+  (- HEIGHT (/ (image-height UFO ) 2) (image-height ROCK-BED)))
+</code></pre><p>  由物理知识可得：$$ 2s(t_1) = v_0 \cdot t_1$$ $$a = \frac{v_0}{t_1}$$<br>　　假定我们使用<code>SPEED</code>来表示初速度$v_0$，使用<code>DESEND-TIME</code>来表示下落时间$t_1$，<code>DECELERATION</code>表示加速度$a$，同时使用<code>distance</code>函数来表示$s(t)$，那么可以这样定义：</p>
+<pre><code>; 初速度
+(define SPEED 10)
+; 下落的时间
+(define DESEND-TIME (/ (* UFO-CENTER-TO-BOTTOM 2) SPEED))
+; 减速时的加速度
+(define DECELERATION (/ SPEED DESEND-TIME))
+; 下落的位移公式
+(define (distance t)
+  (- (* SPEED t) (* 1/2 DECELERATION (sqr t))))
+</code></pre><p>　　最后，使用<code>create-ufo-scene</code>来表示飞碟随时间变化的场景，同时使用<code>animate</code>函数来启动绘制动画，那么完整的程序如下：<br><figure class="highlight scheme"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">(<span class="name"><span class="builtin-name">require</span></span> <span class="number">2</span>htdp/image)</div><div class="line">(<span class="name"><span class="builtin-name">require</span></span> <span class="number">2</span>htdp/universe)</div><div class="line"></div><div class="line"><span class="comment">; 窗口的高度和宽度</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> HEIGHT <span class="number">300</span>)</div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> WIDTH <span class="number">450</span>)</div><div class="line"><span class="comment">; 飞碟</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> UFO (<span class="name">overlay</span> (<span class="name">circle</span> <span class="number">10</span> <span class="string">"solid"</span> <span class="string">"green"</span>)</div><div class="line">                        (<span class="name">rectangle</span> <span class="number">40</span> <span class="number">4</span> <span class="string">"solid"</span> <span class="string">"green"</span>)))</div><div class="line"><span class="comment">; 背景</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> BACKGROUND (<span class="name">rectangle</span> WIDTH HEIGHT <span class="string">"solid"</span> <span class="string">"blue"</span>))</div><div class="line"><span class="comment">; 岩石层</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> ROCK-BED (<span class="name">rectangle</span> WIDTH <span class="number">10</span> <span class="string">"solid"</span> <span class="string">"red"</span>))</div><div class="line"><span class="comment">; 屏幕</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> SCREEN (<span class="name">place-image</span> </div><div class="line">             ROCK-BED (<span class="name"><span class="builtin-name">/</span></span> WIDTH <span class="number">2</span>) (<span class="name"><span class="builtin-name">-</span></span> HEIGHT (<span class="name"><span class="builtin-name">/</span></span> (<span class="name">image-height</span> ROCK-BED) <span class="number">2</span>))</div><div class="line">             (<span class="name">place-image</span> BACKGROUND (<span class="name"><span class="builtin-name">/</span></span> WIDTH <span class="number">2</span>) (<span class="name"><span class="builtin-name">/</span></span> HEIGHT <span class="number">2</span>) (<span class="name">empty-scene</span> WIDTH HEIGHT))))</div><div class="line"><span class="comment">; 飞碟水平位置</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> X (<span class="name"><span class="builtin-name">/</span></span> WIDTH <span class="number">2</span>))</div><div class="line"><span class="comment">; 飞碟着陆时的垂直位置</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> UFO-CENTER-TO-BOTTOM</div><div class="line">  (<span class="name"><span class="builtin-name">-</span></span> HEIGHT (<span class="name"><span class="builtin-name">/</span></span> (<span class="name">image-height</span> UFO ) <span class="number">2</span>) (<span class="name">image-height</span> ROCK-BED)))</div><div class="line"><span class="comment">; 初速度</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> SPEED <span class="number">10</span>)</div><div class="line"><span class="comment">; 下落的时间</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> DESEND-TIME (<span class="name"><span class="builtin-name">/</span></span> (<span class="name"><span class="builtin-name">*</span></span> UFO-CENTER-TO-BOTTOM <span class="number">2</span>) SPEED))</div><div class="line"><span class="comment">; 减速时的加速度</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> DECELERATION (<span class="name"><span class="builtin-name">/</span></span> SPEED DESEND-TIME))</div><div class="line"></div><div class="line"><span class="comment">; 飞碟下落的画面</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> (<span class="name">create-ufo-scene</span> t)</div><div class="line">   (<span class="name">place-image</span> UFO X (<span class="name"><span class="builtin-name">cond</span></span> </div><div class="line">                        [(<span class="name"><span class="builtin-name">&lt;=</span></span> t DESEND-TIME) (<span class="name">distance</span> t)]</div><div class="line">                        [(<span class="name"><span class="builtin-name">&gt;</span></span> t DESEND-TIME) UFO-CENTER-TO-BOTTOM])</div><div class="line">                        SCREEN))</div><div class="line"></div><div class="line"><span class="comment">; 下落的位移公式</span></div><div class="line">(<span class="name"><span class="builtin-name">define</span></span> (<span class="name">distance</span> t)</div><div class="line">  (<span class="name"><span class="builtin-name">-</span></span> (<span class="name"><span class="builtin-name">*</span></span> SPEED t) (<span class="name"><span class="builtin-name">*</span></span> <span class="number">1/2</span> DECELERATION (<span class="name">sqr</span> t))))</div><div class="line"></div><div class="line"><span class="comment">; 绘制动画</span></div><div class="line">( animate create-ufo-scene )</div></pre></td></tr></table></figure></p>
+<p>　　飞碟匀减速下降：<br><img src="/images/scheme/4.gif" alt=""></p>
+<h2 id="定义结构"><a href="#定义结构" class="headerlink" title="定义结构"></a>定义结构</h2><p>　　可以使用以下方式来定义结构：</p>
+<pre><code>(define-struct 结构名 [字段1 字段2 ...] )
+</code></pre><p>　　例如，定义<code>student</code>结构：</p>
+<pre><code>(define-struct student [account name])
+</code></pre><p>　　我们可以使用创建一个<code>student</code>实例：</p>
+<pre><code>(define me (make-student 1207400063 &quot;senlinzhan&quot;))
+</code></pre><p>　　也可以访问<code>student</code>结构中的字段：</p>
+<pre><code>&gt; (student-account me)
+1207400063
+&gt; (student-name me)
+&quot;senlinzhan&quot;
+</code></pre><p>　　此外，也可以判断一个实例是否是<code>student</code>实例：</p>
+<pre><code>&gt; (student? &quot;home&quot;)
+false
+&gt; (student? me)
+true
+</code></pre><h2 id="行编辑器"><a href="#行编辑器" class="headerlink" title="行编辑器"></a>行编辑器</h2><p>　　编写一个行编辑器，可以对行内文本进行编辑，在光标指向位置增加文本或删除文本。程序运行效果如下：<br><img src="/images/scheme/editor.png" alt=""><br>　　　　<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div></pre></td><td class="code"><pre><div class="line">(require 2htdp/image)</div><div class="line">(require 2htdp/universe)</div><div class="line"></div><div class="line">; Editor = (make-editor String String)</div><div class="line">; interpretation (make-editor s t) means the text in the editor is</div><div class="line">; (string-append s t) with the cursor displayed between s and t</div><div class="line">(define-struct editor [pre post])</div><div class="line"></div><div class="line">; represent the height of background</div><div class="line">(define BG-HEIGHT 25)</div><div class="line"></div><div class="line">; represent the width of background</div><div class="line">(define BG-WIDTH 400)</div><div class="line"></div><div class="line">; represent the background of editor</div><div class="line">(define BACKGROUND (empty-scene BG-WIDTH BG-HEIGHT))</div><div class="line"></div><div class="line">; represent size of font</div><div class="line">(define FONT-SIZE (* BG-HEIGHT 4/5))</div><div class="line"></div><div class="line">; color of font</div><div class="line">(define FONT-COLOR &quot;black&quot;)</div><div class="line"></div><div class="line">; represent the cursor of editor</div><div class="line">(define CURSOR (rectangle 1 BG-HEIGHT &quot;solid&quot; &quot;red&quot;))</div><div class="line"></div><div class="line">; String -&gt; Number</div><div class="line">; compute the x coordinate of the cursor, s represent the string before cursor </div><div class="line">(define (cursor-x s)</div><div class="line">  (image-width (text s FONT-SIZE FONT-COLOR)))</div><div class="line"></div><div class="line">; y coordinate of the cursor</div><div class="line">(define CURSOR-Y (/ BG-HEIGHT 2))</div><div class="line"></div><div class="line">; Editor -&gt; Image</div><div class="line">; produces a text image from editor&apos;s text</div><div class="line">(check-expect (text-image (make-editor &quot;hello&quot; &quot;world&quot;))</div><div class="line">              (text &quot;helloworld&quot; FONT-SIZE FONT-COLOR))</div><div class="line">(define (text-image ed)</div><div class="line">  (text (string-append (editor-pre ed) (editor-post ed)) FONT-SIZE FONT-COLOR))</div><div class="line"></div><div class="line"></div><div class="line">; Editor -&gt; Image</div><div class="line">; procude an image to represent the contens of editor</div><div class="line">(check-expect (render (make-editor &quot;Hello&quot; &quot;World&quot;)) </div><div class="line">              (place-image CURSOR (cursor-x &quot;Hello&quot;) CURSOR-Y </div><div class="line">                           (overlay/align &quot;left&quot; &quot;center&quot; </div><div class="line">                                          (text-image (make-editor &quot;Hello&quot; &quot;World&quot;)) BACKGROUND)))</div><div class="line">(define (render ed)</div><div class="line">  (place-image CURSOR (cursor-x (editor-pre ed)) CURSOR-Y </div><div class="line">               (overlay/align &quot;left&quot; &quot;center&quot; (text-image ed) BACKGROUND)))</div><div class="line"></div><div class="line">; String -&gt; String</div><div class="line">; extracts the last character from s, if s is empty, return an empty string.</div><div class="line">(define (string-last s)</div><div class="line">  (if (&gt;= (string-length s) 1) (string-ith s (- (string-length s) 1)) &quot;&quot;))</div><div class="line"></div><div class="line">; String -&gt; String</div><div class="line">; extracts the first character from s, if s is empty, return an empty string.</div><div class="line">(define (string-first s)</div><div class="line">  (if (&gt;= (string-length s) 1) (string-ith s 0) &quot;&quot;))</div><div class="line"></div><div class="line">; String -&gt; String</div><div class="line">; remove the last character from s, if s is empty, do nothing.</div><div class="line">(define (string-remove-last s)</div><div class="line">  (if (&gt;= (string-length s) 1) (substring s 0 (- (string-length s) 1)) &quot;&quot;))</div><div class="line"></div><div class="line">; String -&gt; String</div><div class="line">; remove the first character from s, if s is empty, do nothing.</div><div class="line">(check-expect (string-remove-first &quot;hello&quot;) &quot;ello&quot;)</div><div class="line">(define (string-remove-first s)</div><div class="line">  (if (&gt;= (string-length s) 1) (substring s 1) &quot;&quot;))</div><div class="line"></div><div class="line">; Editor -&gt; Number</div><div class="line">; compute the text width of editor</div><div class="line">(define (text-width ed)</div><div class="line">  (image-width (text-image ed)))</div><div class="line"></div><div class="line">; Editor String -&gt; Editor</div><div class="line">; insert string after the cursor of editor, return the update editor</div><div class="line">(check-expect (insert-string-to-editor (make-editor &quot;hello&quot; &quot;world&quot;) &quot;!!&quot;)</div><div class="line">              (make-editor &quot;hello!!&quot; &quot;world&quot;))</div><div class="line">(define (insert-string-to-editor ed s)</div><div class="line">  (make-editor (string-append (editor-pre ed) s) (editor-post ed)))              </div><div class="line"></div><div class="line">; Editor KeyEvent -&gt; Editor</div><div class="line">; Produces new Editor when the key press event happen.</div><div class="line">; If the key event is &quot;left&quot;, move the cursor left one character.</div><div class="line">; If the key event is &quot;right&quot;, move the cursor right one character.</div><div class="line">; If the string of key event is one-character and not &quot;\t&quot; and &quot;\r&quot;,</div><div class="line">; append the string to the end of text before cursor.</div><div class="line">; Ignores other cases.</div><div class="line">(check-expect (edit (make-editor &quot;hello&quot; &quot;world&quot;) &quot;left&quot;) (make-editor &quot;hell&quot; &quot;oworld&quot;))</div><div class="line">(check-expect (edit (make-editor &quot;hello&quot; &quot;world&quot;) &quot;right&quot;) (make-editor &quot;hellow&quot; &quot;orld&quot;))</div><div class="line">(check-expect (edit (make-editor &quot;hello&quot; &quot;world&quot;) &quot;\b&quot;) (make-editor &quot;hell&quot; &quot;world&quot;))</div><div class="line">(check-expect (edit (make-editor &quot;hello&quot; &quot;world&quot;) &quot;a&quot;) (make-editor &quot;helloa&quot; &quot;world&quot;))</div><div class="line">(define (edit ed ke)</div><div class="line">  (cond [(= (string-length ke) 1) </div><div class="line">         (cond </div><div class="line">           [(or (string=? ke &quot;\t&quot;) (string=? ke &quot;\r&quot;)) ed]</div><div class="line">           [(string=? ke &quot;\b&quot;) (make-editor </div><div class="line">                             (string-remove-last (editor-pre ed)) </div><div class="line">                             (editor-post ed))]</div><div class="line">           [else (if (&gt;= (text-width (insert-string-to-editor ed ke)) BG-WIDTH) ed </div><div class="line">                     (insert-string-to-editor ed ke))])]</div><div class="line">        [(string=? ke &quot;left&quot;) </div><div class="line">         (make-editor </div><div class="line">          (string-remove-last (editor-pre ed)) </div><div class="line">          (string-append (string-last (editor-pre ed)) (editor-post ed)))]</div><div class="line">        [(string=? ke &quot;right&quot;) </div><div class="line">         (make-editor</div><div class="line">          (string-append (editor-pre ed) (string-first (editor-post ed)))</div><div class="line">          (string-remove-first (editor-post ed)))]</div><div class="line">        [else ed]))</div><div class="line"></div><div class="line">; launch the editor</div><div class="line">(define (main ed)</div><div class="line">  (big-bang ed</div><div class="line">            (to-draw render)</div><div class="line">            (on-key edit)))</div></pre></td></tr></table></figure></p>
+<p>　　使用以下语句来启动程序，将显示一个空白的行编辑器：</p>
+<pre><code>(main (make-editor &quot;&quot; &quot;&quot;))
+</code></pre><h2 id="移动的变色龙"><a href="#移动的变色龙" class="headerlink" title="移动的变色龙"></a>移动的变色龙</h2><p>　　这是变色龙的图案：<img src="/images/scheme/cham.png" alt="">。编写一个程序，模拟变色龙的移动：</p>
+<pre><code>(require 2htdp/image)
+(require 2htdp/universe)
+</code></pre><p><img src="/images/scheme/cham1.png" alt=""></p>
+<pre><code>(define BG-WIDTH 500)
+(define BG-HEIGHT 200)
+(define MOVE-STEP 3)
+(define CHAM-Y (/ BG-HEIGHT 2))
+(define BACKGROUND
+  (beside (empty-scene (/ BG-WIDTH 3) BG-HEIGHT &quot;green&quot;)
+          (empty-scene (/ BG-WIDTH 3) BG-HEIGHT &quot;yellow&quot;)
+          (empty-scene (/ BG-WIDTH 3) BG-HEIGHT &quot;red&quot;)))
+
+(define (cham-center-x state)
+  (+ state (/ (image-width CHAM) 2)))
+
+(define (render state)
+  (place-image CHAM (cham-center-x state) CHAM-Y BACKGROUND))
+
+(define (move state)
+  (if (&gt;= (+ state MOVE-STEP) (image-width BACKGROUND)) 0 (+ state MOVE-STEP)))
+(define (main state)
+   (big-bang state
+             [on-tick move]
+             [to-draw render]))
+</code></pre><p>程序的运行情况：<br><img src="/images/scheme/dd1.png" width="400" height="160"> <img src="/images/scheme/dd2.png" width="400" height="160"></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.ccs.neu.edu/home/matthias/HtDP2e/Draft/index.html" target="_blank" rel="external">How to Design Programs, Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/racket/" rel="tag">#racket</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/20/归并排序/" rel="next" title="排序算法（一）-- 归并排序">
+                <i class="fa fa-chevron-left"></i> 排序算法（一）-- 归并排序
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/05/python3入门/" rel="prev" title="Python -- 基础语法">
+                Python -- 基础语法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#模拟飞碟着陆"><span class="nav-number">1.</span> <span class="nav-text">模拟飞碟着陆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定义结构"><span class="nav-number">2.</span> <span class="nav-text">定义结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#行编辑器"><span class="nav-number">3.</span> <span class="nav-text">行编辑器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#移动的变色龙"><span class="nav-number">4.</span> <span class="nav-text">移动的变色龙</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

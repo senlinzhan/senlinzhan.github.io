@@ -1,0 +1,672 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,algorithm," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="快速排序的时间复杂度为$O(N\log N)$，快速排序算法首先会将数组划分成为两个子数组，其次调用其自身递归地对两个子数组进行排序。123456789template &amp;lt;typename T, typename Comp = std::less&amp;lt;T&amp;gt;&amp;gt;void quick_sort( T arr[], int lo, int hi, Comp comp = Comp&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="排序算法（三）-- 快速排序">
+<meta property="og:url" content="http://yoursite.com/2015/02/01/快速排序/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="快速排序的时间复杂度为$O(N\log N)$，快速排序算法首先会将数组划分成为两个子数组，其次调用其自身递归地对两个子数组进行排序。123456789template &amp;lt;typename T, typename Comp = std::less&amp;lt;T&amp;gt;&amp;gt;void quick_sort( T arr[], int lo, int hi, Comp comp = Comp&amp;">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm2.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm3.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm4.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm5.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm6.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pm7.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/qq1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/qq2.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/qq3.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/qq4.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/qq5.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/qq6.png">
+<meta property="og:updated_time" content="2015-08-30T15:54:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="排序算法（三）-- 快速排序">
+<meta name="twitter:description" content="快速排序的时间复杂度为$O(N\log N)$，快速排序算法首先会将数组划分成为两个子数组，其次调用其自身递归地对两个子数组进行排序。123456789template &amp;lt;typename T, typename Comp = std::less&amp;lt;T&amp;gt;&amp;gt;void quick_sort( T arr[], int lo, int hi, Comp comp = Comp&amp;">
+<meta name="twitter:image" content="http://yoursite.com/images/data-structure/pm1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/02/01/快速排序/"/>
+
+  <title> 排序算法（三）-- 快速排序 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                排序算法（三）-- 快速排序
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-01T11:51:13+08:00" content="2015-02-01">
+              2015-02-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/算法分析/" itemprop="url" rel="index">
+                    <span itemprop="name">算法分析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>　　快速排序的时间复杂度为$O(N\log N)$，快速排序算法首先会将数组划分成为两个子数组，其次调用其自身递归地对两个子数组进行排序。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> quick_sort( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    <span class="keyword">if</span>( hi &lt;= lo ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> pos = partition( arr, lo, hi, comp );</div><div class="line">    quick_sort( arr, lo, pos - <span class="number">1</span>, comp );</div><div class="line">    quick_sort( arr, pos + <span class="number">1</span>, hi, comp );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="划分元素"><a href="#划分元素" class="headerlink" title="划分元素"></a>划分元素</h2><p>　　快速排序的关键部分在于<code>partition()</code>函数，用来将数组划分成为两个子数组。实际上，<code>partition()</code>返回的变量<code>pos</code>为元素的下标，那么元素<code>arr[pos]</code>将作为两个子数组的界定元素，也就是说，左子数组的元素都小于<code>arr[pos]</code>，而右子数组的元素都大于<code>arr[pos]</code>，那么很明显，<code>arr[pos]</code>元素已经在其最终位置上，无需再被挪动了。在划分数组之后，只要对左子数组和右子数组进行排序，那么整个数组就是有序的了。</p>
+<p>　　那么问题来了，我们要选择哪一个元素当做界定元素呢？<br>　　为了方便，我们通常选择数组的最后一个元素作为界定元素，例如，对于以下数组：<br><img src="/images/data-structure/pm1.png" alt=""><br>　　在执行划分操作之后，界定元素<code>35</code>将大于其左边的元素，并且小于其右边的元素：<br><img src="/images/data-structure/pm2.png" alt=""></p>
+<p>　　在划分操作中，我们使用<code>left</code>和<code>right</code>两个索引，实际的执行过程：</p>
+<ul>
+<li>不断地向右移动<code>left</code>，直到<code>left</code>指向的元素大于或等于界定元素<code>elem</code>。</li>
+<li>不断地向左移动<code>right</code>，直到<code>right</code>指向的元素小于或等于界定元素<code>elem</code>。</li>
+<li>若<code>left</code>和<code>right</code>有效，那么就对其指向的两个元素进行交换。</li>
+<li>当<code>left</code>和<code>right</code>相遇之后，就将元素<code>arr[right]</code>与右子数组的第一个元素进行交换。</li>
+</ul>
+<p>　　例如，假定我们需要对以下数组进行排序：<br><img src="/images/data-structure/pm1.png" alt=""></p>
+<p>　　那么划分操作实际的执行过程：<br><img src="/images/data-structure/pm3.png" alt="">–&gt;<img src="/images/data-structure/pm4.png" alt=""><br><img src="/images/data-structure/pm5.png" alt="">–&gt;<img src="/images/data-structure/pm6.png" alt=""><br><img src="/images/data-structure/pm7.png" alt=""></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">partition</span><span class="params">( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;</div><div class="line">    <span class="keyword">auto</span> left = lo - <span class="number">1</span>, right = hi;</div><div class="line">    <span class="keyword">auto</span> elem = arr[hi];</div><div class="line">    <span class="keyword">while</span>( <span class="literal">true</span> ) &#123;</div><div class="line">        <span class="keyword">while</span>( comp( arr[++left], elem ) )</div><div class="line">            ;</div><div class="line">        <span class="keyword">while</span>( right &gt; lo &amp;&amp; comp( elem, arr[--right] ) )</div><div class="line">            ;</div><div class="line">        <span class="keyword">if</span>( left &gt;= right ) &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        swap( arr[left], arr[right] );</div><div class="line">    &#125;</div><div class="line">    swap( arr[left], arr[hi] );</div><div class="line">    <span class="keyword">return</span> left;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>　　在划分操作中，为了保证<code>left</code>和<code>right</code>不会越界访问，我们需要考虑两种情况：</p>
+<ul>
+<li>界定元素是数组中的最大元素。</li>
+<li>界定元素是数组中的最小元素。</li>
+</ul>
+<p>　　由于界定元素是数组的最后一个元素，因此，当界定元素为数组的最大元素时，<code>left</code>并不会越界访问。而当界定元素是数组的最小元素时，则在访问元素<code>arr[--right]</code>时需要保证<code>right &gt; lo</code>即可。<br>　　在划分操作中，很明显，要是<code>arr[left]</code>和<code>arr[right]</code>与界定元素相等，那么<code>arr[left]</code>和<code>arr[right]</code>之间也会进行交换，因此，划分操作不是<code>stable</code>的。<br>　　可以看到，在<code>partition()</code>操作中，我们向右移动<code>left</code>，向左移动<code>right</code>，当<code>left</code>指向的元素等于界定元素，就会停止移动<code>left</code>，对于<code>right</code>来说也是这样。那么，假定<code>left</code>和<code>right</code>指向的元素等于界定元素，那么需要对<code>left</code>和<code>right</code>指向的元素进行交换。尽管这样做会带来交换元素的开销，但可以防止出现最坏情况，例如，假定数组包含很多具有相同键的元素，那么快速排序算法的执行性能仍然是<code>O(N logN)</code>。<br>　　相反地，考虑存在<code>partition()</code>的另一种实现：当<code>left</code>指向的元素等于界定元素时并不会停止向右移动，同样，当<code>right</code>指向的元素等于界定元素时并不会停止向左移动。要是<code>partition()</code>是这样实现的，假定需要排序的数组中包含大量键重复的元素，那么此时快速排序的执行性能将退化到$O(N^2)$。</p>
+<h2 id="性能分析"><a href="#性能分析" class="headerlink" title="性能分析"></a>性能分析</h2><p>　　若需要排序的数组本来就是有序的，那么这时执行快速排序将会出现最坏情况，比较的次数将接近于$N^2/2$，因此，时间复杂度为$O(N^2)$。<br>　　而在平均情况下，快速排序将进行$2N\ln N$次比较，大约等于$1.39N\lg N$次比较。</p>
+<h2 id="非递归快速排序"><a href="#非递归快速排序" class="headerlink" title="非递归快速排序"></a>非递归快速排序</h2><p>　　使用递归的快速排序算法对随机文件排序，那么，递归栈的深度与<code>log N</code>成正比。然而，我们需要分析最坏情况，考虑到若文件中的数据在排序之前就是有序的，那么，递归栈的深度将与<code>N</code>成正比。我们知道，若递归栈的深度过大，程序可能在运行时奔溃。为了解决这个问题，我们可以使用非递归的快速排序算法。<br>　　在递归的<code>quick_sort()</code>算法里面，使用<code>partition()</code>函数将数组划分成为两个子数组，在分别对两个子数组执行<code>quick_sort()</code>进行排序。为了将这个递归算法转换成为非递归算法，我们可以将<code>quick_sort()</code>的<code>lo</code>和<code>hi</code>参数存储在一个<code>stack</code>容器中。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; &amp;coll, <span class="keyword">int</span> first, <span class="keyword">int</span> second )</span> </span>&#123;</div><div class="line">    coll.push( first );</div><div class="line">    coll.push( second );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">pop</span><span class="params">( <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; &amp;coll )</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> value = coll.top();</div><div class="line">    coll.pop();</div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">&#125;</div><div class="line"><span class="comment">// 非递归版本 1</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> quick_sort( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; s;</div><div class="line">    push( s, lo, hi );</div><div class="line">    <span class="keyword">while</span>( !s.empty() ) &#123;</div><div class="line">        hi = pop( s );</div><div class="line">        lo = pop( s );</div><div class="line">        <span class="keyword">if</span>( hi &lt;= lo ) &#123;</div><div class="line">            <span class="keyword">continue</span>; </div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> pos = partition( arr, lo, hi, comp );</div><div class="line">        <span class="keyword">if</span>( pos - lo &gt; hi - pos ) &#123;</div><div class="line">            push( s, lo, pos - <span class="number">1</span> );</div><div class="line">            push( s, pos + <span class="number">1</span>, hi );</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            push( s, pos + <span class="number">1</span>, hi );</div><div class="line">            push( s, lo, pos - <span class="number">1</span> );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　这里需要注意的是，对数组进行划分，我们将得到两组数组的边界，分别是<code>[lo, pos - 1]</code>和<code>[pos + 1, hi]</code>，那么问题来了，我们要将哪组数组边界先压入<code>stack</code>中呢？<br>　　实际上数组边界范围大的那一组需要先入栈，而范围小的那一组后入栈。认真考虑一下就可以知道，这样将使得<code>stack</code>的大小保持尽量小，并且，这样做使得无论在哪种情况下，<code>stack</code>的大小都不会超过<code>log N</code>。</p>
+<p>　　实际上我们可以对非递归的快速排序算法进行改进，可以看到，每次向<code>stack</code>中压入两组数组边界之后，再下一次循环中又需要从<code>stack</code>中弹出一组数组边界，显然，这样做是没有必要的。实际上，在每次循环中，只需要压入范围较大的那组边界，而将范围较小的那组边界用来直接设置<code>lo</code>和<code>hi</code>的值。<br>　　另外一点可以改进的是，当我们将数组边界压入<code>stack</code>之前，可以先判断这个数组边界中的元素数目是否小于或等于<code>1</code>，若是，那么就不需要将这个边界压入<code>stack</code>中了。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 非递归版本 2</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> quick_sort( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; s;</div><div class="line">    <span class="keyword">do</span> &#123;</div><div class="line">        <span class="keyword">if</span>( hi &lt;= lo ) &#123;</div><div class="line">            hi = pop( s );</div><div class="line">            lo = pop( s );</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> pos = partition( arr, lo, hi, comp );</div><div class="line">        <span class="keyword">if</span>( pos - lo &gt; hi - pos ) &#123;</div><div class="line">            <span class="keyword">if</span>( pos - <span class="number">1</span> &gt; lo ) &#123;</div><div class="line">                push( s, lo, pos - <span class="number">1</span> );</div><div class="line">            &#125;</div><div class="line">            lo = pos + <span class="number">1</span>;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">if</span>( hi &gt; pos + <span class="number">1</span> ) &#123;</div><div class="line">                push( s, pos + <span class="number">1</span>, hi );</div><div class="line">            &#125;</div><div class="line">            hi = pos - <span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">while</span>( !s.empty() );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="三数取中划分"><a href="#三数取中划分" class="headerlink" title="三数取中划分"></a>三数取中划分</h2><p>　　我们知道，若原来的数组是有序的，使用快速排序来排定数组，那么执行性能将退化到$O(N^2)$。仔细考虑，要是在数组中随机选择元素充当界定元素，那么就可以避免这种情况。一种更简单的办法就是，计算数组第一个元素，中间元素和最后一个元素的中位数，并选择这个中位数作为界定元素。实际上，对于随机数组，相较于原来的划分方式，三数取中划分也会提升快速排序算法的执行性能。<br>　　实际上，还可以做的更好。考虑到对于部分有序的数组来说，使用插入排序可以取得比较好的执行性能。我们可以设定一个<code>M</code>值，当数组元素的数目小于<code>M</code>时，就不对数组作处理，当数组元素数目大于<code>M</code>时，就是用快速排序来排定数组。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort_helper</span><span class="params">( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span>( hi - lo &lt;= <span class="number">10</span> ) &#123;                         <span class="comment">// 数组元素数目小于或等于 11 则不作处理</span></div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;</div><div class="line">    swap( arr[(lo + hi) / <span class="number">2</span>], arr[hi - <span class="number">1</span>] );      <span class="comment">// 将数组中间元素与 arr[hi - 1] 交换</span></div><div class="line">    <span class="keyword">if</span>( comp( arr[hi - <span class="number">1</span>], arr[lo] ) ) &#123;</div><div class="line">        swap( arr[hi - <span class="number">1</span>], arr[lo] );</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span>( comp( arr[hi], arr[lo] ) ) &#123;</div><div class="line">        swap( arr[hi], arr[lo] );</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span>( comp( arr[hi], arr[hi - <span class="number">1</span>] ) ) &#123;</div><div class="line">        swap( arr[hi], arr[hi - <span class="number">1</span>] );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">auto</span> pos = partition( arr, lo + <span class="number">1</span>, hi - <span class="number">1</span>, comp );</div><div class="line">    quick_sort_helper( arr, lo, pos - <span class="number">1</span>, comp );</div><div class="line">    quick_sort_helper( arr, pos + <span class="number">1</span>, hi, comp );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　首先，我们将数组中间元素与<code>arr[hi - 1]</code>交换，接着，对元素<code>arr[lo]</code>、<code>arr[hi - 1]</code>和<code>arr[hi]</code>这三个元素进行排序，在排序过后，显然，<code>arr[hi - 1]</code>就是这三个元素的中位数，我们将这个中位数作为界定元素，那么，<code>partition()</code>就只需要对<code>arr[lo + 1]</code>和<code>arr[hi - 1]</code>之间的元素做处理就可以了。<br>　　注意到，使用<code>quick_sort_helper()</code>排序后的数组是部分有序的，那么，我们可以使用插入排序继续进行排序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> insertion_sort( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    <span class="keyword">if</span>( hi &lt;= lo ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = lo + <span class="number">1</span>; i &lt;= hi; ++i ) &#123;</div><div class="line">        T elem = <span class="built_in">std</span>::move( arr[i] );</div><div class="line">        <span class="keyword">int</span> j;</div><div class="line">        <span class="keyword">for</span>( j = i; j &gt; lo &amp;&amp; comp( elem, arr[j - <span class="number">1</span>] ); --j ) &#123;</div><div class="line">            arr[j] = <span class="built_in">std</span>::move( arr[j - <span class="number">1</span>] );</div><div class="line">        &#125;</div><div class="line">        arr[j] = <span class="built_in">std</span>::move( elem );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> quick_sort( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    quick_sort_helper( arr, lo, hi, comp );</div><div class="line">    insertion_sort( arr, lo, hi, comp );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="三路划分"><a href="#三路划分" class="headerlink" title="三路划分"></a>三路划分</h2><p>　　当需要排序的数组中包含大量具有相同键的元素时，递归的快速排序算法的复杂度为<code>O(N logN)</code>，实际上，在这种情况下，我们可以做得更好，使算法复杂度降至<code>O(N)</code>。<br>　　我们将元素<code>arr[lo]</code>作为界定元素，使用三个下标<code>le</code>、<code>eq</code>和<code>ge</code>表示三个范围：</p>
+<ul>
+<li><code>arr[lo]</code>到<code>arr[le - 1]</code>之间的元素都小于界定元素。</li>
+<li><code>arr[le]</code>到<code>arr[eq - 1]</code>之间的元素都等于界定元素。</li>
+<li><code>arr[ge + 1]</code>到<code>arr[hi]</code>之间的元素都大于界定元素。</li>
+<li><code>arr[eq]</code>到<code>arr[ge]</code>之间的元素为未处理元素。<br>　　很明显，三路划分算法将数组中处理过的元素划分为三个范围，这三个范围中的元素分别小于、等于和大于界定元素。我们使用<code>elem</code>来表示界定元素，那么算法的执行过程：</li>
+<li>要是<code>arr[eq]</code>小于<code>elem</code>，就将<code>arr[eq]</code>与<code>arr[le]</code>交换，同时向右移动<code>le</code>和<code>eq</code>下标。</li>
+<li>要是<code>arr[eq]</code>大于<code>elem</code>，就将<code>arr[eq]</code>与<code>arr[ge]</code>交换，同时向左移动<code>ge</code>下标。</li>
+<li>要是<code>arr[eq]</code>等于<code>elem</code>，则向右移动<code>eq</code>。<br>　　例如，我们对以下数组执行三路划分：<br><img src="/images/data-structure/qq1.png" alt="">　–&gt;　<img src="/images/data-structure/qq2.png" alt=""><br><img src="/images/data-structure/qq3.png" alt="">　–&gt;　<img src="/images/data-structure/qq4.png" alt=""><br><img src="/images/data-structure/qq5.png" alt="">  –&gt;  <img src="/images/data-structure/qq6.png" alt=""><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> quick_sort( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    <span class="keyword">if</span>( hi &lt;= lo ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;</div><div class="line">    <span class="keyword">int</span> le = lo, eq = lo + <span class="number">1</span>, ge = hi;</div><div class="line">    <span class="keyword">auto</span> elem = arr[lo];</div><div class="line">    <span class="keyword">while</span>( eq &lt;= ge ) &#123;</div><div class="line">        <span class="keyword">if</span>( comp( arr[eq], elem ) ) &#123;</div><div class="line">            swap( arr[eq++], arr[le++] );</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>( comp( elem, arr[eq] ) ) &#123;</div><div class="line">            swap( arr[eq], arr[ge--] );</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            ++eq;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    quick_sort( arr, lo, le - <span class="number">1</span>, comp );</div><div class="line">    quick_sort( arr, ge + <span class="number">1</span>, hi, comp );</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="快速选择"><a href="#快速选择" class="headerlink" title="快速选择"></a>快速选择</h2><p>　　有时我们需要在数组中选择若干个最小的元素，这种选择问题并不要求数组本身是有序的。例如，假定需要在<code>arr[lo]</code>和<code>arr[hi]</code>之间的元素选出<code>k-lo</code>个最小的元素，那么我们就需要使<code>arr[lo]</code>到<code>arr[k - 1]</code>之间的元素小于或等于<code>arr[k]</code>，而使<code>arr[k + 1]</code>到<code>arr[hi]</code>之间的元素大于<code>arr[k]</code>，实际的算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> select( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, <span class="keyword">int</span> k, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    <span class="keyword">if</span>( hi &lt; lo ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> pos = partition( arr, lo, hi, comp );</div><div class="line">    <span class="keyword">if</span>( k &lt; pos ) &#123;</div><div class="line">        select( arr, lo, pos - <span class="number">1</span>, k, comp );</div><div class="line">    &#125; </div><div class="line">    <span class="keyword">if</span>( k &gt; pos ) &#123;</div><div class="line">        select( arr, pos + <span class="number">1</span>, hi, k, comp );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　例如，假定我们需要在含有<code>N</code>个元素的数组<code>arr</code>中选出中位数，那么可以这样做：</p>
+<pre><code>selection( arr, 0, N - 1, N / 2 );
+</code></pre><p>　　那么，元素<code>arr[N / 2]</code>就是数组的中位数。实际上，还可以用非递归算法来实现快速选择算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp = <span class="built_in">std</span>::less&lt;T&gt;&gt;</div><div class="line"><span class="keyword">void</span> select( T arr[], <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, <span class="keyword">int</span> k, Comp comp = Comp&#123;&#125; ) &#123;</div><div class="line">    <span class="keyword">while</span>( hi &gt; lo ) &#123;</div><div class="line">        <span class="keyword">auto</span> pos = partition( arr, lo, hi );</div><div class="line">        <span class="keyword">if</span>( k &lt; pos ) &#123;</div><div class="line">            hi = pos - <span class="number">1</span>;</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>( k &gt; pos ) &#123;</div><div class="line">            lo = pos + <span class="number">1</span>;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.amazon.com/Algorithms-Parts-1-4-Fundamentals-Structure/dp/0201350882" target="_blank" rel="external">Algorithms in C++ 3rd Edition by Robert Sedgewick</a><br><a href="http://www.amazon.com/Data-Structures-Algorithm-Analysis-C/dp/013284737X/ref=sr_1_4?s=books&amp;ie=UTF8&amp;qid=1422255950&amp;sr=1-4&amp;keywords=data+structure+and+algorithm+in+c%2B%2B" target="_blank" rel="external">Data Structures and Algorithm Analysis in C++ 4th Edition by Mark A. Weiss</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/algorithm/" rel="tag">#algorithm</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/01/28/链表排序算法/" rel="next" title="排序算法（二）-- 链表排序算法">
+                <i class="fa fa-chevron-left"></i> 排序算法（二）-- 链表排序算法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/02/03/算法-基数排序/" rel="prev" title="排序算法（四）-- 基数排序">
+                排序算法（四）-- 基数排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#划分元素"><span class="nav-number">1.</span> <span class="nav-text">划分元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能分析"><span class="nav-number">2.</span> <span class="nav-text">性能分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非递归快速排序"><span class="nav-number">3.</span> <span class="nav-text">非递归快速排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三数取中划分"><span class="nav-number">4.</span> <span class="nav-text">三数取中划分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三路划分"><span class="nav-number">5.</span> <span class="nav-text">三路划分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速选择"><span class="nav-number">6.</span> <span class="nav-text">快速选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

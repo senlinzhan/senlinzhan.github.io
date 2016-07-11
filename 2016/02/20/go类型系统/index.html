@@ -1,0 +1,666 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Go," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="自定义类型　　Go 允许用户自定义类型，可以定义 struct 类型：1234type user struct &amp;#123;    name      string    email     string&amp;#125;
+　　创建 user 类型变量：1var joker user     // joker 的每个 filed 都将被初始化成相应的 zero value
+　　创建 user 类型的变量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言：类型系统">
+<meta property="og:url" content="http://yoursite.com/2016/02/20/go类型系统/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="自定义类型　　Go 允许用户自定义类型，可以定义 struct 类型：1234type user struct &amp;#123;    name      string    email     string&amp;#125;
+　　创建 user 类型变量：1var joker user     // joker 的每个 filed 都将被初始化成相应的 zero value
+　　创建 user 类型的变量">
+<meta property="og:updated_time" content="2016-02-26T12:12:50.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Go语言：类型系统">
+<meta name="twitter:description" content="自定义类型　　Go 允许用户自定义类型，可以定义 struct 类型：1234type user struct &amp;#123;    name      string    email     string&amp;#125;
+　　创建 user 类型变量：1var joker user     // joker 的每个 filed 都将被初始化成相应的 zero value
+　　创建 user 类型的变量">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/02/20/go类型系统/"/>
+
+  <title> Go语言：类型系统 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Go语言：类型系统
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-20T12:00:46+08:00" content="2016-02-20">
+              2016-02-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="自定义类型"><a href="#自定义类型" class="headerlink" title="自定义类型"></a>自定义类型</h2><p>　　Go 允许用户自定义类型，可以定义 struct 类型：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> user <span class="keyword">struct</span> &#123;</div><div class="line">    name      <span class="keyword">string</span></div><div class="line">    email     <span class="keyword">string</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　创建 user 类型变量：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> joker user     <span class="comment">// joker 的每个 filed 都将被初始化成相应的 zero value</span></div></pre></td></tr></table></figure></p>
+<p>　　创建 user 类型的变量并且对其进行初始化：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">joker := user&#123;</div><div class="line">    name:    <span class="string">"joker"</span>,</div><div class="line">    email:   <span class="string">"joker@gmail.com"</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　也可以这样做，不过初始化每个字段时，要注意字段的次序：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">joker := user&#123; <span class="string">"joker"</span>, <span class="string">"joker@gmail.com"</span>&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们也可以将 user 类型的变量作为另一 struct 的字段：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> admin <span class="keyword">struct</span> &#123;</div><div class="line">    person user</div><div class="line">    level  <span class="keyword">string</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　创建 admin 类型变量并初始化：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">jack := admin&#123;</div><div class="line">    person: user&#123;</div><div class="line">        name:  <span class="string">"jack"</span>,</div><div class="line">        email: <span class="string">"jack@gmail.com"</span>,</div><div class="line">    &#125;,</div><div class="line">    level: <span class="string">"super"</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　除了通过 struct 来自定义类型，还可以使用 type 自定义类型：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> Duration <span class="keyword">int64</span></div></pre></td></tr></table></figure></p>
+<p>　　尽管 Duration 和 int64 的作用一样，但它们却是两种完全不同的类型。因此我们不能将 int64 的值赋给 Duration 类型的变量。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">type</span> Duration <span class="keyword">int64</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="keyword">var</span> dur Duration</div><div class="line">	dur = <span class="keyword">int64</span>(<span class="number">1000</span>)</div><div class="line">&#125;</div><div class="line"><span class="comment">// prog.go:7: cannot use int64(1000) (type int64) as type Duration in assignment</span></div></pre></td></tr></table></figure></p>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><p>　　我们可以为 user 类型定义方法：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// value receiver</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u user)</span> <span class="title">notify</span><span class="params">()</span></span> &#123;</div><div class="line">    fmt.Printf(<span class="string">"Sending User Email To %s&lt;%s&gt;\n"</span>, u.name, u.email)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// pointer receiver</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *user)</span> <span class="title">changeEmail</span><span class="params">(email <span class="keyword">string</span>)</span></span> &#123;</div><div class="line">    u.email = email</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　notify 方法接受的是 user 类型值，所以当你调用 notify 方法时，notify 操作的是这个 user 值的副本。而 changeEmail 接受的是 user 类型指针，所以当你调用 changeEmail 方法是，changeEmail 操作的是这个 user 值本身。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">bill := user&#123;<span class="string">"bill"</span>, <span class="string">"bill@gmail.com"</span>&#125;</div><div class="line">bill.notify()</div><div class="line">bill.changeEmail(<span class="string">"bill@163.com"</span>)</div></pre></td></tr></table></figure></p>
+<p>　　bill 是 user 类型值，但 changeEmail 方法接受的是 user 指针，编译器帮我们做了额外的转换：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(&amp;bill).changeEmail(<span class="string">"bill@163.com"</span>)</div></pre></td></tr></table></figure></p>
+<p>　　另一方面，notify 方法接受 user 类型值：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sill := &amp;user&#123;<span class="string">"sill"</span>, <span class="string">"sill@gmail.com"</span>&#125;</div><div class="line">sill.notify()</div><div class="line">sill.changeEmail(<span class="string">"sill@163.com"</span>)</div></pre></td></tr></table></figure></p>
+<p>　　编译器帮我们做了额外的操作：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(*sill).notify()</div></pre></td></tr></table></figure></p>
+<h2 id="类型的性质"><a href="#类型的性质" class="headerlink" title="类型的性质"></a>类型的性质</h2><p>　　如果一个方法需要创建变量的副本，并对这个副本进行修改，那么使用 value receiver。如果一个方法需要修改变量自身，那么使用 pointer receiver。</p>
+<p>　　对于基本类型包括 string 来说，我们将这些类型的变量传递给函数或方法时，这个函数或方法应当创建变量的副本。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Trim</span><span class="params">(s <span class="keyword">string</span>, cutset <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</div><div class="line">	<span class="keyword">if</span> s == <span class="string">""</span> || cutset == <span class="string">""</span> &#123;</div><div class="line">		<span class="keyword">return</span> s</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> TrimFunc(s, makeCutsetFunc(cutset))</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　Go 中的引用类型为 slice，map，channel，interface 和 func 类型。这些类型的变量内部都包含指针，指向底层数据结构，此外还可能包含其它字段用于管理底层的数据结构。当引用类型值被拷贝时，实际上我们无法拷贝底层的数据结构。因此，我们应当传递引用类型值的副本给函数或者方法。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// in file golang.org/src/net/ip.go</span></div><div class="line"><span class="keyword">type</span> IP []<span class="keyword">byte</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ip IP)</span> <span class="title">MarshalText</span><span class="params">()</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123;</div><div class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(ip) == <span class="number">0</span> &#123;</div><div class="line">		<span class="keyword">return</span> []<span class="keyword">byte</span>(<span class="string">""</span>), <span class="literal">nil</span></div><div class="line">	&#125;</div><div class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(ip) != IPv4len &amp;&amp; <span class="built_in">len</span>(ip) != IPv6len &#123;</div><div class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, errors.New(<span class="string">"invalid IP address"</span>)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">return</span> []<span class="keyword">byte</span>(ip.String()), <span class="literal">nil</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ipEmptyString is like ip.String except that it returns</span></div><div class="line"><span class="comment">// an empty string when ip is unset.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">ipEmptyString</span><span class="params">(ip IP)</span> <span class="title">string</span></span> &#123;</div><div class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(ip) == <span class="number">0</span> &#123;</div><div class="line">		<span class="keyword">return</span> <span class="string">""</span></div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> ip.String()</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　对于 struct 来说，当我们想改变 struct 变量，但不想改变变量自身，这时这种类型 struct 拥有基本类型的性质。当我们将这种类型的变量传递给函数或方法时，应当按值传递这个变量。同样，从函数或方法中返回时，应当按值返回。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// in file golang.org/src/time/time.go</span></div><div class="line"><span class="keyword">type</span> Time <span class="keyword">struct</span> &#123;</div><div class="line">	<span class="comment">// sec gives the number of seconds elapsed since</span></div><div class="line">	<span class="comment">// January 1, year 1 00:00:00 UTC.</span></div><div class="line">	sec <span class="keyword">int64</span></div><div class="line"></div><div class="line">	<span class="comment">// nsec specifies a non-negative nanosecond</span></div><div class="line">	<span class="comment">// offset within the second named by Seconds.</span></div><div class="line">	<span class="comment">// It must be in the range [0, 999999999].</span></div><div class="line">	nsec <span class="keyword">int32</span></div><div class="line"></div><div class="line">	<span class="comment">// loc specifies the Location that should be used to</span></div><div class="line">	<span class="comment">// determine the minute, hour, month, day, and year</span></div><div class="line">	<span class="comment">// that correspond to this Time.</span></div><div class="line">	<span class="comment">// Only the zero Time has a nil Location.</span></div><div class="line">	<span class="comment">// In that case it is interpreted to mean UTC.</span></div><div class="line">	loc *Location</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 按值返回</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Now</span><span class="params">()</span> <span class="title">Time</span></span> &#123;</div><div class="line">	sec, nsec := now()</div><div class="line">	<span class="keyword">return</span> Time&#123;sec + unixToInternal, nsec, Local&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 按值返回</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t Time)</span> <span class="title">Add</span><span class="params">(d Duration)</span> <span class="title">Time</span></span> &#123;</div><div class="line">	t.sec += <span class="keyword">int64</span>(d / <span class="number">1e9</span>)</div><div class="line">	nsec := <span class="keyword">int32</span>(t.nsec) + <span class="keyword">int32</span>(d%<span class="number">1e9</span>)</div><div class="line">	<span class="keyword">if</span> nsec &gt;= <span class="number">1e9</span> &#123;</div><div class="line">		t.sec++</div><div class="line">		nsec -= <span class="number">1e9</span></div><div class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> nsec &lt; <span class="number">0</span> &#123;</div><div class="line">		t.sec--</div><div class="line">		nsec += <span class="number">1e9</span></div><div class="line">	&#125;</div><div class="line">	t.nsec = nsec</div><div class="line">	<span class="keyword">return</span> t          </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　但是大多数的 struct 类型并不像基本类型那样，对这种类型的 struct 变量修改时，将改变变量自身。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// in file golang.org/src/os/file_unix.go</span></div><div class="line"></div><div class="line"><span class="comment">// File represents an open file descriptor.</span></div><div class="line"><span class="keyword">type</span> File <span class="keyword">struct</span> &#123;</div><div class="line">	*file</div><div class="line">&#125;</div><div class="line"><span class="comment">// file is the real representation of *File.</span></div><div class="line"><span class="comment">// The extra level of indirection ensures that no clients of os</span></div><div class="line"><span class="comment">// can overwrite this data, which could cause the finalizer</span></div><div class="line"><span class="comment">// to close the wrong file descriptor.</span></div><div class="line"><span class="keyword">type</span> file <span class="keyword">struct</span> &#123;</div><div class="line">	fd <span class="keyword">int</span></div><div class="line">	name <span class="keyword">string</span></div><div class="line">	dirinfo *dirInfo <span class="comment">// nil unless directory being read</span></div><div class="line">	nepipe <span class="keyword">int32</span> <span class="comment">// number of consecutive EPIPE in Write</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　标准库 file 类型实际上并不允许被拷贝，因此 File 是 file 的指针，防止用户拷贝 file。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// in file golang.org/src/os/file.go</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Open</span><span class="params">(name <span class="keyword">string</span>)</span> <span class="params">(file *File, err error)</span></span> &#123;</div><div class="line">	<span class="keyword">return</span> OpenFile(name, O_RDONLY, <span class="number">0</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　Open 函数返回 File 指针，当工厂函数返回指针时，正好说明了 File 类型（实际上是 file 类型）是 nonprimitive 的。</p>
+<p>　　即使函数或方法并不会直接修改 nonprimitive 值的状态，仍需传递指针：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 尽管 Chdir 不会修改 File，但 File 拥有 nonprimitive 性质，因此使用 pointer receiver</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f *File)</span> <span class="title">Chdir</span><span class="params">()</span> <span class="title">error</span></span> &#123;</div><div class="line">	<span class="keyword">if</span> f == <span class="literal">nil</span> &#123;</div><div class="line">		<span class="keyword">return</span> ErrInvalid</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">if</span> e := syscall.Fchdir(f.fd); e != <span class="literal">nil</span> &#123;</div><div class="line">		<span class="keyword">return</span> &amp;PathError&#123;<span class="string">"chdir"</span>, f.name, e&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> <span class="literal">nil</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　当 struct 类型拥有 primitive 性质时，方法使用 value receiver，若拥有 nonprimitive 性质，则使用 pointer receiver。</p>
+<h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><p>　　Go 的多态使我们更容易写出通用代码。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// in file golang.org/src/io/io.go</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">WriteString</span><span class="params">(w Writer, s <span class="keyword">string</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span> &#123;</div><div class="line">	<span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　无论任何类型，只要实现了 Writer 接口，就可以用在 WriteString 函数中。</p>
+<p>　　fmt.Fprintf 函数第一个参数的类型是 io.Writer，因此，任何实现了 io.Writer 接口的类型都可以传递给 fmt.Fprintf 函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"bytes"</span></div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"io"</span></div><div class="line">	<span class="string">"os"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="keyword">var</span> b bytes.Buffer</div><div class="line"></div><div class="line">	<span class="comment">// Write a string to the buffer.</span></div><div class="line">	b.Write([]<span class="keyword">byte</span>(<span class="string">"Hello"</span>))</div><div class="line"></div><div class="line">	<span class="comment">// Use Fprintf to concatenate a string to the Buffer.</span></div><div class="line">	fmt.Fprintf(&amp;b, <span class="string">"World!"</span>)</div><div class="line"></div><div class="line">	<span class="comment">// Write the content of the Buffer to stdout.</span></div><div class="line">	io.Copy(os.Stdout, &amp;b)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　bytes.Buffer 实现了 Writer 接口，因此可以将 bytes.Buffer 变量传递给 fmt.Fprintf 函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Copy</span><span class="params">(dst Writer, src Reader)</span> <span class="params">(written <span class="keyword">int64</span>, err error)</span></span></div></pre></td></tr></table></figure></p>
+<p>　　同样，bytes.Buffer 实现了 Reader 接口，因此可以将 bytes.Buffer 变量作为 Copy 第二个参数。</p>
+<hr>
+<p>　　程序中并不总是可以得到一个值的地址：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"></div><div class="line"><span class="keyword">type</span> duration <span class="keyword">int</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(d *duration)</span> <span class="title">pretty</span><span class="params">()</span> <span class="title">string</span></span> &#123;</div><div class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">"Duration: %d"</span>, *d)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	duration(<span class="number">42</span>).pretty()</div><div class="line"></div><div class="line">	<span class="comment">// go: cannot call pointer method on duration(42)</span></div><div class="line">	<span class="comment">// go: cannot take the address of duration(42)</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　程序无法得到 duration(42) 的地址，因此程序编译出错。</p>
+<p>　　user 实现了 notifier 接口，user 使用 pointer receiver 来实现 notify 方法：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">type</span> notifier <span class="keyword">interface</span> &#123;</div><div class="line">	notify()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">type</span> user <span class="keyword">struct</span> &#123;</div><div class="line">	name  <span class="keyword">string</span></div><div class="line">	email <span class="keyword">string</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// notify implements a method with a pointer receiver.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *user)</span> <span class="title">notify</span><span class="params">()</span></span> &#123;</div><div class="line">	fmt.Printf(<span class="string">"Sending user email to %s&lt;%s&gt;\n"</span>, u.name, u.email)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Create a value of type User and send a notification.</span></div><div class="line">	u := user&#123;<span class="string">"Bill"</span>, <span class="string">"bill@email.com"</span>&#125;</div><div class="line"></div><div class="line">	sendNotification(u)</div><div class="line"></div><div class="line">	<span class="comment">//   go: cannot use u (type user) as type</span></div><div class="line">	<span class="comment">//                     notifier in argument to sendNotification:</span></div><div class="line">	<span class="comment">//   user does not implement notifier</span></div><div class="line">	<span class="comment">//                          (notify method has pointer receiver)</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">sendNotification</span><span class="params">(n notifier)</span></span> &#123;</div><div class="line">	n.notify()</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　编译出错，显示 user 并没有实现 notifier 接口。前面说到，程序并不总是能获得一个值的地址，user 通过 pointer receiver 实现 notify 方法，因此需要知道 user 值的地址，才能调用它的 notify 方法。所以我们需要传递 user 变量的地址给 sendNotification 函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sendNotification(&amp;u)</div></pre></td></tr></table></figure></p>
+<p>　　若一个 struct 类型 T 实现了接口 U 的方法：</p>
+<ul>
+<li>若通过 value receiver 实现 U 接口的方法，那么 T 和 *T 都实现了 U 接口。</li>
+<li>若通过 pointer receiver 实现 U 接口的方法，那么只有 *T 实现了 U 接口。</li>
+</ul>
+<hr>
+<p>　　Go 支持类型嵌套，即是拓展一个既存的类型，并改变其行为。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">type</span> user <span class="keyword">struct</span> &#123;</div><div class="line">	name  <span class="keyword">string</span></div><div class="line">	email <span class="keyword">string</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *user)</span> <span class="title">notify</span><span class="params">()</span></span> &#123;</div><div class="line">	fmt.Printf(<span class="string">"Sending user email to %s&lt;%s&gt;\n"</span>, u.name, u.email)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">type</span> admin <span class="keyword">struct</span> &#123;</div><div class="line">	user  <span class="comment">// 嵌套类型</span></div><div class="line">	level <span class="keyword">string</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	ad := admin&#123;</div><div class="line">		user: user&#123;</div><div class="line">			name:  <span class="string">"john smith"</span>,</div><div class="line">			email: <span class="string">"john@yahoo.com"</span>,</div><div class="line">		&#125;,</div><div class="line">		level: <span class="string">"super"</span>,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	ad.user.notify()</div><div class="line"></div><div class="line">	<span class="comment">// 内部类型的方法得到提升</span></div><div class="line">	ad.notify()</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　user 是 admin 的内部类型，我们可以直接通过 admin 变量访问 user 的字段和方法。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ad.notify()</div><div class="line">fmt.Println(ad.name)</div></pre></td></tr></table></figure></p>
+<p>　　如果 user 实现 notifier 接口，那么 admin 也会间接地实现了 notifier 接口：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> notifier <span class="keyword">interface</span> &#123;</div><div class="line">	notify()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">sendNotification</span><span class="params">(n notifier)</span></span> &#123;</div><div class="line">	n.notify()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	ad := admin&#123;</div><div class="line">		user: user&#123;</div><div class="line">			name:  <span class="string">"john smith"</span>,</div><div class="line">			email: <span class="string">"john@yahoo.com"</span>,</div><div class="line">		&#125;,</div><div class="line">		level: <span class="string">"super"</span>,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	sendNotification(&amp;ad)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　外部类型声明与内部类型相同的方法，这将会覆写内部类型的方法：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *admin)</span> <span class="title">notify</span><span class="params">()</span></span> &#123;</div><div class="line">	fmt.Printf(<span class="string">"Sending admin email to %s&lt;%s&gt;\n"</span>, a.name, a.email)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ...</span></div><div class="line">sendNotification(&amp;ad)       <span class="comment">// Sending Admin Email To john smith&lt;john@yahoo.com&gt;</span></div><div class="line">ad.user.notify()            <span class="comment">// Sending user email to john smith&lt;john@yahoo.com&gt;</span></div><div class="line">ad.notify()                 <span class="comment">// Sending admin email to john smith&lt;john@yahoo.com&gt;</span></div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Go-Action-William-Kennedy/dp/1617291781/ref=sr_1_1?ie=UTF8&amp;qid=1455965297&amp;sr=8-1&amp;keywords=go+in+action" target="_blank" rel="external">Go in Action</a>
+　　</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Go/" rel="tag">#Go</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/12/go-in-action-并发/" rel="next" title="【翻译】Go in Action：并发">
+                <i class="fa fa-chevron-left"></i> 【翻译】Go in Action：并发
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/21/nginx配置/" rel="prev" title="Nginx 服务器：基本配置">
+                Nginx 服务器：基本配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义类型"><span class="nav-number">1.</span> <span class="nav-text">自定义类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">2.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类型的性质"><span class="nav-number">3.</span> <span class="nav-text">类型的性质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接口"><span class="nav-number">4.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,641 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,algorithm," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="在图的构造，我们可以使用MatrixGraph或ListGraph来构造图。通常，我们需要知道在图中任意的两个顶点是否连通，也就是在图中是否存在路径使得一个顶点可以到达另一顶点，这种问题称为图的路径搜索。
+路径连通两个顶点　　为了判断两个顶点是否连通，可以使用深度优先搜索算法，这是一种递归的算法，例如，为了判断顶点A和B是否连通，我们可以分别判断A的所有相邻顶点是否存在路径到达B，若存在这样的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图算法（二）-- 无向图的路径搜索">
+<meta property="og:url" content="http://yoursite.com/2015/02/24/图的路径搜索/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在图的构造，我们可以使用MatrixGraph或ListGraph来构造图。通常，我们需要知道在图中任意的两个顶点是否连通，也就是在图中是否存在路径使得一个顶点可以到达另一顶点，这种问题称为图的路径搜索。
+路径连通两个顶点　　为了判断两个顶点是否连通，可以使用深度优先搜索算法，这是一种递归的算法，例如，为了判断顶点A和B是否连通，我们可以分别判断A的所有相邻顶点是否存在路径到达B，若存在这样的">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/gra.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/gg.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/gga.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/gpa.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/gac.png">
+<meta property="og:updated_time" content="2015-08-21T16:12:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="图算法（二）-- 无向图的路径搜索">
+<meta name="twitter:description" content="在图的构造，我们可以使用MatrixGraph或ListGraph来构造图。通常，我们需要知道在图中任意的两个顶点是否连通，也就是在图中是否存在路径使得一个顶点可以到达另一顶点，这种问题称为图的路径搜索。
+路径连通两个顶点　　为了判断两个顶点是否连通，可以使用深度优先搜索算法，这是一种递归的算法，例如，为了判断顶点A和B是否连通，我们可以分别判断A的所有相邻顶点是否存在路径到达B，若存在这样的">
+<meta name="twitter:image" content="http://yoursite.com/images/data-structure/gra.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/02/24/图的路径搜索/"/>
+
+  <title> 图算法（二）-- 无向图的路径搜索 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                图算法（二）-- 无向图的路径搜索
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-24T13:47:11+08:00" content="2015-02-24">
+              2015-02-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/算法分析/" itemprop="url" rel="index">
+                    <span itemprop="name">算法分析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>　　在<a href="http://senlinzhan.github.io/2015/02/23/%E5%9B%BE%E7%9A%84%E6%9E%84%E9%80%A0/" target="_blank" rel="external">图的构造</a>，我们可以使用<code>MatrixGraph</code>或<code>ListGraph</code>来构造图。通常，我们需要知道在图中任意的两个顶点是否连通，也就是在图中是否存在路径使得一个顶点可以到达另一顶点，这种问题称为图的路径搜索。</p>
+<h2 id="路径连通两个顶点"><a href="#路径连通两个顶点" class="headerlink" title="路径连通两个顶点"></a>路径连通两个顶点</h2><p>　　为了判断两个顶点是否连通，可以使用<strong>深度优先搜索算法</strong>，这是一种递归的算法，例如，为了判断顶点<code>A</code>和<code>B</code>是否连通，我们可以分别判断<code>A</code>的所有相邻顶点是否存在路径到达<code>B</code>，若存在这样的路径，那就说明<code>A</code>和<code>B</code>是连通的。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Graph&gt;</div><div class="line"><span class="keyword">class</span> ExistPath</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    ExistPath( <span class="keyword">const</span> Graph &amp;g )</div><div class="line">        : graph_( g ) &#123; &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 判断顶点 src 和 des 是否连通    </span></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">connected</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des )</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; visited( graph_.vectixSize(), <span class="literal">false</span> );</div><div class="line">        <span class="keyword">return</span> search( src, des, visited );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 若顶点 src 和 des 连通，则输出一条从 src 到 des 的路径</span></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">printEdgesIfExist</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des )</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"path from "</span> &lt;&lt; src &lt;&lt; <span class="string">" to "</span> &lt;&lt; des &lt;&lt; <span class="string">": "</span>;</div><div class="line">        <span class="keyword">auto</span> result = processEdgesIfExist( src, des, </div><div class="line">                                           []( <span class="keyword">unsigned</span> left, <span class="keyword">unsigned</span> right ) &#123;</div><div class="line">                                               <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; left &lt;&lt; <span class="string">"-"</span> &lt;&lt; right &lt;&lt; <span class="string">" "</span>;</div><div class="line">                                           &#125;);</div><div class="line">        <span class="keyword">if</span>( !result ) &#123;</div><div class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"does not exists!"</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        <span class="keyword">return</span> result;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> BinaryFunction&gt;</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">processEdgesIfExist</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des, BinaryFunction binaryFunc )</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; visited( graph_.vectixSize(), <span class="literal">false</span> );</div><div class="line">        <span class="keyword">return</span> process( des, src, visited, binaryFunc );</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">const</span> Graph &amp;graph_;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">search</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; &amp;visited )</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span>( src == des ) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">        &#125;</div><div class="line">        visited[src] = <span class="literal">true</span>;</div><div class="line">        <span class="keyword">for</span>( <span class="keyword">auto</span> iter = graph_.cbegin( src ); iter != graph_.cend( src ); ++iter ) &#123;</div><div class="line">            <span class="keyword">if</span>( !visited[*iter] ) &#123;</div><div class="line">                <span class="keyword">if</span>( search( *iter, des, visited ) ) &#123;</div><div class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> BinaryFunction&gt;</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">process</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; &amp;visited, </span></span></div><div class="line">                 BinaryFunction binaryFunc ) <span class="keyword">const</span> &#123;</div><div class="line">        <span class="keyword">if</span>( src == des ) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">        &#125;</div><div class="line">        visited[src] = <span class="literal">true</span>;</div><div class="line">        <span class="keyword">for</span>( <span class="keyword">auto</span> iter = graph_.cbegin( src ); iter != graph_.cend( src ); ++iter ) &#123;</div><div class="line">            <span class="keyword">if</span>( !visited[*iter] ) &#123;</div><div class="line">                <span class="keyword">if</span>( process( *iter, des, visited, binaryFunc ) ) &#123;</div><div class="line">                    binaryFunc( *iter, src );</div><div class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　通常，我们使用<code>MatrixGraph</code>来表示密集图，而使用<code>ListGraph</code>来表示稀疏图，为了判断两个顶点是否连通，我们需要考虑<strong>最坏情况下</strong>算法的执行性能：</p>
+<ul>
+<li>对于密集图来说，图的大小为$V^2$，图的边数正比于$V^2$，因此，判断两个顶点是否连通，在最坏情况下，需要对每条边进行检查，算法的时间复杂度为$O(V^2)$，即与图的大小成线性关系。</li>
+<li>对于稀疏图来说，图的大小为<code>V + E</code>，判断两个顶点是否连通，在最坏情况下，算法的时间复杂度为<code>O(V + E)</code>，即与图的大小成线性关系。</li>
+</ul>
+<p>　　使用深度优先算法通常很少会出现最坏情况，实际上判断两个顶点是否连通，有时也可能只需要检查少数的几条边即可。<br>　　我们使用以下程序构造简单的图，判断顶点<code>2</code>和顶点<code>6</code>之间是否存在路径：<br><img src="/images/data-structure/gra.png" alt=""><br>　　若顶点<code>2</code>和<code>6</code>之间存在路径，可以输出这条路径：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"Edge.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"ListGraph.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"ExistPath.hpp"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">constexpr</span> <span class="keyword">int</span> VECTIX_NUMBER = <span class="number">100</span>;</div><div class="line">    <span class="function">ListGraph <span class="title">sparseGraph</span><span class="params">( VECTIX_NUMBER )</span></span>;</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">1</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">2</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">5</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">6</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">1</span>, <span class="number">2</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">2</span>, <span class="number">3</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">2</span>, <span class="number">4</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">3</span>, <span class="number">4</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">4</span>, <span class="number">5</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">4</span>, <span class="number">6</span> ) );</div><div class="line">    ExistPath&lt;ListGraph&gt; path( sparseGraph );</div><div class="line">    path.printEdgesIfExist( <span class="number">2</span>, <span class="number">6</span> );</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">// path from 2 to 6: 2-0 0-5 5-4 4-6</span></div></pre></td></tr></table></figure></p>
+<h2 id="历遍所有顶点一次"><a href="#历遍所有顶点一次" class="headerlink" title="历遍所有顶点一次"></a>历遍所有顶点一次</h2><p>　　给定两个顶点，我们可以判断这两个顶点之间是否存在路径，使得这条路径能够包含图中的<strong>所有顶点</strong>，并且每个顶点只在这条路径中<strong>出现一次</strong>。<br>　　同样，使用深度优先搜索算法。若图中的总顶点数为<code>V</code>，假定需要寻找<code>A</code>到<code>B</code>之间的路径，那么我们从<code>A</code>出发，要是在历遍的过程中经过的顶点数恰好为<code>V</code>并且路径的末尾为<code>B</code>，那么这样的路径就存在。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Graph&gt;</div><div class="line"><span class="keyword">class</span> ExistPathTraverseOnce</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    ExistPathTraverseOnce( <span class="keyword">const</span> Graph &amp;g )</div><div class="line">        : graph_( g ) &#123; &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">traverseOnce</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des )</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; visited( graph_.vectixSize(), <span class="literal">false</span> );</div><div class="line">        <span class="keyword">return</span> traverseOnce( src, des, visited, graph_.vectixSize() );</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">printPathIfExist</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des )</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; visited( graph_.vectixSize(), <span class="literal">false</span> );</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"path from "</span> &lt;&lt; src &lt;&lt; <span class="string">" to "</span> &lt;&lt; des </div><div class="line">                  &lt;&lt; <span class="string">" traverse all vectix once: "</span>;</div><div class="line">        <span class="keyword">auto</span> result = processOnce( des, src, visited, graph_.vectixSize(), </div><div class="line">                                   []( <span class="keyword">unsigned</span> left, <span class="keyword">unsigned</span> right ) &#123;</div><div class="line">                                       <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; left &lt;&lt; <span class="string">"-"</span> &lt;&lt; right &lt;&lt; <span class="string">" "</span>;</div><div class="line">                                   &#125;);</div><div class="line">        <span class="keyword">if</span>( !result ) &#123;</div><div class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"does not exists!"</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        <span class="keyword">return</span> result;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    </div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">const</span> Graph &amp;graph_;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">traverseOnce</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des, </span></span></div><div class="line">                       <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; &amp;visited, <span class="keyword">unsigned</span> vectixNum ) <span class="keyword">const</span> &#123;</div><div class="line">        <span class="keyword">if</span>( src == des ) &#123;</div><div class="line">            <span class="keyword">return</span> vectixNum == <span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">        visited[src] = <span class="literal">true</span>;</div><div class="line">        <span class="keyword">for</span>( <span class="keyword">auto</span> iter = graph_.cbegin( src ); iter != graph_.cend( src ); ++iter ) &#123;</div><div class="line">            <span class="keyword">if</span>( !visited[*iter] ) &#123;</div><div class="line">                <span class="keyword">if</span>( traverseOnce( *iter, des, visited, vectixNum - <span class="number">1</span> ) ) &#123;</div><div class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        visited[src] = <span class="literal">false</span>;                         <span class="comment">// 若路径不存在，则恢复 visited[src] 的值</span></div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> BinaryFunction&gt;</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">processOnce</span><span class="params">( <span class="keyword">unsigned</span> src, <span class="keyword">unsigned</span> des, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; &amp;visited, </span></span></div><div class="line">                      <span class="keyword">unsigned</span> vectixNum, BinaryFunction binaryFunc ) <span class="keyword">const</span> &#123;</div><div class="line">        <span class="keyword">if</span>( src == des ) &#123;</div><div class="line">            <span class="keyword">return</span> vectixNum == <span class="number">1</span>;</div><div class="line">        &#125; </div><div class="line">        visited[src] = <span class="literal">true</span>;</div><div class="line">        <span class="keyword">for</span>( <span class="keyword">auto</span> iter = graph_.cbegin( src ); iter != graph_.cend( src ); ++iter ) &#123;</div><div class="line">            <span class="keyword">if</span>( !visited[*iter] ) &#123;</div><div class="line">                <span class="keyword">if</span>( processOnce( *iter, des, visited, vectixNum - <span class="number">1</span>, binaryFunc ) ) &#123;</div><div class="line">                    binaryFunc( *iter, src );</div><div class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        visited[src] = <span class="literal">false</span>;</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　例如，我们构建以下的图：<br><img src="/images/data-structure/gg.png" alt=""><br>　　判断两个顶点之间是否存在路径，使得这条路径中包含图中的所有顶点，并且仅包含一次：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"Edge.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"ListGraph.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"ExistPathTraverseOnce.hpp"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">constexpr</span> <span class="keyword">int</span> VECTIX_NUMBER = <span class="number">7</span>;</div><div class="line">    <span class="function">ListGraph <span class="title">sparseGraph</span><span class="params">( VECTIX_NUMBER )</span></span>;</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">1</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">2</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">5</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">6</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">1</span>, <span class="number">2</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">1</span>, <span class="number">3</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">2</span>, <span class="number">3</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">2</span>, <span class="number">4</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">3</span>, <span class="number">4</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">3</span>, <span class="number">5</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">4</span>, <span class="number">5</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">4</span>, <span class="number">6</span> ) );</div><div class="line">    ExistPathTraverseOnce&lt;ListGraph&gt; path( sparseGraph );</div><div class="line">    path.printPathIfExist( <span class="number">0</span>, <span class="number">6</span> );</div><div class="line">    path.printPathIfExist( <span class="number">0</span>, <span class="number">5</span> );</div><div class="line">    path.printPathIfExist( <span class="number">0</span>, <span class="number">4</span> );</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">/***</span></div><div class="line">path from 0 to 6 traverse all vectix once: 0-1 1-2 2-3 3-5 5-4 4-6 </div><div class="line">path from 0 to 5 traverse all vectix once: 0-6 6-4 4-2 2-1 1-3 3-5 </div><div class="line">path from 0 to 4 traverse all vectix once: does not exists!</div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　注意，在<code>traverseOnce()</code>或<code>processOnce()</code>中，要是寻找的路径不存在，需要将<code>visited[src]</code>设置成<code>false</code>。实际上，在最坏情况下，算法需要对图中的每条路径进行检查，以求找到符合条件的路径，因此，在最坏情况下，<code>printPathIfExist()</code>的为<strong>指数时间</strong>操作。</p>
+<h2 id="历遍所有的边一次"><a href="#历遍所有的边一次" class="headerlink" title="历遍所有的边一次"></a>历遍所有的边一次</h2><p>　　对于特定的顶点来说，通常存在几条边与之直接相连，假定一个顶点存在<code>n</code>条边与之直接相连，那么，这个顶点的度数<code>(degree)</code>就是<code>n</code>。我们可以定义<code>Degree</code>类来存储图中所有顶点的度数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Graph&gt;</div><div class="line"><span class="keyword">class</span> Degree</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    Degree( <span class="keyword">const</span> Graph &amp;g )</div><div class="line">        :graph_( g ), degree_( g.vectixSize(), <span class="number">0</span> ) &#123;</div><div class="line">        <span class="keyword">for</span>( <span class="keyword">unsigned</span> vectix = <span class="number">0</span>; vectix &lt; g.vectixSize(); ++vectix ) &#123;</div><div class="line">            <span class="keyword">for</span>( <span class="keyword">auto</span> iter = graph_.cbegin( vectix ); iter != graph_.cend( vectix ); ++iter ) &#123;</div><div class="line">                ++degree_[vectix];</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="title">getDegree</span><span class="params">( <span class="keyword">unsigned</span> vectix )</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        assert( vectix &lt; graph_.vectixSize() );</div><div class="line">        <span class="keyword">return</span> degree_[vectix]; </div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">const</span> Graph &amp;graph_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">unsigned</span>&gt; degree_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　要是图的边数为<code>E</code>，顶点数为<code>V</code>，那么对于邻接链表来说，寻找所有顶点的度数的时间为<code>O(E)</code>，而对于邻接矩阵来说，寻找所有顶点的度数的时间则是$O(V^2)$。<br>　　对于给定的图，可以判断是否存在<code>Euler tour</code>的路径：假定我们图中的某一顶点出发，历遍图中所有的边一次，并最后到达出发时的顶点。<br>　　与之类似，对于给定的图，可以判断是否存在<code>Euler path</code>的路径：假定我们图中的某一顶点出发，历遍图中所有的边一次，并最后到达另一个顶点。<br><img src="/images/data-structure/gga.png" alt=""><br>　　判断图是否存在<code>Euler tour</code>：图是连通的，并且它的所有顶点的度数都是偶数。而判断图是否存在<code>Euler path</code>：图是连通的，并且只拥有两个顶点的度数是奇数，其余顶点的度数是偶数的。<br>　　我们可以使用<code>ExistEulerTour</code>来获得<code>Euler tour</code>路径，对于给定的图，若存在这样的路径，那么每条边的度数均为偶数。<br>　　例如，我们使用以下程序构造图，要是图存在<code>Euler tour</code>路径，那么从任一顶点出发，历遍图中所有的边一次之后将会回到出发点：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"Edge.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"ListGraph.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"ExistEulerPath.hpp"</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">constexpr</span> <span class="keyword">int</span> VECTIX_NUMBER = <span class="number">7</span>;</div><div class="line">    <span class="function">ListGraph <span class="title">sparseGraph</span><span class="params">( VECTIX_NUMBER )</span></span>;</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">1</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">2</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">5</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">0</span>, <span class="number">6</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">1</span>, <span class="number">2</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">2</span>, <span class="number">3</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">2</span>, <span class="number">4</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">3</span>, <span class="number">4</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">4</span>, <span class="number">5</span> ) );</div><div class="line">    sparseGraph.addEdge( Edge( <span class="number">4</span>, <span class="number">6</span> ) );</div><div class="line">    ExistEulerTour&lt;ListGraph, Edge&gt; path( sparseGraph );</div><div class="line">    path.printPathIfExist( <span class="number">0</span> );                          <span class="comment">// 从顶点 0 开始历遍</span></div><div class="line">    path.printPathIfExist( <span class="number">1</span> );                          <span class="comment">// 从顶点 1 开始历遍</span></div><div class="line">    path.printPathIfExist( <span class="number">2</span> );                          <span class="comment">// 从顶点 2 开始历遍</span></div><div class="line">    path.printPathIfExist( <span class="number">3</span> );                          <span class="comment">// 从顶点 3 开始历遍</span></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">/***</span></div><div class="line">exists Euler tour: 0-1-2-3-4-2-0-5-4-6-0</div><div class="line">exists Euler tour: 1-0-2-3-4-5-0-6-4-2-1</div><div class="line">exists Euler tour: 2-0-1-2-3-4-5-0-6-4-2</div><div class="line">exists Euler tour: 3-2-0-1-2-4-5-0-6-4-3</div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　实际上，在每次调用<code>ExistEulerTour</code>的<code>printPathIfExist()</code>成员函数时，我们需要创建原来图的一个副本，因为在历遍图的过程需要不断删除这个副本中的边。<br>　　每次访问一条边之后，就需要将这条边从图中删除，我们使用一个栈保存历遍过程所遇到的顶点。例如，对于以下的图，从顶点<code>0</code>开始历遍，历遍的路径以蓝色显示，每次历遍一条边时就将这条边从图中删除：<br><img src="/images/data-structure/gpa.png" alt=""><br>　　可以看到，从顶点<code>0</code>出发，经过路径<code>0-1-2-0-5-4-6-0</code>到达顶点<code>0</code>，此时还存在三条边没有被访问（图中黑色的边），这时需要在栈中弹出顶点，要是弹出的顶点拥有与之直接相连的边，那么就继续访问这些边：<br><img src="/images/data-structure/gac.png" alt=""><br>　　每次我们输出栈弹出的顶点，就可以得到逆向的历遍路径：<code>0-6-4-2-3-4-5-0-2-1-0</code>。  　　<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"Degree.hpp"</span></span></div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Graph, <span class="keyword">typename</span> Edge&gt;</div><div class="line"><span class="keyword">class</span> ExistEulerTour</div><div class="line">&#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">const</span> Graph &amp;graph_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">unsigned</span>&gt; vectixStack_;</div><div class="line"></div><div class="line"><span class="keyword">public</span>:</div><div class="line">    ExistEulerTour( <span class="keyword">const</span> Graph &amp;g ) : graph_( g ) &#123; &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 判断是否存在 Euler tour </span></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">exists</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">        Degree&lt;Graph&gt; degrees( graph_ );</div><div class="line">        <span class="keyword">for</span>( <span class="keyword">unsigned</span> vectix = <span class="number">0</span>; vectix &lt; graph_.vectixSize(); ++vectix ) &#123;</div><div class="line">            <span class="keyword">if</span>( degrees.getDegree( vectix ) % <span class="number">2</span> != <span class="number">0</span> ) &#123;</div><div class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">printPathIfExist</span><span class="params">( <span class="keyword">unsigned</span> vectix )</span> </span>&#123;</div><div class="line">       <span class="keyword">if</span>( !exists() ) &#123;</div><div class="line">           <span class="keyword">return</span>;</div><div class="line">       &#125;</div><div class="line">       Graph graphCopy = graph_;                           <span class="comment">// 创建原来图的副本 graphCopy</span></div><div class="line">       vectixStack_ = <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">unsigned</span>&gt;();              <span class="comment">// 清空 vectixStack_</span></div><div class="line">       <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"exists Euler tour: "</span> &lt;&lt; vectix;</div><div class="line">       <span class="keyword">while</span>( tour( graphCopy, vectix ) == vectix &amp;&amp; !vectixStack_.empty() ) &#123;</div><div class="line">           vectix = vectixStack_.top();</div><div class="line">           vectixStack_.pop();</div><div class="line">           <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"-"</span> &lt;&lt; vectix;</div><div class="line">       &#125;</div><div class="line">       <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="title">tour</span><span class="params">( Graph &amp;graph, <span class="keyword">unsigned</span> vectix )</span> </span>&#123;</div><div class="line">        <span class="keyword">while</span>( <span class="literal">true</span> ) &#123;</div><div class="line">            <span class="keyword">auto</span> iter = graph.cbegin( vectix );</div><div class="line">            <span class="keyword">if</span>( iter == graph.cend( vectix ) ) &#123;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125; </div><div class="line">            vectixStack_.push( vectix );</div><div class="line">            graph.removeEdge( Edge( vectix, *iter ) );</div><div class="line">            vectix = *iter;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> vectix;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　实际上，寻找<code>Euler tour</code>路径是一种高效的算法，例如，假定<code>removeEdge()</code>是常量时间操作，由于图中的每条边仅被压进栈中一次，因此，<code>printPathIfExist()</code>的复杂度为<code>O(E)</code>。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.amazon.com/Algorithms-Parts-1-4-Fundamentals-Structure/dp/0201350882" target="_blank" rel="external">Algorithms in C++ 3rd Edition by Robert Sedgewick</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/algorithm/" rel="tag">#algorithm</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/02/23/图的构造/" rel="next" title="图算法（一）-- 图的构造">
+                <i class="fa fa-chevron-left"></i> 图算法（一）-- 图的构造
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/02/27/图的搜索算法/" rel="prev" title="图算法（三）-- 无向图的搜索算法">
+                图算法（三）-- 无向图的搜索算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#路径连通两个顶点"><span class="nav-number">1.</span> <span class="nav-text">路径连通两个顶点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#历遍所有顶点一次"><span class="nav-number">2.</span> <span class="nav-text">历遍所有顶点一次</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#历遍所有的边一次"><span class="nav-number">3.</span> <span class="nav-text">历遍所有的边一次</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

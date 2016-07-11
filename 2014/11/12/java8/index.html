@@ -1,0 +1,663 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="接口中的默认方法　　在接口中允许定义带有具体实现的默认(default)方法，例如:1234567interface Formula &amp;#123;    double calculate( int a );    default double sqrt( int a ) &amp;#123;        return Math.sqrt( a );    &amp;#125;&amp;#125;
+　　由于已经实现了接口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 高级特性（二）-- Java 8 新特性">
+<meta property="og:url" content="http://yoursite.com/2014/11/12/java8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="接口中的默认方法　　在接口中允许定义带有具体实现的默认(default)方法，例如:1234567interface Formula &amp;#123;    double calculate( int a );    default double sqrt( int a ) &amp;#123;        return Math.sqrt( a );    &amp;#125;&amp;#125;
+　　由于已经实现了接口">
+<meta property="og:updated_time" content="2015-08-21T16:17:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 高级特性（二）-- Java 8 新特性">
+<meta name="twitter:description" content="接口中的默认方法　　在接口中允许定义带有具体实现的默认(default)方法，例如:1234567interface Formula &amp;#123;    double calculate( int a );    default double sqrt( int a ) &amp;#123;        return Math.sqrt( a );    &amp;#125;&amp;#125;
+　　由于已经实现了接口">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2014/11/12/java8/"/>
+
+  <title> Java 高级特性（二）-- Java 8 新特性 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java 高级特性（二）-- Java 8 新特性
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-11-12T15:30:18+08:00" content="2014-11-12">
+              2014-11-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="接口中的默认方法"><a href="#接口中的默认方法" class="headerlink" title="接口中的默认方法"></a>接口中的默认方法</h2><p>　　在接口中允许定义带有具体实现的默认<code>(default)</code>方法，例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Formula</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">double</span> <span class="title">calculate</span><span class="params">( <span class="keyword">int</span> a )</span></span>;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">double</span> <span class="title">sqrt</span><span class="params">( <span class="keyword">int</span> a )</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Math.sqrt( a );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　由于已经实现了接口中的默认方法,因此,在那些实现接口的类中,仅需给出抽象方法<code>calculate()</code>的实现,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Formula formula = <span class="keyword">new</span> Formula() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">calculate</span><span class="params">( <span class="keyword">int</span> value )</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> sqrt( value );</div><div class="line">    &#125; </div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h2 id="lambda-表达式"><a href="#lambda-表达式" class="headerlink" title="lambda 表达式"></a>lambda 表达式</h2><p>　　对字符串进行排序的一种方式:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">List&lt;String&gt; name = Arrays.asList( ”senlin”, ”zhan” );</div><div class="line">Collections.sort( name, <span class="keyword">new</span> Comparator&lt;String&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">( String a, String b )</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> a.compareTo( b );</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>lambda</code>表达式,简化代码:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Collections.sort( name, ( String a, String b ) −&gt; &#123;</div><div class="line">    <span class="keyword">return</span> a.compareTo( b );</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>　　此外,也可以省略<code>lambda</code>表达式的参数类型,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Collections.sort( name, ( a, b ) −&gt; a.compareTo( b ) );</div></pre></td></tr></table></figure></p>
+<h2 id="函数式接口"><a href="#函数式接口" class="headerlink" title="函数式接口"></a>函数式接口</h2><p>　　<code>lambda</code>表达式的类型即是函数式接口,接口中仅声明一个抽象方法，<code>lambda</code>表达式会与这个抽象方法相匹配,由于默认方法并不是抽象的,因此,接口中可以具备多个默认方法。<br>　　为确保函数式接口满足要求,可以在接口声明之前放置<code>@FunctionalInterface</code>注解,因此,当接口中多个一个抽象方法时,编译将会报错。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@FunctionalInterface</span></div><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Converter</span>&lt; <span class="title">F</span>, <span class="title">T</span> &gt;</span></div><div class="line">&#123;</div><div class="line">    convert( F from );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　创建<code>lambda</code>表达式:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Converter&lt;String, Integer&gt; converter = ( from ) −&gt; Integer.valueOf( from );</div><div class="line"><span class="keyword">int</span> converted = converter.convert( ”<span class="number">12345</span>” );</div></pre></td></tr></table></figure></p>
+<h2 id="方法引用"><a href="#方法引用" class="headerlink" title="方法引用"></a>方法引用</h2><p>　　使用方法引用,创建<code>lambda</code>表达式的另一种等价方式:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Converter&lt;String, Integer&gt; converter = Integer::valueof;</div></pre></td></tr></table></figure></p>
+<p>　　方法引用能作用于静态方法,此外,也能作用于非静态方法,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Something</span></span></div><div class="line">&#123;</div><div class="line">    <span class="function">String <span class="title">startsWith</span><span class="params">( String s )</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> String.valueOf( s.charAt( <span class="number">0</span> ) );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">// ...</span></div><div class="line">Something something = <span class="keyword">new</span> Something();</div><div class="line">Converter&lt;String, String&gt; converter = something::startsWith;</div><div class="line">String converted = converter.convert( ”Java” );</div></pre></td></tr></table></figure></p>
+<p>　　另外,也可以对构造方法使用方法引用,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span></span></div><div class="line">&#123;</div><div class="line">    String firstName;</div><div class="line">    String lastName;</div><div class="line">    Person() &#123; &#125;</div><div class="line">    Person( String firstName, String lastName )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">this</span>.firstName = firstName;</div><div class="line">        <span class="keyword">this</span>.lastName = lastName;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">PersonFactory</span>&lt; <span class="title">T</span> <span class="keyword">extends</span> <span class="title">Person</span> &gt;</span></div><div class="line">&#123;</div><div class="line">    <span class="function">T <span class="title">create</span><span class="params">( String firstName, String lastName )</span></span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ...</span></div><div class="line">PersonFactory&lt;Person&gt; factory = Person::<span class="keyword">new</span>;</div><div class="line">Person me = factory.create( ”senlin”, ”zhan” );</div></pre></td></tr></table></figure></p>
+<p>　　编译器会根据签名选择正确的构造方法。</p>
+<h2 id="在-lambda-访问外部变量"><a href="#在-lambda-访问外部变量" class="headerlink" title="在 lambda 访问外部变量"></a>在 lambda 访问外部变量</h2><p>　　<code>lambda</code>表达式中可以访问外部域的<code>final</code>局部变量、实例的字段和静态变量。</p>
+<h3 id="访问局部变量"><a href="#访问局部变量" class="headerlink" title="访问局部变量"></a>访问局部变量</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> <span class="keyword">int</span> num = <span class="number">10</span>;</div><div class="line">Converter&lt;Integer, String&gt; stringConverter = ( from ) −&gt; String.valueOf( from + num );</div><div class="line">stringConverter.convert( <span class="number">100</span> );           <span class="comment">// return ”110”</span></div></pre></td></tr></table></figure>
+<p>　　这里，可以省略<code>final</code>，但仍需将<code>num</code>当作<code>final</code>变量来使用，即在<code>lambda</code>表达式中不能修改变量<code>num</code>，此外，在其它位置亦不能修改<code>num</code>。</p>
+<h3 id="访问字段与静态变量"><a href="#访问字段与静态变量" class="headerlink" title="访问字段与静态变量"></a>访问字段与静态变量</h3><p>　　与访问局部变量不同,在<code>lambda</code>表达式中可以对实例的字段及静态变量执行读写操作,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LambdaTest</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> outerStaticNum;</div><div class="line">    <span class="keyword">int</span> outerNum;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">testScpoes</span><span class="params">()</span></span></div><div class="line">    &#123;</div><div class="line">        Converter&lt;Integer, String&gt; stringConverter1 = ( from ) −&gt; &#123;</div><div class="line">            outerNum = <span class="number">100</span>;</div><div class="line">            <span class="keyword">return</span> String.valueOf( from );</div><div class="line">        &#125;;</div><div class="line">        Converter&lt;Integer, String&gt; stringConverter2 = ( from ) −&gt; &#123;</div><div class="line">            outerStaticNum = <span class="number">100</span>;</div><div class="line">            <span class="keyword">return</span> String.valueOf( from );</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="访问函数式接口中的默认方法"><a href="#访问函数式接口中的默认方法" class="headerlink" title="访问函数式接口中的默认方法"></a>访问函数式接口中的默认方法</h3><p>　　注意,在<code>lambda</code>表达式中不能访问函数式接口中的默认方法,例如,以下语句将无法通过编译:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Formula formula = ( a ) −&gt; sqrt( a );        <span class="comment">// ERROR</span></div></pre></td></tr></table></figure></p>
+<h2 id="内置函数式接口"><a href="#内置函数式接口" class="headerlink" title="内置函数式接口"></a>内置函数式接口</h2><p>　　<code>Comparator</code>和<code>Runnable</code>函数式接口均通过使用<code>@FunctionalInterface</code>注解来支持<code>lambda</code>表达式,除此之外,还有以下的函数式接口:</p>
+<h3 id="Predicate接口"><a href="#Predicate接口" class="headerlink" title="Predicate接口"></a>Predicate接口</h3><p>　　<code>Predicate</code>接口中的<code>test()</code>方法接受一个参数,并返回<code>boolean</code>类型的值,此外,还包含了一些默认方法用于支持复杂的逻辑运算:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Predicate&lt;String&gt; predicate = ( str ) −&gt; str.length() &gt; <span class="number">0</span>;</div><div class="line">predicate.test( ”Hello!” );                      <span class="comment">// return true</span></div><div class="line">predicate.negate().test( ”Hello!” );             <span class="comment">// return false</span></div><div class="line">Predicate&lt;String&gt; isEmpty = String::isEmpty;</div><div class="line">Predicate&lt;String&gt; isNotEmpty = isEmpty.negate();</div></pre></td></tr></table></figure></p>
+<h3 id="Function接口"><a href="#Function接口" class="headerlink" title="Function接口"></a>Function接口</h3><p>　　<code>Function</code>函数式接口中定义了<code>apply()</code>方法,第<code>1</code>个泛型参数表示<code>apply()</code>方法的参数类型,第<code>2</code>个泛型参数表示<code>apply()</code>方法的返回值类型。其默认方法可用于支持多个<code>Function</code>的链式操作,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Function&lt;String, Integer&gt; toInteger = Integer::valueOf;</div><div class="line">Function&lt;String, String&gt; backToInteger = toInteger.andThen( String::valueOf );</div><div class="line">backToInteger.apply( ”<span class="number">12345</span>” );             <span class="comment">// return ”12345”</span></div></pre></td></tr></table></figure></p>
+<h3 id="Supplier接口"><a href="#Supplier接口" class="headerlink" title="Supplier接口"></a>Supplier接口</h3><p>　　<code>Supplier</code>中的<code>get()</code>方法并不接受参数,<code>Supplier</code>函数式接口的泛型参数将作为<code>get()</code>方法的返回值类型。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Supplier&lt;Person&gt; personSupplier = Person::<span class="keyword">new</span>;</div><div class="line">personSupplier.get();</div></pre></td></tr></table></figure></p>
+<h3 id="Consumer接口"><a href="#Consumer接口" class="headerlink" title="Consumer接口"></a>Consumer接口</h3><p>　　<code>Consumer</code>函数式接口中的<code>accept()</code>方法接受一个输入参数,并不返回任何值,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Consumer&lt;Person&gt; greeter = ( person ) −&gt; System.out.println( ”Hello ” + person.firstName + ”!” );</div><div class="line">greeter.accept( <span class="keyword">new</span> Person( ”Senlin”, ”Zhan” ) );</div></pre></td></tr></table></figure></p>
+<h3 id="Comparator接口"><a href="#Comparator接口" class="headerlink" title="Comparator接口"></a>Comparator接口</h3><p>　　<code>Comparator</code>函数式接口中的<code>compare()</code>方法接受<code>2</code>个参数,其参数类型为接口的泛型参数,<code>compare()</code>返回<code>int</code>类型值,此外,<code>Comparator</code>中还增加了其它的默认方法。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Comparator&lt;Person&gt; comparator = ( p1, p2 ) −&gt; p1.firstName.compareTo( p2.firstName );</div><div class="line">Person p1 = <span class="keyword">new</span> Person( ”Senlin”, ”Zhan” ); <span class="number">4</span> Person p2 = <span class="keyword">new</span> Person( ”Mei”, ”Zhan” );</div><div class="line">comparator.compare( p1, p2 );                  <span class="comment">// return value &gt; 0</span></div><div class="line">comparator.reversed().compare( p1, p2 );       <span class="comment">// return value &lt; 0</span></div></pre></td></tr></table></figure></p>
+<h3 id="Optional值"><a href="#Optional值" class="headerlink" title="Optional值"></a>Optional值</h3><p>　　<code>Optional</code>并不是函数式接口, <code>Optional</code>可以用来作为其它值的容器,其包含的值可以是<code>null</code>或非<code>null</code>,使用<code>Optional</code>可以用来防止出现<code>NullPointerException</code>异常。设想,当一个方法有时返回一个非<code>null</code>值,而当这个方法不返回任何值时,在这种情况下,应当返回一个<code>Optional</code>值而不是返回<code>null</code>。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Optional&lt;String&gt; optional = Optional.of( ”my” );</div><div class="line">optional.isPresent();                                          <span class="comment">// return true</span></div><div class="line">optional.get();                                                <span class="comment">// return ”my”</span></div><div class="line">optional.orElse( ”me” );                                       <span class="comment">// return ”me”</span></div><div class="line">optional.ifPresent( (s) −&gt; System.out.println(s.charAt(<span class="number">0</span>)) );  <span class="comment">// print ”m”</span></div></pre></td></tr></table></figure></p>
+<p>　　使用<code>Optional</code>的<code>orElse()</code>方法, 当<code>Optional</code>中不包含任何值时, 将返回<code>orElse()</code>方法的参数。</p>
+<h3 id="Stream接口"><a href="#Stream接口" class="headerlink" title="Stream接口"></a>Stream接口</h3><p>　　<code>java.util.Stream</code>表示由一个或多个元素组成的序列,并且包含了对这些元素所执行的相关操作。<code>Stream</code>的操作可分为中间<code>(intermediate)</code>操作和终端<code>(terminal)</code>操作,终端操作能返回确切类型的结果,而中间操作则返回<code>Stream</code>本身,以支持链式方法调用。<code>Stream</code>的操作可以按顺序执行或按并行的方式执行。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">List&lt;String&gt; coll = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">coll.add( ”hello” );</div><div class="line">coll.add( ”world” );</div><div class="line">coll.add( ”senlin” );</div><div class="line">coll.add( ”mei” );</div></pre></td></tr></table></figure></p>
+<h4 id="filter操作"><a href="#filter操作" class="headerlink" title="filter操作"></a>filter操作</h4><p>　　<code>filter</code>为中间操作,操作接受一个<code>Predicate</code>类型的参数。而<code>forEach</code>为终端操作,接受一个<code>Consumer</code>类型的参数。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">coll.stream()</div><div class="line">    .filter( ( s ) −&gt; s.startsWith( ”s” ) )</div><div class="line">    .forEach( System.out::println );               <span class="comment">// print ”senlin”</span></div></pre></td></tr></table></figure></p>
+<h4 id="sorted操作"><a href="#sorted操作" class="headerlink" title="sorted操作"></a>sorted操作</h4><p>　　<code>sorted</code>为中间操作,用来返回一个排序元素的视图<code>(view)</code>,默认情况下,元素按照自然顺序排序,此外,也可以传递<code>Comparator</code>对象,用于指定特定的排序方式。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">coll.stream()</div><div class="line">    .sorted()</div><div class="line">    .forEach( System.out::println );</div></pre></td></tr></table></figure></p>
+<p>　　注意,<code>sorted</code>操作仅作用于其创建的视图，因此，<code>coll</code>中元素的顺序并没有发生改变。</p>
+<h4 id="map操作"><a href="#map操作" class="headerlink" title="map操作"></a>map操作</h4><p>　　<code>map</code>操作为中间操作,通过给定的<code>lambda</code>表达式,可以将<code>Stream</code>中每一个元素转换成为其它类型的对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">coll.stream()</div><div class="line">    .map( String::toUpperCase )</div><div class="line">    .sorted( ( a, b ) −&gt; b.compareTo( a ) )</div><div class="line">    .forEach( System.out::println );</div></pre></td></tr></table></figure></p>
+<h4 id="match操作"><a href="#match操作" class="headerlink" title="match操作"></a>match操作</h4><p>　　使用不同的<code>match</code>操作,可以判断<code>Stream</code>中的元素是否与指定的<code>Predicate</code>相匹配,这些<code>match</code>操作均为终端操作,并返回<code>boolean</code>类型值,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">boolean</span> anyStartsWithS = coll.stream()</div><div class="line">                             .anyMatch( ( s ) −&gt; s.startsWith( ”s” ) );</div><div class="line">System.out.println( anyStartsWithS );             <span class="comment">// print true</span></div><div class="line"></div><div class="line"><span class="keyword">boolean</span> allStartsWithS = coll.stream()</div><div class="line">                             .allMatch( ( s ) −&gt; s.startsWith( ”s” ) );</div><div class="line">System.out.println( allStartsWithS );             <span class="comment">// print false</span></div><div class="line"></div><div class="line"><span class="keyword">boolean</span> noneStartsWithS = coll.stream()</div><div class="line">                              .noneMatch( ( s ) −&gt; s.startsWith( ”s” ) );</div><div class="line">System.out.println( noneStartsWithS );            <span class="comment">// print false</span></div></pre></td></tr></table></figure></p>
+<h4 id="count操作"><a href="#count操作" class="headerlink" title="count操作"></a>count操作</h4><p>　　<code>count</code>是终端操作,返回一个<code>long</code>类型值表示<code>Stream</code>中元素的数目。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">long</span> numOfStartsWithS = coll.stream()</div><div class="line">                            .filter( ( s ) −&gt; s.startsWith( ”s” ) )</div><div class="line">                            .count();             <span class="comment">// return 1</span></div></pre></td></tr></table></figure></p>
+<h4 id="reduce操作"><a href="#reduce操作" class="headerlink" title="reduce操作"></a>reduce操作</h4><p>　　<code>reduce</code>为终端操作,其返回值为<code>Optional</code>类型:<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Optional&lt;String&gt; reduced = coll.stream()</div><div class="line">                               .sorted()</div><div class="line">                               .reduce( ( s1, s2 ) −&gt; s1 + ”#” + s2 );</div><div class="line">reduced.ifPresent( System.out::println );        // print ”hello#mei#senlin#world”</div></pre></td></tr></table></figure></p>
+<h2 id="Parallel-Stream"><a href="#Parallel-Stream" class="headerlink" title="Parallel Stream"></a>Parallel Stream</h2><p>　　对于并行<code>Stream</code>来说,其操作均在多条线程中并发地执行。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> max = <span class="number">1000000</span>;</div><div class="line">List&lt;String&gt; values = <span class="keyword">new</span> ArrayList&lt;&gt;( max );</div><div class="line"><span class="keyword">for</span> ( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; max; i++ ) &#123;</div><div class="line">    UUID uuid = UUID.randomUUID();</div><div class="line">    values.add( uuid.toString() );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="顺序排序"><a href="#顺序排序" class="headerlink" title="顺序排序"></a>顺序排序</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">long</span> time1 = System.nanoTime();</div><div class="line"><span class="keyword">long</span> count = values.stream()</div><div class="line">                   .sorted()</div><div class="line">                   .count();</div><div class="line"><span class="keyword">long</span> time2 = System.nanoTime();</div><div class="line"><span class="keyword">long</span> millis = TimeUnit.NANOSECONDS.toMillis( time2 − time1 );</div><div class="line">System.out.println( String.format( ”sequential sort took: %d ms”, millis ) );</div><div class="line"><span class="comment">// print ”sequential sort took: 1147 ms”</span></div></pre></td></tr></table></figure>
+<h3 id="并行排序"><a href="#并行排序" class="headerlink" title="并行排序"></a>并行排序</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">long</span> time1 = System.nanoTime();</div><div class="line"><span class="keyword">long</span> count = values.parallelStream()</div><div class="line">                   .sorted()</div><div class="line">                   .count();</div><div class="line"><span class="keyword">long</span> time2 = System.nanoTime();</div><div class="line"><span class="keyword">long</span> millis = TimeUnit.NANOSECONDS.toMillis( time2 − time1 );</div><div class="line">System.out.println( String.format( ”parallel sort took: %d ms”, millis ) );</div><div class="line"><span class="comment">// print ”parallel sort took: 767 ms”</span></div></pre></td></tr></table></figure>
+<h2 id="集合Map"><a href="#集合Map" class="headerlink" title="集合Map"></a>集合Map</h2><p>　　<code>Map</code>并不支持<code>Stream</code>的操作,因此,在<code>Map</code>中提供了新的方法用于支持类似于<code>Stream</code>的操作。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Map&lt;Integer, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ ) &#123;</div><div class="line">    map.putIfAbsent( i, ”val” + i );</div><div class="line">&#125;</div><div class="line">map.forEach( ( id, value ) −&gt; System.out.println( value ) );</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>Map</code>的<code>putIfAbsent()</code>方法为<code>Map</code>增加新的元素,但注意,仅有当元素的键在<code>Map</code>中不存在时,这个元素才会被加入到<code>Map</code>中。这可以防止对<code>Map</code>中既存的元素进行修改。此外,<code>Map</code>的<code>forEach()</code>方法接受一个带有<code>2</code>个参数的<code>lambda</code>表达式,用来对<code>Map</code>进行历遍,其中,这<code>2</code>个参数分别表示键和值。<br>　　可以使用<code>Map</code>的<code>computeIfPresent()</code>方法,当键存在时,可以对这个键所对应的值进行修改,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">map.computeIfPresent( <span class="number">5</span>, ( num, value ) −&gt; value + num );</div><div class="line">map.get( <span class="number">5</span> );            <span class="comment">// return ”value55”</span></div></pre></td></tr></table></figure></p>
+<p>但需注意,当<code>lambda</code>表达式中的语句为<code>null</code>时,若这个键存在,则这个键值对将被移除,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">map.computeIfPresent( <span class="number">2</span>, ( num, value ) −&gt; <span class="keyword">null</span> );</div><div class="line">map.containsKey( <span class="number">2</span> );    <span class="comment">// return false</span></div></pre></td></tr></table></figure></p>
+<p>　　使用<code>computeIfAbsent()</code>方法,当这个方法第<code>1</code>个参数指定的键不存在时,则<code>lambda</code>表达式将计算这个键所对应的值,并将这个键值对增加到<code>Map</code>中,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">map.computeIfAbsent( <span class="number">20</span>, num −&gt; ”val” + num );</div><div class="line">map.get( <span class="number">20</span> );            <span class="comment">// return ”val20”</span></div></pre></td></tr></table></figure></p>
+<p>　　注意,当指定的键不存在时,则<code>Map</code>中这个键并不存在相对应的值,因此,<code>lambda</code>表达式仅有一个参数,用来表示键。<br>　　而当<code>computeIfAbsent()</code>指定的键已经存在时,则这个方法将不对这个键值对做出修改,例如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">map.computeIfAbsent( <span class="number">6</span>, num −&gt; ”hello” );</div><div class="line">map.get( <span class="number">6</span> );             <span class="comment">// return ”val6”</span></div></pre></td></tr></table></figure></p>
+<p>　　此外,使用<code>Map</code>的<code>remove()</code>方法可以用来在<code>Map</code>中删除指定的键值对,但需注意,只有当指定的键值对在<code>Map</code>中存在时,这个键值对才会被移除,例如:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">map.remove( <span class="number">20</span>, ”val2” );</div><div class="line">map.get( <span class="number">20</span> );                    <span class="comment">// return ”val20”</span></div><div class="line">map.remove( <span class="number">20</span>, ”val20” );</div><div class="line">map.get( <span class="number">20</span> );                    <span class="comment">// return null</span></div></pre></td></tr></table></figure>
+<p>　　另外一个有用的操作<code>getOrDefault()</code>的使用方式:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">map.getOrDefault( <span class="number">100</span>, ”not found” );        <span class="comment">// return ”not found”</span></div></pre></td></tr></table></figure></p>
+<p>　　使用<code>merge()</code>来改变键对应的值:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">map.merge( <span class="number">50</span>, ”val50”, ( value, newValue ) −&gt; value.concat( newValue ) );</div><div class="line">map.get( <span class="number">50</span> );                               <span class="comment">// return ”val50”</span></div></pre></td></tr></table></figure></p>
+<p>　　注意,键<code>50</code>在<code>Map</code>并不存在,因此,<code>Map</code>会增加新的键值对,而不会执行<code>merge()</code>中的<code>lambda</code>表达式。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">map.merge( <span class="number">50</span>, ”concat”, ( value, newValue ) −&gt; value.concat( newValue ) );</div><div class="line">map.get( <span class="number">50</span> );                              <span class="comment">// return ”val50concat”</span></div></pre></td></tr></table></figure></p>
+<p>　　当键存在时,则将执行<code>lambda</code>表达式,因此,与这个键相对应的值将会被修改,注意,<code>newValue</code>表示的即是<code>”concat”</code>。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/28/Java-network/" rel="next" title="Java 网络编程（一）">
+                <i class="fa fa-chevron-left"></i> Java 网络编程（一）
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/20/归并排序/" rel="prev" title="排序算法（一）-- 归并排序">
+                排序算法（一）-- 归并排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#接口中的默认方法"><span class="nav-number">1.</span> <span class="nav-text">接口中的默认方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lambda-表达式"><span class="nav-number">2.</span> <span class="nav-text">lambda 表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数式接口"><span class="nav-number">3.</span> <span class="nav-text">函数式接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法引用"><span class="nav-number">4.</span> <span class="nav-text">方法引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在-lambda-访问外部变量"><span class="nav-number">5.</span> <span class="nav-text">在 lambda 访问外部变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#访问局部变量"><span class="nav-number">5.1.</span> <span class="nav-text">访问局部变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问字段与静态变量"><span class="nav-number">5.2.</span> <span class="nav-text">访问字段与静态变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问函数式接口中的默认方法"><span class="nav-number">5.3.</span> <span class="nav-text">访问函数式接口中的默认方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内置函数式接口"><span class="nav-number">6.</span> <span class="nav-text">内置函数式接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Predicate接口"><span class="nav-number">6.1.</span> <span class="nav-text">Predicate接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Function接口"><span class="nav-number">6.2.</span> <span class="nav-text">Function接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Supplier接口"><span class="nav-number">6.3.</span> <span class="nav-text">Supplier接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer接口"><span class="nav-number">6.4.</span> <span class="nav-text">Consumer接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Comparator接口"><span class="nav-number">6.5.</span> <span class="nav-text">Comparator接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Optional值"><span class="nav-number">6.6.</span> <span class="nav-text">Optional值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stream接口"><span class="nav-number">6.7.</span> <span class="nav-text">Stream接口</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#filter操作"><span class="nav-number">6.7.1.</span> <span class="nav-text">filter操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sorted操作"><span class="nav-number">6.7.2.</span> <span class="nav-text">sorted操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#map操作"><span class="nav-number">6.7.3.</span> <span class="nav-text">map操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#match操作"><span class="nav-number">6.7.4.</span> <span class="nav-text">match操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#count操作"><span class="nav-number">6.7.5.</span> <span class="nav-text">count操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#reduce操作"><span class="nav-number">6.7.6.</span> <span class="nav-text">reduce操作</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Parallel-Stream"><span class="nav-number">7.</span> <span class="nav-text">Parallel Stream</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顺序排序"><span class="nav-number">7.1.</span> <span class="nav-text">顺序排序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并行排序"><span class="nav-number">7.2.</span> <span class="nav-text">并行排序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集合Map"><span class="nav-number">8.</span> <span class="nav-text">集合Map</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

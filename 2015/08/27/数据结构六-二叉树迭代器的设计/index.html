@@ -1,0 +1,639 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,data-structure," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="中序历遍　　我们希望以升序的方式历遍二叉树，这种历遍方式就是中序历遍，好了，那看看中序历遍的非递归实现：12345678910111213141516171819template &amp;lt;typename UnaryFuncion&amp;gt;void inorderTraverse( UnaryFuncion visit ) const &amp;#123;    auto curr = root_;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构（六）-- 设计二叉树迭代器">
+<meta property="og:url" content="http://yoursite.com/2015/08/27/数据结构六-二叉树迭代器的设计/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="中序历遍　　我们希望以升序的方式历遍二叉树，这种历遍方式就是中序历遍，好了，那看看中序历遍的非递归实现：12345678910111213141516171819template &amp;lt;typename UnaryFuncion&amp;gt;void inorderTraverse( UnaryFuncion visit ) const &amp;#123;    auto curr = root_;">
+<meta property="og:updated_time" content="2015-09-09T06:04:41.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据结构（六）-- 设计二叉树迭代器">
+<meta name="twitter:description" content="中序历遍　　我们希望以升序的方式历遍二叉树，这种历遍方式就是中序历遍，好了，那看看中序历遍的非递归实现：12345678910111213141516171819template &amp;lt;typename UnaryFuncion&amp;gt;void inorderTraverse( UnaryFuncion visit ) const &amp;#123;    auto curr = root_;">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/08/27/数据结构六-二叉树迭代器的设计/"/>
+
+  <title> 数据结构（六）-- 设计二叉树迭代器 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                数据结构（六）-- 设计二叉树迭代器
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-08-27T20:01:10+08:00" content="2015-08-27">
+              2015-08-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="中序历遍"><a href="#中序历遍" class="headerlink" title="中序历遍"></a>中序历遍</h2><p>　　我们希望以升序的方式历遍二叉树，这种历遍方式就是<strong>中序</strong>历遍，好了，那看看中序历遍的<strong>非递归</strong>实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> UnaryFuncion&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">inorderTraverse</span><span class="params">( UnaryFuncion visit )</span> <span class="keyword">const</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">auto</span> curr = root_;        </div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;node_ptr&gt; nodeStack;</div><div class="line">    </div><div class="line">    <span class="keyword">while</span>( curr || !nodeStack.empty() )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">while</span>( curr )</div><div class="line">        &#123;</div><div class="line">            nodeStack.push( curr );</div><div class="line">            curr = curr-&gt;left;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">auto</span> top = nodeStack.top();</div><div class="line">        nodeStack.pop();</div><div class="line">        visit( top-&gt;value );</div><div class="line">        curr = top-&gt;right;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　可以想到，将中序历遍分成两部分，初始化阶段，以及迭代阶段。先看看<strong>初始化</strong>阶段：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> curr = root;</div><div class="line"><span class="keyword">while</span>( curr )</div><div class="line">&#123;</div><div class="line">    nodeStack.push( curr );</div><div class="line">    curr = curr-&gt;left;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　还有，<strong>迭代</strong>阶段：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> curr = <span class="built_in">stack</span>.top();</div><div class="line"><span class="built_in">stack</span>.pop();</div><div class="line"></div><div class="line">curr = curr-&gt;right;</div><div class="line"><span class="keyword">while</span>( curr )</div><div class="line">&#123;</div><div class="line">    <span class="built_in">stack</span>.push( curr );</div><div class="line">    curr = curr-&gt;left;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="迭代器设计"><a href="#迭代器设计" class="headerlink" title="迭代器设计"></a>迭代器设计</h2><p>　　二叉树的迭代器是 input iterator，可以这样设计：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> const_iterator</div><div class="line">&#123;</div><div class="line">    <span class="keyword">friend</span> <span class="keyword">class</span> BinaryTree;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">using</span> value_type          = T;</div><div class="line">    <span class="keyword">using</span> pointer             = <span class="keyword">const</span> T*;</div><div class="line">    <span class="keyword">using</span> reference           = <span class="keyword">const</span> T&amp;;</div><div class="line">    <span class="keyword">using</span> iterator_category   = <span class="built_in">std</span>::input_iterator_tag;        </div><div class="line"></div><div class="line">    reference <span class="keyword">operator</span>*() <span class="keyword">const</span>;</div><div class="line"></div><div class="line">    pointer <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span>;</div><div class="line"></div><div class="line">    const_iterator &amp;<span class="keyword">operator</span>++();</div><div class="line"></div><div class="line">    <span class="keyword">const</span> const_iterator <span class="keyword">operator</span>++(<span class="keyword">int</span>);</div><div class="line"></div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>==( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>!=( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line"><span class="keyword">protected</span>:</div><div class="line">    const_iterator( <span class="keyword">const</span> BinaryTree *t, <span class="keyword">bool</span> end ) </div><div class="line">        : tree( t ), index( <span class="number">0</span> ) </div><div class="line">    &#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">const</span> BinaryTree             *tree;</div><div class="line">    size_type                    index;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;node_ptr&gt;         <span class="built_in">stack</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　你可能觉得奇怪，为什么有一个成员变量<code>index</code>，考虑一下，我们要怎样比较两个迭代器相等？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>==( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> tree == other.tree &amp;&amp; <span class="built_in">stack</span> == other.<span class="built_in">stack</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　比较两个栈是否相等的<strong>开销</strong>比较大，使用<code>index</code>表示元素的编号，我们可以将其改成这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>==( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> tree == other.tree &amp;&amp; index == other.index;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>!=( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> !( *<span class="keyword">this</span> == other );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　接着看看构造函数，<code>end</code>为<code>true</code>的时候，表示我们创建的是由<code>end()</code>返回的迭代器：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">const_iterator( <span class="keyword">const</span> BinaryTree *t, <span class="keyword">bool</span> end ) </div><div class="line">    : tree( t ), index( <span class="number">0</span> )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>( end || tree-&gt;empty() )</div><div class="line">    &#123;</div><div class="line">        index = tree-&gt;size();</div><div class="line">    &#125; </div><div class="line">    <span class="keyword">else</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">auto</span> curr = tree-&gt;root_;</div><div class="line">        <span class="keyword">while</span>( curr )</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">stack</span>.push( curr );</div><div class="line">            curr = curr-&gt;left;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　可以这样创建迭代器：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function">const_iterator <span class="title">begin</span><span class="params">()</span> <span class="keyword">const</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> &#123; <span class="keyword">this</span>, <span class="literal">false</span> &#125;;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function">const_iterator <span class="title">end</span><span class="params">()</span> <span class="keyword">const</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> &#123; <span class="keyword">this</span>, <span class="literal">true</span> &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　迭代器的操作：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">reference <span class="keyword">operator</span>*() <span class="keyword">const</span></div><div class="line">&#123; </div><div class="line">    <span class="keyword">return</span> <span class="built_in">stack</span>.top()-&gt;value;</div><div class="line">&#125;</div><div class="line"></div><div class="line">pointer <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> &amp;( <span class="keyword">operator</span>*() );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="自增操作"><a href="#自增操作" class="headerlink" title="自增操作"></a>自增操作</h2><p>　　首先，看一下自增操作符：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">const_iterator &amp;<span class="keyword">operator</span>++();                  <span class="comment">// 前缀自增，例如 ++i</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> const_iterator <span class="keyword">operator</span>++(<span class="keyword">int</span>);          <span class="comment">// 后缀自增，例如 i++</span></div></pre></td></tr></table></figure></p>
+<p>　　使用后缀自增形式时，编译器会自动传递参数 0 给它：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> iter = tree.begin();</div><div class="line">++i;                        <span class="comment">// call iter.operator++();</span></div><div class="line">i++;                        <span class="comment">// call iter.operator++(0);</span></div></pre></td></tr></table></figure></p>
+<p>　　为什么后缀自增需要返回一个 <strong>const</strong> 的 const_iterator 呢？让我们看看基本类型后缀自增：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line">i++++;                      <span class="comment">// error: expression is not assignable</span></div></pre></td></tr></table></figure></p>
+<p>　　如果后缀自增返回的不是 const 的 const_iterator，那么，下面的操作就是合法的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> iter = tree.begin();</div><div class="line">iter++++;                   <span class="comment">// iter.operator++(0).operator++(0)</span></div></pre></td></tr></table></figure></p>
+<p>　　这种连续的后缀自增操作十分混淆，比如说<code>iter++</code>返回一个临时对象，接着对这个临时对象执行后缀自增操作，但实际上<code>iter</code>只增加了一次。所以我们让后缀自增返回一个 const 对象，以<strong>禁止</strong><code>iter++++</code>这种操作。</p>
+<hr>
+<p>　　来看看自增操作的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">const_iterator &amp;<span class="keyword">operator</span>++() </div><div class="line">&#123;</div><div class="line">    <span class="keyword">auto</span> curr = <span class="built_in">stack</span>.top();</div><div class="line">    <span class="built_in">stack</span>.pop();</div><div class="line">    </div><div class="line">    curr = curr-&gt;right;</div><div class="line">    <span class="keyword">while</span>( curr )</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">stack</span>.push( curr );</div><div class="line">        curr = curr-&gt;left;</div><div class="line">    &#125;</div><div class="line">    ++index;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">const</span> const_iterator <span class="keyword">operator</span>++(<span class="keyword">int</span>) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> oldIter = *<span class="keyword">this</span>;</div><div class="line">    ++(*<span class="keyword">this</span>);</div><div class="line">    <span class="keyword">return</span> oldIter;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　完整的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> const_iterator</div><div class="line">&#123;</div><div class="line">    <span class="keyword">friend</span> <span class="keyword">class</span> BinaryTree;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">using</span> value_type          = T;</div><div class="line">    <span class="keyword">using</span> pointer             = <span class="keyword">const</span> T*;</div><div class="line">    <span class="keyword">using</span> reference           = <span class="keyword">const</span> T&amp;;</div><div class="line">    <span class="keyword">using</span> iterator_category   = <span class="built_in">std</span>::input_iterator_tag;        </div><div class="line"></div><div class="line">    reference <span class="keyword">operator</span>*() <span class="keyword">const</span></div><div class="line">    &#123; </div><div class="line">        <span class="keyword">return</span> <span class="built_in">stack</span>.top()-&gt;value;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    pointer <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> &amp;( <span class="keyword">operator</span>*() );</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    const_iterator &amp;<span class="keyword">operator</span>++() </div><div class="line">    &#123;</div><div class="line">        <span class="keyword">auto</span> curr = <span class="built_in">stack</span>.top();</div><div class="line">        <span class="built_in">stack</span>.pop();</div><div class="line">        </div><div class="line">        curr = curr-&gt;right;</div><div class="line">        <span class="keyword">while</span>( curr )</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">stack</span>.push( curr );</div><div class="line">            curr = curr-&gt;left;</div><div class="line">        &#125;</div><div class="line">        ++index;</div><div class="line">        </div><div class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">const</span> const_iterator <span class="keyword">operator</span>++(<span class="keyword">int</span>) </div><div class="line">    &#123;</div><div class="line">        <span class="keyword">const</span> <span class="keyword">auto</span> oldIter = *<span class="keyword">this</span>;</div><div class="line">        ++(*<span class="keyword">this</span>);</div><div class="line">        <span class="keyword">return</span> oldIter;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>==( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> tree == other.tree &amp;&amp; index == other.index;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>!=( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> !( *<span class="keyword">this</span> == other );</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">protected</span>:</div><div class="line">    const_iterator( <span class="keyword">const</span> BinaryTree *t, <span class="keyword">bool</span> end ) </div><div class="line">        : tree( t ), index( <span class="number">0</span> )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( end || tree-&gt;empty() )</div><div class="line">        &#123;</div><div class="line">            index = tree-&gt;size();</div><div class="line">        &#125; </div><div class="line">        <span class="keyword">else</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">auto</span> curr = tree-&gt;root_;</div><div class="line">            <span class="keyword">while</span>( curr )</div><div class="line">            &#123;</div><div class="line">                <span class="built_in">stack</span>.push( curr );</div><div class="line">                curr = curr-&gt;left;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">const</span> BinaryTree             *tree;</div><div class="line">    size_type                    index;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;node_ptr&gt;         <span class="built_in">stack</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/More-Effective-Improve-Programs-Designs/dp/020163371X/ref=sr_1_1?ie=UTF8&amp;qid=1441775627&amp;sr=8-1&amp;keywords=more+effective" target="_blank" rel="external">More Effective C++: 35 New Ways to Improve Your Programs and Designs</a></li>
+<li><a href="http://www.amazon.com/Data-Structures-Algorithm-Analysis-C/dp/013284737X/ref=sr_1_4?s=books&amp;ie=UTF8&amp;qid=1422255950&amp;sr=1-4&amp;keywords=data+structure+and+algorithm+in+c%2B%2B" target="_blank" rel="external">Data Structures and Algorithm Analysis in C++ 4th Edition by Mark A. Weiss</a>
+　　　　</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/data-structure/" rel="tag">#data-structure</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/26/C-11并发编程-原子变量/" rel="next" title="C++11 并发编程（八）-- 原子">
+                <i class="fa fa-chevron-left"></i> C++11 并发编程（八）-- 原子
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/04/hello-world/" rel="prev" title="Hello World">
+                Hello World <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#中序历遍"><span class="nav-number">1.</span> <span class="nav-text">中序历遍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迭代器设计"><span class="nav-number">2.</span> <span class="nav-text">迭代器设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自增操作"><span class="nav-number">3.</span> <span class="nav-text">自增操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

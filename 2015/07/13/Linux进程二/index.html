@@ -1,0 +1,651 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="清除子进程　　当子进程终止之后，父进程应当清除子进程，否则子进程将成为僵尸 ( Zombies ) 进程。僵尸进程会占用系统资源，因此，long-running 程序应当清除已经终止的子进程。另一方面，当父进程终止时，它的子进程还未被清除，那么，内核将调用 init 进程来清除这些僵尸进程。12345#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;sys/wait">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 进程编程（二）-- 深入进程">
+<meta property="og:url" content="http://yoursite.com/2015/07/13/Linux进程二/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="清除子进程　　当子进程终止之后，父进程应当清除子进程，否则子进程将成为僵尸 ( Zombies ) 进程。僵尸进程会占用系统资源，因此，long-running 程序应当清除已经终止的子进程。另一方面，当父进程终止时，它的子进程还未被清除，那么，内核将调用 init 进程来清除这些僵尸进程。12345#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;sys/wait">
+<meta property="og:image" content="http://yoursite.com/images/linux/waitpid.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/status.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/stack.png">
+<meta property="og:updated_time" content="2015-07-14T01:08:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 进程编程（二）-- 深入进程">
+<meta name="twitter:description" content="清除子进程　　当子进程终止之后，父进程应当清除子进程，否则子进程将成为僵尸 ( Zombies ) 进程。僵尸进程会占用系统资源，因此，long-running 程序应当清除已经终止的子进程。另一方面，当父进程终止时，它的子进程还未被清除，那么，内核将调用 init 进程来清除这些僵尸进程。12345#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;sys/wait">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/waitpid.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/07/13/Linux进程二/"/>
+
+  <title> Linux 进程编程（二）-- 深入进程 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 进程编程（二）-- 深入进程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-07-13T20:02:29+08:00" content="2015-07-13">
+              2015-07-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/系统编程/" itemprop="url" rel="index">
+                    <span itemprop="name">系统编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="清除子进程"><a href="#清除子进程" class="headerlink" title="清除子进程"></a>清除子进程</h2><p>　　当子进程终止之后，父进程应当清除子进程，否则子进程将成为僵尸 ( Zombies ) 进程。僵尸进程会占用系统资源，因此，long-running 程序应当清除已经终止的子进程。另一方面，当父进程终止时，它的子进程还未被清除，那么，内核将调用 init 进程来清除这些僵尸进程。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">pid_t</span> waitpid( <span class="keyword">pid_t</span> pid, <span class="keyword">int</span> *status, <span class="keyword">int</span> option );</div><div class="line"><span class="comment">// return PID of child if OK, 0 ( if WNOHANG ) or -1 on error</span></div></pre></td></tr></table></figure></p>
+<p>　　在父进程中可以使用<code>waitpid()</code>来等待子进程终止，并清除子进程。我们可以使用<code>pid</code>来指定需要等待的子进程，<code>waitpid()</code>会暂停执行当前的进程，以等待这个子进程的终止。要是<code>pid</code>的值是<code>-1</code>，那么，当前进程将会等待它的子进程中其中一个进程的终止。<code>waitpid()</code>将会返回终止的子进程的 ID。</p>
+<hr>
+<p>　　另一方面，我们可以通过<code>option</code>参数来指定<code>waitpid()</code>的行为：</p>
+<blockquote>
+<p><img src="/images/linux/waitpid.png" alt=""></p>
+</blockquote>
+<hr>
+<p>　　有时候我们需要知道是什么原因导致了子进程的终止，<code>waitpid()</code>会将这个信息返回到<code>status</code>这个参数中，我们可以借由一系列的宏来解析这个值：</p>
+<blockquote>
+<p><img src="/images/linux/status.png" alt=""></p>
+</blockquote>
+<hr>
+<p>　　要是进程不存在子进程，那么调用<code>waitpid()</code>则会返回<code>-1</code>并将<code>errno</code>设置成<code>ECHILD</code>，另一方面，要是<code>waitpid()</code>被信号中断，那么，<code>waitpid()</code>则会返回<code>-1</code>并将<code>errno</code>设置成<code>EINTR</code>。</p>
+<hr>
+<p>　　另外，也可以使用<code>wait()</code>来等待子进程：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">pid_t</span> wait( <span class="keyword">int</span> *status );</div><div class="line"><span class="comment">// equals to call waitpid( -1, &amp;status, 0 );</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　使用<code>waitpid()</code>来等待子进程的终止：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> NUM 5</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">unix_error</span><span class="params">( <span class="keyword">char</span> *msg )</span> </span>&#123;</div><div class="line">    <span class="built_in">fprintf</span>( <span class="built_in">stderr</span>, <span class="string">"%s: %s\n"</span>, msg, strerror( errno ) );</div><div class="line">    <span class="built_in">exit</span>( <span class="number">1</span> );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line">    </div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NUM; ++i ) &#123;</div><div class="line">        <span class="keyword">pid_t</span> pid = fork();</div><div class="line">        <span class="keyword">if</span>( pid &lt; <span class="number">0</span> ) &#123;</div><div class="line">            unix_error( <span class="string">"fork() error"</span> );</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>( pid == <span class="number">0</span> ) &#123;</div><div class="line">            <span class="built_in">exit</span>( <span class="number">100</span> + i );             <span class="comment">// call exit() in child process</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> status;</div><div class="line">    <span class="keyword">while</span>( ( pid = waitpid( <span class="number">-1</span>, &amp;status, <span class="number">0</span> ) ) &gt; <span class="number">0</span> ) &#123;</div><div class="line">        <span class="keyword">if</span>( WIFEXITED( status ) ) &#123;</div><div class="line">            <span class="built_in">printf</span>( <span class="string">"child %d terminated normally with exit status=%d\n"</span>,</div><div class="line">                    pid, WEXITSTATUS( status ) );</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="built_in">printf</span>( <span class="string">"child %d terminated abnormally\n"</span>, pid );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span>( errno != ECHILD ) &#123;</div><div class="line">        unix_error( <span class="string">"waitpid() error"</span> );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line">child 20306 terminated normally with exit status=100</div><div class="line">child 20307 terminated normally with exit status=101</div><div class="line">child 20309 terminated normally with exit status=103</div><div class="line">child 20310 terminated normally with exit status=104</div><div class="line">child 20308 terminated normally with exit status=102</div><div class="line">**/</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　可以使用<code>sleep()</code>使当前进程休眠特定的时间：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">unsigned</span> <span class="title">sleep</span><span class="params">( <span class="keyword">unsigned</span> secs )</span></span>;</div><div class="line"><span class="comment">// return seconds left to sleep</span></div></pre></td></tr></table></figure></p>
+<p>　　要是<code>sleep()</code>被信号中断，则会返回剩下的还未进行休眠的时间。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pause</span><span class="params">( <span class="keyword">void</span> )</span></span>;</div><div class="line"><span class="comment">// always retutn -1</span></div></pre></td></tr></table></figure></p>
+<p>　　<code>pause()</code>可以使当前进行休眠，直到进程接收到特定的信号。</p>
+<h2 id="程序的载入与执行"><a href="#程序的载入与执行" class="headerlink" title="程序的载入与执行"></a>程序的载入与执行</h2><p>　　通常使用<code>execve()</code>来加载并执行<code>filename</code>指定的可执行文件，正常情况下<code>execve()</code>并不会返回，若遇到错误，则会返回<code>-1</code>。实际上，执行<code>execve()</code>的时候并不会创建新的进程，即进程的 ID 保持不变。进程的地址空间会被覆写，但新程序会继承进程原来打开的所有文件描述符。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">execve</span><span class="params">( <span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">const</span> <span class="keyword">char</span> *argv[], <span class="keyword">const</span> <span class="keyword">char</span> *envp[] )</span></span>;</div><div class="line"><span class="comment">// Does not return if OK, return -1 on error</span></div></pre></td></tr></table></figure></p>
+<p>　　当进程开始执行新的程序时，进程的栈的布局：<br><img src="/images/linux/stack.png" alt=""></p>
+<hr>
+<p>　　有时我们也需要获得进程的环境列表或设置环境列表：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> *<span class="title">getenv</span><span class="params">( <span class="keyword">const</span> <span class="keyword">char</span> *name )</span></span>;        </div><div class="line"><span class="comment">// return pointer to value specifying by name if exists, NULL if no match</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">setenv</span><span class="params">( <span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">const</span> <span class="keyword">char</span> *newvalue, <span class="keyword">int</span> overwrite )</span></span>;</div><div class="line"><span class="comment">// return 0 on success, -1 on error</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">unsetenv</span><span class="params">( <span class="keyword">const</span> <span class="keyword">char</span> *name )</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　我们知道，环境变量就是键值对，<code>getenv()</code>接受环境变量的键 ( Key )，并返回指向值 ( Value ) 的指针。而<code>unsetenv()</code>用来删除指定的键值对。<code>setenv()</code>用来设定新的键值对关系，要是<code>name</code>指定的键值对不存在，则插入新的键值对，另一方面，要是键值对已经存在于环境列表，并且<code>overwrite</code>的值不为<code>0</code>，则<code>setenv()</code>会使用<code>newvalue</code>来替代<code>oldvalue</code>。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Computer-Systems-Programmers-Perspective-2nd/dp/0136108040/ref=sr_1_2?ie=UTF8&amp;qid=1431613304&amp;sr=8-2&amp;keywords=computer+systems" target="_blank" rel="external">Computer Systems: A Programmer’s Perspective (2nd Edition)</a></li>
+<li><a href="http://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1432537210&amp;sr=8-1&amp;keywords=linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+<li><a href="http://www.amazon.com/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739/ref=sr_1_1?ie=UTF8&amp;qid=1433643440&amp;sr=8-1&amp;keywords=apue" target="_blank" rel="external">Advanced Programming in the UNIX Environment</a></li>
+<li><a href="http://www.amazon.com/Operating-Systems-Three-Easy-Pieces-ebook/dp/B00TPZ17O4/ref=sr_1_1?s=books&amp;ie=UTF8&amp;qid=1432537259&amp;sr=1-1&amp;keywords=operating+system+three+easy+pieces" target="_blank" rel="external">Operating Systems: Three Easy Pieces</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag">#Linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/20/高效C-11-深入理解std-move和std-forward/" rel="next" title="高效 C++11 -- 深入 std::move 和 std::forward">
+                <i class="fa fa-chevron-left"></i> 高效 C++11 -- 深入 std::move 和 std::forward
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/07/14/Linux信号/" rel="prev" title="Linux 系统编程 -- 信号">
+                Linux 系统编程 -- 信号 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#清除子进程"><span class="nav-number">1.</span> <span class="nav-text">清除子进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#程序的载入与执行"><span class="nav-number">2.</span> <span class="nav-text">程序的载入与执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

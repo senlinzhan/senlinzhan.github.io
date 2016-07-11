@@ -1,0 +1,678 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="network,Linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Socket　　不同的应用程序可以使用 socket 进行彼此间的通信。根据使用目的的不同，socket 有两种类型：
+
+Unix domain socket 允许同一主机的应用程序相互通信。
+Internet domain socket 则允许不同主机的应用程序相互通信。
+
+　　显然，我们需要使用 Internet domain socket 来支持不同应用程序的网络通信。在网络编程里面，常见的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 网络编程（二）-- 基本概念">
+<meta property="og:url" content="http://yoursite.com/2015/06/07/Linux网络编程一/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Socket　　不同的应用程序可以使用 socket 进行彼此间的通信。根据使用目的的不同，socket 有两种类型：
+
+Unix domain socket 允许同一主机的应用程序相互通信。
+Internet domain socket 则允许不同主机的应用程序相互通信。
+
+　　显然，我们需要使用 Internet domain socket 来支持不同应用程序的网络通信。在网络编程里面，常见的">
+<meta property="og:updated_time" content="2015-08-26T00:18:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 网络编程（二）-- 基本概念">
+<meta name="twitter:description" content="Socket　　不同的应用程序可以使用 socket 进行彼此间的通信。根据使用目的的不同，socket 有两种类型：
+
+Unix domain socket 允许同一主机的应用程序相互通信。
+Internet domain socket 则允许不同主机的应用程序相互通信。
+
+　　显然，我们需要使用 Internet domain socket 来支持不同应用程序的网络通信。在网络编程里面，常见的">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/06/07/Linux网络编程一/"/>
+
+  <title> Linux 网络编程（二）-- 基本概念 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 网络编程（二）-- 基本概念
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-06-07T08:34:59+08:00" content="2015-06-07">
+              2015-06-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Socket"><a href="#Socket" class="headerlink" title="Socket"></a>Socket</h2><p>　　不同的应用程序可以使用 socket 进行彼此间的通信。根据使用目的的不同，socket 有两种类型：</p>
+<ul>
+<li>Unix domain socket 允许同一主机的应用程序相互通信。</li>
+<li>Internet domain socket 则允许不同主机的应用程序相互通信。</li>
+</ul>
+<p>　　显然，我们需要使用 Internet domain socket 来支持不同应用程序的网络通信。在网络编程里面，常见的是 Client-Server 模式，也就是一个服务端响应多个客户端的模式。为使得 Client 和 Server 之间进行通信，Client 和 Server 各自都要创建一个 socket，并且利用 socket 进行通信。</p>
+<hr>
+<p>　　那么，要怎样才能创建 socket 呢？可以使用<code>socket()</code>系统调用：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">( <span class="keyword">int</span> domain , <span class="keyword">int</span> type , <span class="keyword">int</span> protocol )</span></span>;</div><div class="line"><span class="comment">// returns file descriptor on success, or –1 on error</span></div></pre></td></tr></table></figure></p>
+<p>　　我们可以通过<code>socket()</code>的参数来指定特定的 socket 类型：</p>
+<ul>
+<li><code>domain</code>可以是<code>AF_UNIX</code>、<code>AF_INET</code>或<code>AF_INET6</code>。<code>AF_UNIX</code>表示前面提到的 Unix domain socket，<code>AF_INET</code>表示使用 IPv4 协议的 Internet domain socket，而<code>AF_INET6</code>则表示使用 IPv6 协议的 Internet domain socket。</li>
+<li><code>type</code>的值可以是<code>SOCK_STREAM</code>或<code>SOCK_DGRAM</code>，其中<code>SOCK_STREAM</code>表示 TCP socket，而<code>SOCK_DGRAM</code>则表示 UDP socket。</li>
+<li><code>protocol</code>的值通常指定为 0。</li>
+</ul>
+<h2 id="IP-地址"><a href="#IP-地址" class="headerlink" title="IP 地址"></a>IP 地址</h2><p>　　Internet domain socket 有两种类型的 IP 地址，IPv4 以及 IPv6 这两种。实际上大多数与 socket 相关的系统调用能够同时处理 IPv4 的地址和 IPv6 的地址，例如<code>bind()</code>系统调用：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">bind</span><span class="params">( <span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr, <span class="keyword">socklen_t</span> len )</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，<code>bind()</code>的第二个参数的类型为<code>const struct sockaddr *</code>，也就是说结构体<code>sockaddr</code>既能表示 IPv4 的地址，也能表示 IPv6 的地址。</p>
+<hr>
+<p>　　让我们看看 Linux 中的<code>sockaddr</code>结构体：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> sockaddr</div><div class="line">&#123;</div><div class="line">    <span class="keyword">sa_family_t</span> sa_family;       <span class="comment">// address family, AF_xxx</span></div><div class="line">    <span class="keyword">char</span>        sa_data[<span class="number">14</span>];     <span class="comment">// 14 bytes of protocol address</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　可以将<code>sockaddr</code>看成地址模板，因为我们并不会直接使用<code>sockaddr</code>结构体。实际上我们使用<code>sockaddr_in</code>来表示 IPv4 的地址，而使用<code>sockaddr_in6</code>来表示 IPv6 的地址。<br>　　在实际使用的时候，例如，假定我们需要将一个<code>sockaddr_in *</code>类型的变量传递给<code>bind()</code>，那么，我们可以先将其显式地转换成<code>sockaddr *</code>类型，再传递给<code>bind()</code>。同样道理，也可以将<code>sockaddr_in6 *</code>类型的变量显式转换成为<code>sockaddr *</code>类型。通过这样做，<code>bind()</code>就能处理 IPv4 的地址，也能处理 IPv6 的地址了。</p>
+<hr>
+<p>　　<code>sockaddr_in</code>表示 IPv4 的地址：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ( IPv4 only −− see struct sockaddr_in6 for IPv6 )</span></div><div class="line"><span class="keyword">struct</span> sockaddr_in</div><div class="line">&#123;</div><div class="line">    <span class="keyword">sa_family_t</span>     sa_family;    <span class="comment">// Address family, AF_INET</span></div><div class="line">    <span class="keyword">in_port_t</span>       sin_port;     <span class="comment">// Port number, uint16_t</span></div><div class="line">    <span class="keyword">struct</span> in_addr  sin_addr;     <span class="comment">// Internet address</span></div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span>   sin_zero[<span class="number">8</span>];  <span class="comment">// Same size as struct sockaddr</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// ( IPv4 only −− see struct in6_addr for IPv6 )</span></div><div class="line"><span class="comment">// Internet address ( a structure for historical reasons )</span></div><div class="line"><span class="keyword">struct</span> in_addr</div><div class="line">&#123;</div><div class="line">    <span class="keyword">in_addr_t</span>     s_addr;          <span class="comment">// IPv4 address, uint32_t, network byte ordered </span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　实际上，类型<code>in_port_t</code>等同于<code>uint16_t</code>，而<code>in_addr_t</code>则等同于<code>uint32_t</code>。可以看到，<code>sockaddr_in</code>拥有一个<code>in_addr</code>类型的结构体<code>sin_addr</code>，而实际上的 IPv4 地址就作为一个<code>uint32_t</code>的整数，存储在<code>sin_addr</code>的成员<code>s_addr</code>里面。</p>
+<hr>
+<p>　　同样道理，<code>sockaddr_in6</code>则表示 IPv6 的地址：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ( IPv6 only−−see struct sockaddr_in and struct in_addr for IPv4 )</span></div><div class="line"><span class="keyword">struct</span> sockaddr_in6 </div><div class="line">&#123;</div><div class="line">    <span class="keyword">sa_family_t</span>       sin6_family;     <span class="comment">// address family, AF_INET6</span></div><div class="line">    <span class="keyword">in_port_t</span>         sin6_port;       <span class="comment">// port number, Network Byte Order</span></div><div class="line">    <span class="keyword">uint32_t</span>          sin6_flowinfo;   <span class="comment">// IPv6 flow information</span></div><div class="line">    <span class="keyword">struct</span> in6_addr   sin6_addr;       <span class="comment">// IPv6 address</span></div><div class="line">    <span class="keyword">uint32_t</span>          sin6_scope_id;   <span class="comment">// Scope ID</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> in6_addr</div><div class="line">&#123;</div><div class="line">    <span class="keyword">uint8_t</span> sa_addr[<span class="number">16</span>];               <span class="comment">// IPv6 Address</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　我们知道，<code>in_addr</code>和<code>in6_addr</code>分别表示实际的 IP 地址，并且这些 IP 地址以二进制的形式进行存储，另一方面，这些二进制的 IP 地址还必须<strong>按照网络字节次序 ( 也即 Big-Endian 字节次序 ) 存放</strong>。</p>
+<p>　　但是有时我们需要将这些二进制的 IP 地址转换成字符串的形式，或者将字符串形式的 IP 地址转换成二进制形式，那么可以分别使用<code>inet_ntop()</code>或<code>inet_pton()</code>这两个函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="comment">// network to printable</span></div><div class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span> *<span class="title">inet_ntop</span><span class="params">( <span class="keyword">int</span> domain, <span class="keyword">const</span> <span class="keyword">void</span> *<span class="keyword">restrict</span> addr, </span></span></div><div class="line">                       <span class="keyword">char</span> *<span class="keyword">restrict</span> str, <span class="keyword">socklen_t</span> size );</div><div class="line"><span class="comment">// returns the str parameter on success, or NULL on failure ( and errno is set ).</span></div><div class="line"></div><div class="line"><span class="comment">// printable to network</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">inet_pton</span><span class="params">( <span class="keyword">int</span> domain, <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">restrict</span> str, <span class="keyword">void</span> *<span class="keyword">restrict</span> addr )</span></span>;</div><div class="line"><span class="comment">// returns 1 on success. It returns -1 if there was an error ( errno is set ),</span></div><div class="line"><span class="comment">// or 0 if the input isn't a valid IP address.</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　通过指定<code>domain</code>参数，例如，要是<code>domain</code>的值是<code>AF_INET</code>，那么则支持 IPv4 的地址转换，要是<code>domain</code>的值是<code>AF_INET6</code>，那就支持 IPv6 的地址转换。<br>　　例如，我们可以使用<code>inet_pton()</code>将包含 IP 地址的字符串转换成二进制的形式，存储进<code>sockaddr_in</code>的<code>sin_addr</code>成员，接着，我们也可以使用<code>inet_ntop()</code>将<code>sin_addr</code>所包含的二进制 IP 地址转换成为字符串形式：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// <span class="doctag">NOTE:</span> lack of error handling</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    sockaddr_in sa;</div><div class="line">    inet_pton( AF_INET, <span class="string">"192.179.199.38"</span>, &amp;( sa.sin_addr ) );</div><div class="line">    </div><div class="line">    <span class="keyword">char</span> str[INET_ADDRSTRLEN];</div><div class="line">    inet_ntop( AF_INET, &amp;( sa.sin_addr ), str, INET_ADDRSTRLEN );</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; str &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">/*</span></div><div class="line">192.179.199.38</div><div class="line">*/</div></pre></td></tr></table></figure></p>
+<h2 id="DNS-查询"><a href="#DNS-查询" class="headerlink" title="DNS 查询"></a>DNS 查询</h2><p>　　假定我们需要知道某个特定域名的 IP 地址，那么就需要执行 DNS 查询。与 DNS 查询相关的一个结构体:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> addrinfo </div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span>               ai_flags;          <span class="comment">// AI_PASSIVE, AI_CANONNAME, etc.</span></div><div class="line">    <span class="keyword">int</span>               ai_family;         <span class="comment">// AF_INET, AF_INET6, AF_UNSPEC</span></div><div class="line">    <span class="keyword">int</span>               ai_socktype;       <span class="comment">// SOCK_STREAM, SOCK_DGRAM</span></div><div class="line">    <span class="keyword">int</span>               ai_protocol;       <span class="comment">// use 0 for "any"</span></div><div class="line">    <span class="keyword">size_t</span>            ai_addrlen;        <span class="comment">// size of ai_addr in bytes</span></div><div class="line">    <span class="keyword">struct</span> sockaddr  *ai_addr;           <span class="comment">// struct sockaddr_in or sockaddr_in6</span></div><div class="line">    <span class="keyword">char</span>             *ai_canonname;      <span class="comment">// full canonical hostname</span></div><div class="line">    <span class="keyword">struct</span> addrinfo  *ai_next;           <span class="comment">// linked list, next node</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，<code>addrinfo</code>包含一个<code>ai_next</code>成员，指向下一个<code>addrinfo</code>结构体，也就是说<code>addrinfo</code>实际上可以作为链表中的节点。另一方面，<code>addrinfo</code>拥有<code>sockaddr *</code>类型的成员<code>ai_addr</code>，指向实际的 IP 地址，可以是 IPv4 的地址，也可以是 IPv6 的地址。</p>
+<hr>
+<p>　　进行 DNS 查询时需要使用<code>getaddrinfo()</code>系统调用：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netdb.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">getaddrinfo</span><span class="params">( <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">restrict</span> host, <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">restrict</span> service,</span></span></div><div class="line">                 <span class="keyword">const</span> <span class="keyword">struct</span> addrinfo *<span class="keyword">restrict</span> hint, <span class="keyword">struct</span> addrinfo **<span class="keyword">restrict</span> res );</div><div class="line"><span class="comment">// Returns: 0 if OK, nonzero error code on error</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">freeaddrinfo</span><span class="params">( <span class="keyword">struct</span> addrinfo *ai )</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　<code>host</code>参数可以是域名，例如<code>&quot;www.google.com&quot;</code>，也可以是 IPv4 或是 IPv6 的字符串地址。而<code>service</code>实际上是端口号，可以显示的指定端口号 ( 例如<code>&quot;80&quot;</code> )，也可以使用 <code>&quot;http&quot;</code>、<code>&quot;tftp&quot;</code>或<code>&quot;smtp&quot;</code>等。</p>
+<p>　　使用<code>getaddrinfo()</code>进行 DNS 查询时，可能会有较多的符合情况的查询结果，因此，<code>getaddrinfo()</code>会通过参数<code>res</code>来返回一个链表，链表包含多个<code>addrinfo</code>结构体，每个结构体都包含相应的地址信息。我们可以将<code>res</code>传递给<code>freeaddrinfo()</code>用来<strong>释放链表的内存</strong>。</p>
+<hr>
+<p>　　你可能会奇怪，参数<code>hint</code>的作用是什么？实际上，<code>hint</code>作为一个模板，用来过滤<code>getaddrinfo()</code>的查询结果，也就是说<code>hint</code>将指导<code>getaddrinfo()</code>如何执行查询工作。</p>
+<p>　　在将<code>hint</code>传递给<code>getaddrinfo()</code>之前，需要使用<code>memset()</code>将<code>hint</code>的成员均设置为 0，接着，可以填充<code>hint</code>的<code>ai_family</code>、<code>ai_flags</code>、<code>ai_protocol</code>和<code>ai_socktype</code>这四个成员，其它的成员均设置成 0。</p>
+<hr>
+<p>　　另一方面，要是<code>getaddrinfo()</code>调用失败，需要使用<code>gai_strerror()</code>来产生错误信息：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netdb.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span> *<span class="title">gai_strerror</span><span class="params">( <span class="keyword">int</span> error )</span></span>;</div><div class="line"><span class="comment">// Returns: a pointer to a string describing the error</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　让我们看一个实际的例子，通过域名来得到相应的 IP 地址：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netdb.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">( <span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[] )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>( argc != <span class="number">2</span> ) &#123;</div><div class="line">        <span class="built_in">cerr</span> &lt;&lt; <span class="string">"usage: showip hostname"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    addrinfo hint;</div><div class="line">    <span class="built_in">memset</span>( &amp;hint, <span class="number">0</span>, <span class="keyword">sizeof</span>( hint ) );       <span class="comment">// make sure the struct is empty</span></div><div class="line">    hint.ai_family = AF_UNSPEC;               <span class="comment">// don’t care IPv4 or IPv6</span></div><div class="line">    hint.ai_socktype = SOCK_STREAM;           <span class="comment">// TCP stream sockets</span></div><div class="line">   </div><div class="line">    addrinfo *res;</div><div class="line">    <span class="keyword">int</span> status = getaddrinfo( argv[<span class="number">1</span>], <span class="literal">NULL</span>, &amp;hint, &amp;res );</div><div class="line">    <span class="keyword">if</span>( status != <span class="number">0</span> ) &#123;</div><div class="line">        <span class="built_in">cerr</span> &lt;&lt; <span class="string">"getaddrinfo: "</span> &lt;&lt; gai_strerror( status ) &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">        <span class="keyword">return</span> <span class="number">2</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"IP address for "</span> &lt;&lt; argv[<span class="number">1</span>] &lt;&lt; <span class="string">" as following: "</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">char</span> ipstr[INET6_ADDRSTRLEN];</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">auto</span> ptr = res; ptr != <span class="literal">nullptr</span>; ptr = ptr-&gt;ai_next ) </div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( ptr-&gt;ai_family == AF_INET ) </div><div class="line">        &#123;</div><div class="line">            <span class="keyword">auto</span> ipv4 = <span class="keyword">reinterpret_cast</span>&lt;sockaddr_in *&gt;( ptr-&gt;ai_addr );</div><div class="line">            inet_ntop( ptr-&gt;ai_family, &amp;ipv4-&gt;sin_addr, ipstr, <span class="keyword">sizeof</span>( ipstr ) );</div><div class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"IPv4: "</span> &lt;&lt; ipstr &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">        &#125; </div><div class="line">        <span class="keyword">else</span> </div><div class="line">        &#123;</div><div class="line">            <span class="keyword">auto</span> ipv6 = <span class="keyword">reinterpret_cast</span>&lt;sockaddr_in6 *&gt;( ptr-&gt;ai_addr );</div><div class="line">            inet_ntop( ptr-&gt;ai_family, &amp;ipv6-&gt;sin6_addr, ipstr, <span class="keyword">sizeof</span>( ipstr ) );</div><div class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"IPv6: "</span> &lt;&lt; ipstr &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    freeaddrinfo( res );</div><div class="line">&#125;</div><div class="line"><span class="comment">/*</span></div><div class="line">IP address for www.google.com as following: </div><div class="line">IPv4: 64.233.189.103</div><div class="line">IPv4: 64.233.189.106</div><div class="line">IPv4: 64.233.189.99</div><div class="line">IPv4: 64.233.189.147</div><div class="line">IPv4: 64.233.189.104</div><div class="line">IPv4: 64.233.189.105</div><div class="line">IPv6: 2404:6800:4008:c01::69</div><div class="line">*/</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://beej.us/guide/bgnet/" target="_blank" rel="external">Beej’s Guide to Network Programming Using Internet Sockets</a></li>
+<li><a href="http://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1432537210&amp;sr=8-1&amp;keywords=linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+<li><a href="http://www.amazon.com/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739/ref=sr_1_1?ie=UTF8&amp;qid=1433643440&amp;sr=8-1&amp;keywords=apue" target="_blank" rel="external">Advanced Programming in the UNIX Environment</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/network/" rel="tag">#network</a>
+          
+            <a href="/tags/Linux/" rel="tag">#Linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/01/Linux网络编程六/" rel="next" title="Linux 网络编程（一）-- 理解 TCP 协议">
+                <i class="fa fa-chevron-left"></i> Linux 网络编程（一）-- 理解 TCP 协议
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/08/Linux网络编程二/" rel="prev" title="Linux 网络编程（三）-- TCP 网络编程">
+                Linux 网络编程（三）-- TCP 网络编程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Socket"><span class="nav-number">1.</span> <span class="nav-text">Socket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-地址"><span class="nav-number">2.</span> <span class="nav-text">IP 地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DNS-查询"><span class="nav-number">3.</span> <span class="nav-text">DNS 查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,algorithm,STL," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="反序排列　　可以使用reverse()将输入范围中的元素反序排列，例如：1234std::list&amp;lt;int&amp;gt; lst = &amp;#123; 1, 2, 3, 5, 6, 7, 8, 9 &amp;#125;;mystl::reverse( lst.begin(), lst.end() );mystl::copy( lst.cbegin(), lst.cend(), ostream_iterator">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自制STL -- 排列与组合算法">
+<meta property="og:url" content="http://yoursite.com/2015/02/18/自制STL之排列与组合算法/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="反序排列　　可以使用reverse()将输入范围中的元素反序排列，例如：1234std::list&amp;lt;int&amp;gt; lst = &amp;#123; 1, 2, 3, 5, 6, 7, 8, 9 &amp;#125;;mystl::reverse( lst.begin(), lst.end() );mystl::copy( lst.cbegin(), lst.cend(), ostream_iterator">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pe1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pe2.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pe3.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pa1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pa2.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/pa3.png">
+<meta property="og:updated_time" content="2015-04-19T13:06:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自制STL -- 排列与组合算法">
+<meta name="twitter:description" content="反序排列　　可以使用reverse()将输入范围中的元素反序排列，例如：1234std::list&amp;lt;int&amp;gt; lst = &amp;#123; 1, 2, 3, 5, 6, 7, 8, 9 &amp;#125;;mystl::reverse( lst.begin(), lst.end() );mystl::copy( lst.cbegin(), lst.cend(), ostream_iterator">
+<meta name="twitter:image" content="http://yoursite.com/images/data-structure/pe1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/02/18/自制STL之排列与组合算法/"/>
+
+  <title> 自制STL -- 排列与组合算法 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自制STL -- 排列与组合算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-18T14:01:32+08:00" content="2015-02-18">
+              2015-02-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/自制STL/" itemprop="url" rel="index">
+                    <span itemprop="name">自制STL</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="反序排列"><a href="#反序排列" class="headerlink" title="反序排列"></a>反序排列</h2><p>　　可以使用<code>reverse()</code>将输入范围中的元素反序排列，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt; lst = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span> &#125;;</div><div class="line">mystl::reverse( lst.begin(), lst.end() );</div><div class="line">mystl::copy( lst.cbegin(), lst.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">// 9 8 7 6 5 3 2 1</span></div></pre></td></tr></table></figure></p>
+<p>　　也可以使用<code>reverse_copy()</code>将输入范围中的元素以反序的方式拷贝到输出范围：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt; lst = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span> &#125;;</div><div class="line">mystl::reverse_copy( lst.cbegin(), lst.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">// 9 8 7 6 5 3 2 1</span></div></pre></td></tr></table></figure></p>
+<p>　　反序算法的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> BidirectionalIterator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">reverse</span><span class="params">( BidirectionalIterator beg, BidirectionalIterator end )</span> </span>&#123;</div><div class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap; </div><div class="line">    <span class="keyword">for</span>( <span class="keyword">auto</span> size = <span class="built_in">std</span>::distance( beg, end ); size &gt; <span class="number">1</span>; size -= <span class="number">2</span> ) &#123;</div><div class="line">        swap( *beg++, *--end );            </div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> BidirectionalIterator, <span class="keyword">typename</span> OutputIterator&gt;</div><div class="line"><span class="function">OutputIterator <span class="title">reverse_copy</span><span class="params">( BidirectionalIterator beg, BidirectionalIterator end, </span></span></div><div class="line">                             OutputIterator desBeg ) &#123;</div><div class="line">    <span class="keyword">while</span>( end != beg ) &#123;</div><div class="line">        *desBeg++ = *--end;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> desBeg;</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<h2 id="下一排列"><a href="#下一排列" class="headerlink" title="下一排列"></a>下一排列</h2><p>　　对于排列<code>[1, 2, 3, 4]</code>，我们规定它的下一排列为<code>[1, 2, 4, 3]</code>，同样的道理，<code>[1, 2, 4, 3]</code>的下一排列为<code>[1, 3, 2, 4]</code>。例如，我们从<code>[1, 2, 3, 4]</code>开始推出它的所有下一排列：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span> &#125;;</div><div class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line"><span class="keyword">do</span> &#123;</div><div class="line">    mystl::copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line">    <span class="built_in">cout</span> &lt;&lt; ( ++i % <span class="number">5</span> == <span class="number">0</span> ? <span class="string">"\n"</span> : <span class="string">"\t"</span> );</div><div class="line">&#125; <span class="keyword">while</span>( mystl::next_permutation( vec.begin(), vec.end() ) );</div><div class="line"><span class="comment">/***</span></div><div class="line">1 2 3 4 	1 2 4 3 	1 3 2 4 	1 3 4 2 	1 4 2 3 </div><div class="line">1 4 3 2 	2 1 3 4 	2 1 4 3 	2 3 1 4 	2 3 4 1 </div><div class="line">2 4 1 3 	2 4 3 1 	3 1 2 4 	3 1 4 2 	3 2 1 4 </div><div class="line">3 2 4 1 	3 4 1 2 	3 4 2 1 	4 1 2 3 	4 1 3 2 </div><div class="line">4 2 1 3 	4 2 3 1 	4 3 1 2 	4 3 2 1 </div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　例如，计算<code>[1, 2, 4, 3]</code>的下一排列，那么，我们首先从输入范围的末尾开始，寻找一对相邻的元素<code>*current</code>和<code>*next</code>，使得<code>*current</code>小于<code>*next</code>：<br><img src="/images/data-structure/pe1.png" alt=""><br>　　接着，从输入范围的末尾开始，寻找元素<code>*iter</code>，使得<code>*iter</code>大于<code>*current</code>，那么，这时我们交换这两个元素：<br><img src="/images/data-structure/pe2.png" alt=""><br>　　最后，倒序排列从<code>*next</code>到末尾的所有元素：<br><img src="/images/data-structure/pe3.png" alt=""><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> BidirectionalIterator, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">next_permutation</span><span class="params">( BidirectionalIterator beg, BidirectionalIterator end, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;</div><div class="line">    <span class="keyword">if</span>( beg == end ) &#123;                       <span class="comment">// 输入范围为空，则返回 false </span></div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> current = beg;</div><div class="line">    <span class="keyword">if</span>( ++current == end ) &#123;                 <span class="comment">// 输入范围只包含一个元素，则返回 false</span></div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    current = end;</div><div class="line">    --current;                               <span class="comment">// current 指向最后一个元素</span></div><div class="line">    <span class="keyword">while</span>( current != beg ) &#123;</div><div class="line">        <span class="keyword">auto</span> next = current;</div><div class="line">        --current;</div><div class="line">        <span class="keyword">if</span>( comp( *current, *next ) ) &#123;</div><div class="line">            <span class="keyword">auto</span> iter = end;</div><div class="line">            <span class="keyword">while</span>( !comp( *current, *--iter ) )</div><div class="line">                ;</div><div class="line">            swap( *current, *iter );</div><div class="line">            mystl::reverse( next, end );</div><div class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> BidirectionalIterator&gt;</div><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">next_permutation</span><span class="params">( BidirectionalIterator beg, BidirectionalIterator end )</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mystl::next_permutation( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;&#123;&#125; );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<h2 id="上一排列"><a href="#上一排列" class="headerlink" title="上一排列"></a>上一排列</h2><p>　　对于排列<code>[4, 3, 2, 1]</code>，我们规定它的上一排列为<code>[4, 3, 1, 2]</code>，同样的道理，<code>[4, 3, 1, 2]</code>的下一排列为<code>[4, 2, 3, 1]</code>。例如，我们从<code>[4, 3, 2, 1]</code>开始推出它的所有上一排列：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span> &#125;;</div><div class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line"><span class="keyword">do</span> &#123;</div><div class="line">    mystl::copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line">    <span class="built_in">cout</span> &lt;&lt; ( ++i % <span class="number">5</span> == <span class="number">0</span> ? <span class="string">"\n"</span> : <span class="string">"\t"</span> );</div><div class="line">&#125; <span class="keyword">while</span>( mystl::prev_permutation( vec.begin(), vec.end() ) );</div><div class="line"><span class="comment">/***</span></div><div class="line">4 3 2 1 	4 3 1 2 	4 2 3 1 	4 2 1 3 	4 1 3 2 </div><div class="line">4 1 2 3 	3 4 2 1 	3 4 1 2 	3 2 4 1 	3 2 1 4 </div><div class="line">3 1 4 2 	3 1 2 4 	2 4 3 1 	2 4 1 3 	2 3 4 1 </div><div class="line">2 3 1 4 	2 1 4 3 	2 1 3 4 	1 4 3 2 	1 4 2 3 </div><div class="line">1 3 4 2 	1 3 2 4 	1 2 4 3 	1 2 3 4</div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　例如，计算<code>[4, 3, 1, 2]</code>的下一排列，那么，我们首先从输入范围的末尾开始，寻找一对相邻的元素<code>*current</code>和<code>*next</code>，使得<code>*current</code>大于<code>*next</code>：<br><img src="/images/data-structure/pa1.png" alt=""><br>　　接着，从输入范围的末尾开始，寻找元素<code>*iter</code>，使得<code>*iter</code>小于<code>*current</code>，那么，这时我们交换这两个元素：<br><img src="/images/data-structure/pa2.png" alt=""><br>　　最后，倒序排列从<code>*next</code>到末尾的所有元素：<br><img src="/images/data-structure/pa3.png" alt=""><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> BidirectionalIterator, <span class="keyword">typename</span> Comp&gt;</div><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">prev_permutation</span><span class="params">( BidirectionalIterator beg, BidirectionalIterator end, Comp comp )</span> </span>&#123;</div><div class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;</div><div class="line">    <span class="keyword">if</span>( beg == end ) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> current = beg;</div><div class="line">    <span class="keyword">if</span>( ++current == end ) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    current = end;</div><div class="line">    --current;                       <span class="comment">// current 指向最后一个元素</span></div><div class="line">    <span class="keyword">while</span>( current != beg ) &#123;</div><div class="line">        <span class="keyword">auto</span> next = current;</div><div class="line">        --current;</div><div class="line">        <span class="keyword">if</span>( comp( *next, *current ) ) &#123;</div><div class="line">            <span class="keyword">auto</span> iter = end;</div><div class="line">            <span class="keyword">while</span>( !comp( *--iter, *current ) )</div><div class="line">                ;</div><div class="line">            swap( *current, *iter );</div><div class="line">            mystl::reverse( next, end );</div><div class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> BidirectionalIterator&gt;</div><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">prev_permutation</span><span class="params">( BidirectionalIterator beg, BidirectionalIterator end )</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mystl::prev_permutation( beg, end, <span class="built_in">std</span>::less&lt;<span class="keyword">decltype</span>(*beg)&gt;&#123;&#125; );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<h2 id="随机打乱"><a href="#随机打乱" class="headerlink" title="随机打乱"></a>随机打乱</h2><p>　　我们可以使用<code>random_shuffle()</code>将输入范围中的元素随机打乱，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span> &#125;;</div><div class="line">mystl::random_shuffle( vec.begin(), vec.end() );</div><div class="line">mystl::copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">// 5 4 8 9 1 6 3 2 7</span></div></pre></td></tr></table></figure></p>
+<p>　　算法的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">random_shuffle</span><span class="params">( RandomIterator beg, RandomIterator end )</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span>( beg == end ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">auto</span> iter = beg + <span class="number">1</span>; iter != end; ++iter ) &#123;</div><div class="line">        <span class="built_in">std</span>::iter_swap( iter, beg + ( <span class="built_in">std</span>::rand() % ( ( iter - beg )  + <span class="number">1</span> ) ) );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> RandomNumberGenerator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">random_shuffle</span><span class="params">( RandomIterator beg, RandomIterator end, </span></span></div><div class="line">                     RandomNumberGenerator &amp;&amp;rand ) &#123;</div><div class="line">    <span class="keyword">if</span>( beg == end ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">auto</span> iter = beg + <span class="number">1</span>; iter != end; ++iter ) &#123;</div><div class="line">        <span class="built_in">std</span>::iter_swap( iter, beg + rand( ( iter - beg )  + <span class="number">1</span> ) );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　此外，我们也可以使用<code>shuffle()</code>来打乱元素，使用<code>shuffle()</code>时，我们需要为其提供随机数引擎，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::default_random_engine engine;</div><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span> &#125;;</div><div class="line">mystl::shuffle( vec.begin(), vec.end(), engine );</div><div class="line">mystl::copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">// 8 7 5 6 2 4 9 3 1</span></div></pre></td></tr></table></figure></p>
+<p>　　算法的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIterator, <span class="keyword">typename</span> UniformRandomNumberGenerator&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">shuffle</span><span class="params">( RandomIterator beg, RandomIterator end, </span></span></div><div class="line">              UniformRandomNumberGenerator &amp;&amp;generator ) &#123;</div><div class="line">    <span class="keyword">if</span>( beg == end ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="built_in">std</span>::uniform_int_distribution&lt;<span class="keyword">unsigned</span>&gt; distribution;</div><div class="line">    <span class="keyword">using</span> range_type = <span class="keyword">decltype</span>( distribution )::param_type;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">auto</span> iter = beg + <span class="number">1</span>; iter != end; ++iter ) &#123;</div><div class="line">        <span class="built_in">std</span>::iter_swap( iter, beg + distribution( generator, range_type( <span class="number">0</span>, iter - beg ) ) );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/algorithm/" rel="tag">#algorithm</a>
+          
+            <a href="/tags/STL/" rel="tag">#STL</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/02/13/自制STL之集合算法/" rel="next" title="自制 STL -- 集合算法">
+                <i class="fa fa-chevron-left"></i> 自制 STL -- 集合算法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/02/23/图的构造/" rel="prev" title="图算法（一）-- 图的构造">
+                图算法（一）-- 图的构造 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#反序排列"><span class="nav-number">1.</span> <span class="nav-text">反序排列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下一排列"><span class="nav-number">2.</span> <span class="nav-text">下一排列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#上一排列"><span class="nav-number">3.</span> <span class="nav-text">上一排列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#随机打乱"><span class="nav-number">4.</span> <span class="nav-text">随机打乱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

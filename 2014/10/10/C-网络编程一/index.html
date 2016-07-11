@@ -1,0 +1,647 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,network," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Asio的介紹　　Asio是异步(asynchronous)的输入输出库，使用Asio库的好处在于，在程序中异步地执行任务时，程序并不会一直处于阻塞的状态，也就是说从异步任务的开始执行到执行结束期间，程序可以继续执行当前的任务，而当异步执行的任务结束时，程序将会收到一个通知，这个通知用来说明异步任务已经执行结束。
+　　在Asio库中，异步地执行数据处理需要依赖于IO设备和IO对象，程序使用IO设备">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Boost.Asio C++ 网络编程（一）">
+<meta property="og:url" content="http://yoursite.com/2014/10/10/C-网络编程一/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Asio的介紹　　Asio是异步(asynchronous)的输入输出库，使用Asio库的好处在于，在程序中异步地执行任务时，程序并不会一直处于阻塞的状态，也就是说从异步任务的开始执行到执行结束期间，程序可以继续执行当前的任务，而当异步执行的任务结束时，程序将会收到一个通知，这个通知用来说明异步任务已经执行结束。
+　　在Asio库中，异步地执行数据处理需要依赖于IO设备和IO对象，程序使用IO设备">
+<meta property="og:updated_time" content="2015-08-21T15:38:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Boost.Asio C++ 网络编程（一）">
+<meta name="twitter:description" content="Asio的介紹　　Asio是异步(asynchronous)的输入输出库，使用Asio库的好处在于，在程序中异步地执行任务时，程序并不会一直处于阻塞的状态，也就是说从异步任务的开始执行到执行结束期间，程序可以继续执行当前的任务，而当异步执行的任务结束时，程序将会收到一个通知，这个通知用来说明异步任务已经执行结束。
+　　在Asio库中，异步地执行数据处理需要依赖于IO设备和IO对象，程序使用IO设备">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2014/10/10/C-网络编程一/"/>
+
+  <title> Boost.Asio C++ 网络编程（一） | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Boost.Asio C++ 网络编程（一）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-10-10T11:00:38+08:00" content="2014-10-10">
+              2014-10-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Asio的介紹"><a href="#Asio的介紹" class="headerlink" title="Asio的介紹"></a>Asio的介紹</h2><p>　　<code>Asio</code>是异步<code>(asynchronous)</code>的输入输出库，使用<code>Asio</code>库的好处在于，<strong>在程序中异步地执行任务时，程序并不会一直处于阻塞的状态</strong>，也就是说从异步任务的开始执行到执行结束期间，程序可以继续执行当前的任务，而当异步执行的任务结束时，程序将会收到一个通知，这个通知用来说明异步任务已经执行结束。</p>
+<p>　　在<code>Asio</code>库中，异步地执行数据处理需要依赖于<code>IO</code>设备和<code>IO</code>对象，程序使用<code>IO</code>设备用于与底层操作系统进行交互，而<code>IO</code>对象则负责执行特定的<code>IO</code>操作，例如使用<code>IO</code>对象来进行网络连接。显然，<code>IO</code>设备是程序与操作系统进行交互的桥梁，那么，当程序使用<code>IO</code>对象执行操作时，<code>IO</code>对象执行的操作需要通过<code>IO</code>设备才能与系统进行交互。 </p>
+<h2 id="使用定时器"><a href="#使用定时器" class="headerlink" title="使用定时器"></a>使用定时器</h2><p>　　在<code>Asio</code>库中，<code>boost::asio::io_service</code>用来唯一地表示<code>IO</code>设备，与此不同，<code>IO</code>对象则可以由多个类来表示，例如，<code>boost::asio::steady_timer</code>表示定时器，定时器可以用来设定经过特定的时间才会触发，此外，<code>boost::asio::socket</code>可以用来通过网络发送和接受数据。</p>
+<h3 id="同步地使用定时器"><a href="#同步地使用定时器" class="headerlink" title="同步地使用定时器"></a>同步地使用定时器</h3><p>　　对于定时器来说，除了可以异步地使用定时器之外，也可以同步地使用定时器。首先看一下同步地使用定时器的例子:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/steady_timer.hpp&gt;</div><div class="line">#include &lt;chrono&gt;</div><div class="line">#include &lt;iostream&gt;</div><div class="line">using namespace boost::asio;</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    io_service ioservice;</div><div class="line">    steady_timer timer&#123; ioservice, std::chrono::seconds&#123; 5 &#125; &#125;;</div><div class="line">    timer.wait();              // 程序将会在这里阻塞5秒</div><div class="line">    std::cout &lt;&lt; &quot;Hello, World!&quot; &lt;&lt; std::endl;  </div><div class="line">    </div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　所有使用<code>Asio</code>库的程序都需要使用到<code>IO</code>设备，因此，程序中首先需要创建<code>boost::asio::io_service</code>对象。对于表示<code>IO</code>对象的类来说，其构造函数的第一个参数通常为<code>io_service</code>的引用，因此，这里需要将<code>io_service</code>对象<code>ioservice</code>传递给<code>steady_timer</code>的构造函数，并且，由于定时器需要知道经过多长的时间才触发，因此，需要为<code>steady_timer</code>提供另一个参数用来指定触发的时间。</p>
+<p>　　调用<code>steady_timer::wait()</code>并不会立即返回，在创建<code>timer</code>之后经过5秒时间，<code>steady_timer::wait()</code>才会返回。</p>
+<h3 id="异步地使用定时器"><a href="#异步地使用定时器" class="headerlink" title="异步地使用定时器"></a>异步地使用定时器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/steady_timer.hpp&gt;</div><div class="line">#include &lt;chrono&gt;</div><div class="line">#include &lt;iostream&gt;</div><div class="line">using namespace boost::asio;</div><div class="line"></div><div class="line">void print_message( const boost::system::error_code&amp; /* e*/ )</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; &quot;Hello, World!&quot; &lt;&lt; std::endl;</div><div class="line">&#125;</div><div class="line"></div><div class="line">int main(int argc, char *argv[])</div><div class="line">&#123;</div><div class="line">    io_service ioservice;</div><div class="line">    steady_timer timer&#123; ioservice, std::chrono::seconds&#123; 5 &#125; &#125;;</div><div class="line">    // 调用async_wait()会立即返回，不会阻塞</div><div class="line">    timer.async_wait( print_message ); </div><div class="line"></div><div class="line">    std::cout &lt;&lt; &quot;before print_message()&quot; &lt;&lt; std::endl;</div><div class="line">    // 程序处于阻塞状态，当定时器触发之后程序会执行print_message()函数</div><div class="line">    // 当print_message()执行结束之后，run()才会返回</div><div class="line">    ioservice.run(); </div><div class="line">    std::cout &lt;&lt; &quot;after print_message()&quot; &lt;&lt; std::endl;</div><div class="line"></div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>　　程序的输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">before print_message()</div><div class="line">Hello, World!</div><div class="line">after print_message()</div></pre></td></tr></table></figure></p>
+<p>　　调用<code>async_wait()</code>会使定时器进入异步等待状态，与<code>wait()</code>不同，<code>async_wait()</code>在调用之后将会立即返回，并不会阻碍到程序执行其它任务。<code>async_wait()</code>接受一个回调函数<code>print_message()</code>，这表示，当创建<code>timer</code>对象之后经过<code>5</code>秒的时间，程序将会调用<code>print_message()</code>函数。</p>
+<p>　　在调用<code>async_wait()</code>之后，程序需要调用<code>io_service::run()</code>函数，调用<code>io_service::run()</code>函数会使程序处于阻塞状态，等待定时器的触发，当定时器触发时，程序将调用<code>print_message()</code>函数，在此之后，<code>io_service::run()</code>函数才会返回。<br>　　<br>　　此外，<code>Asio</code>库保证了回调函数会与<code>io_service::run()</code>函数在同一线程中被执行，因此，调用<code>io_service::run()</code>函数保证了程序能够执行<code>print_message()</code>函数。若程序没有调用<code>io_service::run()</code>函数，那么在调用<code>async_wait()</code>之后，<code>main()</code>将会立即返回，此时，<code>print_message()</code>将不会被执行。</p>
+<p>　　在C++11中，可以使用<code>lambda</code>表达式替代回调函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">timer.async_wait( []( const boost::system::error_code&amp; /* e */ ) &#123;</div><div class="line">    std::cout &lt;&lt; &quot;Hello, World!&quot; &lt;&lt; std::endl;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<h2 id="处理回调函数"><a href="#处理回调函数" class="headerlink" title="处理回调函数"></a>处理回调函数</h2><h3 id="为回调函数绑定参数"><a href="#为回调函数绑定参数" class="headerlink" title="为回调函数绑定参数"></a>为回调函数绑定参数</h3><p>　　<code>async_wait()</code>要求回调函数接受<code>const boost::system::error_code &amp;</code>类型的参数，若回调函数需要接受其它额外的参数，这时则需要使用<code>std::bind()</code>来绑定额外的参数。</p>
+<p>　　例如，若我们需要程序能够使用同一个定时器实现多次触发，那么就需要在回调函数中重新设定定时器的触发时间，使得定时器能够在特定的时间之后再次触发，这时在回调函数中则显然需要访问<code>steady_timer</code>对象的引用，此外，还需要使用<code>int</code>类型变量来限定定时器的触发次数，这也需要在回调函数中访问这个<code>int</code>变量的引用。</p>
+<p>　　因此，<code>print_message()</code>需要具有3个参数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/steady_timer.hpp&gt;</div><div class="line">#include &lt;functional&gt;</div><div class="line">#include &lt;chrono&gt;</div><div class="line">#include &lt;iostream&gt;</div><div class="line">using namespace boost::asio;</div><div class="line"></div><div class="line">void print_message( const boost::system::error_code &amp; /* e */,</div><div class="line">                    steady_timer &amp;timer, int &amp;count )</div><div class="line">&#123;</div><div class="line">    if( count &lt; 5 ) &#123;</div><div class="line">        std::cout &lt;&lt; count &lt;&lt; std::endl;</div><div class="line">        ++count;</div><div class="line">        // 设定定时器下一秒触发</div><div class="line">        timer.expires_at( timer.expires_at() + std::chrono::seconds( 1 ) ); </div><div class="line">        timer.async_wait( std::bind( print_message, std::placeholders::_1,</div><div class="line">                                     std::ref( timer ), std::ref( count ) ) );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    int count = 0;</div><div class="line">    io_service ioservice;</div><div class="line">    steady_timer timer( ioservice, std::chrono::seconds( 1 ) );</div><div class="line">    timer.async_wait( std::bind( print_message, std::placeholders::_1, </div><div class="line">                                 std::ref( timer ), std::ref( count ) ) );</div><div class="line"></div><div class="line">    ioservice.run();</div><div class="line"></div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　定时器总共会触发<code>5</code>次，程序的执行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">0</div><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td></tr></table></figure></p>
+<h3 id="使用成员函数作为回调函数"><a href="#使用成员函数作为回调函数" class="headerlink" title="使用成员函数作为回调函数"></a>使用成员函数作为回调函数</h3><p>　　也可以将类的成员函数作为回调函数来使用，<code>printer</code>类接受<code>io_service</code>对象的引用来初始化其<code>timer</code>成员。注意，对于所有的<code>non-static</code>成员函数来说，都将接受一个隐式的<code>this</code>参数，因此，使用<code>std::bind()</code>时，需要传递一个<code>this</code>参数给类的成员函数，编译器才能知道调用的成员函数属于哪个对象。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/steady_timer.hpp&gt;</div><div class="line">#include &lt;functional&gt;</div><div class="line">#include &lt;chrono&gt;</div><div class="line">#include &lt;iostream&gt;</div><div class="line">using namespace boost::asio;</div><div class="line"></div><div class="line">class printer</div><div class="line">&#123;</div><div class="line">public:</div><div class="line">    printer( boost::asio::io_service &amp;service )</div><div class="line">        : timer( service, std::chrono::seconds( 1 ) ) &#123;</div><div class="line">        timer.async_wait( std::bind( &amp;printer::print_message, this ) );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    void print_message() &#123;</div><div class="line">        if( count &lt; 5 ) &#123;</div><div class="line">            std::cout &lt;&lt; count &lt;&lt; std::endl;</div><div class="line">            ++count;</div><div class="line">            // 设定定时器下一秒触发</div><div class="line">            timer.expires_at( timer.expires_at() + std::chrono::seconds( 1 ) ); </div><div class="line">            // 异步地等待定时器触发</div><div class="line">            timer.async_wait( std::bind( &amp;printer::print_message, this ) ); </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">private:</div><div class="line">    boost::asio::steady_timer timer;</div><div class="line">    int count = 0;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    io_service ioservice;</div><div class="line">    printer p( ioservice );</div><div class="line">    </div><div class="line">    ioservice.run();</div><div class="line">    </div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　最后，可以看到，尽管<code>async_wait()</code>要求回调函数接受<code>const boost::system::error_code &amp;</code>类型的参数，但通过使用<code>std::bind()</code>之后，回调函数也可以不接受<code>const boost::system::error_code &amp;</code>类型的参数，例如，<code>printer</code>的成员函数<code>print_message()</code>并不接受任何参数。</p>
+<h2 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h2><p>　　在程序中使用多线程，则程序可以充分利用计算机的多核处理器，这时，程序可以<strong>并发地执行多个任务</strong>。</p>
+<h3 id="创建多条线程"><a href="#创建多条线程" class="headerlink" title="创建多条线程"></a>创建多条线程</h3><p>　　由于在一条线程中调用<code>io_service</code>的<code>run()</code>成员函数时，相应的回调函数也会在这条线程中执行，这就使得多个回调函数无法并发地执行，因此，要是在程序中启动多条线程，程序就能多次调用<code>io_service</code>的<code>run()</code>成员函数，这样，在具有多核处理器的计算机中，当多个回调函数需要同时执行时，它们就能并发地执行。例如，当一个异步等待任务结束时，程序将会调用相应的回调函数，此时，在第一个异步等待任务结束时若存在另一异步等待任务也立即结束，这时，程序将在另一线程中调用第二个异步等待任务对应的回调函数，因此，这两个回调函数就能够并发地执行。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/steady_timer.hpp&gt;</div><div class="line">#include &lt;chrono&gt;</div><div class="line">#include &lt;thread&gt;</div><div class="line">#include &lt;iostream&gt;</div><div class="line">using namespace boost::asio;</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    io_service ioservice;</div><div class="line">    steady_timer timer1&#123; ioservice, std::chrono::seconds( 1 ) &#125;;</div><div class="line">    timer1.async_wait( []( const boost::system::error_code &amp; /* e */ ) &#123;</div><div class="line">        for( int i = 0; i &lt; 5; ++i ) &#123;</div><div class="line">            std::cout &lt;&lt; &quot;message from timer1.&quot; &lt;&lt; std::endl;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    </div><div class="line">    steady_timer timer2&#123; ioservice, std::chrono::seconds( 1 ) &#125;;</div><div class="line">    timer1.async_wait( []( const boost::system::error_code &amp; /* e */ ) &#123;</div><div class="line">        for( int i = 0; i &lt; 5; ++i ) &#123;</div><div class="line">            std::cout &lt;&lt; &quot;message from timer2.&quot; &lt;&lt; std::endl;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    std::thread thread1&#123; [&amp;ioservice]()&#123; ioservice.run(); &#125; &#125;;</div><div class="line">    std::thread thread2&#123; [&amp;ioservice]()&#123; ioservice.run(); &#125; &#125;;</div><div class="line"></div><div class="line">    thread1.join();</div><div class="line">    thread2.join();</div><div class="line"></div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　程序可能的运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">message from timer1.message from timer2.</div><div class="line">message from timer1.</div><div class="line">message from timer1.</div><div class="line">message from timer1.</div><div class="line">message from timer1.</div><div class="line"></div><div class="line">message from timer2.</div><div class="line">message from timer2.</div><div class="line">message from timer2.</div><div class="line">message from timer2.</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，两条线程的输出内容可能会交错在一起，这是由于<code>std::cout</code>对象在两条线程之间共享。为了使两条线程的输出不交错，则需要同步地访问<code>std::cout</code>对象，但是，<strong>同步访问带来的后果就是两条线程无法并发地执行</strong>。</p>
+<h3 id="多条线程同步访问共享资源"><a href="#多条线程同步访问共享资源" class="headerlink" title="多条线程同步访问共享资源"></a>多条线程同步访问共享资源</h3><p>　　当需要在多条线程中访问共享资源时，多条线程需要同步地访问资源。例如，当需要在多个回调函数中访问共享的资源时，可以使用<code>boost::asio::strand</code>来<strong>调度</strong><code>(dispatched)</code><strong>这多个回调函数</strong>，<code>boost::asio::strand</code><strong>保证其调度的回调函数会有序地执行</strong>，即仅有当一个回调函数执行结束时才会调用另一个回调函数，这就保证了共享资源可以在多条线程中被共享地访问。<br>　　应当注意，当多个回调函数由不同的<code>boost::asio::strand</code>对象调度时，这多个回调函数<strong>仍允许并发地执行</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">#include &lt;boost/asio/io_service.hpp&gt;</div><div class="line">#include &lt;boost/asio/steady_timer.hpp&gt;</div><div class="line">#include &lt;boost/asio/strand.hpp&gt;</div><div class="line">#include &lt;chrono&gt;</div><div class="line">#include &lt;thread&gt;</div><div class="line">#include &lt;iostream&gt;</div><div class="line">using namespace boost::asio;</div><div class="line"></div><div class="line">void printMessage1( const boost::system::error_code &amp; /* e */ ) &#123;</div><div class="line">    for( int i = 0; i &lt; 5; ++i ) &#123;</div><div class="line">        std::cout &lt;&lt; &quot;message from timer1.&quot; &lt;&lt; std::endl;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void printMessage2( const boost::system::error_code &amp; /* e */ ) &#123;</div><div class="line">    for( int i = 0; i &lt; 5; ++i ) &#123;</div><div class="line">        std::cout &lt;&lt; &quot;message from timer2.&quot; &lt;&lt; std::endl;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    io_service ioservice;</div><div class="line">    strand s&#123; ioservice &#125;;</div><div class="line">    steady_timer timer1&#123; ioservice, std::chrono::seconds&#123; 1 &#125; &#125;;</div><div class="line">    timer1.async_wait( s.wrap( printMessage1 ) );</div><div class="line">    </div><div class="line">    steady_timer timer2&#123; ioservice, std::chrono::seconds&#123; 1 &#125; &#125;;</div><div class="line">    timer1.async_wait( s.wrap( printMessage2 ) );</div><div class="line"></div><div class="line">    std::thread thread1&#123; [&amp;ioservice]()&#123; ioservice.run(); &#125; &#125;;</div><div class="line">    std::thread thread2&#123; [&amp;ioservice]()&#123; ioservice.run(); &#125; &#125;;</div><div class="line"></div><div class="line">    thread1.join();</div><div class="line">    thread2.join();</div><div class="line"></div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　程序的输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">message from timer1.</div><div class="line">message from timer1.</div><div class="line">message from timer1.</div><div class="line">message from timer1.</div><div class="line">message from timer1.</div><div class="line">message from timer2.</div><div class="line">message from timer2.</div><div class="line">message from timer2.</div><div class="line">message from timer2.</div><div class="line">message from timer2.</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，两条线程的输出内容并<strong>不会交错在一起</strong>。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio.html" target="_blank" rel="external">Boost.Asio</a></li>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/network/" rel="tag">#network</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/04/array使用/" rel="next" title="高效 C++11 -- 使用 array">
+                <i class="fa fa-chevron-left"></i> 高效 C++11 -- 使用 array
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/15/Java-IO/" rel="prev" title="Java 高级特性（一） -- 输入与输出流">
+                Java 高级特性（一） -- 输入与输出流 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Asio的介紹"><span class="nav-number">1.</span> <span class="nav-text">Asio的介紹</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用定时器"><span class="nav-number">2.</span> <span class="nav-text">使用定时器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#同步地使用定时器"><span class="nav-number">2.1.</span> <span class="nav-text">同步地使用定时器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异步地使用定时器"><span class="nav-number">2.2.</span> <span class="nav-text">异步地使用定时器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理回调函数"><span class="nav-number">3.</span> <span class="nav-text">处理回调函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为回调函数绑定参数"><span class="nav-number">3.1.</span> <span class="nav-text">为回调函数绑定参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用成员函数作为回调函数"><span class="nav-number">3.2.</span> <span class="nav-text">使用成员函数作为回调函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程"><span class="nav-number">4.</span> <span class="nav-text">多线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建多条线程"><span class="nav-number">4.1.</span> <span class="nav-text">创建多条线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多条线程同步访问共享资源"><span class="nav-number">4.2.</span> <span class="nav-text">多条线程同步访问共享资源</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number"></span> <span class="nav-text">参考资料</span></a></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

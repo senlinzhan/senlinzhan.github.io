@@ -1,0 +1,660 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,thread," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="读写数据　　基本数据类型，例如 bool、char、int 或 long 等类型， C++11 并没有保证对这些类型的 read 或 write 操作是原子的。1234global variable:     long long x = 0;  Thread 1:                       Thread 2:x = 10;                         std:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++11 并发编程（四）-- 内存模型">
+<meta property="og:url" content="http://yoursite.com/2015/05/08/c-11并发编程四/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="读写数据　　基本数据类型，例如 bool、char、int 或 long 等类型， C++11 并没有保证对这些类型的 read 或 write 操作是原子的。1234global variable:     long long x = 0;  Thread 1:                       Thread 2:x = 10;                         std:">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/ml.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/kkkk.png">
+<meta property="og:updated_time" content="2016-02-20T10:49:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++11 并发编程（四）-- 内存模型">
+<meta name="twitter:description" content="读写数据　　基本数据类型，例如 bool、char、int 或 long 等类型， C++11 并没有保证对这些类型的 read 或 write 操作是原子的。1234global variable:     long long x = 0;  Thread 1:                       Thread 2:x = 10;                         std:">
+<meta name="twitter:image" content="http://yoursite.com/images/data-structure/ml.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/05/08/c-11并发编程四/"/>
+
+  <title> C++11 并发编程（四）-- 内存模型 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                C++11 并发编程（四）-- 内存模型
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-05-08T19:54:46+08:00" content="2015-05-08">
+              2015-05-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="读写数据"><a href="#读写数据" class="headerlink" title="读写数据"></a>读写数据</h2><p>　　基本数据类型，例如 bool、char、int 或 long 等类型， C++11 并<strong>没有</strong>保证对这些类型的 read 或 write 操作是原子的。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">global variable:     <span class="keyword">long</span> <span class="keyword">long</span> x = <span class="number">0</span>;</div><div class="line">  </div><div class="line">Thread <span class="number">1</span>:                       Thread <span class="number">2</span>:</div><div class="line">x = <span class="number">10</span>;                         <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; x;</div></pre></td></tr></table></figure></p>
+<p>　　全局变量<code>x</code>在两个线程之间共享，我们知道，语句<code>x = 10;</code>并不是原子的，因此，在 C++11 中，语句<code>std::cout &lt;&lt; x;</code>的行为是<strong>未定义</strong>的。</p>
+<hr>
+<p>　　C++11 提供了<code>std::atomic&lt;&gt;</code>，用来表示原子，因此，可以这样做：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">global variable:     <span class="built_in">std</span>::atomic&lt;<span class="keyword">long</span> <span class="keyword">long</span>&gt; x&#123;<span class="number">0</span>&#125;;</div><div class="line">		  </div><div class="line">Thread <span class="number">1</span>:                       Thread <span class="number">2</span>:</div><div class="line">x.store(<span class="number">10</span>);                    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; x.load();</div></pre></td></tr></table></figure></p>
+<p>　　好了，现在这种行为是有定义的：</p>
+<ul>
+<li>要是 Thread 1 先于 Thread 2 执行，那么，程序将输出 10。</li>
+<li>要是 Thread 2 先于 Thread 1 执行，那么，程序将输出 0。</li>
+</ul>
+<h2 id="内存位置"><a href="#内存位置" class="headerlink" title="内存位置"></a>内存位置</h2><p>　　我们知道，当<strong>同一数据</strong>在多个线程之间共享时，若存在某一线程需要更新数据的值，那么，这些线程在访问共享数据时都需要使用特定的机制来进行<strong>同步访问</strong>。<br>　　那么，考虑另一个问题，当多个线程访问<strong>不同的</strong>共享数据时，那么，情况是怎样的？</p>
+<hr>
+<blockquote>
+<p><strong>The C++ memory model</strong> guarantees that two threads of execution can update and access separate<br>memory locations without interfering with each other.<br>　　　　　　　　　　　　　　　　　　　　————  <em>The C++ Programming Language 4th Edition</em></p>
+<hr>
+</blockquote>
+<p>　　好了，考虑下面的例子：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">global variable:</div><div class="line">               <span class="keyword">char</span> a = <span class="number">0</span>;</div><div class="line">               <span class="keyword">char</span> b = <span class="number">0</span>;</div><div class="line">  </div><div class="line">Thread <span class="number">1</span>:                       Thread <span class="number">2</span>:</div><div class="line">a = <span class="number">1</span>;                          b = <span class="number">1</span>;</div><div class="line"><span class="keyword">int</span> x = a;                      <span class="keyword">int</span> y = b;</div></pre></td></tr></table></figure></p>
+<p>　　我们知道，char 类型占据一个字节，在 32 位的机器，一个 word 的大小是 4 个字节，而在 64 位的机器，则是 8 个字节。那么，有没有可能<code>a</code>和<code>b</code>都位于同一个 word 上面，从而共享同一个内存位置（ memory location ）？<br>　　答案是不可能，两个 char 都拥有其各自的内存位置。C++ 内存模型指定，对于基本类型来说，例如 int 或 char 等，无论它们占据几个字节，它们都确切地拥有一个内存位置。<br>　　一种特殊的情况就是位字段（ bit field ） ，我们知道，多个位字段可能占据同一个 word，因此，它们可以共享同一个内存位置，例如以下的例子：<br><img src="/images/data-structure/ml.png" alt=""><br>　　很明显，<code>bf1</code>和<code>bf2</code>占据同一个 word，因此它们同享同一内存位置。要是存在线程需要修改<code>bf1</code>，同时另一线程需要修改<code>bf2</code>，由于<code>bf1</code>和<code>bf2</code>共享同一内存位置，那么，这种行为是<strong>未定义</strong>的，也就是说，需要显示使用某些机制（ 例如互斥锁 ），使得对<code>bf1</code>和<code>bf2</code>的修改不会同时发生（ 需要具有一定的先后次序 ）。</p>
+<h2 id="语句乱序"><a href="#语句乱序" class="headerlink" title="语句乱序"></a>语句乱序</h2><p>　　假定有全局变量<code>data</code>以及<code>readyFlag</code>，Thread 1 负责提供<code>data</code>的值，同时将<code>readyFlag</code>设置成<code>ture</code>，那么，要是 Thread 2 发现<code>readyFlag</code>的值为<code>true</code>，说明 Thread 1 已经提供了<code>data</code>，这样，Thread 2 就会调用<code>processData()</code>来处理<code>data</code>了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">global variable:</div><div class="line">               <span class="keyword">long</span> data = <span class="number">0</span>;</div><div class="line">               <span class="keyword">bool</span> readyFlag = <span class="literal">false</span>;</div><div class="line">  </div><div class="line">Thread <span class="number">1</span>:                       Thread <span class="number">2</span>:</div><div class="line">                                <span class="keyword">while</span>( !readyFlag ) &#123;</div><div class="line">data = <span class="number">100</span>;                         ;</div><div class="line">readyFlag = <span class="literal">true</span>;               &#125;</div><div class="line">                                processData( data );</div></pre></td></tr></table></figure></p>
+<p>　　注意，编译器产生的汇编代码里面，语句的执行的次序<strong>并不保证</strong>与 C++ 源程序的语句次序一致。注意到，<code>data</code>和<code>readyFlag</code>二者之间并没有特定的联系，因此，Thread 1 中，语句实际的执行次序可能是：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">readyFlag = <span class="literal">true</span>;</div><div class="line">data = <span class="number">100</span>;</div></pre></td></tr></table></figure></p>
+<p>　　设想，要是 Thread 1 执行了第一条语句，但还没有执行第二条语句，也就是说，<code>readyFlag</code>的值设置为<code>true</code>，但<code>data</code>的值还是保持为 0，在这种情况下，数据就是不正确的。因为这时 Thread 2 可能访问到<code>readyFlag</code>，并调用<code>processData()</code>来处理<code>data</code>，但 Thread 1 还没有提供<code>data</code>的值。<br>　　另一方面，即使 Thread 1 的语句的次序没有改变，但是，Thread 2 的语句的次序也可能改变：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">processData( data );</div><div class="line"><span class="keyword">while</span>( !readyFlag ) &#123;</div><div class="line">    ;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　很明显，这是错误的，因为在 Thread 2 处理了<code>data</code>之后，这时<code>readyFlag</code>的值可能还是<code>false</code>。</p>
+<h2 id="内存次序"><a href="#内存次序" class="headerlink" title="内存次序"></a>内存次序</h2><blockquote>
+<p><strong>Memory ordering</strong> is the term used to describe what a programmer can assume about what a thread sees<br>when it looks at a value from memory.　　　　　<em>The C++ Programming Language 4th Edition</em></p>
+</blockquote>
+<hr>
+<p>　　最简单的内存次序称为 sequentially consistent，这种内存次序指明，在一个线程里面，原子操作将按照编程时指定的次序执行。<code>std::atomic&lt;&gt;</code>不仅代表原子，另一方面还保证了 sequentially consistent 的内存次序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">global variable:</div><div class="line">               <span class="built_in">std</span>::atomic&lt;<span class="keyword">int</span>&gt; a&#123;<span class="number">0</span>&#125;;</div><div class="line">               <span class="built_in">std</span>::atomic&lt;<span class="keyword">int</span>&gt; b&#123;<span class="number">0</span>&#125;;</div><div class="line">  </div><div class="line">Thread <span class="number">1</span>:                       Thread <span class="number">2</span>:</div><div class="line">a.store(<span class="number">1</span>);                     b.store(<span class="number">1</span>);</div><div class="line"><span class="keyword">int</span> x = b.load();               <span class="keyword">int</span> y = a.load();</div></pre></td></tr></table></figure></p>
+<p>　　在 Thread 1 和 Thread 2 各自的线程中，语句将按照源程序的语句次序执行。那么，有以下 3 种执行次序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">a = <span class="number">1</span>            a = <span class="number">1</span>             b = <span class="number">1</span></div><div class="line">x = b            b = <span class="number">1</span>             y = a</div><div class="line">b = <span class="number">1</span>            x = b             a = <span class="number">1</span></div><div class="line">y = a            y = a             x = b</div></pre></td></tr></table></figure></p>
+<p>　　那么，这三种情况下，<code>x</code>和<code>y</code>的值分别是 (0, 1)、(1, 1) 和 (1, 0)，很明显，按照 sequentially consistent 的内存次序，<code>x</code>和<code>y</code>的值<strong>不可能是</strong> (0, 0)。</p>
+<hr>
+<p>　　好了，让我们看一下<code>std::atomic&lt;&gt;</code>的<code>store()</code>以及<code>load()</code>成员函数的作用：</p>
+<blockquote>
+<p><img src="/images/data-structure/kkkk.png" alt=""></p>
+</blockquote>
+<p>　　一般来说，比起使用<code>std::mutex&lt;&gt;</code>来说，使用<code>std::atomic&lt;&gt;</code>带来的开销比较小：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">long</span> <span class="keyword">long</span> data;</div><div class="line"><span class="built_in">std</span>::atomic&lt;<span class="keyword">bool</span>&gt; readyFlag&#123; <span class="literal">false</span> &#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">provider</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="built_in">std</span>::this_thread::sleep_for( <span class="built_in">std</span>::chrono::seconds&#123; <span class="number">5</span> &#125; );</div><div class="line">    data = <span class="number">100l</span>l;</div><div class="line">    readyFlag.store( <span class="literal">true</span> );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">processData</span><span class="params">( <span class="keyword">const</span> <span class="keyword">long</span> <span class="keyword">long</span> &amp;value )</span> </span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"\nvalue: "</span> &lt;&lt; value &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">consumer</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">while</span>( !readyFlag.load() ) &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span>.put(<span class="string">'.'</span>).flush();</div><div class="line">        <span class="built_in">std</span>::this_thread::yield();        <span class="comment">// hint to reschedule to the next thread</span></div><div class="line">        <span class="built_in">std</span>::this_thread::sleep_for( <span class="built_in">std</span>::chrono::milliseconds( <span class="number">500</span> ) );</div><div class="line">    &#125;</div><div class="line">    processData( data );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::thread pvi&#123; provider &#125;;</div><div class="line">    <span class="built_in">std</span>::thread csm&#123; consumer &#125;;</div><div class="line">    pvi.join();</div><div class="line">    csm.join();</div><div class="line">        </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　注意到<code>readyFlag</code>的类型是<code>std::atomic&lt;bool&gt;</code>，可以保证当程序打算执行<code>readyFlag.store(true);</code>的时候，<code>data</code>已经完成了赋值。<br>　　另一方面，我们知道，在<code>consumer()</code>里面，<code>processData(data);</code>发生在<code>readyFlag.load()</code>之后，因此，只有当<code>readyFlag</code>的值为<code>true</code>的时候，<code>processData(data);</code>才会执行。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://stackoverflow.com/questions/6319146/c11-introduced-a-standardized-memory-model-what-does-it-mean-and-how-is-it-g" target="_blank" rel="external">StackOverflow: C++11 introduced a standardized memory model. What does it mean? </a></li>
+<li><a href="www.amazon.com/gp/product/0321563840/ref=s9_simh_gw_p14_d0_i4?pf_rd_m=ATVPDKIKX0DER&amp;pf_rd_s=desktop-1&amp;pf_rd_r=1K1091VGJG234NP5NA8T&amp;pf_rd_t=36701&amp;pf_rd_p=1970559082&amp;pf_rd_i=desktop">The C++ Programming Language 4th Edition</a></li>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+<li><a href="http://book.douban.com/subject/4130141/" target="_blank" rel="external">C++ Concurrency in Action</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/thread/" rel="tag">#thread</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/08/C-11并发编程三/" rel="next" title="C++11 并发编程（三）-- 数据竞争与线程同步">
+                <i class="fa fa-chevron-left"></i> C++11 并发编程（三）-- 数据竞争与线程同步
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/10/C-11并发编程五/" rel="prev" title="C++11 并发编程（五）-- 条件变量">
+                C++11 并发编程（五）-- 条件变量 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#读写数据"><span class="nav-number">1.</span> <span class="nav-text">读写数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存位置"><span class="nav-number">2.</span> <span class="nav-text">内存位置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语句乱序"><span class="nav-number">3.</span> <span class="nav-text">语句乱序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存次序"><span class="nav-number">4.</span> <span class="nav-text">内存次序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

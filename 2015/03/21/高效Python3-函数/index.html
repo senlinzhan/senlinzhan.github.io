@@ -1,0 +1,657 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python3," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="异常的处理　　当函数在处理输入的过程中遇到错误，这时应当抛出异常，而不是返回None值，因为None值和其它一些值能够隐式地转换成为False，例如，我们定义divide()函数：12345&amp;gt;&amp;gt;&amp;gt; def divide(a, b):	try:	    return a / b	except ZeroDivisionError:	    return None
+　　那么，我们可以通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Effective Python3（二） -- 函数技巧">
+<meta property="og:url" content="http://yoursite.com/2015/03/21/高效Python3-函数/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="异常的处理　　当函数在处理输入的过程中遇到错误，这时应当抛出异常，而不是返回None值，因为None值和其它一些值能够隐式地转换成为False，例如，我们定义divide()函数：12345&amp;gt;&amp;gt;&amp;gt; def divide(a, b):	try:	    return a / b	except ZeroDivisionError:	    return None
+　　那么，我们可以通">
+<meta property="og:updated_time" content="2015-08-21T16:23:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Effective Python3（二） -- 函数技巧">
+<meta name="twitter:description" content="异常的处理　　当函数在处理输入的过程中遇到错误，这时应当抛出异常，而不是返回None值，因为None值和其它一些值能够隐式地转换成为False，例如，我们定义divide()函数：12345&amp;gt;&amp;gt;&amp;gt; def divide(a, b):	try:	    return a / b	except ZeroDivisionError:	    return None
+　　那么，我们可以通">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/03/21/高效Python3-函数/"/>
+
+  <title> Effective Python3（二） -- 函数技巧 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Effective Python3（二） -- 函数技巧
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-03-21T19:19:23+08:00" content="2015-03-21">
+              2015-03-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="异常的处理"><a href="#异常的处理" class="headerlink" title="异常的处理"></a>异常的处理</h2><p>　　当函数在处理输入的过程中遇到错误，这时应当抛出异常，而不是返回<code>None</code>值，因为<code>None</code>值和其它一些值能够隐式地转换成为<code>False</code>，例如，我们定义<code>divide()</code>函数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">divide</span><span class="params">(a, b)</span>:</span></div><div class="line">	<span class="keyword">try</span>:</div><div class="line">	    <span class="keyword">return</span> a / b</div><div class="line">	<span class="keyword">except</span> ZeroDivisionError:</div><div class="line">	    <span class="keyword">return</span> <span class="keyword">None</span></div></pre></td></tr></table></figure></p>
+<p>　　那么，我们可以通过判断返回值是否为<code>None</code>，来判断<code>divide()</code>是否运行良好：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>x, y = <span class="number">3</span>, <span class="number">9</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>result = divide(x, y)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> result <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">	print(<span class="string">'Invalid inputs'</span>)</div></pre></td></tr></table></figure></p>
+<p>　　但有时，我们可能误认为，要是<code>divide()</code>返回<code>False</code>，表示<code>divide()</code>接受了非法的输入，从而写出这样的代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>x, y = <span class="number">0</span>, <span class="number">3</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>result = divide(x, y)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> <span class="keyword">not</span> result:</div><div class="line">	print(<span class="string">'Invalid inputs'</span>)</div><div class="line"></div><div class="line">Invalid inputs</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，由于<code>divide(0, 3)</code>返回<code>0</code>，并且由于<code>0</code>和<code>None</code>二者都能隐式地转换成为<code>False</code>，因此，我们无法判断<code>divide()</code>返回值是<code>0</code>或者是产生了错误。<br>　　一种次优的解决方法是，我们使<code>divide()</code>返回一个包含两个元素的<code>tuple</code>实例，第一个元素用来表示<code>divide()</code>执行是否成功，另一元素来表示<code>divide()</code>返回的结果，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">divide</span><span class="params">(a, b)</span>:</span></div><div class="line">	<span class="keyword">try</span>:</div><div class="line">	    <span class="keyword">return</span> <span class="keyword">True</span>, a / b</div><div class="line">	<span class="keyword">except</span> ZeroDivisionError:</div><div class="line">	    <span class="keyword">return</span> <span class="keyword">False</span>, <span class="keyword">None</span></div></pre></td></tr></table></figure></p>
+<p>　　因此，要是返回值的第一个元素为<code>False</code>，则表示出现错误，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>x, y = <span class="number">0</span>, <span class="number">5</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>success, result = divide(x, y)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> <span class="keyword">not</span> success:</div><div class="line">	print(<span class="string">'Invalid inputs'</span>)</div></pre></td></tr></table></figure></p>
+<p>　　当然，更好的方法是，不要通过返回<code>None</code>来表示遇到了错误，而应该通过抛出异常，使调用者来处理异常，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">divide</span><span class="params">(a, b)</span>:</span></div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            <span class="keyword">return</span> a / b</div><div class="line">        <span class="keyword">except</span> ZeroDivisionError <span class="keyword">as</span> e:</div><div class="line">            <span class="keyword">raise</span> ValueError(<span class="string">'Invalid inputs'</span>) <span class="keyword">from</span> e</div><div class="line">    </div><div class="line"><span class="meta">&gt;&gt;&gt; </span>x, y = <span class="number">5</span>, <span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">try</span>:</div><div class="line">        result = divide(x, y)</div><div class="line">    <span class="keyword">except</span> ValueError:</div><div class="line">        print(<span class="string">'Invalid inputs'</span>)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        print(<span class="string">'Result is %.1f'</span> % result)</div><div class="line"> </div><div class="line">Invalid inputs</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，要是<code>divide()</code>没有抛出异常，那么，我们就能得到想要的结果。</p>
+<h2 id="变量作用域"><a href="#变量作用域" class="headerlink" title="变量作用域"></a>变量作用域</h2><p>　　有时在排序数据时需要显示指定排序准则，例如，我们可以要求优先对指定范围内的数据进行排序，其次再排序其它的数据，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">sort_priority</span><span class="params">(values, group)</span>:</span></div><div class="line">	<span class="function"><span class="keyword">def</span> <span class="title">helper</span><span class="params">(x)</span>:</span></div><div class="line">	    <span class="keyword">if</span> x <span class="keyword">in</span> group:</div><div class="line">	        <span class="keyword">return</span> (<span class="number">0</span>, x)</div><div class="line">	    <span class="keyword">return</span> (<span class="number">1</span>, x)</div><div class="line">	values.sort(key=helper)</div></pre></td></tr></table></figure></p>
+<p>　　由于 Python 支持闭包，也就是说，函数可以访问其定义位置所在作用域中的变量，因此，<code>helper()</code>函数可以访问<code>sort_priority()</code>函数中的<code>group</code>变量。这样，我们可以使用<code>sort_priority()</code>对数据进行排序：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>numbers = [<span class="number">9</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">1</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group = &#123;<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>sort_priority(numbers, group)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(numbers)</div><div class="line">[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">8</span>, <span class="number">9</span>]</div></pre></td></tr></table></figure></p>
+<p>　　当然，我们可以使用变量<code>found</code>来判断，在输入中是否存在需要优先排序的元素：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">sort_priority2</span><span class="params">(values, group)</span>:</span></div><div class="line">        found = <span class="keyword">False</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">helper</span><span class="params">(x)</span>:</span></div><div class="line">            <span class="keyword">if</span> x <span class="keyword">in</span> group:</div><div class="line">                found = <span class="keyword">True</span></div><div class="line">                <span class="keyword">return</span> (<span class="number">0</span>, x)</div><div class="line">            <span class="keyword">return</span> (<span class="number">1</span>, x)</div><div class="line">        values.sort(key=helper)</div><div class="line">        <span class="keyword">return</span> found</div></pre></td></tr></table></figure></p>
+<p>　　使用之前的数据对这个函数进行测试，我们预料<code>sort_priority2()</code>将会返回<code>True</code>:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>numbers = [<span class="number">9</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">1</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group = &#123;<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>found = sort_priority2(numbers, group)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">'Found: '</span>, found)</div><div class="line">Found:  <span class="keyword">False</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(numbers)</div><div class="line">[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">8</span>, <span class="number">9</span>]</div></pre></td></tr></table></figure></p>
+<p>　　但是，我们看到，返回值是<code>False</code>而不是<code>True</code>。实际上，在<code>helper()</code>函数中，<code>found</code>表示存在于<code>helper()</code>中的局部变量，因此，<code>helper()</code>中的<code>found</code>变量与<code>sort_priority2()</code>中的<code>found</code>变量并不是同一变量。<br>　　我们可以显式为<code>helper()</code>中的<code>found</code>变量加上<code>nonlocal</code>修饰符，表示这个变量引用的是外围作用域中的<code>found</code>变量，也就是<code>sort_priority2()</code>中的<code>found</code>变量：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">sort_priority3</span><span class="params">(values, group)</span>:</span></div><div class="line">        found = <span class="keyword">False</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">helper</span><span class="params">(x)</span>:</span></div><div class="line">            <span class="keyword">nonlocal</span> found</div><div class="line">            <span class="keyword">if</span> x <span class="keyword">in</span> group:</div><div class="line">                found = <span class="keyword">True</span></div><div class="line">                <span class="keyword">return</span> (<span class="number">0</span>, x)</div><div class="line">            <span class="keyword">return</span> (<span class="number">1</span>, x)</div><div class="line">        values.sort(key=helper)</div><div class="line">        <span class="keyword">return</span> found</div><div class="line"> </div><div class="line"><span class="meta">&gt;&gt;&gt; </span>found = sort_priority3(numbers, group)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(found)</div><div class="line"><span class="keyword">True</span></div></pre></td></tr></table></figure></p>
+<p>　　可以看到，这时<code>helper()</code>中的<code>found</code>变量将引用<code>sort_priority3()</code>中的<code>found</code>变量。实际上，我们可以定义一个类，以避免使用<code>nonlocal</code>修饰符：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">Sorter</span><span class="params">(object)</span>:</span></div><div class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, group)</span>:</span></div><div class="line">	    self.group = group</div><div class="line">	    self.found = <span class="keyword">False</span></div><div class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self, x)</span>:</span></div><div class="line">	    <span class="keyword">if</span> x <span class="keyword">in</span> self.group:</div><div class="line">		self.found = <span class="keyword">True</span></div><div class="line">		<span class="keyword">return</span> (<span class="number">0</span>, x)</div><div class="line">	    <span class="keyword">return</span> (<span class="number">1</span>, x)</div><div class="line">	</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>sorter = Sorter(group)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>numbers.sort(key=sorter)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(sorter.found)</div><div class="line"><span class="keyword">True</span></div></pre></td></tr></table></figure></p>
+<h2 id="返回生成器"><a href="#返回生成器" class="headerlink" title="返回生成器"></a>返回生成器</h2><p>　　有时函数需要返回较多的结果，通常，我们考虑将这些结果存储在<code>list</code>中，并返回这个<code>list</code>。当数据较少时，这样做当然没问题。但是，当函数需要返回大量数据，将这些数据存储在<code>list</code>中，将会耗费大量内存，特别是当函数从包含大量数据的文件中读取数据的时候，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">lines_count</span><span class="params">(file_handle)</span>:</span></div><div class="line">        result = []</div><div class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> file_handle:</div><div class="line">            <span class="keyword">if</span> line:</div><div class="line">                result.append(len(line))</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                result.append(<span class="number">0</span>)</div><div class="line">        <span class="keyword">return</span> result</div><div class="line">    </div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">with</span> open(<span class="string">'file'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</div><div class="line">        result = lines_count(f)</div><div class="line">    	print(result)</div></pre></td></tr></table></figure></p>
+<p>　　更好的做法是返回生成器，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">lines_count</span><span class="params">(file_handle)</span>:</span></div><div class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> file_handle:</div><div class="line">            <span class="keyword">if</span> line:</div><div class="line">                <span class="keyword">yield</span> len(line)  </div><div class="line">	    <span class="keyword">else</span>:</div><div class="line">                <span class="keyword">yield</span> <span class="number">0</span></div></pre></td></tr></table></figure></p>
+<p>　　我们可以返回的生成器，通过生成器可以一次只处理一个数据。要是每次将数据利用完就丢弃，那就可以节省内存：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">with</span> open(<span class="string">'file'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</div><div class="line">    	 result = lines_count(f)</div><div class="line">    	 total = sum(result)</div></pre></td></tr></table></figure></p>
+<p>　　生成器的另一作用则是，我们可以使用<code>list()</code>函数，通过生成器得到<code>list</code>实例：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">with</span> open(<span class="string">'file'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</div><div class="line">    	 result = lines_count(f)</div><div class="line">	 print(list(result))</div></pre></td></tr></table></figure></p>
+<h2 id="关键词参数"><a href="#关键词参数" class="headerlink" title="关键词参数"></a>关键词参数</h2><p>　　调用函数时，可以按位置传递参数，也可以按关键词传递参数，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">remainder</span><span class="params">(number, divisor)</span>:</span></div><div class="line">    	<span class="keyword">return</span> number % divisor</div></pre></td></tr></table></figure></p>
+<p>　　那么，我们可以按照位置传递参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>remainder(<span class="number">20</span>, <span class="number">7</span>)</div><div class="line"><span class="number">6</span></div></pre></td></tr></table></figure></p>
+<p>　　也可以按照关键词来传递参数，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>remainder(number=<span class="number">20</span>, divisor=<span class="number">7</span>)</div><div class="line"><span class="number">6</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>remainder(divisor=<span class="number">7</span>, number=<span class="number">20</span>)</div><div class="line"><span class="number">6</span></div></pre></td></tr></table></figure></p>
+<p>　　我们也可以混合按位置传参和按关键词传参，但需要注意，按位置传递的参数需要出现在按关键词传递的参数之前：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>remainder(<span class="number">20</span>, divisor=<span class="number">7</span>)</div><div class="line"><span class="number">6</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>remainder(number=<span class="number">20</span>, <span class="number">7</span>)</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span></div><div class="line">SyntaxError: non-keyword arg after keyword arg</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>remainder(<span class="number">20</span>, number=<span class="number">7</span>)</div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">TypeError: remainder() got multiple values <span class="keyword">for</span> argument <span class="string">'number'</span></div></pre></td></tr></table></figure></p>
+<p>　　按关键词来传递参数的好处就是，使程序更具可读性。另外，我们还可以为形参指定默认值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">average_cost</span><span class="params">(total, days=<span class="number">365</span>)</span>:</span></div><div class="line">        <span class="keyword">return</span> total / days</div></pre></td></tr></table></figure></p>
+<p>　　要是函数的参数具有默认值，我们可以按位置来传参，也可以按关键词来传参，但为了代码更清晰，我们通常按关键词来传参：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>average = average_cost(<span class="number">1000</span>, days=<span class="number">500</span>)</div></pre></td></tr></table></figure></p>
+<p>　　有时，我们要求函数拓展函数的参数，但又不能打破函数的向后兼容性，那么，可以使用默认参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">average_salary</span><span class="params">(total, month)</span>:</span></div><div class="line">       <span class="keyword">return</span> total / month</div></pre></td></tr></table></figure></p>
+<p>　　我们可以对函数拓展参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">average_salary</span><span class="params">(total, month, bonus=<span class="number">1000</span>)</span>:</span></div><div class="line">        <span class="keyword">return</span> total / month + bonus</div></pre></td></tr></table></figure></p>
+<p>　　那么，可以看到，新定义的函数能够兼容旧的代码，同时通过拓展参数，可以提供给新的用户使用。</p>
+<h2 id="强制关键词"><a href="#强制关键词" class="headerlink" title="强制关键词"></a>强制关键词</h2><p>　　有时除法运算会抛出异常，我们可以定义函数来应对这些异常：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">safe_division</span><span class="params">(number, divisor, </span></span></div><div class="line">                  ignore_overflow=False, </div><div class="line">                  ignore_zero_division=False):</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">return</span> number / divisor</div><div class="line">    <span class="keyword">except</span> OverflowError:</div><div class="line">        <span class="keyword">if</span> ignore_overflow:</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">raise</span></div><div class="line">    <span class="keyword">except</span> ZeroDivisionError:</div><div class="line">        <span class="keyword">if</span> ignore_zero_division:</div><div class="line">            <span class="keyword">return</span> float(<span class="string">'inf'</span>)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">raise</span></div></pre></td></tr></table></figure></p>
+<p>　　我们使用<code>ignore_overflow</code>和<code>ignore_zero_division</code>来指定是否忽略算法运算中可能抛出的异常。例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>result = safe_division(<span class="number">1</span>, <span class="number">0</span>, ignore_zero_division=<span class="keyword">True</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(result)</div><div class="line">inf</div></pre></td></tr></table></figure></p>
+<p>　　当然，在调用<code>safe_division()</code>函数时，传递后两个参数可以不按关键词传参，但这样将带来混淆，因此，在调用这个函数时，可以强制使用关键词传参：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">safe_division</span><span class="params">(number, divisor, *,</span></span></div><div class="line">                  ignore_overflow=False, </div><div class="line">                  ignore_zero_division=False):</div><div class="line"><span class="comment"># as before</span></div></pre></td></tr></table></figure></p>
+<p>　　这时，后两个参数则必须要按关键词传参，例如：<br>```python</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>result = safe_division(1, 0, False, True)<br>Traceback (most recent call last):<br>  File “t.py”, line 28, in <module><br>    result = safe_division(1, 0, False, True)<br>TypeError: safe_division() takes 2 positional arguments but 4 were given<br>result = safe_division(1, 0, ignore_zero_division=True)<br>print(result)<br>inf<br>```　</module></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Effective-Python-Specific-Software-Development/dp/0134034287/ref=sr_1_1?ie=UTF8&amp;qid=1426775022&amp;sr=8-1&amp;keywords=effective+python" target="_blank" rel="external">Effective Python: 59 Specific Ways to Write Better Python</a></li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python3/" rel="tag">#Python3</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/03/19/高效Python3-Pythonic风格/" rel="next" title="Effective Python3（一） -- Pythonic 风格">
+                <i class="fa fa-chevron-left"></i> Effective Python3（一） -- Pythonic 风格
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/03/22/Emacs24与Python3/" rel="prev" title="将 Emacs24 配置成 Python3 IDE">
+                将 Emacs24 配置成 Python3 IDE <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#异常的处理"><span class="nav-number">1.</span> <span class="nav-text">异常的处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#变量作用域"><span class="nav-number">2.</span> <span class="nav-text">变量作用域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回生成器"><span class="nav-number">3.</span> <span class="nav-text">返回生成器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关键词参数"><span class="nav-number">4.</span> <span class="nav-text">关键词参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#强制关键词"><span class="nav-number">5.</span> <span class="nav-text">强制关键词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python3," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="public 与 private 属性　　要是类的属性名以__开头，那么，这个属性就作为类private属性：1234567891011class MyClass(object):    def __init__(self):        self.public_value = 10        self.__private_value = 100    def get_private_val">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Effective Python3（四） -- 访问类的属性">
+<meta property="og:url" content="http://yoursite.com/2015/03/24/高效Python3-类的属性/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="public 与 private 属性　　要是类的属性名以__开头，那么，这个属性就作为类private属性：1234567891011class MyClass(object):    def __init__(self):        self.public_value = 10        self.__private_value = 100    def get_private_val">
+<meta property="og:updated_time" content="2015-08-21T16:23:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Effective Python3（四） -- 访问类的属性">
+<meta name="twitter:description" content="public 与 private 属性　　要是类的属性名以__开头，那么，这个属性就作为类private属性：1234567891011class MyClass(object):    def __init__(self):        self.public_value = 10        self.__private_value = 100    def get_private_val">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/03/24/高效Python3-类的属性/"/>
+
+  <title> Effective Python3（四） -- 访问类的属性 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Effective Python3（四） -- 访问类的属性
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-03-24T20:23:45+08:00" content="2015-03-24">
+              2015-03-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="public-与-private-属性"><a href="#public-与-private-属性" class="headerlink" title="public 与 private 属性"></a>public 与 private 属性</h2><p>　　要是类的属性名以<code>__</code>开头，那么，这个属性就作为类<code>private</code>属性：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.public_value = <span class="number">10</span></div><div class="line">        self.__private_value = <span class="number">100</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_private_value</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self.__private_value       </div><div class="line">   </div><div class="line"><span class="meta">   @classmethod</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_private_value_of_instance</span><span class="params">(cls, instance)</span>:</span></div><div class="line">        <span class="keyword">return</span> instance.__private_value</div></pre></td></tr></table></figure></p>
+<p>　　显然，我们无法直接从类的外部访问<code>private</code>属性，但我们可以通过实例的方法或者类方法来访问<code>private</code>属性：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = MyClass()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.public_value</div><div class="line"><span class="number">10</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.get_private_value()</div><div class="line"><span class="number">100</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>MyClass.get_private_value_of_instance(foo)</div><div class="line"><span class="number">100</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.__private_value</div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">AttributeError: <span class="string">'MyClass'</span> object has no attribute <span class="string">'__private_value'</span></div><div class="line">```　</div><div class="line">　　看看一个有趣的例子，我们使用`Child`作为`MyClass`的子类：</div><div class="line">```python</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(MyClass)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super().__init__()</div></pre></td></tr></table></figure></p>
+<p>　　实际上，需要知道，在 Python 中，<code>private</code>属性仅仅是一种命名的规范，因此，这并不妨碍我们从类的外部访问类的属性，并且，也可以从子类中访问父类的<code>private</code>属性：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = MyClass()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo._MyClass__private_value</div><div class="line"><span class="number">100</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>bar = Child()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>bar._MyClass__private_value</div><div class="line"><span class="number">100</span></div></pre></td></tr></table></figure></p>
+<p>　　当我们在<code>MyClass</code>类中定义<code>__private_value</code>时，解析器会将<code>__private_value</code>转换成<code>_MyClass__private_value</code>。因此，只要知道这个规则，就可以从类的外部访问类的<code>private</code>属性了。</p>
+<p>　　如果查看实例的属性字典，可以看到，<code>__private_value</code>的真正名字是<code>_MyClass__private_value</code>，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(bar.__dict__)</div><div class="line">&#123;<span class="string">'_MyClass__private_value'</span>: <span class="number">100</span>, <span class="string">'public_value'</span>: <span class="number">10</span>&#125;</div></pre></td></tr></table></figure></p>
+<p>　　由于我们可以在类的外部访问类的<code>private</code>属性，那么，显然，<code>private</code>属性就失去它的功效了，因此，应当尽量避免使用<code>private</code>属性。</p>
+<p>　　注意，除了<code>public</code>和<code>private</code>属性之外，还可以使用<code>protected</code>属性，<code>protected</code>属性以<code>_</code>作为命名的开头。如果我们不想在类的外部直接访问这个属性，并且要求这个属性能够被子类访问，那么，应当使用<code>protected</code>属性。同样，<code>protected</code>属性也仅是命名规范，实际上并无法限制从类的外部访问<code>protected</code>属性，使用<code>protected</code>属性时，需要加文档注明这个属性不打算被外部访问，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, value)</span>:</span></div><div class="line">        <span class="comment"># This store the user-supplied value for the object, </span></div><div class="line">        <span class="comment"># and can't be directly access from outside</span></div><div class="line">        self._value = value</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　通常，<code>private</code>属性表面这个属性不打算被外部访问，也不打算被子类访问，而是作为类的内部成员。一种使用<code>private</code>属性的情况是，在继承层次中，避免命名冲突。例如，<code>_value</code>是常见的命名方式，要是子类中也存在<code>_value</code>属性，那么，就会覆盖父类的<code>_value</code>属性：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self._value = <span class="number">100</span></div><div class="line">        </div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self._value = <span class="string">'value'</span></div></pre></td></tr></table></figure></p>
+<p>　　由于父类无法预判子类的行为，因此，可以使用<code>private</code>属性表示这个属性并不打算被子类访问：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.__value = <span class="number">100</span></div><div class="line">        </div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self._value = <span class="string">'value'</span></div></pre></td></tr></table></figure></p>
+<p>　　这样，就可以避免父类与子类产生命名冲突了。</p>
+<h2 id="不使用-getter-和-setter"><a href="#不使用-getter-和-setter" class="headerlink" title="不使用 getter 和 setter"></a>不使用 getter 和 setter</h2><p>　　在 Java 和 C++ 语言中，为维持类的封装性，经常需要使用<code>set()</code>和<code>get()</code>成员函数。这时因为在 Java 或 C++ 里面，数据成员通常是<code>private</code>的，为了在修改<code>private</code>成员的同时不改变类的接口，就需要使用<code>set()</code>和<code>get()</code>来访问<code>private</code>的数据成员。</p>
+<p>　　当然，在 Python 中也可以这样做，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, name)</span>:</span></div><div class="line">        self._name = name</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_name</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self._name</div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_name</span><span class="params">(self, name)</span>:</span></div><div class="line">        self._name = name</div></pre></td></tr></table></figure></p>
+<p>　　但在 Python 中，类的属性 ( 也即数据成员 ) 都是<strong>公有的</strong>，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, )</span>:</span></div><div class="line">        self.value = <span class="number">0</span></div><div class="line">        self._value = <span class="number">1</span></div><div class="line">        self.__value = <span class="number">2</span></div></pre></td></tr></table></figure></p>
+<p>　　尽管<code>_value</code>和<code>__value</code>分别表示<code>protected</code>和<code>private</code>属性，但这并不妨碍从类的外部访问这些属性，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = MyClass()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.value</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo._value</div><div class="line"><span class="number">1</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo._MyClass__value</div><div class="line"><span class="number">2</span></div></pre></td></tr></table></figure></p>
+<p>　　那么，这时我们知道，在 Python 中并不需要使用<code>set()</code>和<code>get()</code>来维护类的封装性。但其实，<code>set()</code>和<code>get()</code>的另一个作用是，当我们需要修改类的实现的时候，可以在<code>set()</code>和<code>get()</code>增加其它的操作：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Square</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, side)</span>:</span></div><div class="line">        self.set_side(side)</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_side</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self._side</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_side</span><span class="params">(self, side)</span>:</span></div><div class="line">        <span class="keyword">if</span> side &lt; <span class="number">0</span>:</div><div class="line">            self._side = <span class="number">0</span></div><div class="line">        <span class="keyword">elif</span> side &gt; <span class="number">100</span>:</div><div class="line">            self._side = <span class="number">100</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            self._side = side</div></pre></td></tr></table></figure></p>
+<p>　　这里我们通过<code>set_side()</code>方法将<code>side</code>属性的值限定在 0 到 100 之间。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = Square(<span class="number">200</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.get_side()</div><div class="line"><span class="number">100</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.set_side(<span class="number">-100</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.get_side()</div><div class="line"><span class="number">0</span></div></pre></td></tr></table></figure></p>
+<p>　　需要注意的是，由于<code>side</code>属性是共有的，因此，客户端完全可以直接访问<code>side</code>，这样做就<strong>破坏了类的封装性</strong>，但是我们没有办法防止这种情况发生：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = Square(<span class="number">200</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo._side = <span class="number">-100</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.get_side()</div><div class="line"><span class="number">-100</span></div></pre></td></tr></table></figure></p>
+<h2 id="使用-property-装饰器"><a href="#使用-property-装饰器" class="headerlink" title="使用 @property 装饰器"></a>使用 @property 装饰器</h2><p>　　应当避免使用<code>set()</code>和<code>get()</code>方法，而直接访问类的属性，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, value)</span>:</span></div><div class="line">            self.value = value</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = MyClass(<span class="number">10</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.value = <span class="number">100</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print(foo.value)</div><div class="line"><span class="number">100</span></div></pre></td></tr></table></figure></p>
+<p>　　但是，有时在类的属性被设置时，我们需要指定执行其它的操作，那么，这时就需要使用 @property 装饰器了：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Square</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, side)</span>:</span></div><div class="line">        self.side = side</div><div class="line">    </div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">side</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self._side</div><div class="line">        </div><div class="line"><span class="meta">    @side.setter</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">side</span><span class="params">(self, side)</span>:</span></div><div class="line">        <span class="keyword">if</span> side &lt; <span class="number">0</span>:</div><div class="line">            self._side = <span class="number">0</span></div><div class="line">        <span class="keyword">elif</span> side &gt; <span class="number">100</span>:</div><div class="line">            self._side = <span class="number">100</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            self._side = side</div><div class="line"></div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">area</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self._side ** <span class="number">2</span></div></pre></td></tr></table></figure></p>
+<p>　　那么，我们可以在类的外部访问<code>side</code>属性，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = Square(<span class="number">-99</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.side</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.side = <span class="number">500</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.side</div><div class="line"><span class="number">100</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.area</div><div class="line"><span class="number">10000</span></div></pre></td></tr></table></figure></p>
+<p>　　但注意，我们可以看到，在<code>Square</code>类中实际上并不存在<code>side</code>属性，当我们在类的外部访问<code>side</code>属性时，例如，当我们对执行<code>foo.side = 500</code>时，实际上将调用<code>@side.setter</code>方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@side.setter</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">side</span><span class="params">(self, side)</span>:</span></div><div class="line">    <span class="comment"># ...</span></div></pre></td></tr></table></figure></p>
+<p>　　<code>Square</code>中实际存在的属性是<code>_side</code>而不是<code>side</code>，当然，我们可以将<code>_side</code>改成其它任意的名字。同样道理，使用<code>@property</code>装饰器，只是让属性从表面上看起来是存在的，但实际上并不存在，因此，我们得以从<code>Square</code>的外部访问<code>area</code>属性：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = Square(<span class="number">30</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo.area</div><div class="line"><span class="number">900</span></div></pre></td></tr></table></figure></p>
+<p>　　但需要注意，<code>Square</code>中实际上不能存在<code>side</code>属性，否则将引起递归调用：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Square</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, side)</span>:</span></div><div class="line">        self.side = side</div><div class="line">    </div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">side</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self.side</div><div class="line">        </div><div class="line"><span class="meta">    @side.setter</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">side</span><span class="params">(self, side)</span>:</span></div><div class="line">        <span class="keyword">if</span> side &lt; <span class="number">0</span>:</div><div class="line">            self.side = <span class="number">0</span></div><div class="line">        <span class="keyword">elif</span> side &gt; <span class="number">100</span>:</div><div class="line">            self.side = <span class="number">100</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            self.side = side</div><div class="line"></div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">area</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self.side ** <span class="number">2</span></div></pre></td></tr></table></figure></p>
+<p>　　在这种情况下，创建<code>Square</code>实例时将出现错误：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>foo = Square(<span class="number">-100</span>)</div><div class="line"><span class="comment"># ...</span></div><div class="line">RuntimeError: maximum recursion depth exceeded</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Effective-Python-Specific-Software-Development/dp/0134034287/ref=sr_1_1?ie=UTF8&amp;qid=1426775022&amp;sr=8-1&amp;keywords=effective+python" target="_blank" rel="external">Effective Python: Item 27 – Prefer Public Attributes Over Private Ones</a></li>
+<li><a href="http://www.amazon.com/Effective-Python-Specific-Software-Development/dp/0134034287/ref=sr_1_1?ie=UTF8&amp;qid=1426775022&amp;sr=8-1&amp;keywords=effective+python" target="_blank" rel="external">Effective Python: Item 29 – Use Plain Attributes Instead of Get and Set Methods</a></li>
+<li><a href="http://www.python-course.eu/python3_properties.php" target="_blank" rel="external">Properties vs. Getters and Setters</a>　</li>
+<li><a href="http://stackoverflow.com/questions/6618002/python-property-versus-getters-and-setters" target="_blank" rel="external">StackOverflow: Python @property versus getters and setters</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python3/" rel="tag">#Python3</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/03/23/高效Python3-多重继承与初始化/" rel="next" title="Effective Python3（三） -- 多重继承与初始化">
+                <i class="fa fa-chevron-left"></i> Effective Python3（三） -- 多重继承与初始化
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/03/25/Emacs使用技巧/" rel="prev" title="Emacs 实用技巧">
+                Emacs 实用技巧 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#public-与-private-属性"><span class="nav-number">1.</span> <span class="nav-text">public 与 private 属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不使用-getter-和-setter"><span class="nav-number">2.</span> <span class="nav-text">不使用 getter 和 setter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-property-装饰器"><span class="nav-number">3.</span> <span class="nav-text">使用 @property 装饰器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

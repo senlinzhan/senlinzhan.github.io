@@ -1,0 +1,665 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="信号的简介　　通常，进程和内核可以通过信号 ( Signal ) 来终结其它进程，停止其它进程的执行，或者仅是通知其它进程。例如，要是进程执行非法的浮点数运算，内核则会发送SIGFPE信号。另一方面，要是子进程终止或停止执行了，则内核发送SIGCHLD信号给其父进程。常见的信号：
+
+
+
+处理信号　　进程可以调用kill()来发送信号给其它进程：12345#include &amp;lt;sys/types">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 系统编程 -- 信号">
+<meta property="og:url" content="http://yoursite.com/2015/07/14/Linux信号/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="信号的简介　　通常，进程和内核可以通过信号 ( Signal ) 来终结其它进程，停止其它进程的执行，或者仅是通知其它进程。例如，要是进程执行非法的浮点数运算，内核则会发送SIGFPE信号。另一方面，要是子进程终止或停止执行了，则内核发送SIGCHLD信号给其父进程。常见的信号：
+
+
+
+处理信号　　进程可以调用kill()来发送信号给其它进程：12345#include &amp;lt;sys/types">
+<meta property="og:image" content="http://yoursite.com/images/linux/signal.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/handle.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/sig.png">
+<meta property="og:updated_time" content="2015-07-25T12:36:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 系统编程 -- 信号">
+<meta name="twitter:description" content="信号的简介　　通常，进程和内核可以通过信号 ( Signal ) 来终结其它进程，停止其它进程的执行，或者仅是通知其它进程。例如，要是进程执行非法的浮点数运算，内核则会发送SIGFPE信号。另一方面，要是子进程终止或停止执行了，则内核发送SIGCHLD信号给其父进程。常见的信号：
+
+
+
+处理信号　　进程可以调用kill()来发送信号给其它进程：12345#include &amp;lt;sys/types">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/signal.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/07/14/Linux信号/"/>
+
+  <title> Linux 系统编程 -- 信号 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 系统编程 -- 信号
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-07-14T11:03:26+08:00" content="2015-07-14">
+              2015-07-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/系统编程/" itemprop="url" rel="index">
+                    <span itemprop="name">系统编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="信号的简介"><a href="#信号的简介" class="headerlink" title="信号的简介"></a>信号的简介</h2><p>　　通常，进程和内核可以通过信号 ( Signal ) 来终结其它进程，停止其它进程的执行，或者仅是通知其它进程。例如，要是进程执行非法的浮点数运算，内核则会发送<code>SIGFPE</code>信号。另一方面，要是子进程终止或停止执行了，则内核发送<code>SIGCHLD</code>信号给其父进程。常见的信号：</p>
+<blockquote>
+<p><img src="/images/linux/signal.png" alt=""></p>
+</blockquote>
+<h2 id="处理信号"><a href="#处理信号" class="headerlink" title="处理信号"></a>处理信号</h2><p>　　进程可以调用<code>kill()</code>来发送信号给其它进程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">kill</span><span class="params">( <span class="keyword">pid_t</span> pid, <span class="keyword">int</span> sig )</span></span>;</div><div class="line"><span class="comment">// return 0 if OK, -1 on error</span></div></pre></td></tr></table></figure></p>
+<p>　　若<code>pid</code>大于<code>0</code>，则信号将发送给进程<code>pid</code>，要是<code>pid</code>小于<code>0</code>，那么，信号将发送给进程群组<code>-pid</code>。例如，以下程序，父进程发送<code>SIGKILL</code>信号给它的子进程：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">pid_t</span> pid = fork();</div><div class="line">    <span class="keyword">if</span>( pid &lt; <span class="number">0</span> ) &#123;</div><div class="line">	<span class="built_in">fprintf</span>( <span class="built_in">stderr</span>, <span class="string">"fork() error: %s"</span>, strerror( errno ) );</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>( pid == <span class="number">0</span> ) &#123;</div><div class="line">	pause();    <span class="comment">// child process wait for signal to arrive </span></div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">	kill( pid, SIGKILL );</div><div class="line">	<span class="built_in">exit</span>( <span class="number">0</span> );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　每种信号都有默认的处理方式，除了<code>SIGSTOP</code>和<code>SIGKILL</code>信号之外，我们可以为其它信号显式定义处理方式。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*<span class="keyword">sighandler_t</span>)</span><span class="params">(<span class="keyword">int</span>)</span></span>;</div><div class="line"></div><div class="line"><span class="keyword">sighandler_t</span> signal( <span class="keyword">int</span> signum, <span class="keyword">sighandler_t</span> handler );</div><div class="line"><span class="comment">// return pointer to previous handler if OK, SIG_ERR on error( does not set errno )</span></div></pre></td></tr></table></figure></p>
+<p>　　若<code>handler</code>为<code>SIG_IGN</code>，则表示忽略处理信号，要是<code>SIG_DFL</code>则表示恢复为默认的信号处理方式。通常，<code>handler</code>为函数指针，指向自定义的信号处理函数。</p>
+<hr>
+<p>　　要是信号已经发送但还未被接收，则称为 pending 信号。在同一时刻，进程的所有 pending 信号中，同一类型的信号最多只能出现<strong>一次</strong>。处理信号过程中可能出现的问题：</p>
+<blockquote>
+<p><img src="/images/linux/handle.png" alt=""></p>
+</blockquote>
+<p>　　由于第二个问题，也就是说相同类型的信号可能会丢失，因此，我们<strong>不能</strong>通过接收到的信号的次数来判定事件出现的次数。</p>
+<hr>
+<p>　　在 Web Server 中，通常需要创建多个子进程，当子进程终止时，父进程需要负责清除子进程，否则，这些已经终止的子进程将会继续占用系统资源。当子进程终止时，内核会发送<code>SIGCHLD</code>信号给父进程，父进程可以通过自定义的信号处理方式来回收子进程。</p>
+<p>　　在清理子进程的时候，需要注意上面提及的问题：</p>
+<ul>
+<li>当第一个子进程终止时，内核会发送<code>SIGCHLD</code>信号给父进程，父进程调用信号处理器，清除这个子进程，在清除子进程的过程中，下一个<code>SIGCHLD</code>信号将会阻塞在队列中，并且由于信号队列中最多只能存在一个<code>SIGCHLD</code>信号，意味着接下来要是内核继续发送给父进程<code>SIGCHLD</code>信号，则会丢失。解决这个问题，可以在信号处理器中尽可能多地清除子进程。</li>
+<li>另一方面，父进程调用信号处理器时，系统调用可能会被中断，这时需要手动重启系统调用。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">unix_error</span><span class="params">( <span class="keyword">char</span> *msg )</span> </span>&#123;</div><div class="line">    <span class="built_in">fprintf</span>( <span class="built_in">stderr</span>, <span class="string">"%s: %s\n"</span>, msg, strerror( errno ) );</div><div class="line">    <span class="built_in">exit</span>( <span class="number">1</span> );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">signal_handler</span><span class="params">( <span class="keyword">int</span> sig )</span> </span>&#123;</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line"></div><div class="line">    <span class="comment">// 尽可能多地回收子进程，非阻塞 </span></div><div class="line">    <span class="keyword">while</span>( ( pid = waitpid( <span class="number">-1</span>, <span class="literal">NULL</span>, WNOHANG ) ) &gt; <span class="number">0</span> ) &#123;</div><div class="line">	<span class="built_in">printf</span>( <span class="string">"Handler reaped child %ld\n"</span>, (<span class="keyword">long</span>)pid );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 当父进程不拥有子进程，pid 为 -1 并且 errno 为 ECHILD，这种情况不视之为错误</span></div><div class="line">    <span class="keyword">if</span>( pid == <span class="number">-1</span> &amp;&amp; errno != ECHILD ) &#123;</div><div class="line">	unix_error( <span class="string">"waitpid() error"</span> );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>( signal( SIGCHLD, signal_handler ) == SIG_ERR ) &#123;</div><div class="line">	unix_error( <span class="string">"signal() error:"</span> );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i ) &#123;</div><div class="line">	<span class="keyword">pid_t</span> pid = fork();</div><div class="line">	<span class="keyword">if</span>( pid &lt; <span class="number">0</span> ) &#123;</div><div class="line">	    unix_error( <span class="string">"fork() error"</span> );</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">if</span>( pid == <span class="number">0</span> ) &#123;</div><div class="line">	    <span class="built_in">printf</span>( <span class="string">"Hello from child %ld\n"</span>, (<span class="keyword">long</span>)getpid() );</div><div class="line">	    sleep( <span class="number">1</span> );</div><div class="line">	    <span class="built_in">exit</span>( <span class="number">0</span> );</div><div class="line">	&#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> n;</div><div class="line">    <span class="keyword">char</span> buf[<span class="number">1024</span>];</div><div class="line"></div><div class="line">    <span class="comment">// read() 可能会被信号中断，需要手动重启</span></div><div class="line">    <span class="keyword">while</span>( ( n = read( STDIN_FILENO, buf, <span class="keyword">sizeof</span>( buf ) ) ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">	<span class="keyword">if</span>( errno != EINTR ) &#123;</div><div class="line">	    unix_error( <span class="string">"read() error"</span> );	    </div><div class="line">	&#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="built_in">printf</span>( <span class="string">"Parent processing input\n"</span> );</div><div class="line">    </div><div class="line">    <span class="keyword">while</span>( <span class="literal">true</span> ) &#123;</div><div class="line">	<span class="comment">// do more things</span></div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line">Hello from child 12487</div><div class="line">Hello from child 12488</div><div class="line">Hello from child 12489</div><div class="line">Handler reaped child 12487</div><div class="line">Handler reaped child 12488</div><div class="line">Handler reaped child 12489</div><div class="line">**/</div></pre></td></tr></table></figure>
+<h2 id="通用信号处理"><a href="#通用信号处理" class="headerlink" title="通用信号处理"></a>通用信号处理</h2><p>　　我们可以使用<code>sigaction()</code>函数来编写出更加通用的信号处理处理器：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">sigaction</span><span class="params">( <span class="keyword">int</span> signum, <span class="keyword">struct</span> sigaction *act, <span class="keyword">struct</span> sigaction *oldact )</span></span>;</div><div class="line"><span class="comment">// return 0 if OK, -1 on error</span></div></pre></td></tr></table></figure></p>
+<p>　　这样可以定义<code>Signal()</code>函数：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">( *<span class="keyword">sighandler_t</span> )</span><span class="params">( <span class="keyword">int</span> )</span></span>;</div><div class="line"></div><div class="line"><span class="keyword">sighandler_t</span> Signal( <span class="keyword">int</span> signum, <span class="keyword">sighandler_t</span> handler )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> sigaction action, old_action;</div><div class="line"> </div><div class="line">    action.sa_handler = handler;</div><div class="line">    sigemptyset( &amp;action.sa_mask );   <span class="comment">/* Block sigs of type being handled */</span></div><div class="line">    action.sa_flags = SA_RESTART;     <span class="comment">/* Restart syscalls if possible */</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span>( sigaction( signum, &amp;action, &amp;old_action ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">        unix_error( <span class="string">"Signal() error"</span> );</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> ( old_action.sa_handler );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们可以使用<code>Signal()</code>来替代<code>signal()</code>，<code>Signal()</code>的特点：</p>
+<blockquote>
+<p><img src="/images/linux/sig.png" alt=""></p>
+</blockquote>
+<p>　　注意到，使用<code>Signal()</code>时，信号处理器并不会中断系统调用，因此，不必手动重启系统调用。</p>
+<h2 id="简单的-shell"><a href="#简单的-shell" class="headerlink" title="简单的 shell"></a>简单的 shell</h2><p>　　我们可以使用 C++ 创建一个简单的 shell 来介绍信号处理的机制：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iterator&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">( *<span class="keyword">sighandler_t</span> )</span><span class="params">( <span class="keyword">int</span> )</span></span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">unix_error</span><span class="params">( <span class="keyword">const</span> <span class="keyword">char</span> *msg )</span> </span>&#123;</div><div class="line">    <span class="built_in">cerr</span> &lt;&lt; msg &lt;&lt; <span class="string">": "</span> &lt;&lt; strerror( errno ) &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    <span class="built_in">exit</span>( <span class="number">1</span> );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; splitLine( <span class="keyword">const</span> <span class="built_in">string</span> &amp;line ) &#123;</div><div class="line">    <span class="function"><span class="built_in">istringstream</span> <span class="title">iss</span><span class="params">( line )</span></span>;    </div><div class="line">    <span class="keyword">return</span> &#123; istream_iterator&lt;<span class="built_in">string</span>&gt;&#123; iss &#125;, istream_iterator&lt;<span class="built_in">string</span>&gt;&#123;&#125; &#125;;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">executeCommandLine</span><span class="params">( <span class="keyword">const</span> <span class="built_in">string</span> &amp;line )</span> </span>&#123;</div><div class="line">    <span class="keyword">auto</span> tokens = splitLine( line );</div><div class="line">    </div><div class="line">    <span class="comment">// ignore empty command line</span></div><div class="line">    <span class="keyword">if</span>( tokens.empty() ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125; </div><div class="line">    </div><div class="line">    <span class="comment">// ignore the single &amp;</span></div><div class="line">    <span class="keyword">if</span>( tokens.front() == <span class="string">"&amp;"</span> ) &#123;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// the quit command exit the program</span></div><div class="line">    <span class="keyword">if</span>( tokens.front() == <span class="string">"quit"</span> ) &#123;</div><div class="line">        <span class="built_in">exit</span>( <span class="number">0</span> );</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="comment">// is it run in background? </span></div><div class="line">    <span class="keyword">bool</span> background = <span class="literal">false</span>;</div><div class="line">    <span class="keyword">if</span>( tokens.back() == <span class="string">"&amp;"</span> ) &#123;</div><div class="line">        background = <span class="literal">true</span>;</div><div class="line">        tokens.pop_back();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// build the command line argument</span></div><div class="line">    <span class="keyword">char</span> *argv[tokens.size() + <span class="number">1</span>];</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">decltype</span>(tokens)::size_type i = <span class="number">0</span>; i &lt; tokens.size(); ++i ) &#123;</div><div class="line">        argv[i] = <span class="keyword">const_cast</span>&lt;<span class="keyword">char</span>*&gt;( tokens[i].c_str() );</div><div class="line">    &#125;</div><div class="line">    argv[tokens.size()] = <span class="literal">nullptr</span>;</div><div class="line"></div><div class="line">    <span class="keyword">pid_t</span> pid = fork();</div><div class="line">    <span class="keyword">if</span>( pid &lt; <span class="number">0</span> ) &#123;</div><div class="line">        unix_error( <span class="string">"fork() error"</span> );</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>( pid == <span class="number">0</span> ) &#123;</div><div class="line">        <span class="comment">// in child process: run user job    </span></div><div class="line">        <span class="keyword">if</span>( execve( argv[<span class="number">0</span>], argv, environ ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">            <span class="built_in">cerr</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">": command not found."</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">            <span class="built_in">exit</span>( <span class="number">1</span> );</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">if</span>( background ) &#123;</div><div class="line">            <span class="built_in">cout</span> &lt;&lt; pid &lt;&lt; <span class="string">" "</span> &lt;&lt; line &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">if</span>( waitpid( pid, <span class="literal">nullptr</span>, <span class="number">0</span> ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">                unix_error( <span class="string">"waitpid() error"</span> );</div><div class="line">            &#125;            </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">sighandler_t</span> Signal( <span class="keyword">int</span> signum, <span class="keyword">sighandler_t</span> handler )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> sigaction action, old_action;</div><div class="line"> </div><div class="line">    action.sa_handler = handler;</div><div class="line">    sigemptyset( &amp;action.sa_mask );   <span class="comment">/* Block sigs of type being handled */</span></div><div class="line">    action.sa_flags = SA_RESTART;     <span class="comment">/* Restart syscalls if possible */</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span>( sigaction( signum, &amp;action, &amp;old_action ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">        unix_error( <span class="string">"Signal() error"</span> );</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> ( old_action.sa_handler );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">signal_handler</span><span class="params">( <span class="keyword">int</span> sig )</span> </span>&#123;</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line"></div><div class="line">    <span class="keyword">while</span>( ( pid = waitpid( <span class="number">-1</span>, <span class="literal">NULL</span>, WNOHANG ) ) &gt; <span class="number">0</span> ) &#123;</div><div class="line">        <span class="built_in">printf</span>( <span class="string">"Handler reaped child %ld\n"</span>, (<span class="keyword">long</span>)pid );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span>( pid == <span class="number">-1</span> &amp;&amp; errno != ECHILD ) &#123;</div><div class="line">        unix_error( <span class="string">"waitpid() error"</span> );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    Signal( SIGCHLD, signal_handler );</div><div class="line"></div><div class="line">    <span class="built_in">string</span> line; </div><div class="line">    </div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"&gt; "</span>;</div><div class="line">    <span class="keyword">while</span>( getline( <span class="built_in">cin</span>, line ) ) &#123;</div><div class="line">        executeCommandLine( line );</div><div class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">"&gt; "</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Computer-Systems-Programmers-Perspective-2nd/dp/0136108040/ref=sr_1_2?ie=UTF8&amp;qid=1431613304&amp;sr=8-2&amp;keywords=computer+systems" target="_blank" rel="external">Computer Systems: A Programmer’s Perspective (2nd Edition)</a></li>
+<li><a href="http://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1432537210&amp;sr=8-1&amp;keywords=linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag">#Linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/07/13/Linux进程二/" rel="next" title="Linux 进程编程（二）-- 深入进程">
+                <i class="fa fa-chevron-left"></i> Linux 进程编程（二）-- 深入进程
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/07/16/Linux系统编程IO/" rel="prev" title="Linux 系统编程 -- 文件系统">
+                Linux 系统编程 -- 文件系统 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#信号的简介"><span class="nav-number">1.</span> <span class="nav-text">信号的简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理信号"><span class="nav-number">2.</span> <span class="nav-text">处理信号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通用信号处理"><span class="nav-number">3.</span> <span class="nav-text">通用信号处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单的-shell"><span class="nav-number">4.</span> <span class="nav-text">简单的 shell</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

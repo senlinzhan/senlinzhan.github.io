@@ -1,0 +1,645 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,STL," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="避免默认捕获　　使用 lambda 时，有两种方式来捕获局部的 non-static 变量，分别是按引用捕获，和按值捕获。按引用捕获局部变量时，则必须小心，要是 lambda 所引用的局部变量消失了，这时会出现悬挂引用的问题：1234567891011121314using FilterType = std::function&amp;lt;bool(int)&amp;gt;;using FilterContai">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高效 C++11 -- 深入 lambda">
+<meta property="og:url" content="http://yoursite.com/2015/06/20/高效C-11-深入lambda/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="避免默认捕获　　使用 lambda 时，有两种方式来捕获局部的 non-static 变量，分别是按引用捕获，和按值捕获。按引用捕获局部变量时，则必须小心，要是 lambda 所引用的局部变量消失了，这时会出现悬挂引用的问题：1234567891011121314using FilterType = std::function&amp;lt;bool(int)&amp;gt;;using FilterContai">
+<meta property="og:updated_time" content="2015-09-07T02:43:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高效 C++11 -- 深入 lambda">
+<meta name="twitter:description" content="避免默认捕获　　使用 lambda 时，有两种方式来捕获局部的 non-static 变量，分别是按引用捕获，和按值捕获。按引用捕获局部变量时，则必须小心，要是 lambda 所引用的局部变量消失了，这时会出现悬挂引用的问题：1234567891011121314using FilterType = std::function&amp;lt;bool(int)&amp;gt;;using FilterContai">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/06/20/高效C-11-深入lambda/"/>
+
+  <title> 高效 C++11 -- 深入 lambda | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                高效 C++11 -- 深入 lambda
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-06-20T14:38:06+08:00" content="2015-06-20">
+              2015-06-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="避免默认捕获"><a href="#避免默认捕获" class="headerlink" title="避免默认捕获"></a>避免默认捕获</h2><p>　　使用 lambda 时，有两种方式来捕获局部的 non-static 变量，分别是按引用捕获，和按值捕获。按引用捕获局部变量时，则必须小心，要是 lambda 所引用的局部变量消失了，这时会出现悬挂引用的问题：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">using</span> FilterType = <span class="built_in">std</span>::function&lt;<span class="keyword">bool</span>(<span class="keyword">int</span>)&gt;;</div><div class="line"><span class="keyword">using</span> FilterContainer = <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;FilterType&gt;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> divisor = <span class="number">100</span>;</div><div class="line">    container.emplace_back( [&amp;]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % divisor == <span class="number">0</span>;  &#125; );</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    FilterContainer container;</div><div class="line">    add_filter( container ); </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　<code>add_filter()</code>函数中，lambda 按引用捕获了局部变量<code>divisor</code>，但是，当<code>add_filter()</code>函数退出之后，<code>divisor</code>将会消失，这时 lambda 中所引用的<code>divisor</code>就是<strong>不存在</strong>的。</p>
+<p>　　有时候按引用捕获时很有用的，但在按引用捕获时，需要保证 lambda 所引用的变量一直有效，并且防止这个 lambda 被 copy 到其它地方。</p>
+<hr>
+<p>　　好了，我们说过，lambda 捕获的是局部的 non-static 变量，嗯嗯，那么，对于 static 变量呢？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> divisor = <span class="number">100</span>;</div><div class="line">    container.emplace_back( [=]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % divisor == <span class="number">0</span>;  &#125; );</div><div class="line"></div><div class="line">    ++divisor;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　乍看之下，似乎 lambda 中捕获了 divisor，但实则不然：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> divisor = <span class="number">100</span>;</div><div class="line">    container.emplace_back( [divisor]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % divisor == <span class="number">0</span>;  &#125; );</div><div class="line"></div><div class="line">    ++divisor;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　将其改成显式地捕获，则编译器会抱怨<code>divisor</code>并不是局部的 non-static 变量：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">error: 'divisor' cannot be captured because it does not have automatic storage duration</div></pre></td></tr></table></figure></p>
+<p>　　这就是说，<code>divisor</code>是不能被捕获的，因为它是 static 变量，另外，全局变量也是不能被捕获的。理解这一点是很重要的，当我们使用<code>++divisor</code>的时候，lambda 中<code>divisor</code>的值也会随着改变。</p>
+<p>　　所以说，应当尽量避免使用默认捕获，而是直接指定需要捕获的变量名，借助编译器的提示来发现潜在的 Bug。</p>
+<hr>
+<p>　　好了，接下来看看 lambda 是怎样捕获对象的数据成员的？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Widget</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span> </span></div><div class="line">    &#123;</div><div class="line">        container.emplace_back( [=]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % divisor == <span class="number">0</span>;  &#125; );</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> divisor;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　乍看之下，你可能觉得这段代码很安全。嗯嗯，实则不然。</p>
+<p>　　前面说到，lambda 只能捕获局部的 non-static 变量，但没说过 lambda 能捕获其所在对象的数据成员喔：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Widget</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span> </span></div><div class="line">    &#123;</div><div class="line">        container.emplace_back( [divisor]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % divisor == <span class="number">0</span>;  &#125; );</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> divisor;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　看看错误提示：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">p.cpp:24:34: error: 'divisor' in capture list does not name a variable</div><div class="line">        container.emplace_back( [divisor]( int value ) &#123;  return value ...</div><div class="line">                                 ^</div><div class="line">p.cpp:24:74: error: 'this' cannot be implicitly captured in this context</div><div class="line">  ...[divisor]( int value ) &#123;  return value % divisor == 0;  &#125; );</div><div class="line">                                              ^</div><div class="line">2 errors generated.</div></pre></td></tr></table></figure></p>
+<p>　　实际上，每个 non-static 的成员函数都隐式地包含一个参数，这个参数就是<code>this</code>指针，当我们使用默认按值捕获时，lambda 就会拷贝这个<code>this</code>指针，所以，默认的按值捕获，即<code>[=]</code>等价于：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Widget</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span> </span></div><div class="line">    &#123;</div><div class="line">        container.emplace_back( [<span class="keyword">this</span>]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % <span class="keyword">this</span>-&gt;divisor == <span class="number">0</span>;  &#125; );</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> divisor;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　正是因为 lambda 捕获了这个<code>this</code>指针，所以才能访问对象的数据成员<code>divisor</code>，所以说，lambda 只能捕获局部的 non-static 变量。</p>
+<hr>
+<p>　　应当尽量避免使用默认的捕获方式：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">container.emplace_back( [=]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % divisor == <span class="number">0</span>;  &#125; );</div></pre></td></tr></table></figure></p>
+<p>　　因为这里会让我们<strong>错误地</strong>认为<code>divisor</code>是按值捕获的，但实际上捕获的则是<code>this</code>指针。</p>
+<p>　　理解这一点很重要，考虑一下，要是我们创建的<code>Widget</code>对象，并且这个对象销毁了，那么，它的<code>divisor</code>数据成员也会消失：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Widget</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span> </span></div><div class="line">    &#123;</div><div class="line">        container.emplace_back( [<span class="keyword">this</span>]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % <span class="keyword">this</span>-&gt;divisor == <span class="number">0</span>;  &#125; );</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> divisor;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">( FilterContainer &amp;container )</span></span></div><div class="line">&#123;</div><div class="line">    Widget widget;</div><div class="line"></div><div class="line">    widget.add_filter( container );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　当<code>foo()</code>函数退出时，<code>widget</code>会消失，那么，lambda 里面捕获的<code>this</code>也会消失，同样，<code>divisor</code>也会<strong>消失</strong>。</p>
+<p>　　解决这个问题很简单，看看这里：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Widget</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span> </span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">auto</span> divisor_copy = divisor;</div><div class="line">        container.emplace_back( [divisor_copy]( <span class="keyword">int</span> value ) &#123;  <span class="keyword">return</span> value % divisor_copy == <span class="number">0</span>;  &#125; );</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> divisor;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　我们创建了<code>divisor</code>的一份副本<code>divisor_copy</code>，并且通过按值捕获<code>divisor_copy</code>，这样就解决了问题。</p>
+<p>　　当然，C++14 则提供了更加方便的做法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Widget</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add_filter</span><span class="params">( FilterContainer &amp;container )</span> </span></div><div class="line">    &#123;</div><div class="line">        container.emplace_back( [divisor = divisor]( <span class="keyword">int</span> value ) &#123; <span class="keyword">return</span> value % divisor == <span class="number">0</span>; &#125;);</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> divisor;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　使用初始化捕获的方式，将<code>divisor</code>拷贝到 lambda 内部。</p>
+<h2 id="初始化捕获"><a href="#初始化捕获" class="headerlink" title="初始化捕获"></a>初始化捕获</h2><p>　　在 C++11 中，我们只能使用按值捕获或是按引用捕获。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Effective-Modern-Specific-Ways-Improve/dp/1491903996/ref=sr_1_1?ie=UTF8&amp;qid=1428220334&amp;sr=8-1&amp;keywords=effective+modern+c%2B%2B" target="_blank" rel="external">Effective Modern C++: 42 Specific Ways to Improve Your Use of C++11 and C++14 </a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/STL/" rel="tag">#STL</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/18/高效C-11-从源码看std-remove/" rel="next" title="高效 C++11 -- 删除容器的元素">
+                <i class="fa fa-chevron-left"></i> 高效 C++11 -- 删除容器的元素
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/20/高效C-11-深入理解std-move和std-forward/" rel="prev" title="高效 C++11 -- 深入 std::move 和 std::forward">
+                高效 C++11 -- 深入 std::move 和 std::forward <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#避免默认捕获"><span class="nav-number">1.</span> <span class="nav-text">避免默认捕获</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化捕获"><span class="nav-number">2.</span> <span class="nav-text">初始化捕获</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

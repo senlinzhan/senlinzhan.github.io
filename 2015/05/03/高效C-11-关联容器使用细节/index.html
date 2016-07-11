@@ -1,0 +1,630 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,STL," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="元素相等性　　set 和 map 中元素是按升序排列的，其底层实现是红黑树：123456789101112template &amp;lt; class T, class Compare = std::less&amp;lt;T&amp;gt;, class Alloc = std::allocator&amp;lt;T&amp;gt;&amp;gt;    class set &amp;#123;    // ...&amp;#125;;template &amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高效 C++11 -- 关联容器使用技巧">
+<meta property="og:url" content="http://yoursite.com/2015/05/03/高效C-11-关联容器使用细节/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="元素相等性　　set 和 map 中元素是按升序排列的，其底层实现是红黑树：123456789101112template &amp;lt; class T, class Compare = std::less&amp;lt;T&amp;gt;, class Alloc = std::allocator&amp;lt;T&amp;gt;&amp;gt;    class set &amp;#123;    // ...&amp;#125;;template &amp;">
+<meta property="og:updated_time" content="2015-09-09T07:00:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高效 C++11 -- 关联容器使用技巧">
+<meta name="twitter:description" content="元素相等性　　set 和 map 中元素是按升序排列的，其底层实现是红黑树：123456789101112template &amp;lt; class T, class Compare = std::less&amp;lt;T&amp;gt;, class Alloc = std::allocator&amp;lt;T&amp;gt;&amp;gt;    class set &amp;#123;    // ...&amp;#125;;template &amp;">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/05/03/高效C-11-关联容器使用细节/"/>
+
+  <title> 高效 C++11 -- 关联容器使用技巧 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                高效 C++11 -- 关联容器使用技巧
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-05-03T14:38:06+08:00" content="2015-05-03">
+              2015-05-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="元素相等性"><a href="#元素相等性" class="headerlink" title="元素相等性"></a>元素相等性</h2><p>　　set 和 map 中元素是按升序排列的，其底层实现是红黑树：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt; <span class="keyword">class</span> T, <span class="keyword">class</span> Compare = <span class="built_in">std</span>::less&lt;T&gt;, <span class="keyword">class</span> Alloc = <span class="built_in">std</span>::allocator&lt;T&gt;&gt;    </div><div class="line"><span class="keyword">class</span> <span class="built_in">set</span> </div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt; <span class="keyword">class</span> Key, <span class="keyword">class</span> T, <span class="keyword">class</span> Compare = <span class="built_in">std</span>::less&lt;Key&gt;, </div><div class="line">           <span class="keyword">class</span> Alloc = <span class="built_in">std</span>::allocator&lt;<span class="built_in">std</span>::pair&lt;<span class="keyword">const</span> Key,T&gt;&gt; &gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">map</span></div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　这两个容器默认都是使用<code>std::less&lt;T&gt;</code>来比较元素的大小，在 C++11 中，<code>std::less&lt;T&gt;</code>是函数对象：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt; </div><div class="line"><span class="keyword">struct</span> less </div><div class="line">&#123;</div><div class="line">    <span class="keyword">using</span> first_argument_type    = T;</div><div class="line">    <span class="keyword">using</span> second_argument_type   = T;</div><div class="line">    <span class="keyword">using</span> result_type            = <span class="keyword">bool</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">( <span class="keyword">const</span> T &amp;x, <span class="keyword">const</span> T &amp;y )</span> <span class="keyword">const</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> x &lt; y;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　在 set 和 map 这种<strong>有序</strong>的容器中，比较两个元素（或两个键相等），<strong>不是</strong>使用 == 操作符，而是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 比较元素是否相等</span></div><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compareTwo</span><span class="params">( <span class="keyword">const</span> T &amp;x, <span class="keyword">const</span> T &amp;y )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> !Compare()( x, y ) &amp;&amp; !Compare()( y, x );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　好了，我们需要在容器中查找元素，有两种方式：</p>
+<ul>
+<li>调用 set 或 map 的<code>find()</code>成员函数。</li>
+<li>调用全局的<code>std::find()</code>函数。</li>
+</ul>
+<p>　　但是，set 或 map 的<code>find()</code>成员函数，使用<code>compareTwo</code>来比较两个元素是否相等，而<code>std::find()</code>使用<code>std::equal_to&lt;T&gt;</code>来判断两个元素是否相等。</p>
+<p>　　这样，在 set 或 map 中查找元素，应该使用<code>find()</code>成员函数，而<strong>不能</strong>使用<code>std::find()</code>。</p>
+<hr>
+<p>　　对于散列表来说，情况就不一样了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt; <span class="keyword">class</span> Key, <span class="keyword">class</span> Hash = <span class="built_in">std</span>::hash&lt;Key&gt;, <span class="keyword">class</span> Pred = <span class="built_in">std</span>::equal_to&lt;Key&gt;, </div><div class="line">           <span class="keyword">class</span> Alloc = <span class="built_in">std</span>::allocator&lt;Key&gt;&gt; </div><div class="line"><span class="keyword">class</span> <span class="built_in">unordered_set</span></div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt; <span class="keyword">class</span> Key, <span class="keyword">class</span> T, <span class="keyword">class</span> Hash = <span class="built_in">std</span>::hash&lt;Key&gt;, <span class="keyword">class</span> Pred = <span class="built_in">std</span>::equal_to&lt;Key&gt;,</div><div class="line">           <span class="keyword">class</span> Alloc = <span class="built_in">std</span>::allocator&lt;<span class="built_in">std</span>::pair&lt;<span class="keyword">const</span> Key,T&gt;&gt; &gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">unordered_map</span></div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　散列表使用<code>std::equal_to&lt;T&gt;</code>来比较两个元素的是否相等，也就是使用<code>==</code>来判断元素的相等性。</p>
+<p>　　理解这一点是容易的，因为散列表<strong>不是</strong>有序的。对于散列表来说，可以使用成员函数<code>find()</code>来查找元素，也可以使用<code>std::find()</code>来查找元素，二者的作用是相同的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/STL/" rel="tag">#STL</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/01/基本排序方法/" rel="next" title="算法正确性与循环不变式">
+                <i class="fa fa-chevron-left"></i> 算法正确性与循环不变式
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/06/C-11并发编程二/" rel="prev" title="C++11 并发编程（二）-- 线程间通信">
+                C++11 并发编程（二）-- 线程间通信 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#元素相等性"><span class="nav-number">1.</span> <span class="nav-text">元素相等性</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="打开与关闭　　可以用open()来打开文件：123456#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;sys/stat.h&amp;gt;#include &amp;lt;fcntl.h&amp;gt;int open( char *filename, int flags, mode_t mode );// return new file descriptor if OK, -1 on">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 系统编程 -- 文件系统">
+<meta property="og:url" content="http://yoursite.com/2015/07/16/Linux系统编程IO/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="打开与关闭　　可以用open()来打开文件：123456#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;sys/stat.h&amp;gt;#include &amp;lt;fcntl.h&amp;gt;int open( char *filename, int flags, mode_t mode );// return new file descriptor if OK, -1 on">
+<meta property="og:image" content="http://yoursite.com/images/linux/read.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/pp1.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/pa.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/pa3.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/pp1.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/pb.png">
+<meta property="og:updated_time" content="2015-08-21T09:19:50.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 系统编程 -- 文件系统">
+<meta name="twitter:description" content="打开与关闭　　可以用open()来打开文件：123456#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;sys/stat.h&amp;gt;#include &amp;lt;fcntl.h&amp;gt;int open( char *filename, int flags, mode_t mode );// return new file descriptor if OK, -1 on">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/read.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/07/16/Linux系统编程IO/"/>
+
+  <title> Linux 系统编程 -- 文件系统 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 系统编程 -- 文件系统
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-07-16T18:44:55+08:00" content="2015-07-16">
+              2015-07-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/系统编程/" itemprop="url" rel="index">
+                    <span itemprop="name">系统编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="打开与关闭"><a href="#打开与关闭" class="headerlink" title="打开与关闭"></a>打开与关闭</h2><p>　　可以用<code>open()</code>来打开文件：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">( <span class="keyword">char</span> *filename, <span class="keyword">int</span> flags, <span class="keyword">mode_t</span> mode )</span></span>;</div><div class="line"><span class="comment">// return new file descriptor if OK, -1 on error</span></div></pre></td></tr></table></figure></p>
+<p>　　<code>open()</code>返回一个文件描述符。<code>flags</code>的值：<code>O_RDONLY</code>表示只读，<code>O_WRONLY</code>表示只写，<code>O_RDWR</code>表示读写。另外，在写入文件时，可以指定写入方式，<code>O_CREAT</code>表示若文件不存在，则新建文件，<code>O_TRUNC</code>表示若文件已经存在，则覆写它，<code>O_APPEND</code>表示若文件已经存在，则在文件末尾追加内容：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">open( <span class="string">"filenam.txt"</span>, O_WRONLY | O_APPEND, <span class="number">0</span> );</div></pre></td></tr></table></figure></p>
+<p>　　关闭文件时，可以使用<code>close()</code>，<code>close()</code>一个已经关闭的文件则会发生错误：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">close</span><span class="params">( <span class="keyword">int</span> fd )</span></span>;</div><div class="line"><span class="comment">// return 0 if OK, -1 on error</span></div></pre></td></tr></table></figure></p>
+<h2 id="读取与写入"><a href="#读取与写入" class="headerlink" title="读取与写入"></a>读取与写入</h2><p>　　程序可以使用<code>read()</code>和<code>write()</code>来分别读取和写入数据：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">ssize_t</span> read( <span class="keyword">int</span> fd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> n );</div><div class="line"><span class="comment">// return number of bytes read if OK, 0 on EOF, -1 on error</span></div><div class="line"></div><div class="line"><span class="keyword">ssize_t</span> write( <span class="keyword">int</span> fd, <span class="keyword">const</span> <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> n );</div><div class="line"><span class="comment">// return number of bytes written if OK, -1 on error</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　在没有发生错误的情况下，使用<code>read()</code>和<code>write()</code>有时传送的字节数会小于缓冲区的大小，这称为 short count：</p>
+<blockquote>
+<p><img src="/images/linux/read.png" alt=""></p>
+</blockquote>
+<hr>
+<p>　　在实际程序中，例如，从 socket 中读取或写入数据，我们需要处理 short count 的问题，另一方面，我们知道，<code>read()</code>和<code>write()</code>可能会被信号处理器所中断。<code>rio_readn()</code>和<code>rio_writen()</code>函数解决了这些问题：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ssize_t</span> rio_readn( <span class="keyword">int</span> fd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> n )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">size_t</span> nleft = n;</div><div class="line">    <span class="keyword">char</span> *bufp = buf;</div><div class="line"></div><div class="line">    <span class="keyword">while</span>( nleft &gt; <span class="number">0</span> )</div><div class="line">    &#123;</div><div class="line">	<span class="keyword">ssize_t</span> nread = read( fd, bufp, nleft );</div><div class="line"></div><div class="line">	<span class="comment">// EOF</span></div><div class="line">	<span class="keyword">if</span>( nread == <span class="number">0</span> ) &#123;</div><div class="line">	    <span class="keyword">break</span>;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">if</span>( nread == <span class="number">-1</span> )</div><div class="line">	&#123;</div><div class="line">	    <span class="keyword">if</span>( errno == EINTR ) &#123;     <span class="comment">// Interrupted by signal handler </span></div><div class="line">		<span class="keyword">continue</span>;</div><div class="line">	    &#125; <span class="keyword">else</span> &#123;                   <span class="comment">// if error just return</span></div><div class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">	    &#125;</div><div class="line">	&#125; </div><div class="line"></div><div class="line">	nleft -= nread;</div><div class="line">	bufp += nread;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> n - nleft;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">ssize_t</span> rio_writen( <span class="keyword">int</span> fd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> n )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">size_t</span> nleft = n;</div><div class="line">    <span class="keyword">char</span> *bufp = buf;</div><div class="line"></div><div class="line">    <span class="keyword">while</span>( nleft &gt; <span class="number">0</span> )</div><div class="line">    &#123;</div><div class="line">	<span class="keyword">ssize_t</span> nwritten = write( fd, bufp, nleft );</div><div class="line">	<span class="keyword">if</span>( nwritten == <span class="number">-1</span> )</div><div class="line">	&#123;</div><div class="line">	    <span class="keyword">if</span>( errno == EINTR ) &#123;</div><div class="line">		<span class="keyword">continue</span>;</div><div class="line">	    &#125; <span class="keyword">else</span> &#123;</div><div class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">	    &#125;</div><div class="line">	&#125;</div><div class="line">	nleft -= nwritten;</div><div class="line">	bufp += nwritten;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> n;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　当<code>rio_readn()</code>遇到<code>EOF</code>时，才会返回 short count，遇到错误则返回<code>-1</code>, 在其它情况下，返回的字节数总是等于<code>n</code>。而<code>rio_writen()</code>则永远不会返回 short count。</p>
+<h2 id="文件共享"><a href="#文件共享" class="headerlink" title="文件共享"></a>文件共享</h2><p>　　我们知道，每个进程都拥有一个 file descriptor table，用来记录进程所打开的文件描述符，当进程调用<code>fork()</code>之后，子进程将得到父进程的 file descriptor table 的一份拷贝。</p>
+<p>　　为了记录打开的文件，内核维护三个数据结构：</p>
+<ul>
+<li>每个进程都拥有其各自的 file descriptor table。</li>
+<li>系统级的 file table，用来记录系统打开的文件，所有进程共享这个 file table，table 的每个 entry 包含了当前文件的位置，引用计数，以及一个指向 v-node table entry 的指针。引用计数表示当前有多少进程引用到这个文件，当引用计数的值变成 0 时，系统则会删除这个 file table entry。</li>
+<li>文件系统的 v-node table，供所有进程共享。</li>
+</ul>
+<hr>
+<p>　　假定进程打开了两个文件，descriptor table 中存在两个文件描述符：<br><img src="/images/linux/pp1.png" alt=""><br>　　接着，进程调用<code>fork()</code>创建了子进程，子进程将会得到父进程 descriptor table 的一份拷贝：<br><img src="/images/linux/pa.png" alt=""><br>　　这时，父进程和子进程共享同一个 file table，也就是说，父进程和子进程共享相同的文件位置。另一方面，可以看到，文件的引用计数是 2，则表示只有父进程和子进程都关闭了文件，系统才会删除相应的 file table entry。</p>
+<hr>
+<p>　　考虑另一种情况，要是进程两次调用<code>open()</code>打开同一个文件，那么，情况又是怎样的呢？<br><img src="/images/linux/pa3.png" alt=""><br>　　可以看到，存在两个文件描述符，每个文件描述符都有其各自的 file table entry，我们知道，file table entry 中包含文件位置和引用计数，也就说，我们可以利用这两个文件描述符，从同一个文件的不同位置读取数据。</p>
+<h2 id="复制文件描述符"><a href="#复制文件描述符" class="headerlink" title="复制文件描述符"></a>复制文件描述符</h2><p>　　我们知道，标准输出可以重定向到文件中：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls &gt; foo.txt</div></pre></td></tr></table></figure></p>
+<p>　　实际上，我们可以使用<code>dup2()</code>来实现 I/O 重定向：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">dup2</span><span class="params">( <span class="keyword">int</span> oldfd, <span class="keyword">int</span> newfd )</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　<code>oldfd</code>和<code>newfd</code>都在 descriptor table 中，实际上调用<code>dup2( oldfd, newfd )</code>相当于执行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">table[newfd] = table[oldfd];</div></pre></td></tr></table></figure></p>
+<p>　　要是在调用<code>dup2()</code>之前，<code>newfd</code>已经被打开了，那么，<code>dup2()</code>将会自动关闭<code>newfd</code>。</p>
+<hr>
+<p>　　假定进程打开了两个文件描述符，描述符 1 对于文件 A，描述符 4 对应文件 B：<br><img src="/images/linux/pp1.png" alt=""><br>　　要是进程调用<code>dup2( 4, 1 )</code>之后，两个文件描述符都将引用到文件 B，引用计数变成 2，文件 A 将被关闭，并且它的 file table entry 以及 v-node table entry 都将被删除：<br><img src="/images/linux/pb.png" alt=""></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Computer-Systems-Programmers-Perspective-2nd/dp/0136108040/ref=sr_1_2?ie=UTF8&amp;qid=1431613304&amp;sr=8-2&amp;keywords=computer+systems" target="_blank" rel="external">Computer Systems: A Programmer’s Perspective (2nd Edition)</a></li>
+<li><a href="http://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1432537210&amp;sr=8-1&amp;keywords=linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag">#Linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/07/14/Linux信号/" rel="next" title="Linux 系统编程 -- 信号">
+                <i class="fa fa-chevron-left"></i> Linux 系统编程 -- 信号
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/07/18/Linux网络编程三/" rel="prev" title="Linux 网络编程（四）-- 并发模型">
+                Linux 网络编程（四）-- 并发模型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#打开与关闭"><span class="nav-number">1.</span> <span class="nav-text">打开与关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读取与写入"><span class="nav-number">2.</span> <span class="nav-text">读取与写入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件共享"><span class="nav-number">3.</span> <span class="nav-text">文件共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#复制文件描述符"><span class="nav-number">4.</span> <span class="nav-text">复制文件描述符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

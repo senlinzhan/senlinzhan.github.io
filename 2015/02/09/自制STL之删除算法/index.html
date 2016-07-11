@@ -1,0 +1,651 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,algorithm,STL," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="删除特定元素　　可以使用remove()将指定元素从输入范围中移去，例如，假定存在容器：
+vector&amp;lt;int&amp;gt; coll = { 9, 8, 5, 6, 7, 5, 7, 7, 5, 4, 2, 1 };
+　　那么，我们可以使用以下语句移去元素5：
+auto end = mystl::remove( coll.begin(), coll.end(), 5 );
+　　可以看到，执行re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自制 STL -- 删除算法">
+<meta property="og:url" content="http://yoursite.com/2015/02/09/自制STL之删除算法/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="删除特定元素　　可以使用remove()将指定元素从输入范围中移去，例如，假定存在容器：
+vector&amp;lt;int&amp;gt; coll = { 9, 8, 5, 6, 7, 5, 7, 7, 5, 4, 2, 1 };
+　　那么，我们可以使用以下语句移去元素5：
+auto end = mystl::remove( coll.begin(), coll.end(), 5 );
+　　可以看到，执行re">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/remove1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/remove2.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/unique1.png">
+<meta property="og:image" content="http://yoursite.com/images/data-structure/unique2.png">
+<meta property="og:updated_time" content="2015-02-15T05:38:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自制 STL -- 删除算法">
+<meta name="twitter:description" content="删除特定元素　　可以使用remove()将指定元素从输入范围中移去，例如，假定存在容器：
+vector&amp;lt;int&amp;gt; coll = { 9, 8, 5, 6, 7, 5, 7, 7, 5, 4, 2, 1 };
+　　那么，我们可以使用以下语句移去元素5：
+auto end = mystl::remove( coll.begin(), coll.end(), 5 );
+　　可以看到，执行re">
+<meta name="twitter:image" content="http://yoursite.com/images/data-structure/remove1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/02/09/自制STL之删除算法/"/>
+
+  <title> 自制 STL -- 删除算法 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自制 STL -- 删除算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-09T09:08:56+08:00" content="2015-02-09">
+              2015-02-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/自制STL/" itemprop="url" rel="index">
+                    <span itemprop="name">自制STL</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="删除特定元素"><a href="#删除特定元素" class="headerlink" title="删除特定元素"></a>删除特定元素</h2><p>　　可以使用<code>remove()</code>将指定元素从输入范围中移去，例如，假定存在容器：</p>
+<pre><code>vector&lt;int&gt; coll = { 9, 8, 5, 6, 7, 5, 7, 7, 5, 4, 2, 1 };
+</code></pre><p><img src="/images/data-structure/remove1.png" alt=""><br>　　那么，我们可以使用以下语句移去元素<code>5</code>：</p>
+<pre><code>auto end = mystl::remove( coll.begin(), coll.end(), 5 );
+</code></pre><p>　　可以看到，执行<code>remove()</code>移去元素<code>5</code>之后，<code>remove()</code>将返回一个新的<code>off-the-end</code>迭代器，但注意，实际上元素并没有真正被移去，因为这时，<code>coll.end()</code>返回的迭代器指向的位置并没有改变：<br><img src="/images/data-structure/remove2.png" alt=""><br>　　为了使元素真正地从容器中删除，可以执行容器的<code>erase()</code>操作，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; coll = &#123; <span class="number">9</span>, <span class="number">8</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span> &#125;;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"before remove: "</span>;</div><div class="line">copy( coll.cbegin(), coll.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="keyword">auto</span> end = mystl::remove( coll.begin(), coll.end(), <span class="number">5</span> );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"\nafter remove 5: "</span>;</div><div class="line">copy( coll.begin(), end, ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"\nnumber of removed elements: "</span> &lt;&lt; distance( end, coll.end() ) &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">coll.erase( end, coll.end() );                         <span class="comment">// 真正删除元素</span></div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"after erase: "</span>;</div><div class="line">copy( coll.begin(), coll.end(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">/***</span></div><div class="line">before remove: 9 8 5 6 7 5 7 7 5 4 2 1 </div><div class="line">after remove 5: 9 8 6 7 7 7 4 2 1 </div><div class="line">number of removed elements: 3</div><div class="line">after erase: 9 8 6 7 7 7 4 2 1 </div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　实现<code>remove()</code>算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ForwardIterator, <span class="keyword">typename</span> T&gt;</div><div class="line"><span class="function">ForwardIterator <span class="title">remove</span><span class="params">( ForwardIterator beg, ForwardIterator end, <span class="keyword">const</span> T &amp;elem )</span> </span>&#123;</div><div class="line">    <span class="keyword">auto</span> pos = mystl::find( beg, end, elem );</div><div class="line">    <span class="keyword">if</span>( pos == end ) &#123;                          <span class="comment">// 若 elem 不存在，则返回</span></div><div class="line">        <span class="keyword">return</span> end;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> newEnd = pos;</div><div class="line">    <span class="keyword">for</span>( ++pos; pos != end; ++pos ) &#123;</div><div class="line">        <span class="keyword">if</span>( *pos != elem ) &#123;</div><div class="line">            *newEnd++ = <span class="built_in">std</span>::move( *pos );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> newEnd;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ForwardIterator, <span class="keyword">typename</span> UnaryPredicate&gt;</div><div class="line"><span class="function">ForwardIterator <span class="title">remove_if</span><span class="params">( ForwardIterator beg, ForwardIterator end, UnaryPredicate predicate )</span> </span>&#123;</div><div class="line">    <span class="keyword">auto</span> pos = mystl::find_if( beg, end, predicate );</div><div class="line">    <span class="keyword">if</span>( pos == end ) &#123;</div><div class="line">        <span class="keyword">return</span> end;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> newEnd = pos;</div><div class="line">    <span class="keyword">for</span>( ++pos; pos != end; ++pos ) &#123;</div><div class="line">        <span class="keyword">if</span>( !predicate( *pos ) ) &#123;</div><div class="line">            *newEnd++ = <span class="built_in">std</span>::move( *pos );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> newEnd;</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<p>　　由于<code>remove()</code>算法将会修改容器，因此，<strong>不能</strong>将其应用于关联容器或无序容器。</p>
+<h2 id="拷贝删除算法"><a href="#拷贝删除算法" class="headerlink" title="拷贝删除算法"></a>拷贝删除算法</h2><p>　　<code>remove_copy()</code>算法会将输入范围中的元素拷贝到输出范围，但不会对指定的元素执行拷贝，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; coll = &#123; <span class="number">9</span>, <span class="number">8</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span> &#125;;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"all elements except 5: "</span>;</div><div class="line">mystl::remove_copy( coll.cbegin(), coll.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ), <span class="number">5</span> );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"\nall odd elements: "</span>;</div><div class="line">mystl::remove_copy_if( coll.cbegin(), coll.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ),</div><div class="line">                       []( <span class="keyword">int</span> elem ) &#123;</div><div class="line">                           <span class="keyword">return</span> elem % <span class="number">2</span> == <span class="number">0</span>;</div><div class="line">                       &#125;);</div><div class="line"><span class="comment">/***</span></div><div class="line">all elements except 5: 9 8 6 7 7 7 4 2 1 </div><div class="line">all odd elements: 9 5 7 5 7 7 5 1</div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　<code>remove_copy()</code>返回一个迭代器，指向输出范围最后一个元素之后的一个位置，算法的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> InputIterator, <span class="keyword">typename</span> OutputIterator, <span class="keyword">typename</span> T&gt;</div><div class="line"><span class="function">OutputIterator <span class="title">remove_copy</span><span class="params">( InputIterator srcBeg, InputIterator srcEnd, </span></span></div><div class="line">                            OutputIterator desBeg, <span class="keyword">const</span> T &amp;elem ) &#123;</div><div class="line">    <span class="keyword">while</span>( srcBeg != srcEnd ) &#123;</div><div class="line">        <span class="keyword">auto</span> copy = *srcBeg++;</div><div class="line">        <span class="keyword">if</span>( copy != elem ) &#123;</div><div class="line">            *desBeg++ = copy;</div><div class="line">        &#125; </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> desBeg;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> InputIterator, <span class="keyword">typename</span> OutputIterator, <span class="keyword">typename</span> UnaryPredicate&gt;</div><div class="line"><span class="function">OutputIterator <span class="title">remove_copy_if</span><span class="params">( InputIterator srcBeg, InputIterator srcEnd, </span></span></div><div class="line">                               OutputIterator desBeg, UnaryPredicate predicate ) &#123;</div><div class="line">    <span class="keyword">while</span>( srcBeg != srcEnd ) &#123;</div><div class="line">        <span class="keyword">auto</span> copy = *srcBeg++;</div><div class="line">        <span class="keyword">if</span>( !predicate( copy ) ) &#123;</div><div class="line">            *desBeg++ = copy;</div><div class="line">        &#125; </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> desBeg;</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<h2 id="删除连续重复值"><a href="#删除连续重复值" class="headerlink" title="删除连续重复值"></a>删除连续重复值</h2><p>　　使用<code>unique()</code>能将连续的重复元素移除，因此，相邻的重复元素只保留一个，例如，对于以下数组：<br><img src="/images/data-structure/unique1.png" alt=""><br>　　执行<code>unique()</code>之后：<br><img src="/images/data-structure/unique2.png" alt=""><br>　　移去相邻的重复元素：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">1</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">4</span> &#125;;</div><div class="line"><span class="keyword">auto</span> end = mystl::unique( vec.begin(), vec.end() );</div><div class="line">copy( vec.begin(), end, ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">vec.erase( mystl::unique( vec.begin(), end, greater&lt;<span class="keyword">int</span>&gt;&#123;&#125; ), vec.end() );</div><div class="line">copy( vec.begin(), vec.end(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="comment">/***</span></div><div class="line">1 4 6 1 2 3 1 6 5 7 5 4 </div><div class="line">1 4 6 6 7 </div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　具体的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ForwardIterator, <span class="keyword">typename</span> BinaryPredicate&gt;</div><div class="line"><span class="function">ForwardIterator <span class="title">unique</span><span class="params">( ForwardIterator beg, ForwardIterator end, BinaryPredicate predicate )</span> </span>&#123;</div><div class="line">    beg = mystl::adjacent_find( beg, end, predicate );</div><div class="line">    <span class="keyword">if</span>( beg == end ) &#123;</div><div class="line">        <span class="keyword">return</span> end;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> newEnd = beg++;</div><div class="line">    <span class="keyword">while</span>( ++beg != end ) &#123;</div><div class="line">        <span class="keyword">if</span>( !predicate( *newEnd, *beg ) ) &#123;</div><div class="line">            *(++newEnd) = <span class="built_in">std</span>::move( *beg );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> ++newEnd;</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ForwardIterator&gt;</div><div class="line"><span class="function">ForwardIterator <span class="title">unique</span><span class="params">( ForwardIterator beg, ForwardIterator end )</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mystl::unique( beg, end, <span class="built_in">std</span>::equal_to&lt;<span class="keyword">decltype</span>(*beg)&gt;() );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<h2 id="唯一拷贝算法"><a href="#唯一拷贝算法" class="headerlink" title="唯一拷贝算法"></a>唯一拷贝算法</h2><p>　　可以使用<code>unique_copy()</code>将输入范围中的元素拷贝到输出范围，但相邻的重复元素只保留一个，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">1</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">4</span> &#125;;</div><div class="line">mystl::unique_copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">mystl::unique_copy( vec.cbegin(), vec.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ),</div><div class="line">                    []( <span class="keyword">int</span> first, <span class="keyword">int</span> second ) &#123;</div><div class="line">                        <span class="keyword">return</span> first + <span class="number">1</span> == second || first - <span class="number">1</span> == second;</div><div class="line">                    &#125;); </div><div class="line"><span class="comment">/***</span></div><div class="line">1 4 6 1 2 3 1 6 5 7 5 4 </div><div class="line">1 4 4 6 1 3 1 6 6 6 4 4</div><div class="line">***/</div></pre></td></tr></table></figure></p>
+<p>　　具体的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> mystl &#123;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> InputIterator, <span class="keyword">typename</span> OutputIterator, <span class="keyword">typename</span> BinaryPredicate&gt;</div><div class="line"><span class="function">OutputIterator <span class="title">unique_copy</span><span class="params">( InputIterator srcBeg, InputIterator srcEnd, </span></span></div><div class="line">                            OutputIterator desBeg, BinaryPredicate predicate ) &#123;</div><div class="line">    <span class="keyword">if</span>( srcBeg == srcEnd ) &#123;</div><div class="line">        <span class="keyword">return</span> desBeg;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">auto</span> lastOutputElem = *srcBeg++;</div><div class="line">    *desBeg++ = lastOutputElem;</div><div class="line">    <span class="keyword">while</span>( srcBeg != srcEnd ) &#123;</div><div class="line">        <span class="keyword">auto</span> currentElem = *srcBeg++;</div><div class="line">        <span class="keyword">if</span>( !predicate( lastOutputElem, currentElem ) ) &#123;</div><div class="line">            *desBeg++ = currentElem;</div><div class="line">            lastOutputElem = <span class="built_in">std</span>::move( currentElem );</div><div class="line">        &#125;</div><div class="line">    &#125; </div><div class="line">    <span class="keyword">return</span> desBeg;</div><div class="line">&#125; </div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> InputIterator, <span class="keyword">typename</span> OutputIterator&gt;</div><div class="line"><span class="function">OutputIterator <span class="title">unique_copy</span><span class="params">( InputIterator srcBeg, InputIterator srcEnd,</span></span></div><div class="line">                            OutputIterator desBeg ) &#123;</div><div class="line">    <span class="keyword">return</span> mystl::unique_copy( srcBeg, srcEnd, desBeg, <span class="built_in">std</span>::equal_to&lt;<span class="keyword">decltype</span>(*srcBeg)&gt;&#123;&#125; );</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;;    <span class="comment">// namespace mystl</span></div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/algorithm/" rel="tag">#algorithm</a>
+          
+            <a href="/tags/STL/" rel="tag">#STL</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/02/07/自制STL之比较算法/" rel="next" title="自制 STL -- 比较算法">
+                <i class="fa fa-chevron-left"></i> 自制 STL -- 比较算法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/02/09/自制STL之堆算法/" rel="prev" title="自制 STL -- 堆算法">
+                自制 STL -- 堆算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#删除特定元素"><span class="nav-number">1.</span> <span class="nav-text">删除特定元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拷贝删除算法"><span class="nav-number">2.</span> <span class="nav-text">拷贝删除算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#删除连续重复值"><span class="nav-number">3.</span> <span class="nav-text">删除连续重复值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#唯一拷贝算法"><span class="nav-number">4.</span> <span class="nav-text">唯一拷贝算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

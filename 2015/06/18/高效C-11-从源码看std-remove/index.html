@@ -1,0 +1,644 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11,STL," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="序列容器　　假定我们需要从vector中删除元素，我们首先会想到使用remove()，就像这样：12345vector&amp;lt;int&amp;gt; coll = &amp;#123; 1, 1, 2, 2, 3, 3 &amp;#125;;auto end = remove( coll.begin(), coll.end(), 2 );cout &amp;lt;&amp;lt; endl &amp;lt;&amp;lt; &quot;size = &quot; &amp;lt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高效 C++11 -- 删除容器的元素">
+<meta property="og:url" content="http://yoursite.com/2015/06/18/高效C-11-从源码看std-remove/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="序列容器　　假定我们需要从vector中删除元素，我们首先会想到使用remove()，就像这样：12345vector&amp;lt;int&amp;gt; coll = &amp;#123; 1, 1, 2, 2, 3, 3 &amp;#125;;auto end = remove( coll.begin(), coll.end(), 2 );cout &amp;lt;&amp;lt; endl &amp;lt;&amp;lt; &quot;size = &quot; &amp;lt;">
+<meta property="og:updated_time" content="2015-09-04T13:37:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高效 C++11 -- 删除容器的元素">
+<meta name="twitter:description" content="序列容器　　假定我们需要从vector中删除元素，我们首先会想到使用remove()，就像这样：12345vector&amp;lt;int&amp;gt; coll = &amp;#123; 1, 1, 2, 2, 3, 3 &amp;#125;;auto end = remove( coll.begin(), coll.end(), 2 );cout &amp;lt;&amp;lt; endl &amp;lt;&amp;lt; &quot;size = &quot; &amp;lt;">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/06/18/高效C-11-从源码看std-remove/"/>
+
+  <title> 高效 C++11 -- 删除容器的元素 | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                高效 C++11 -- 删除容器的元素
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-06-18T14:38:06+08:00" content="2015-06-18">
+              2015-06-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="序列容器"><a href="#序列容器" class="headerlink" title="序列容器"></a>序列容器</h2><p>　　假定我们需要从<code>vector</code>中删除元素，我们首先会想到使用<code>remove()</code>，就像这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; coll = &#123; <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span> &#125;;</div><div class="line"><span class="keyword">auto</span> end = remove( coll.begin(), coll.end(), <span class="number">2</span> );</div><div class="line"></div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span> &lt;&lt; <span class="string">"size = "</span> &lt;&lt; coll.size() &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"><span class="comment">// size = 6</span></div></pre></td></tr></table></figure></p>
+<p>　　<code>remove()</code>会返回一个新的 off-the-end 迭代器。然而，我们会发现调用<code>remove()</code>之后，容器中仍然含有 6 个元素。</p>
+<hr>
+<p>　　让我们看看<code>remove()</code>的源代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ForwardIter, <span class="keyword">typename</span> T&gt;</div><div class="line"><span class="function">ForwardIter <span class="title">remove</span><span class="params">( ForwardIter first, ForwardIter last, <span class="keyword">const</span> T &amp;elem )</span> </span></div><div class="line">&#123;</div><div class="line">    first = <span class="built_in">std</span>::find( first, last, elem );</div><div class="line">    <span class="keyword">if</span>( first == last ) </div><div class="line">    &#123;  </div><div class="line">        <span class="keyword">return</span> last;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">auto</span> iter = first;</div><div class="line">    <span class="keyword">for</span>( ++first; first != last; ++first ) </div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( *first != elem )</div><div class="line">        &#123;</div><div class="line">            *iter++ = <span class="built_in">std</span>::move( *first );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> iter;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从这里可以发现，<code>remove()</code>并不会真正地删除元素，我们知道，只有容器自身才知道如何删除元素，但是<code>remove()</code>并不知道它所操作的容器是什么类型，也就无法真正的删除元素了，它做的仅仅只是将不用被删除的元素往前移动。</p>
+<hr>
+<p>　　如果要真正地删除元素，只能借助于容器的成员函数，看看这里：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; coll = &#123; <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span> &#125;;</div><div class="line">coll.erase( remove( coll.begin(), coll.end(), <span class="number">2</span> ),</div><div class="line">            coll.end() );</div><div class="line"></div><div class="line">copy( coll.begin(), coll.end(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"></div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span> &lt;&lt; <span class="string">"size = "</span> &lt;&lt; coll.size() &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"><span class="comment">/**</span></div><div class="line">1 1 3 3</div><div class="line">size = 4</div><div class="line">**/</div></pre></td></tr></table></figure></p>
+<p>　　类似于<code>vector</code>这样的连续内存的容器，还有<code>string</code>以及<code>deque</code>，常用的做法都是先调用<code>remove()</code>，接着调用容器的<code>erase()</code>来真正地删除容器中的元素。</p>
+<hr>
+<p>　　好了，你可能想知道这种方法也是否适合<code>for_ward_list</code>和<code>list</code>呢？对于<code>list</code>来说，当然可以，但是由于 <code>forward_list</code>提供了<code>erase_after()</code>但没有提供<code>erase()</code>，所以对<code>forward_list</code>来说是行不通滴。 </p>
+<p>　　幸运的是，<code>forward_list</code>和<code>list</code>提供了<code>remove()</code>成员函数，可以真正地删除元素：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt; coll = &#123; <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span> &#125;;</div><div class="line">coll.remove( <span class="number">2</span> );</div><div class="line"></div><div class="line">copy( coll.cbegin(), coll.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"></div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span> &lt;&lt; <span class="string">"size = "</span> &lt;&lt; coll.size() &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"><span class="comment">/**</span></div><div class="line">1 1 3 3 </div><div class="line">size = 4</div><div class="line">**/</div></pre></td></tr></table></figure></p>
+<h2 id="关联容器"><a href="#关联容器" class="headerlink" title="关联容器"></a>关联容器</h2><p>　　通常来说，关联容器都提供了三个成员函数用来删除元素：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function">iterator <span class="title">erase</span><span class="params">( const_iterator position )</span></span>;</div><div class="line"></div><div class="line"><span class="function">size_type <span class="title">erase</span><span class="params">( <span class="keyword">const</span> key_type &amp;k )</span></span>;</div><div class="line"></div><div class="line"><span class="function">iterator <span class="title">erase</span><span class="params">( const_iterator first, const_iterator last )</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　就拿<code>unordered_set</code>来说，删除其中的元素：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">unordered_set</span>&lt;<span class="keyword">int</span>&gt; coll = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;;</div><div class="line">coll.erase( <span class="number">2</span> );</div><div class="line"></div><div class="line">copy( coll.cbegin(), coll.cend(), ostream_iterator&lt;<span class="keyword">int</span>&gt;( <span class="built_in">cout</span>, <span class="string">" "</span> ) );</div><div class="line"></div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span> &lt;&lt; <span class="string">"size = "</span> &lt;&lt; coll.size() &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"><span class="comment">/**</span></div><div class="line">3 1 </div><div class="line">size = 2</div><div class="line">**/</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　但是关联容器并没有提供<code>erase_if()</code>成员函数，也就是说我们无法通过判别式来指定需要删除的元素了。那么，我们可以历遍容器逐个删除元素，例如，你会很容易写出这样<strong>错误</strong>的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> isEven = []( <span class="keyword">int</span> elem ) &#123; <span class="keyword">return</span> elem % <span class="number">2</span> == <span class="number">0</span>; &#125;;</div><div class="line"></div><div class="line"><span class="built_in">unordered_set</span>&lt;<span class="keyword">int</span>&gt; coll = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span> &#125;;</div><div class="line"></div><div class="line"><span class="keyword">for</span>( <span class="keyword">auto</span> iter = coll.begin(); iter != coll.end(); ++iter )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>( isEven( *iter ) ) </div><div class="line">    &#123;</div><div class="line">        coll.erase( iter );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们知道，当容器中的元素被删除时，迭代器将会<strong>失效</strong>，也就是说这条语句会使<code>iter</code>失效：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">coll.erase( iter );</div></pre></td></tr></table></figure></p>
+<p>　　想象一下，在关联容器中，当元素被删除，实际上就是节点被删除，那么，既然这个节点消失了，迭代器也就失效了。解决这个问题很简单，我们只要在迭代器失效之前保留它的递增的结果：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>( <span class="keyword">auto</span> iter = coll.begin(); iter != coll.end(); )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>( isEven( *iter ) ) </div><div class="line">    &#123;</div><div class="line">        <span class="keyword">auto</span> copy = iter++;</div><div class="line">        coll.erase( copy );</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span></div><div class="line">    &#123;</div><div class="line">        ++iter;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　当然，这种情况<code>erase()</code>早就帮我们想到了：</p>
+<ul>
+<li><code>erase()</code>先保留迭代器递增的结果。</li>
+<li><code>erase()</code>删除迭代器指向的元素。</li>
+<li><code>erase()</code>将第一步保留的迭代器返回。</li>
+</ul>
+<p>　　理解了这些，就可以这样做了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>( <span class="keyword">auto</span> iter = coll.begin(); iter != coll.end(); )</div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>( isEven( *iter ) ) </div><div class="line">    &#123;</div><div class="line">        iter = coll.erase( iter );</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span></div><div class="line">    &#123;</div><div class="line">        ++iter;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Effective-STL-Specific-Standard-Template/dp/0201749629" target="_blank" rel="external">Effective STL: 50 Specific Ways to Improve Your Use of the Standard Template Library</a></li>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+            <a href="/tags/STL/" rel="tag">#STL</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/08/Linux网络编程二/" rel="next" title="Linux 网络编程（三）-- TCP 网络编程">
+                <i class="fa fa-chevron-left"></i> Linux 网络编程（三）-- TCP 网络编程
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/20/高效C-11-深入lambda/" rel="prev" title="高效 C++11 -- 深入 lambda">
+                高效 C++11 -- 深入 lambda <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#序列容器"><span class="nav-number">1.</span> <span class="nav-text">序列容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关联容器"><span class="nav-number">2.</span> <span class="nav-text">关联容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,630 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C++11," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="定长数组　　C++11中引入了array容器，array是序列容器的一种。array很类似于一般的数组，例如，array在栈上分配连续的内存来储存元素，并且array的大小是不可以改变的，这也就是说，可以修改array中元素的值，但不能向array中插入和删除元素。
+　　array具有序列容器的特点，同时又具有一般数组的特点，实际上，在程序中需要使用数组的地方，都可以使用array来代替，使用ar">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高效 C++11 -- 使用 array">
+<meta property="og:url" content="http://yoursite.com/2014/10/04/array使用/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="定长数组　　C++11中引入了array容器，array是序列容器的一种。array很类似于一般的数组，例如，array在栈上分配连续的内存来储存元素，并且array的大小是不可以改变的，这也就是说，可以修改array中元素的值，但不能向array中插入和删除元素。
+　　array具有序列容器的特点，同时又具有一般数组的特点，实际上，在程序中需要使用数组的地方，都可以使用array来代替，使用ar">
+<meta property="og:updated_time" content="2015-09-04T11:53:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高效 C++11 -- 使用 array">
+<meta name="twitter:description" content="定长数组　　C++11中引入了array容器，array是序列容器的一种。array很类似于一般的数组，例如，array在栈上分配连续的内存来储存元素，并且array的大小是不可以改变的，这也就是说，可以修改array中元素的值，但不能向array中插入和删除元素。
+　　array具有序列容器的特点，同时又具有一般数组的特点，实际上，在程序中需要使用数组的地方，都可以使用array来代替，使用ar">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2014/10/04/array使用/"/>
+
+  <title> 高效 C++11 -- 使用 array | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                高效 C++11 -- 使用 array
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-10-04T19:22:08+08:00" content="2014-10-04">
+              2014-10-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="定长数组"><a href="#定长数组" class="headerlink" title="定长数组"></a>定长数组</h2><p>　　<code>C++11</code>中引入了<code>array</code>容器，<code>array</code>是序列容器的一种。<code>array</code>很类似于一般的数组，例如，<code>array</code>在栈上分配连续的内存来储存元素，并且<code>array</code>的大小是不可以改变的，这也就是说，可以修改<code>array</code>中元素的值，但不能向<code>array</code>中插入和删除元素。</p>
+<p>　　<code>array</code>具有序列容器的特点，同时又具有一般数组的特点，实际上，在程序中需要使用数组的地方，都可以使用<code>array</code>来代替，使用<code>array</code>更为安全，除了具有一般数组的灵活性，还具有与一般数组相近的性能优势。</p>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><p>　　<code>array</code>是具有固定大小的容器，这就是说，在定义<code>array</code>对象时就需要显式指定其所能容纳元素的数目，并且这个数目一经指定就不可再改变了。其它的序列容器，例如，新创建的<code>vector</code>对象并不包含任何元素，而<code>array</code>在创建时就拥有固定数目的元素，并且这些元素将会进行初始化。在创建<code>array</code>时使用初始化列表作为<code>array</code>的初始值：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;array&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="built_in">std</span>::<span class="built_in">array</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr1 = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> &#125;;          <span class="comment">// arr1包含：1 2 3 4 5  </span></div><div class="line">    <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr2 = &#123; <span class="number">0</span> &#125;;                      <span class="comment">// arr2包含：0 0 0 0 0</span></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　如果<code>array</code>中包含的是基本类型，并且没有提供初始化值，则<code>array</code>中元素的值是未定义的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr;         <span class="comment">// arr中元素的值是未定义的</span></div></pre></td></tr></table></figure></p>
+<h2 id="赋值与交换"><a href="#赋值与交换" class="headerlink" title="赋值与交换"></a>赋值与交换</h2><p>　　  使用<code>array</code>的一个好处就是可以将一个相同类型的<code>array</code>对象赋值给另一个对象，<code>array</code>中的元素将会依次进行复制，因此，在赋值之后，两个<code>array</code>具有相同的元素，但需要保证两个<code>array</code>具有相同的元素类型以及大小。但对于一般数组，则不能这样做。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr1 = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> &#125;;  </div><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr2 = &#123; <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span> &#125;;  </div><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr3 = arr1;                  <span class="comment">// arr3 包含：1 2 3 4 5  </span></div><div class="line">arr3 = arr2;                                <span class="comment">// arr3 包含：5 4 3 2 1</span></div></pre></td></tr></table></figure></p>
+<p>　　注意，仅能将一个相同类型的<code>array</code>赋值给另一个<code>array</code>，但不能使用初始化列表来赋值<code>array</code>对象:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr1 = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> &#125;;  </div><div class="line"><span class="comment">// ERROR: arr1 = &#123; 1, 2, 3 &#125;;                         不能使用初始化列表来向array赋值</span></div></pre></td></tr></table></figure></p>
+<p>　　可以使用<code>array</code>的成员函数<code>fill()</code>来将<code>array</code>中的元素赋为相同的值:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr;  </div><div class="line">arr.fill( <span class="number">9</span> );                <span class="comment">// arr包含： 9 9 9 9 9</span></div></pre></td></tr></table></figure></p>
+<p>　　对于其它的序列容器，比如<code>vector</code>，可以使用<code>swap()</code>来交换两个<code>vector</code>，此时，使用<code>swap()</code>具有常量时间复杂度，显得特别高效，这是因为<code>vector</code>中拥有指向动态分配内存的指针，因此，使用<code>swap()</code>交换两个<code>vector</code>仅需要交换其内部指向动态内存的指针即可。同样，可以使用<code>swap()</code>来交换两个<code>array</code>，但由于<code>array</code>在栈上为元素分配内存，<code>array</code>内部并没有包含指向动态内存的指针，因此，使用<code>swap()</code>来交换两个<code>array</code>具有线性时间复杂度，因为交换两个<code>array</code>将会涉及到元素的逐一复制。<code>swap</code>有两种等价的形式，一种作为泛型的算法，另一种则作为<code>array</code>的成员函数:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr1 = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> &#125;;  </div><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr2 = &#123; <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span> &#125;;  </div><div class="line">swap( arr1, arr2 );  </div><div class="line">arr1.swap( arr2 );                      <span class="comment">// 等价于： swap( arr1, arr2 );</span></div></pre></td></tr></table></figure></p>
+<h2 id="历遍array"><a href="#历遍array" class="headerlink" title="历遍array"></a>历遍array</h2><p>　　 <code>array</code>中具有成员函数<code>size()</code>用来获得<code>array</code>中元素的数目：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">array</span>&lt;<span class="keyword">int</span>, 5&gt; arr = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> &#125;;  </div><div class="line"><span class="keyword">for</span> ( <span class="keyword">int</span> i = <span class="number">0</span>; i != arr.size() ; ++i )  </div><div class="line">&#123;  </div><div class="line">    <span class="built_in">cout</span> &lt;&lt; arr[i] &lt;&lt; <span class="string">" "</span>;  </div><div class="line">&#125;  </div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
+<p>　　<code>array</code>是序列容器的一种，可以使用迭代器的方式来历遍<code>array</code>，也可以使用<code>for-each</code>循环来历遍<code>array</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">array&lt;int, 5&gt; arr = &#123; 1, 2, 3, 4, 5 &#125;;  </div><div class="line">for( auto elem : arr )  </div><div class="line">    cout &lt;&lt; elem &lt;&lt; &quot; &quot;;  </div><div class="line">cout &lt;&lt; endl;  </div><div class="line">  </div><div class="line">for( auto iter = arr.begin(); iter != arr.end(); ++iter )  </div><div class="line">    cout &lt;&lt; *iter &lt;&lt; &quot; &quot;;  </div><div class="line">cout &lt;&lt; endl;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-11/" rel="tag">#C++11</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/09/19/链表/" rel="next" title="数据结构（一）-- 链表的实现">
+                <i class="fa fa-chevron-left"></i> 数据结构（一）-- 链表的实现
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/10/C-网络编程一/" rel="prev" title="Boost.Asio C++ 网络编程（一）">
+                Boost.Asio C++ 网络编程（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="John Doe" />
+          <p class="site-author-name" itemprop="name">John Doe</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#定长数组"><span class="nav-number">1.</span> <span class="nav-text">定长数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化"><span class="nav-number">2.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#赋值与交换"><span class="nav-number">3.</span> <span class="nav-text">赋值与交换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#历遍array"><span class="nav-number">4.</span> <span class="nav-text">历遍array</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
