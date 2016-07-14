@@ -47,6 +47,12 @@
   
 
   
+    
+      
+    
+
+    
+  
 
   
 
@@ -61,7 +67,7 @@
   
     
     
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|monospace:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Verdana:300,300italic,400,400italic,700,700italic|monospace:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
   
 
 
@@ -90,19 +96,19 @@
 
 
 
-<meta name="description" content="mysqlslap  mysqlslap是Mysql自带的benchmark工具.在做性能测试时,可以首先在测试机重现生产环境的数据库,对这个数据库进行性能测试以发现性能瓶颈,利用测试得到的性能指标去优化线上的机器.
-  mysqlslap提供了auto-generate的功能,用来自动生成SQL语句.这种情况下,mysqlslap将自动创建一个名为mysqlslap的数据库,数据库有一个简单的表">
+<meta name="description" content="mysqlslap  mysqlslap是Mysql自带的benchmark工具，在做性能测试时，可以首先在测试机重现生产环境的数据库，对这个数据库进行性能测试以发现性能瓶颈，利用测试得到的性能指标去优化线上的机器。
+  mysqlslap提供了auto-generate的功能，用来自动生成SQL语句。这种情况下，mysqlslap将自动创建一个名为mysqlslap的数据库，数据库有一个简单的表">
 <meta property="og:type" content="article">
 <meta property="og:title" content="几种Mysql性能测试工具">
 <meta property="og:url" content="http://yoursite.com/2016/07/11/Mysql性能测试/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="mysqlslap  mysqlslap是Mysql自带的benchmark工具.在做性能测试时,可以首先在测试机重现生产环境的数据库,对这个数据库进行性能测试以发现性能瓶颈,利用测试得到的性能指标去优化线上的机器.
-  mysqlslap提供了auto-generate的功能,用来自动生成SQL语句.这种情况下,mysqlslap将自动创建一个名为mysqlslap的数据库,数据库有一个简单的表">
-<meta property="og:updated_time" content="2016-07-11T15:33:40.965Z">
+<meta property="og:description" content="mysqlslap  mysqlslap是Mysql自带的benchmark工具，在做性能测试时，可以首先在测试机重现生产环境的数据库，对这个数据库进行性能测试以发现性能瓶颈，利用测试得到的性能指标去优化线上的机器。
+  mysqlslap提供了auto-generate的功能，用来自动生成SQL语句。这种情况下，mysqlslap将自动创建一个名为mysqlslap的数据库，数据库有一个简单的表">
+<meta property="og:updated_time" content="2016-07-14T09:58:27.318Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="几种Mysql性能测试工具">
-<meta name="twitter:description" content="mysqlslap  mysqlslap是Mysql自带的benchmark工具.在做性能测试时,可以首先在测试机重现生产环境的数据库,对这个数据库进行性能测试以发现性能瓶颈,利用测试得到的性能指标去优化线上的机器.
-  mysqlslap提供了auto-generate的功能,用来自动生成SQL语句.这种情况下,mysqlslap将自动创建一个名为mysqlslap的数据库,数据库有一个简单的表">
+<meta name="twitter:description" content="mysqlslap  mysqlslap是Mysql自带的benchmark工具，在做性能测试时，可以首先在测试机重现生产环境的数据库，对这个数据库进行性能测试以发现性能瓶颈，利用测试得到的性能指标去优化线上的机器。
+  mysqlslap提供了auto-generate的功能，用来自动生成SQL语句。这种情况下，mysqlslap将自动创建一个名为mysqlslap的数据库，数据库有一个简单的表">
 
 
 
@@ -314,9 +320,9 @@
       
 
       
-        <h1 id="mysqlslap"><a href="#mysqlslap" class="headerlink" title="mysqlslap"></a>mysqlslap</h1><p>  mysqlslap是Mysql自带的benchmark工具.在做性能测试时,可以首先在测试机重现生产环境的数据库,对这个数据库进行性能测试以发现性能瓶颈,利用测试得到的性能指标去优化线上的机器.</p>
-<p>  mysqlslap提供了auto-generate的功能,用来自动生成SQL语句.这种情况下,mysqlslap将自动创建一个名为mysqlslap的数据库,数据库有一个简单的表.为了生成复杂的表,可以用number-int-cols和number-char-cols分别指定这个表中有多少个int和varchar字段,缺省情况都是1.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">sudo mysqlslap -u root -p --concurrency=5 --iterations=10 --number-of-queries=20 \</div><div class="line">                          --number-int-cols=5 --number-char-cols=20 \</div><div class="line">			  --auto-generate-sql --verbose</div><div class="line"></div><div class="line">Benchmark</div><div class="line">	Average number of seconds to run all queries: 0.167 seconds</div><div class="line">	Minimum number of seconds to run all queries: 0.144 seconds</div><div class="line">	Maximum number of seconds to run all queries: 0.188 seconds</div><div class="line">	Number of clients running queries: 5</div><div class="line">	Average number of queries per client: 4</div></pre></td></tr></table></figure></p>
-<p>  concurrency=5表示有5个client在同时进行查询, nbumber-of-queries=20则表示总的查询将执行20次,即每个client将执行4次auto-generate的查询.iterations=10则表示这样的测试将进行10次.</p>
+        <h1 id="mysqlslap"><a href="#mysqlslap" class="headerlink" title="mysqlslap"></a>mysqlslap</h1><p>  mysqlslap是Mysql自带的benchmark工具，在做性能测试时，可以首先在测试机重现生产环境的数据库，对这个数据库进行性能测试以发现性能瓶颈，利用测试得到的性能指标去优化线上的机器。</p>
+<p>  mysqlslap提供了auto-generate的功能，用来自动生成SQL语句。这种情况下，mysqlslap将自动创建一个名为mysqlslap的数据库，数据库有一个简单的表，为了生成复杂的表，可以用number-int-cols和number-char-cols分别指定这个表中有多少个int和varchar字段，缺省情况都是1。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">sudo mysqlslap -u root -p --concurrency=5 --iterations=10 --number-of-queries=20 \</div><div class="line">                          --number-int-cols=5 --number-char-cols=20 \</div><div class="line">                          --auto-generate-sql --verbose</div><div class="line"></div><div class="line">Benchmark</div><div class="line">	Average number of seconds to run all queries: 0.167 seconds</div><div class="line">	Minimum number of seconds to run all queries: 0.144 seconds</div><div class="line">	Maximum number of seconds to run all queries: 0.188 seconds</div><div class="line">	Number of clients running queries: 5</div><div class="line">	Average number of queries per client: 4</div></pre></td></tr></table></figure></p>
+<p>  concurrency=5表示有5个client在同时进行查询，nbumber-of-queries=20则表示总的查询将执行20次，即每个client将执行4次auto-generate的查询。iterations=10则表示这样的测试将进行10次。</p>
 <h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
 <li><a href="https://www.digitalocean.com/community/tutorials/how-to-measure-mysql-query-performance-with-mysqlslap" target="_blank" rel="external">How To Measure MySQL Query Performance with mysqlslap</a></li>
 </ul>
