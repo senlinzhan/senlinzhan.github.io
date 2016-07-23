@@ -102,7 +102,7 @@
 <meta property="og:url" content="http://yoursite.com/2015/08/24/C-实现阻塞队列/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="队列的异常安全　　考虑一下 STL 中 queue 的接口：12345678template &amp;lt;typename T, typename Container = std::deque&amp;lt;T&amp;gt;&amp;gt;class queue&amp;#123;    T&amp;amp; front();    void push( const T &amp;amp;elem );    void pop();    boo">
-<meta property="og:updated_time" content="2016-07-23T03:53:28.277Z">
+<meta property="og:updated_time" content="2016-07-23T05:23:53.665Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++ 实现阻塞队列">
 <meta name="twitter:description" content="队列的异常安全　　考虑一下 STL 中 queue 的接口：12345678template &amp;lt;typename T, typename Container = std::deque&amp;lt;T&amp;gt;&amp;gt;class queue&amp;#123;    T&amp;amp; front();    void push( const T &amp;amp;elem );    void pop();    boo">
@@ -311,6 +311,15 @@
 
           
           
+             <span id="/2015/08/24/C-实现阻塞队列/" class="leancloud_visitors" data-flag-title="C++ 实现阻塞队列">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
 
           
         </div>
@@ -334,6 +343,7 @@
 <li>元素出列的操作将会阻塞，直到队列不为空。</li>
 <li>元素出列时保证异常安全性。</li>
 </ul>
+<a id="more"></a>
 <hr>
 <p>　　我们知道，在调用<code>std::queue&lt;T&gt;</code>的<code>front()</code>之前，我们需要保证队列不为空，否则这种行为是未定义的。但是在多线程环境下，我们通常不需要<code>front()</code>操作，而只是调用<code>pop()</code>将元素返回。<code>pop()</code>操作是阻塞的，也就是说，在调用<code>pop()</code>时，要是队列没有元素，那么<code>pop()</code>将会阻塞，以等待新元素入列：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">queue</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> ThreadQueue</div><div class="line">&#123;</div><div class="line">    T pop();</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
 <p>　　但是，我们知道，<code>pop()</code>并不是异常安全的，那怎么实现异常安全的<code>pop()</code>呢？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">queue</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> ThreadQueue</div><div class="line">&#123;</div><div class="line">    T pop( T &amp;elem );</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
@@ -504,6 +514,11 @@
   </a>
 </div>
 
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
         
 
         
@@ -615,6 +630,113 @@
   
 
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
   
 
