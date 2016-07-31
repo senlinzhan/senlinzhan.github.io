@@ -80,7 +80,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Python," />
 
 
 
@@ -96,12 +96,16 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/index.html">
+<meta name="description" content="生成器与协程　　在Python2.3中，生成器正式被纳入标准。在处理大量数据时，生成器非常有用，例如读取一个几G的文件，你没有必要将文件一次性读取到内存，而是读到一行就将其返回，这样程序不会阻塞在等待读取文件的过程中，也可以大大减少内存的占用。1234567def read_lazy(file_object):    &quot;&quot;&quot;Lazy function (generator) to read a f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 协程的前世今生">
+<meta property="og:url" content="http://senlinzhan.github.io/2016/07/30/Python协程的前世今生/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="生成器与协程　　在Python2.3中，生成器正式被纳入标准。在处理大量数据时，生成器非常有用，例如读取一个几G的文件，你没有必要将文件一次性读取到内存，而是读到一行就将其返回，这样程序不会阻塞在等待读取文件的过程中，也可以大大减少内存的占用。1234567def read_lazy(file_object):    &quot;&quot;&quot;Lazy function (generator) to read a f">
+<meta property="og:updated_time" content="2016-07-31T07:37:39.079Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:title" content="Python 协程的前世今生">
+<meta name="twitter:description" content="生成器与协程　　在Python2.3中，生成器正式被纳入标准。在处理大量数据时，生成器非常有用，例如读取一个几G的文件，你没有必要将文件一次性读取到内存，而是读到一行就将其返回，这样程序不会阻塞在等待读取文件的过程中，也可以大大减少内存的占用。1234567def read_lazy(file_object):    &quot;&quot;&quot;Lazy function (generator) to read a f">
 
 
 
@@ -122,9 +126,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2016/07/30/Python协程的前世今生/"/>
 
-  <title> Senlin's Blog </title>
+  <title> Python 协程的前世今生 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -145,9 +149,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left 
-   page-home 
- ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -234,9 +236,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
   
@@ -256,10 +258,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2016/07/30/Python协程的前世今生/" itemprop="url">
-                  Python 协程的前世今生
-                </a>
+                Python 协程的前世今生
               
             
           </h1>
@@ -334,12 +333,11 @@
       
 
       
-        
-          <h2 id="生成器与协程"><a href="#生成器与协程" class="headerlink" title="生成器与协程"></a>生成器与协程</h2><p>　　在Python2.3中，生成器正式被纳入标准。在处理大量数据时，生成器非常有用，例如读取一个几G的文件，你没有必要将文件一次性读取到内存，而是读到一行就将其返回，这样程序不会阻塞在等待读取文件的过程中，也可以大大减少内存的占用。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_lazy</span><span class="params">(file_object)</span>:</span></div><div class="line">    <span class="string">"""Lazy function (generator) to read a file line by line."""</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = file_object.readline()</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">yield</span> data</div></pre></td></tr></table></figure></p>
+        <h2 id="生成器与协程"><a href="#生成器与协程" class="headerlink" title="生成器与协程"></a>生成器与协程</h2><p>　　在Python2.3中，生成器正式被纳入标准。在处理大量数据时，生成器非常有用，例如读取一个几G的文件，你没有必要将文件一次性读取到内存，而是读到一行就将其返回，这样程序不会阻塞在等待读取文件的过程中，也可以大大减少内存的占用。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_lazy</span><span class="params">(file_object)</span>:</span></div><div class="line">    <span class="string">"""Lazy function (generator) to read a file line by line."""</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = file_object.readline()</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">yield</span> data</div></pre></td></tr></table></figure></p>
 <p>　　生成器执行时候每次遇到<code>yield</code>就会停顿一次并返回一个值，而你可以使用<code>next()</code>让生成器继续执行，直到遇到下一个<code>yield</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">f = open(<span class="string">'data'</span>)</div><div class="line"><span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        line = next(f)</div><div class="line">        print(line, end=<span class="string">''</span>)</div><div class="line">    <span class="keyword">except</span> StopIteration:</div><div class="line">        <span class="keyword">break</span></div></pre></td></tr></table></figure></p>
 <hr>
-<p>　　后来人们意识到了，既然有办法暂停一个函数的执行，稍后让它从暂停的地方继续执行，这不就满足了协程的概念吗？然而你只能获得生成器的返回值，而不能向生成器传递值。为支持协程，<a href="https://www.python.org/dev/peps/pep-0342/">PEP 342</a>提出了你可以使用<code>send()</code>向生成器发送一个值同时重启生成器的执行。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">grep</span><span class="params">(pattern)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">            line = (<span class="keyword">yield</span>)</div><div class="line">            <span class="keyword">if</span> pattern <span class="keyword">in</span> line:</div><div class="line">                print(line)</div><div class="line">    <span class="keyword">except</span> GeneratorExit:</div><div class="line">        print(<span class="string">'See you again!'</span>)</div><div class="line"></div><div class="line">g = grep(<span class="string">'Python'</span>)</div><div class="line">g.send(<span class="keyword">None</span>)      <span class="comment"># 启动协程</span></div><div class="line">g.send(<span class="string">"Python Cookbook"</span>)</div><div class="line">g.close()</div></pre></td></tr></table></figure></p>
-<p>　　既然一个协程在执行时候可以通过<code>yield</code>让出当前线程，那么我们就可以在不同的协程之间进行切换从而达到并发的效果，为此你需要编写一个任务调度器，实现基于<a href="https://en.wikipedia.org/wiki/Cooperative_multitasking">Cooperative multitasking</a>的任务调度，通过这个调度器管理不同协程的执行。</p>
+<p>　　后来人们意识到了，既然有办法暂停一个函数的执行，稍后让它从暂停的地方继续执行，这不就满足了协程的概念吗？然而你只能获得生成器的返回值，而不能向生成器传递值。为支持协程，<a href="https://www.python.org/dev/peps/pep-0342/" target="_blank" rel="external">PEP 342</a>提出了你可以使用<code>send()</code>向生成器发送一个值同时重启生成器的执行。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">grep</span><span class="params">(pattern)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">            line = (<span class="keyword">yield</span>)</div><div class="line">            <span class="keyword">if</span> pattern <span class="keyword">in</span> line:</div><div class="line">                print(line)</div><div class="line">    <span class="keyword">except</span> GeneratorExit:</div><div class="line">        print(<span class="string">'See you again!'</span>)</div><div class="line"></div><div class="line">g = grep(<span class="string">'Python'</span>)</div><div class="line">g.send(<span class="keyword">None</span>)      <span class="comment"># 启动协程</span></div><div class="line">g.send(<span class="string">"Python Cookbook"</span>)</div><div class="line">g.close()</div></pre></td></tr></table></figure></p>
+<p>　　既然一个协程在执行时候可以通过<code>yield</code>让出当前线程，那么我们就可以在不同的协程之间进行切换从而达到并发的效果，为此你需要编写一个任务调度器，实现基于<a href="https://en.wikipedia.org/wiki/Cooperative_multitasking" target="_blank" rel="external">Cooperative multitasking</a>的任务调度，通过这个调度器管理不同协程的执行。</p>
 <hr>
 <p>　　下面我们实现一个基于协程的并发Echo Server，这个程序的核心在于任务调度器：</p>
 <ul>
@@ -348,181 +346,86 @@
 <li>调度器会对这两个队列进行I/O轮询，并将就绪的任务放到就绪队列中。</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR</div><div class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</div><div class="line"><span class="keyword">from</span> select <span class="keyword">import</span> select</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Scheduler</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.ready = deque()         <span class="comment"># 就绪队列      deque: coroutine </span></div><div class="line">        self.read_waiting = &#123;&#125;       <span class="comment"># 等待读取的队列  dict: socket -&gt; coroutine</span></div><div class="line">        self.write_waiting = &#123;&#125;      <span class="comment"># 等待写入的队列  dict: socket -&gt; coroutine</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_ready</span><span class="params">(self, task)</span>:</span></div><div class="line">        self.ready.append(task)    </div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_read</span><span class="params">(self, fileno, task)</span>:</span></div><div class="line">        self.read_waiting[fileno] = task</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_write</span><span class="params">(self, fileno, task)</span>:</span></div><div class="line">        self.write_waiting[fileno] = task</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">loop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> any([self.ready, self.read_waiting, self.write_waiting]):</div><div class="line">            <span class="comment"># 如果就绪队列是空的，就进行I/O轮询，等待事件就绪</span></div><div class="line">            <span class="keyword">while</span> <span class="keyword">not</span> self.ready:</div><div class="line">                can_read, can_write, _ = select(self.read_waiting,</div><div class="line">                                                self.write_waiting,</div><div class="line">                                                [])</div><div class="line">                <span class="keyword">for</span> fileno <span class="keyword">in</span> can_read:</div><div class="line">                    self.ready.append(self.read_waiting.pop(fileno))</div><div class="line">                <span class="keyword">for</span> fileno <span class="keyword">in</span> can_write:</div><div class="line">                    self.ready.append(self.write_waiting.pop(fileno))</div><div class="line">                </div><div class="line">            task = self.ready.popleft()</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                event, fileno = next(task)  <span class="comment"># 让协程执行到 yield</span></div><div class="line">                <span class="keyword">if</span> event == <span class="string">'read'</span>:</div><div class="line">                    self.read_waiting[fileno] = task</div><div class="line">                <span class="keyword">elif</span> event == <span class="string">'write'</span>:</div><div class="line">                    self.write_waiting[fileno] = task</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">raise</span> RuntimeError(<span class="string">"ERROR!"</span>)            </div><div class="line">            <span class="keyword">except</span> StopIteration:</div><div class="line">                print(<span class="string">'task done'</span>)</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AsyncSocket</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, sock)</span>:</span></div><div class="line">        self.sock = sock</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">recv</span><span class="params">(self, maxsize)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'read'</span>, self.sock   <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        <span class="keyword">return</span> self.sock.recv(maxsize)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self, data)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'write'</span>, self.sock  <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        <span class="keyword">return</span> self.sock.send(data)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">accept</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'read'</span>, self.sock   <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        client, addr = self.sock.accept()</div><div class="line">        <span class="keyword">return</span> AsyncSocket(client), addr </div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></div><div class="line">        <span class="keyword">return</span> getattr(self.sock, name)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(scheduler, address, backlog=<span class="number">5</span>)</span>:</span></div><div class="line">    sock = AsyncSocket(socket(AF_INET, SOCK_STREAM))</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(backlog)</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client_sock, client_addr = <span class="keyword">yield</span> <span class="keyword">from</span> sock.accept()  <span class="comment"># blocking</span></div><div class="line">        scheduler.add_ready(echo_handler(client_addr, client_sock))</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(address, client_sock)</span>:</span></div><div class="line">    print(<span class="string">'Got connection from &#123;&#125;'</span>.format(address))</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        msg = <span class="keyword">yield</span> <span class="keyword">from</span> client_sock.recv(<span class="number">8192</span>)  <span class="comment"># blocking</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> msg:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> client_sock.send(msg)  <span class="comment"># blocking</span></div><div class="line">    client_sock.close()</div><div class="line">        </div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    scheduler = Scheduler()</div><div class="line">    server = echo_server(scheduler, (<span class="string">''</span>, <span class="number">20000</span>))</div><div class="line">    scheduler.add_ready(server)</div><div class="line">    scheduler.loop()</div></pre></td></tr></table></figure>
-<p>　　这段代码实现了一个小型的<u>协作式</u>任务调度器。这里你应该意识到协程与线程的不同点了，线程的调度是基于<u>抢占式</u>调度的，在抢占式调度里面，一个线程可能来不及将寄存器变量写入到内存中，或者处理器的缓存来不及同步到主内存中，就被迫切换到另一线程，这就是线程中为什么需要使用各种同步的方式来保证数据的一致性。而协程是主动让出，所以不存在多个协程同时修改同一变量的情况，也就不需要使用互斥锁等同步方式了。<br>　　而<u>协作式</u>调度的一个明显缺点就是，如果某个协程在执行阻塞的调用，或者执行密集的CPU计算，这时协程就无法让出，整个程序就会失去响应了。这就是为什么当今的操作系统放弃协作式调度的原因了。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/07/30/Python协程的前世今生/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
+<p>　　这段代码实现了一个小型的<u>协作式</u>任务调度器。这里你应该意识到协程与线程的不同点了，线程的调度是基于<u>抢占式</u>调度的，在抢占式调度里面，一个线程可能来不及将寄存器变量写入到内存中，或者处理器的缓存来不及同步到主内存中，就被迫切换到另一线程，这就是线程中为什么需要使用各种同步的方式来保证数据的一致性。而协程是主动让出，所以不存在多个协程同时修改同一变量的情况，也就不需要使用互斥锁等同步方式了。<br>　　而<u>协作式</u>调度的一个明显缺点就是，如果某个协程在执行阻塞的调用，或者执行密集的CPU计算，这时协程就无法让出，整个程序就会失去响应了。这就是为什么当今的操作系统放弃协作式调度的原因了。<br><a id="more"></a></p>
+<h2 id="异步编程"><a href="#异步编程" class="headerlink" title="异步编程"></a>异步编程</h2><p>　　在需要处理大量I/O操作的程序中，例如爬虫系统，当程序发起一个页面请求，到接收到响应这个过程中，程序可以先执行其它的任务，而不用处于阻塞状态，这就是<u>异步</u>编程。异步编程可以让程序一直保持在忙碌的状态，而不用浪费时间在一些无谓的等待中。Python3.4 引入了 asyncio 模块，用于支持异步编程。asyncio要求，如果你要将一个生成器当成协程来使用，那么应该使用<code>asyncio.coroutine</code>来装饰它。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> asyncio</div><div class="line"></div><div class="line"><span class="meta">@asyncio.coroutine</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">countdown</span><span class="params">(number, n)</span>:</span></div><div class="line">    <span class="keyword">while</span> n &gt; <span class="number">0</span>:</div><div class="line">        print(<span class="string">'T-minus'</span>, n, <span class="string">'(&#123;&#125;)'</span>.format(number))</div><div class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.sleep(<span class="number">1</span>)</div><div class="line">        n -= <span class="number">1</span></div><div class="line"></div><div class="line">loop = asyncio.get_event_loop()</div><div class="line">tasks = [ asyncio.ensure_future(countdown(<span class="string">"A"</span>, <span class="number">2</span>)),</div><div class="line">          asyncio.ensure_future(countdown(<span class="string">"B"</span>, <span class="number">2</span>))]</div><div class="line">loop.run_until_complete(asyncio.wait(tasks))</div><div class="line">loop.close()</div></pre></td></tr></table></figure></p>
+<p>　　这段代码的核心在于事件循环<code>loop</code>，事件循环的原理类似于任务管理器。事件循环的原理并不难理解：当协程执行到<code>yield from</code>的时候会暂定执行并返回一个<code>asyncio.Future</code>对象给<code>loop</code>，<code>loop</code>内部将维持一个队列来保存这些<code>asyncio.Future</code>对象，一旦<code>loop</code>监测到事件发生了（例如一秒过去了），就会将相应的<code>asyncio.Future</code>发送给原来的协程，这时协程将继续执行。</p>
+<h2 id="asyn-await-语法"><a href="#asyn-await-语法" class="headerlink" title="asyn/await 语法"></a>asyn/await 语法</h2><p>　　Python3.5 指出，你可以使用<code>async</code>将一个函数定义成协程，但<code>async</code>函数中却不能出现<code>yield</code>表达式。如果你要定义一个使用<code>yield</code>的协程，可以使用<code>types.coroutine</code>装饰器：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> types <span class="keyword">import</span> coroutine</div><div class="line"></div><div class="line"><span class="meta">@coroutine</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">yield</span> <span class="string">'foo'</span></div><div class="line">    </div><div class="line">g = foo()</div><div class="line">print(g.send(<span class="keyword">None</span>))    <span class="comment"># 'foo'</span></div></pre></td></tr></table></figure></p>
+<p>　　Python3.5 引入<code>types.coroutine</code>的目的在于区分生成器和协程。为弄清楚这个区别，首先得理解什么是<a href="https://docs.python.org/3/reference/datamodel.html?#awaitable-objects" target="_blank" rel="external">Awaitable Objects</a>，Python3.5 规定，<code>await</code>表达式只能用于awaitable对象。</p>
+<hr>
+<p>　　那么，有哪些是awaitable对象呢？</p>
+<ul>
+<li>实现了<code>__await__()</code>方法，并且这个方法返回一个可迭代的对象。</li>
+<li>由<code>async</code>定义的函数，这类函数对象实现了<code>__await__()</code>方法。</li>
+<li>由<code>type.coroutine</code>修饰的函数。</li>
+<li>由<code>asyncio.coroutine</code>修饰的函数。</li>
+</ul>
+<p>　　现在你该明白了，由<code>types.coroutine</code>修饰的函数可以用于<code>await</code>表达式中，而一般的生成器则不能：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> types <span class="keyword">import</span> coroutine</div><div class="line"></div><div class="line"><span class="meta">@coroutine</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">yield</span> <span class="string">'foo'</span></div><div class="line">    </div><div class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">bar</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">await</span> foo()</div><div class="line"></div><div class="line">b = bar()</div><div class="line">print(b.send(<span class="keyword">None</span>))</div></pre></td></tr></table></figure></p>
+<p>　　你可以将<code>await</code>等同于<code>yield from</code>，但与<code>yield from</code>的差别是，<code>await</code>的使用范围更广，任务awaitable对象都可以用于<code>await</code>表达式中。</p>
+<h2 id="理解事件循环"><a href="#理解事件循环" class="headerlink" title="理解事件循环"></a>理解事件循环</h2><p>　　让我们编写一个并发的Echo Server，这个例子的核心在于asyncio的事件循环：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> asyncio</div><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR</div><div class="line"></div><div class="line">loop = asyncio.get_event_loop()</div><div class="line"></div><div class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(address, backlog=<span class="number">5</span>)</span>:</span></div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(backlog)</div><div class="line">    sock.setblocking(<span class="keyword">False</span>)</div><div class="line"></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client, addr = <span class="keyword">await</span> loop.sock_accept(sock)</div><div class="line">        print(<span class="string">'Connection from'</span>, addr)</div><div class="line">        loop.create_task(echo_handler(client))</div><div class="line"></div><div class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(client)</span>:</span></div><div class="line">    <span class="keyword">with</span> client:</div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">            data = <span class="keyword">await</span> loop.sock_recv(client, <span class="number">8192</span>)</div><div class="line">            <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">                <span class="keyword">break</span></div><div class="line">            <span class="keyword">await</span> loop.sock_sendall(client, data)</div><div class="line">    print(<span class="string">'Connection closed.'</span>)        </div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    loop.create_task(echo_server((<span class="string">''</span>, <span class="number">20000</span>)))</div><div class="line">    loop.run_forever()</div></pre></td></tr></table></figure>
+<p>　　<a href="https://www.youtube.com/watch?v=ZzfHjytDceU" target="_blank" rel="external">David Beazley</a>大神编写了一个事件循环Loop，用来模仿asyncio的事件循环。这个神奇的例子是不是很熟悉，很类似于我们前面的任务调度器。或许这个例子可以加深我们的理解：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> types <span class="keyword">import</span> coroutine</div><div class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</div><div class="line"><span class="keyword">from</span> selectors <span class="keyword">import</span> DefaultSelector, EVENT_READ, EVENT_WRITE</div><div class="line"></div><div class="line"><span class="meta">@coroutine</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_wait</span><span class="params">(sock)</span>:</span></div><div class="line">    <span class="keyword">yield</span> <span class="string">'read_wait'</span>, sock</div><div class="line"></div><div class="line"><span class="meta">@coroutine</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">write_wait</span><span class="params">(sock)</span>:</span></div><div class="line">    <span class="keyword">yield</span> <span class="string">'write_wait'</span>, sock</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Loop</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.ready = deque()</div><div class="line">        self.selector = DefaultSelector()</div><div class="line">        </div><div class="line">    <span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">sock_recv</span><span class="params">(self, sock, maxbytes)</span>:</span></div><div class="line">        <span class="keyword">await</span> read_wait(sock)</div><div class="line">        <span class="keyword">return</span> sock.recv(maxbytes)</div><div class="line"></div><div class="line">    <span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">sock_accept</span><span class="params">(self, sock)</span>:</span></div><div class="line">        <span class="keyword">await</span> read_wait(sock)</div><div class="line">        <span class="keyword">return</span> sock.accept()</div><div class="line"></div><div class="line">    <span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">sock_sendall</span><span class="params">(self, sock, data)</span>:</span></div><div class="line">        <span class="keyword">while</span> data:</div><div class="line">            <span class="keyword">await</span> write_wait(sock)</div><div class="line">            nsend = sock.send(data)</div><div class="line">            data = data[nsend:]</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create_task</span><span class="params">(self, task)</span>:</span></div><div class="line">        self.ready.append(task)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run_forever</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">            <span class="keyword">while</span> <span class="keyword">not</span> self.ready:</div><div class="line">                events = self.selector.select()</div><div class="line">                <span class="keyword">for</span> key, _ <span class="keyword">in</span> events:</div><div class="line">                    self.ready.append(key.data)</div><div class="line">                    self.selector.unregister(key.fileobj)</div><div class="line">                    </div><div class="line">            <span class="keyword">while</span> self.ready:</div><div class="line">                self.current_task = self.ready.popleft()</div><div class="line">                <span class="keyword">try</span>:</div><div class="line">                    op, *args = self.current_task.send(<span class="keyword">None</span>)</div><div class="line">                    getattr(self, op)(*args)</div><div class="line">                <span class="keyword">except</span> StopIteration:</div><div class="line">                    <span class="keyword">pass</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_wait</span><span class="params">(self, sock)</span>:</span></div><div class="line">        self.selector.register(sock, EVENT_READ, self.current_task)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_wait</span><span class="params">(self, sock)</span>:</span></div><div class="line">        self.selector.register(sock, EVENT_WRITE, self.current_task)</div></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.dabeaz.com/coroutines/" target="_blank" rel="external">A Curious Course on Coroutines and Concurrency</a></li>
+<li><a href="https://www.youtube.com/watch?v=MCs5OvhV9S4" target="_blank" rel="external">David Beazley - Python Concurrency From the Ground Up</a></li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c12/p12_using_generators_as_alternative_to_threads.html" target="_blank" rel="external">Python Cookbook 3rd</a></li>
+<li><a href="https://www.youtube.com/watch?v=ZzfHjytDceU" target="_blank" rel="external">Keynote David Beazley - Topics of Interest (Python Asyncio)</a></li>
+<li><a href="http://www.snarky.ca/how-the-heck-does-async-await-work-in-python-3-5" target="_blank" rel="external">How the heck does async/await work in Python 3.5?</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <footer class="post-footer">
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/08/24/C-实现阻塞队列/" itemprop="url">
-                  C++ 实现阻塞队列
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-08-24T10:07:17+08:00" content="2015-08-24">
-              2015-08-24
-            </time>
-          </span>
-
+        <div class="post-tags">
           
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/08/24/C-实现阻塞队列/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/08/24/C-实现阻塞队列/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/08/24/C-实现阻塞队列/" class="leancloud_visitors" data-flag-title="C++ 实现阻塞队列">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
+            <a href="/tags/Python/" rel="tag">#Python</a>
           
         </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          <h2 id="队列的异常安全"><a href="#队列的异常安全" class="headerlink" title="队列的异常安全"></a>队列的异常安全</h2><p>　　考虑一下 STL 中 queue 的接口：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T&amp; front();</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pop</span><span class="params">()</span></span>;</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span></span>; <span class="comment">// avoid undefined behaviour before calling front() </span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　我们知道，<code>front()</code>用来获得队列头部元素，而<code>pop()</code>则令头部元素出列。但是为什么不设计成这样呢：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T pop();</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　其实这是为了保证异常安全（Exception Safe），像下面这个例子：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">queue</span>&lt;Widget&gt; q;</div><div class="line"><span class="comment">// ... </span></div><div class="line">Widget value = q.top();</div></pre></td></tr></table></figure></p>
-<p>　　设想一下，要是<code>top()</code>将元素出列，并且将这个元素赋值给 value 时，若其拷贝构造函数发生了异常，那么，这个元素就会永远丢失了。</p>
-<h2 id="关于实现的细节"><a href="#关于实现的细节" class="headerlink" title="关于实现的细节"></a>关于实现的细节</h2><p>　　我们将设计一个 ThreadQueue，并且具有以下的特点：</p>
-<ul>
-<li>允许多个读者 ( Reader ) 和多个写者 ( Writer ) 并发地访问队列。</li>
-<li>元素出列的操作将会阻塞，直到队列不为空。</li>
-<li>元素出列时保证异常安全性。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/08/24/C-实现阻塞队列/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/24/C-实现阻塞队列/" rel="next" title="C++ 实现阻塞队列">
+                <i class="fa fa-chevron-left"></i> C++ 实现阻塞队列
+              </a>
+            
           </div>
-        
-      
-    </div>
 
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -530,6 +433,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/30/Python协程的前世今生/"
+           data-title="Python 协程的前世今生" data-url="http://senlinzhan.github.io/2016/07/30/Python协程的前世今生/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -701,6 +612,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
