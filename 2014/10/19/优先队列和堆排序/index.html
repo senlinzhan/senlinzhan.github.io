@@ -1,0 +1,795 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Data Structures," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="优先队列　　二叉堆可分为大根堆和小根堆，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。可以使用数组表示二叉堆，x[0]弃之不用，我们用x[1]表示根节点。假定堆有 n 个元素并且满足大根堆的属性，那么需要满足 x[i] &amp;lt;= x[i/2] ( n 取值 [2, n] )。
+123456789101112131415161718192021template &amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优先队列与堆排序">
+<meta property="og:url" content="http://senlinzhan.github.io/2014/10/19/优先队列和堆排序/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="优先队列　　二叉堆可分为大根堆和小根堆，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。可以使用数组表示二叉堆，x[0]弃之不用，我们用x[1]表示根节点。假定堆有 n 个元素并且满足大根堆的属性，那么需要满足 x[i] &amp;lt;= x[i/2] ( n 取值 [2, n] )。
+123456789101112131415161718192021template &amp;">
+<meta property="og:updated_time" content="2016-08-17T16:16:40.984Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="优先队列与堆排序">
+<meta name="twitter:description" content="优先队列　　二叉堆可分为大根堆和小根堆，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。可以使用数组表示二叉堆，x[0]弃之不用，我们用x[1]表示根节点。假定堆有 n 个元素并且满足大根堆的属性，那么需要满足 x[i] &amp;lt;= x[i/2] ( n 取值 [2, n] )。
+123456789101112131415161718192021template &amp;">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2014/10/19/优先队列和堆排序/"/>
+
+  <title> 优先队列与堆排序 | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                优先队列与堆排序
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-10-19T20:01:10+08:00" content="2014-10-19">
+              2014-10-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2014/10/19/优先队列和堆排序/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2014/10/19/优先队列和堆排序/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2014/10/19/优先队列和堆排序/" class="leancloud_visitors" data-flag-title="优先队列与堆排序">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="优先队列"><a href="#优先队列" class="headerlink" title="优先队列"></a>优先队列</h2><p>　　二叉堆可分为大根堆和小根堆，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。可以使用数组表示二叉堆，<code>x[0]</code>弃之不用，我们用<code>x[1]</code>表示根节点。假定堆有 n 个元素并且满足大根堆的属性，那么需要满足 <code>x[i]</code> &lt;= <code>x[i/2]</code> ( n 取值 [2, n] )。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> PriorityQueue</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    PriorityQueue()</div><div class="line">        : n( <span class="number">0</span> ), x( <span class="number">1</span> )</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span> </span></div><div class="line">    &#123; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function">T <span class="title">pop</span><span class="params">()</span></span></div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span>        n;          <span class="comment">// for nodes' number</span></div><div class="line">    <span class="built_in">vector</span>&lt;T&gt;  x;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>　　往堆中加入新节点：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></span></div><div class="line">&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　新节点位于<code>x[n]</code>，这时<code>x[1, ..., n]</code>可能不满足堆的属性：</p>
+<ul>
+<li>要是新节点大于它的父节点，则交换它们。</li>
+<li>持续这个过程，直到新节点不大于它的父节点，即小于或等于它的父节点。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></span></div><div class="line">&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">        invariant: </div><div class="line">        x[1, ..., n] is heap except perhaps x[i] and x[i / 2]</div><div class="line">    **/</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = n; i &gt; <span class="number">1</span> &amp;&amp; x[i] &gt; x[i / <span class="number">2</span>]; i /= <span class="number">2</span> )</div><div class="line">    &#123;</div><div class="line">        swap( x[i], x[i / <span class="number">2</span>] );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>　　另一个操作时<code>pop()</code>，也就是将最大的节点移除优先队列：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    <span class="comment">/**</span></div><div class="line">        remove x[1], now x[2, ..., n] is a heap, our goal is make x[1, ..., n - 1] be a heap</div><div class="line">    **/</div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　移出了最大的节点<code>x[1]</code>，为了维持堆的属性，可以这样做：</p>
+<ul>
+<li>将最后一个节点<code>elem</code>放到<code>x[1]</code>，<code>n</code>减一 。</li>
+<li>为了维持堆的属性，要是<code>elem</code>小于它的两个子节点的较大者，交换他们。</li>
+<li>持续这个过程，直到<code>elem</code>大于或等于它的两个子节点。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    x[<span class="number">1</span>] = x[n--];</div><div class="line">    x.pop_back();</div><div class="line">		</div><div class="line">    <span class="keyword">int</span> p;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">1</span>; ( p = i * <span class="number">2</span> ) &lt;= n; i = p )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( p &lt; n &amp;&amp; x[p] &lt; x[p + <span class="number">1</span>] )</div><div class="line">        &#123;</div><div class="line">            ++p;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span>( x[i] &gt;= x[p] )</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        swap( x[i], x[p] );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<a id="more"></a> 
+<p>　　完整的代码展示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> PriorityQueue</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    PriorityQueue()</div><div class="line">        : n( <span class="number">0</span> ), x( <span class="number">1</span> )</div><div class="line">    &#123; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></span></div><div class="line">    &#123;</div><div class="line">        ++n;</div><div class="line">        x.push_back( elem );</div><div class="line">        </div><div class="line">        <span class="keyword">for</span>( <span class="keyword">int</span> i = n; i &gt; <span class="number">1</span> &amp;&amp; x[i] &gt; x[i / <span class="number">2</span>]; i /= <span class="number">2</span> )</div><div class="line">        &#123;</div><div class="line">            swap( x[i], x[i / <span class="number">2</span>] );</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function">T <span class="title">pop</span><span class="params">()</span></span></div><div class="line">    &#123;</div><div class="line">        T maxElem = x[<span class="number">1</span>];</div><div class="line">        x[<span class="number">1</span>] = x[n--];</div><div class="line">        x.pop_back();</div><div class="line">		</div><div class="line">        <span class="keyword">int</span> p;</div><div class="line">        <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">1</span>; ( p = i * <span class="number">2</span> ) &lt;= n; i = p )</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">if</span>( p &lt; n &amp;&amp; x[p] &lt; x[p + <span class="number">1</span>] )</div><div class="line">            &#123;</div><div class="line">                ++p;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">if</span>( x[i] &gt;= x[p] )</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">            swap( x[i], x[p] );</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> maxElem;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> n == <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> n;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span>        n;</div><div class="line">    <span class="built_in">vector</span>&lt;T&gt;  x;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h2 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h2><p>　　当我们了解了优先队列的实现原理，堆排序就容易实现了：</p>
+<ul>
+<li>先是构造大根堆。</li>
+<li>将数组分成两部分，<code>x[1, ..., i]</code>表示堆, <code>x[i + 1, ..., n]</code>表示排定的数组。</li>
+<li>交换<code>x[1]</code>和<code>x[i]</code>，这时，<code>x[2, ..., i - 1]</code>表示堆，<code>x[i, ..., n]</code>表示排定的数组。</li>
+<li>将<code>x[1]</code>下移到合适位置，这时，<code>x[1, ..., i - 1]</code>表示堆，<code>x[i, ..., n]</code>表示排定的数组。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">    make max-heap, the max element in x[1]</div><div class="line"> **/</div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">siftUp</span><span class="params">( T x[], <span class="keyword">int</span> n )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = n; i &gt; <span class="number">1</span> &amp;&amp; x[i] &gt; x[i / <span class="number">2</span>]; i /= <span class="number">2</span> )</div><div class="line">    &#123;</div><div class="line">        swap( x[i], x[i / <span class="number">2</span>] );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line">    move x[1] down to the proper position</div><div class="line">**/</div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">siftDown</span><span class="params">( T x[], <span class="keyword">int</span> n )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> p;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">1</span>; ( p = <span class="number">2</span> * i ) &lt;= n; i = p )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( p &lt; n &amp;&amp; x[p] &lt; x[p + <span class="number">1</span>] )</div><div class="line">        &#123;</div><div class="line">            ++p;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>( x[i] &gt;= x[p] )</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        swap( x[i], x[p] );</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heap_sort</span><span class="params">( T arr[], <span class="keyword">int</span> n )</span></span></div><div class="line">&#123;</div><div class="line">    T *x = arr - <span class="number">1</span>;           <span class="comment">// must minus 1</span></div><div class="line">    </div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">2</span>; i &lt;= n; ++i )</div><div class="line">    &#123;</div><div class="line">        <span class="comment">/**</span></div><div class="line">            invariant: x[1, ..., i - 1] is a heap</div><div class="line">        **/</div><div class="line">        siftUp( x, i );</div><div class="line">        <span class="comment">/**</span></div><div class="line">            now x[1, ..., i] is a heap</div><div class="line">        **/</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = n; i &gt;= <span class="number">2</span>; --i )</div><div class="line">    &#123;</div><div class="line">        <span class="comment">/**</span></div><div class="line">            x[1, ..., i] is a heap, x[i + 1, ..., n] is sorted</div><div class="line">        **/</div><div class="line">        swap( x[i], x[<span class="number">1</span>] );</div><div class="line">        <span class="comment">/**</span></div><div class="line">            x[2, ..., i - 1] is heap, x[i, ..., n] is sorted</div><div class="line">        **/</div><div class="line">        siftDown( x, i - <span class="number">1</span> );</div><div class="line">        <span class="comment">/**</span></div><div class="line">            x[1, ..., i - 1] is heap, x[i, ..., n] is sorted</div><div class="line">        **/</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.amazon.com/Programming-Pearls%C2%A0%C2%A0-PROGRAMMING-PEARLS-Paperback/dp/B008NY8KRU/ref=sr_1_1?ie=UTF8&amp;qid=1439018816&amp;sr=8-1&amp;keywords=programming+pearls+2+e" target="_blank" rel="external">Programming Pearls Second Edition</a></li>
+<li><a href="http://www.amazon.com/Algorithms-4th-Robert-Sedgewick/dp/032157351X/ref=sr_1_1?s=books&amp;ie=UTF8&amp;qid=1440840925&amp;sr=1-1&amp;keywords=algorithms" target="_blank" rel="external">Algorithms (4th Edition)</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Data-Structures/" rel="tag">#Data Structures</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/03/13/多项式乘法与加法/" rel="prev" title="多项式算法的实现">
+                多项式算法的实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2014/10/19/优先队列和堆排序/"
+           data-title="优先队列与堆排序" data-url="http://senlinzhan.github.io/2014/10/19/优先队列和堆排序/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"senlinzhangithubio"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
