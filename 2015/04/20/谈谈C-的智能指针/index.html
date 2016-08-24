@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Network," />
+  <meta name="keywords" content="C++," />
 
 
 
@@ -102,19 +102,31 @@
 
 
 
-<meta name="description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
+<meta name="description" content="从异常安全说起　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：
+
+忘记delete内存，造成内存泄露。
+出现异常时，不会执行delete，造成内存泄露。
+
+　　下面的代码解释了，当一个操作发生异常时，会导致delete不会被执行：123456789void func() &amp;#123;    auto ptr = new Widget;    // 执行一个会抛出异常的操作">
 <meta property="og:type" content="article">
-<meta property="og:title" content="为 connect 设置连接超时">
-<meta property="og:url" content="http://senlinzhan.github.io/2016/08/15/为connect设置超时/index.html">
+<meta property="og:title" content="深入 C++ 的智能指针">
+<meta property="og:url" content="http://senlinzhan.github.io/2015/04/20/谈谈C-的智能指针/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
-<meta property="og:updated_time" content="2016-08-15T16:02:45.116Z">
+<meta property="og:description" content="从异常安全说起　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：
+
+忘记delete内存，造成内存泄露。
+出现异常时，不会执行delete，造成内存泄露。
+
+　　下面的代码解释了，当一个操作发生异常时，会导致delete不会被执行：123456789void func() &amp;#123;    auto ptr = new Widget;    // 执行一个会抛出异常的操作">
+<meta property="og:updated_time" content="2016-08-24T15:47:26.179Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="为 connect 设置连接超时">
-<meta name="twitter:description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
+<meta name="twitter:title" content="深入 C++ 的智能指针">
+<meta name="twitter:description" content="从异常安全说起　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：
+
+忘记delete内存，造成内存泄露。
+出现异常时，不会执行delete，造成内存泄露。
+
+　　下面的代码解释了，当一个操作发生异常时，会导致delete不会被执行：123456789void func() &amp;#123;    auto ptr = new Widget;    // 执行一个会抛出异常的操作">
 
 
 
@@ -135,9 +147,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/2016/08/15/为connect设置超时/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2015/04/20/谈谈C-的智能指针/"/>
 
-  <title> 为 connect 设置连接超时 | Senlin's Blog </title>
+  <title> 深入 C++ 的智能指针 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -267,7 +279,7 @@
             
             
               
-                为 connect 设置连接超时
+                深入 C++ 的智能指针
               
             
           </h1>
@@ -279,8 +291,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-15T22:03:18+08:00" content="2016-08-15">
-              2016-08-15
+            <time itemprop="dateCreated" datetime="2015-04-20T19:22:08+08:00" content="2015-04-20">
+              2015-04-20
             </time>
           </span>
 
@@ -293,8 +305,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
                   </a>
                 </span>
 
@@ -309,8 +321,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/08/15/为connect设置超时/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/15/为connect设置超时/" itemprop="commentsCount"></span>
+                <a href="/2015/04/20/谈谈C-的智能指针/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/04/20/谈谈C-的智能指针/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -320,7 +332,7 @@
 
           
           
-             <span id="/2016/08/15/为connect设置超时/" class="leancloud_visitors" data-flag-title="为 connect 设置连接超时">
+             <span id="/2015/04/20/谈谈C-的智能指针/" class="leancloud_visitors" data-flag-title="深入 C++ 的智能指针">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -342,15 +354,28 @@
       
 
       
-        <h2 id="连接超时"><a href="#连接超时" class="headerlink" title="连接超时"></a>连接超时</h2><p>　　调用<code>connect</code>连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为<code>connect</code>设置连接的超时。考虑到<code>select</code>可以设置一个超时时间，所以我们会使用<code>select</code>来实现这个功能。</p>
-<p>　　我们实现一个函数<code>connect_timeout</code>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Return 1 on success, 0 on timeout and -1 on failed</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr, </span></span></div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout);</div></pre></td></tr></table></figure></p>
-<p>　　其实现并不复杂，首先我们将 socket 设置成非阻塞的，然后调用<code>connect</code>，如果<code>connect</code>返回<code>0</code>就说明连接已经建立了，如果返回<code>-1</code>并且错误码是<code>EINPROGRESS</code>，这说明<code>connect</code>正处在建立连接的过程中，返回其它错误码则表示<code>connect</code>调用失败。</p>
-<p>　　很明显，既然<code>connect</code>正在建立连接，那么它就有可能成功也有可能失败。那么我们可以调用<code>select</code>并且设置一个超时，等待<code>connect</code>建立连接、超时或失败。如果<code>connect</code>成功建立连接，则需要将 socket 重新设置成阻塞的。<br><a id="more"></a><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr,</span></span></div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> flags = fcntl( sockfd, F_GETFL, <span class="number">0</span> );</div><div class="line">    <span class="keyword">if</span> (flags == <span class="number">-1</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (fcntl( sockfd, F_SETFL, flags | O_NONBLOCK ) &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">int</span> status = connect(sockfd, addr, addrlen);</div><div class="line">    <span class="keyword">if</span> (status == <span class="number">-1</span> and errno != EINPROGRESS) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (status == <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">if</span> (fcntl(sockfd, F_SETFL, flags) &lt;  <span class="number">0</span>) &#123;</div><div class="line">	    <span class="keyword">return</span> <span class="number">-1</span>;	    </div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    fd_set read_events;</div><div class="line">    fd_set write_events;</div><div class="line"></div><div class="line">    FD_ZERO(&amp;read_events);</div><div class="line">    FD_SET(sockfd, &amp;read_events);</div><div class="line">    write_events = read_events;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> rc = select(sockfd + <span class="number">1</span>, &amp;read_events, &amp;write_events, <span class="literal">nullptr</span>, timeout );</div><div class="line">    <span class="keyword">if</span> (rc &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (rc == <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (!isconnected(sockfd, &amp;read_events, &amp;write_events) )</div><div class="line">    &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> ( fcntl( sockfd, F_SETFL, flags ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;	    </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　在<code>select</code>成功返回之后，我们需要判断 socket 的可读写状况，如果它是不可读也不可写的，也就是说连接建立失败。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">isconnected</span><span class="params">(<span class="keyword">int</span> sockfd, fd_set *rd, fd_set *wr)</span></span></div><div class="line">&#123;   </div><div class="line">    <span class="keyword">if</span> (!FD_ISSET(sockfd, rd) &amp;&amp; !FD_ISSET(sockfd, wr)) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> err;</div><div class="line">    <span class="keyword">socklen_t</span> len = <span class="keyword">sizeof</span>(err);</div><div class="line">    <span class="keyword">if</span> (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &amp;err, &amp;len) &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    errno = err;		<span class="comment">/* in case we're not connected */</span></div><div class="line">    <span class="keyword">return</span> err == <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　注意，如果连接建立失败，那么 socket 是既可读又可写的。但是还有另一种情况，如果在调用<code>connect</code>和<code>select</code>之间，socket 接收到数据，那么在<code>select</code>返回之后，socket 也是既可读又可写的。所以这里要用到<code>getsockopt</code>来判断 socket 是否发生错误。</p>
+        <h2 id="从异常安全说起"><a href="#从异常安全说起" class="headerlink" title="从异常安全说起"></a>从异常安全说起</h2><p>　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：</p>
+<ul>
+<li>忘记<code>delete</code>内存，造成内存泄露。</li>
+<li>出现异常时，不会执行<code>delete</code>，造成内存泄露。</li>
+</ul>
+<p>　　下面的代码解释了，当一个操作发生异常时，会导致<code>delete</code>不会被执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="comment">// 执行一个会抛出异常的操作</span></div><div class="line">    func_throw_exception();</div><div class="line">    </div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们需要用一种笨拙的方式，写出异常安全的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        func_throw_exception();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">catch</span>(...) &#123;</div><div class="line">        <span class="keyword">delete</span> ptr;</div><div class="line">        <span class="keyword">throw</span>; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　使用智能指针能轻易写出异常安全的代码，因为当对象退出作用域时，智能指针将自动调用对象的析构函数，避免内存泄露：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Widget&gt; ptr&#123; <span class="keyword">new</span> Widget &#125;;</div><div class="line"></div><div class="line">    func_throw_exception();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="unique-ptr-的原理"><a href="#unique-ptr-的原理" class="headerlink" title="unique_ptr 的原理"></a>unique_ptr 的原理</h2><p>　　让我们了解一下<code>unique_ptr</code>的实现细节：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> D = default_delete&lt;T&gt;&gt;</div><div class="line">    <span class="keyword">class</span> <span class="built_in">unique_ptr</span></div><div class="line">    &#123;</div><div class="line">    <span class="keyword">public</span>:</div><div class="line">        <span class="keyword">explicit</span> <span class="built_in">unique_ptr</span>(pointer p) <span class="keyword">noexcept</span>;</div><div class="line">        ~<span class="built_in">unique_ptr</span>() <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">	T&amp; <span class="keyword">operator</span>*() <span class="keyword">const</span>;</div><div class="line">        T* <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line">        <span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="comment">// ...</span></div><div class="line">    <span class="keyword">private</span>:</div><div class="line">        pointer <span class="number">__</span>ptr;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从上面的代码中，我们可以了解到：</p>
+<ul>
+<li><code>unique_ptr</code>内部存储一个 raw pointer，当<code>unique_ptr</code>析构时，它的析构函数将会负责析构它持有的对象。</li>
+<li><code>unique_ptr</code>提供了<code>operator*()</code>和<code>operator-&gt;()</code>成员函数，像 raw pointer 一样，我们可以使用<code>*</code>解引用<code>unique_ptr</code>，使用<code>-&gt;</code>来访问<code>unique_ptr</code>所持有对象的成员。</li>
+<li><code>unique_ptr</code>并不提供 copy 操作，这是为了防止多个<code>unique_ptr</code>指向同一对象。</li>
+<li>但<code>unique_ptr</code>提供了 move 操作，因此我们可以用<code>std::move()</code>来转移<code>unique_ptr</code>。</li>
+</ul>
+<p>　　很显然，缺省情况下，<code>unique_ptr</code>会使用<code>delete</code>析构对象，不过我们可以使用自定义的 deleter。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> Widget&#123;  &#125;;</div><div class="line"><span class="comment">// ...</span></div><div class="line"><span class="keyword">auto</span> deleter = []( Widget *p ) &#123;</div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"delete Widget!"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    <span class="keyword">delete</span> p;</div><div class="line">&#125;;</div><div class="line"><span class="built_in">unique_ptr</span>&lt;Widget, <span class="keyword">decltype</span>(deleter)&gt; ptr&#123; <span class="keyword">new</span> Widget, deleter &#125;;</div></pre></td></tr></table></figure></p>
+<p>　　当然，我们可以使用 C++11 的 alias template 特性，这样就可以避免指定 deleter 的类型：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> Widget&#123;  &#125;;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">using</span> uniquePtr = <span class="built_in">unique_ptr</span>&lt;T, <span class="keyword">void</span>(*)(T*)&gt;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    uniquePtr&lt;Widget&gt; ptr( <span class="keyword">new</span> Widget, </div><div class="line">                           []( Widget *p ) &#123;</div><div class="line">                               <span class="built_in">cout</span> &lt;&lt; <span class="string">"delete Widget!"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">                               <span class="keyword">delete</span> p;</div><div class="line">                           &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://www.unixguide.net/network/socketfaq/3.5.shtml" target="_blank" rel="external">How can I set the timeout for the connect() system call?</a></li>
-<li><a href="https://www.amazon.com/Effective-TCP-IP-Programming-Programs/dp/0201615894/ref=sr_1_1?ie=UTF8&amp;qid=1471276673&amp;sr=8-1&amp;keywords=effective+tcp+ip+programming" target="_blank" rel="external">Effective TCP/IP Programming: 44 Tips to Improve Your Network Programs</a></li>
+<li><a href="www.amazon.com/gp/product/0321563840/ref=s9_simh_gw_p14_d0_i4?pf_rd_m=ATVPDKIKX0DER&amp;pf_rd_s=desktop-1&amp;pf_rd_r=1K1091VGJG234NP5NA8T&amp;pf_rd_t=36701&amp;pf_rd_p=1970559082&amp;pf_rd_i=desktop">The C++ Programming Language 4th Edition</a></li>
+<li><a href="http://book.douban.com/subject/10440485/" target="_blank" rel="external">The C++ Standard Library Second Edition</a></li>
+<li><a href="http://www.amazon.com/Effective-Modern-Specific-Ways-Improve/dp/1491903996/ref=sr_1_1?ie=UTF8&amp;qid=1428220334&amp;sr=8-1&amp;keywords=effective+modern+c%2B%2B" target="_blank" rel="external">Effective Modern C++: 42 Specific Ways to Improve Your Use of C++11 and C++14 </a></li>
 </ul>
 
       
@@ -374,7 +399,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Network/" rel="tag">#Network</a>
+            <a href="/tags/C/" rel="tag">#C++</a>
           
         </div>
       
@@ -383,13 +408,17 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/07/30/Python协程的前世今生/" rel="next" title="Python 协程的前世今生">
-                <i class="fa fa-chevron-left"></i> Python 协程的前世今生
+              <a href="/2015/03/31/C-使用vector的正确姿势/" rel="next" title="高效使用 C++ 的 vector">
+                <i class="fa fa-chevron-left"></i> 高效使用 C++ 的 vector
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/01/谈谈C-的编译器计算/" rel="prev" title="谈谈 C++ 的编译期计算">
+                谈谈 C++ 的编译期计算 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -415,8 +444,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/08/15/为connect设置超时/"
-           data-title="为 connect 设置连接超时" data-url="http://senlinzhan.github.io/2016/08/15/为connect设置超时/">
+      <div class="ds-thread" data-thread-key="2015/04/20/谈谈C-的智能指针/"
+           data-title="深入 C++ 的智能指针" data-url="http://senlinzhan.github.io/2015/04/20/谈谈C-的智能指针/">
       </div>
     
   </div>

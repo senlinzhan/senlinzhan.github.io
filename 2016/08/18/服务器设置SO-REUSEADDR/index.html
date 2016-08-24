@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Network," />
 
 
 
@@ -102,12 +102,13 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/categories/算法分析/index.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么服务端要设置 SO_REUSEADDR">
+<meta property="og:url" content="http://senlinzhan.github.io/2016/08/18/服务器设置SO-REUSEADDR/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:updated_time" content="2016-08-18T14:08:02.798Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:title" content="为什么服务端要设置 SO_REUSEADDR">
 
 
 
@@ -128,9 +129,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/categories/算法分析/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2016/08/18/服务器设置SO-REUSEADDR/"/>
 
-  <title> 分类: 算法分析 | Senlin's Blog </title>
+  <title> 为什么服务端要设置 SO_REUSEADDR | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -151,7 +152,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -239,47 +240,156 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <div class="collection-title">
-      <h2 >
-        算法分析
-        <small>分类</small>
-      </h2>
-    </div>
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
 
     
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                为什么服务端要设置 SO_REUSEADDR
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-18T22:03:42+08:00" content="2016-08-18">
+              2016-08-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/08/18/服务器设置SO-REUSEADDR/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/18/服务器设置SO-REUSEADDR/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/08/18/服务器设置SO-REUSEADDR/" class="leancloud_visitors" data-flag-title="为什么服务端要设置 SO_REUSEADDR">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
       
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
+      
         
-            <a class="post-title-link" href="/2015/03/13/多项式乘法与加法/" itemprop="url">
-              
-                <span itemprop="name">多项式算法的实现</span>
-              
-            </a>
+      
+    </div>
+
+    <div>
+      
         
-      </h1>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2015-03-13T11:03:40+08:00"
-              content="2015-03-13" >
-          03-13
-        </time>
-      </div>
+      
+    </div>
 
-    </header>
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Network/" rel="tag">#Network</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/15/为connect设置超时/" rel="next" title="为 connect 设置连接超时">
+                <i class="fa fa-chevron-left"></i> 为 connect 设置连接超时
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </article>
 
 
-    
-  </section>
 
-  
-
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -287,6 +397,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/08/18/服务器设置SO-REUSEADDR/"
+           data-title="为什么服务端要设置 SO_REUSEADDR" data-url="http://senlinzhan.github.io/2016/08/18/服务器设置SO-REUSEADDR/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -458,6 +576,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
