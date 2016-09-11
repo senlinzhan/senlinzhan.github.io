@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Network," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -102,19 +102,12 @@
 
 
 
-<meta name="description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
-<meta property="og:type" content="article">
-<meta property="og:title" content="为 connect 设置连接超时">
-<meta property="og:url" content="http://senlinzhan.github.io/2016/08/15/为connect设置超时/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Senlin's Blog">
+<meta property="og:url" content="http://senlinzhan.github.io/page/3/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
-<meta property="og:updated_time" content="2016-08-24T15:51:40.275Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="为 connect 设置连接超时">
-<meta name="twitter:description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
+<meta name="twitter:title" content="Senlin's Blog">
 
 
 
@@ -135,9 +128,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/2016/08/15/为connect设置超时/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/page/3/"/>
 
-  <title> 为 connect 设置连接超时 | Senlin's Blog </title>
+  <title> Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -158,7 +151,9 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container one-collumn sidebar-position-left 
+   page-home 
+ ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -245,9 +240,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-expand">
     
+      
 
   
   
@@ -267,7 +262,10 @@
             
             
               
-                为 connect 设置连接超时
+                
+                <a class="post-title-link" href="/2014/10/19/优先队列和堆排序/" itemprop="url">
+                  优先队列与堆排序
+                </a>
               
             
           </h1>
@@ -279,8 +277,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-15T22:03:18+08:00" content="2016-08-15">
-              2016-08-15
+            <time itemprop="dateCreated" datetime="2014-10-19T20:01:10+08:00" content="2014-10-19">
+              2014-10-19
             </time>
           </span>
 
@@ -293,8 +291,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
                   </a>
                 </span>
 
@@ -309,8 +307,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/08/15/为connect设置超时/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/15/为connect设置超时/" itemprop="commentsCount"></span>
+                <a href="/2014/10/19/优先队列和堆排序/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2014/10/19/优先队列和堆排序/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -320,7 +318,7 @@
 
           
           
-             <span id="/2016/08/15/为connect设置超时/" class="leancloud_visitors" data-flag-title="为 connect 设置连接超时">
+             <span id="/2014/10/19/优先队列和堆排序/" class="leancloud_visitors" data-flag-title="优先队列与堆排序">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -342,70 +340,62 @@
       
 
       
-        <h2 id="连接超时"><a href="#连接超时" class="headerlink" title="连接超时"></a>连接超时</h2><p>　　调用<code>connect</code>连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为<code>connect</code>设置连接的超时。考虑到<code>select</code>可以设置一个超时时间，所以我们会使用<code>select</code>来实现这个功能。</p>
-<p>　　我们实现一个函数<code>connect_timeout</code>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Return 1 on success, 0 on timeout and -1 on failed</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr, </span></span></div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout);</div></pre></td></tr></table></figure></p>
-<p>　　其实现并不复杂，首先我们将 socket 设置成非阻塞的，然后调用<code>connect</code>，如果<code>connect</code>返回<code>0</code>就说明连接已经建立了，如果返回<code>-1</code>并且错误码是<code>EINPROGRESS</code>，这说明<code>connect</code>正处在建立连接的过程中，返回其它错误码则表示<code>connect</code>调用失败。</p>
-<p>　　很明显，既然<code>connect</code>正在建立连接，那么它就有可能成功也有可能失败。那么我们可以调用<code>select</code>并且设置一个超时，等待<code>connect</code>建立连接、超时或失败。如果<code>connect</code>成功建立连接，则需要将 socket 重新设置成阻塞的。<br><a id="more"></a><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr,</span></span></div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> flags = fcntl( sockfd, F_GETFL, <span class="number">0</span> );</div><div class="line">    <span class="keyword">if</span> (flags == <span class="number">-1</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (fcntl( sockfd, F_SETFL, flags | O_NONBLOCK ) &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">int</span> status = connect(sockfd, addr, addrlen);</div><div class="line">    <span class="keyword">if</span> (status == <span class="number">-1</span> and errno != EINPROGRESS) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (status == <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">if</span> (fcntl(sockfd, F_SETFL, flags) &lt;  <span class="number">0</span>) &#123;</div><div class="line">	    <span class="keyword">return</span> <span class="number">-1</span>;	    </div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    fd_set read_events;</div><div class="line">    fd_set write_events;</div><div class="line"></div><div class="line">    FD_ZERO(&amp;read_events);</div><div class="line">    FD_SET(sockfd, &amp;read_events);</div><div class="line">    write_events = read_events;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> rc = select(sockfd + <span class="number">1</span>, &amp;read_events, &amp;write_events, <span class="literal">nullptr</span>, timeout );</div><div class="line">    <span class="keyword">if</span> (rc &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (rc == <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (!isconnected(sockfd, &amp;read_events, &amp;write_events) )</div><div class="line">    &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> ( fcntl( sockfd, F_SETFL, flags ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;	    </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　在<code>select</code>成功返回之后，我们需要判断 socket 的可读写状况，如果它是不可读也不可写的，也就是说连接建立失败。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">isconnected</span><span class="params">(<span class="keyword">int</span> sockfd, fd_set *rd, fd_set *wr)</span></span></div><div class="line">&#123;   </div><div class="line">    <span class="keyword">if</span> (!FD_ISSET(sockfd, rd) &amp;&amp; !FD_ISSET(sockfd, wr)) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> err;</div><div class="line">    <span class="keyword">socklen_t</span> len = <span class="keyword">sizeof</span>(err);</div><div class="line">    <span class="keyword">if</span> (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &amp;err, &amp;len) &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    errno = err;		<span class="comment">/* in case we're not connected */</span></div><div class="line">    <span class="keyword">return</span> err == <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　注意，如果连接建立失败，那么 socket 是既可读又可写的。但是还有另一种情况，如果在调用<code>connect</code>和<code>select</code>之间，socket 接收到数据，那么在<code>select</code>返回之后，socket 也是既可读又可写的。所以这里要用到<code>getsockopt</code>来判断 socket 是否发生错误。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://www.unixguide.net/network/socketfaq/3.5.shtml" target="_blank" rel="external">How can I set the timeout for the connect() system call?</a></li>
-<li><a href="https://www.amazon.com/Effective-TCP-IP-Programming-Programs/dp/0201615894/ref=sr_1_1?ie=UTF8&amp;qid=1471276673&amp;sr=8-1&amp;keywords=effective+tcp+ip+programming" target="_blank" rel="external">Effective TCP/IP Programming: 44 Tips to Improve Your Network Programs</a></li>
+        
+          <h2 id="优先队列"><a href="#优先队列" class="headerlink" title="优先队列"></a>优先队列</h2><p>　　二叉堆可分为大根堆和小根堆，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。可以使用数组表示二叉堆，<code>x[0]</code>弃之不用，我们用<code>x[1]</code>表示根节点。假定堆有 n 个元素并且满足大根堆的属性，那么需要满足 <code>x[i]</code> &lt;= <code>x[i/2]</code> ( n 取值 [2, n] )。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> PriorityQueue</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    PriorityQueue()</div><div class="line">        : n( <span class="number">0</span> ), x( <span class="number">1</span> )</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span> </div><div class="line">    </span>&#123; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span>        n;          <span class="comment">// for nodes' number</span></div><div class="line">    <span class="built_in">vector</span>&lt;T&gt;  x;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>　　往堆中加入新节点：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></div><div class="line"></span>&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　新节点位于<code>x[n]</code>，这时<code>x[1, ..., n]</code>可能不满足堆的属性：</p>
+<ul>
+<li>要是新节点大于它的父节点，则交换它们。</li>
+<li>持续这个过程，直到新节点不大于它的父节点，即小于或等于它的父节点。</li>
 </ul>
-
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></div><div class="line"></span>&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line"></div><div class="line">    <span class="comment">/**</div><div class="line">        invariant: </div><div class="line">        x[1, ..., n] is heap except perhaps x[i] and x[i / 2]</div><div class="line">    **/</span></div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = n; i &gt; <span class="number">1</span> &amp;&amp; x[i] &gt; x[i / <span class="number">2</span>]; i /= <span class="number">2</span> )</div><div class="line">    &#123;</div><div class="line">        swap( x[i], x[i / <span class="number">2</span>] );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>　　另一个操作时<code>pop()</code>，也就是将最大的节点移除优先队列：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    <span class="comment">/**</div><div class="line">        remove x[1], now x[2, ..., n] is a heap, our goal is make x[1, ..., n - 1] be a heap</div><div class="line">    **/</span></div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　移出了最大的节点<code>x[1]</code>，为了维持堆的属性，可以这样做：</p>
+<ul>
+<li>将最后一个节点<code>elem</code>放到<code>x[1]</code>，<code>n</code>减一 。</li>
+<li>为了维持堆的属性，要是<code>elem</code>小于它的两个子节点的较大者，交换他们。</li>
+<li>持续这个过程，直到<code>elem</code>大于或等于它的两个子节点。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    x[<span class="number">1</span>] = x[n--];</div><div class="line">    x.pop_back();</div><div class="line">		</div><div class="line">    <span class="keyword">int</span> p;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">1</span>; ( p = i * <span class="number">2</span> ) &lt;= n; i = p )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( p &lt; n &amp;&amp; x[p] &lt; x[p + <span class="number">1</span>] )</div><div class="line">        &#123;</div><div class="line">            ++p;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span>( x[i] &gt;= x[p] )</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        swap( x[i], x[p] );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2014/10/19/优先队列和堆排序/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
       
     </div>
 
     <div>
       
-        
-
-      
     </div>
 
     <div>
-      
-        
-
       
     </div>
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/Network/" rel="tag">#Network</a>
-          
-        </div>
+
       
 
       
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2016/07/30/Python协程的前世今生/" rel="next" title="Python 协程的前世今生">
-                <i class="fa fa-chevron-left"></i> Python 协程的前世今生
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-          </div>
-        </div>
       
-
-      
+        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-    </div>
-  </div>
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
+
 
 
           </div>
@@ -413,14 +403,6 @@
 
 
           
-  <div class="comments" id="comments">
-    
-      <div class="ds-thread" data-thread-key="2016/08/15/为connect设置超时/"
-           data-title="为 connect 设置连接超时" data-url="http://senlinzhan.github.io/2016/08/15/为connect设置超时/">
-      </div>
-    
-  </div>
-
 
         </div>
         
@@ -592,10 +574,6 @@
   
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
-
-
 
   
 

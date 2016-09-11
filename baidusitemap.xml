@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>http://senlinzhan.github.io/2015/01/14/unionfind%E7%AE%97%E6%B3%95/</loc>
+    <lastmod>2016-09-11T02:59:10.072Z</lastmod>
+    <data>
+        <display>
+        <title>Union-Find算法</title>
+        <pubTime>2015-01-14T14:11:05.000Z</pubTime>
+        
+        <tag>Algorithms</tag>
+         
+         
+           
+             
+              <breadCrumb title="算法分析" url="http://senlinzhan.github.io/categories/%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://senlinzhan.github.io/2015/04/24/%E6%B7%B1%E5%85%A5shared-ptr/</loc>
     <lastmod>2016-09-07T15:35:45.431Z</lastmod>
     <data>
