@@ -263,6 +263,141 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/04/Linux信号处理/" itemprop="url">
+                  Linux 安全的信号处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-04T15:00:22+08:00" content="2016-10-04">
+              2016-10-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/04/Linux信号处理/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/04/Linux信号处理/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/10/04/Linux信号处理/" class="leancloud_visitors" data-flag-title="Linux 安全的信号处理">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="信号处理"><a href="#信号处理" class="headerlink" title="信号处理"></a>信号处理</h2><p>　　在 Linux 中，信号就是一个整数，每个进程都拥有两个位向量，其中一个是<code>pending</code>位向量，用来暂存还未处理的信号，另一个则是<code>blocked</code>位向量，包含了进程所屏蔽的信号。例如，当进程接收到一个<code>SIGINT</code>信号，它会执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pending[SIGINT] = <span class="literal">true</span>;    <span class="comment">// pseudocode</span></div></pre></td></tr></table></figure></p>
+<p>　　而当进程决定要处理信号时，它会从<code>pending</code>位向量中选择一个<u>没有被屏蔽</u>的信号<code>sig</code>，也就是说信号<code>sig</code>需要满足：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (pending[sig] &amp;&amp; (!blocked[sig])) &#123;    <span class="comment">// pseudocode</span></div><div class="line">    <span class="comment">// ....</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　然后进程就会从<code>pending</code>中清除这个信号，并且开始处理这个信号：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">pending[sig] = <span class="literal">false</span>;　　　　<span class="comment">// pseudocode</span></div><div class="line"></div><div class="line"><span class="comment">// call handler for sig</span></div></pre></td></tr></table></figure></p>
+<p>　　由于<code>pending</code>是一个位向量而不是队列，所以<code>pending</code>只能记录进程是否接收到了某种类型的信号，但却无法记录这种类型的信号出现了多少次。譬如说，假设某个父进程的<code>pending</code>位向量中拥有<code>SIGCHLD</code>信号（也就是说<code>pending[SIGCHLD]</code>的值为<code>true</code>），这时要是它的另一个子进程也终止了，那么它将收到内核发送的另一个<code>SIGCHLD</code>信号：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pending[SIGCHLD] = <span class="literal">true</span>;    <span class="comment">// pseudocode</span></div></pre></td></tr></table></figure></p>
+<p>　　既然父进程并不知道它接收了多少次<code>SIGCHLD</code>信号，那么为了防止僵尸子进程继续消耗系统资源，父进程在处理<code>SIGCHLD</code>信号时，应该<u>尽量多</u>地清理僵尸子进程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sig_safe_error</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *msg)</span></div><div class="line"></span>&#123;</div><div class="line">    write(STDERR_FILENO, msg, <span class="built_in">strlen</span>(msg));</div><div class="line">    <span class="number">_</span><span class="built_in">exit</span>(<span class="number">1</span>);  <span class="comment">// async-signal-safe version of exit()</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// signal handler for SIGCHLD</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigchld_handler</span><span class="params">(<span class="keyword">int</span> sig)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">int</span> olderrno = errno;</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> ((pid = waitpid(<span class="number">-1</span>, <span class="literal">NULL</span>, WNOHANG)) &gt; <span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">	<span class="keyword">continue</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (pid == <span class="number">-1</span> &amp;&amp; errno != ECHILD)</div><div class="line">    &#123;</div><div class="line">	sig_safe_error(<span class="string">"waitpid error"</span>);</div><div class="line">    &#125;</div><div class="line">    errno = olderrno;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/10/04/Linux信号处理/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/15/安全关闭TCP连接/" itemprop="url">
                   如何可靠关闭 TCP 连接
                 </a>
@@ -787,146 +922,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/08/24/C-实现阻塞队列/" itemprop="url">
-                  C++ 实现阻塞队列
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-08-24T10:07:17+08:00" content="2015-08-24">
-              2015-08-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/08/24/C-实现阻塞队列/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/08/24/C-实现阻塞队列/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/08/24/C-实现阻塞队列/" class="leancloud_visitors" data-flag-title="C++ 实现阻塞队列">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="队列的异常安全"><a href="#队列的异常安全" class="headerlink" title="队列的异常安全"></a>队列的异常安全</h2><p>　　考虑一下 STL 中 queue 的接口：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T&amp; front();</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pop</span><span class="params">()</span></span>;</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span></span>; <span class="comment">// avoid undefined behaviour before calling front() </span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　我们知道，<code>front()</code>用来获得队列头部元素，而<code>pop()</code>则令头部元素出列。但是为什么不设计成这样呢：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T pop();</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　其实这是为了保证异常安全（Exception Safe），像下面这个例子：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">queue</span>&lt;Widget&gt; q;</div><div class="line"><span class="comment">// ... </span></div><div class="line">Widget value = q.top();</div></pre></td></tr></table></figure></p>
-<p>　　设想一下，要是<code>top()</code>将元素出列，并且将这个元素赋值给 value 时，若其拷贝构造函数发生了异常，那么，这个元素就会永远丢失了。</p>
-<h2 id="关于实现的细节"><a href="#关于实现的细节" class="headerlink" title="关于实现的细节"></a>关于实现的细节</h2><p>　　我们将设计一个 ThreadQueue，并且具有以下的特点：</p>
-<ul>
-<li>允许多个读者 ( Reader ) 和多个写者 ( Writer ) 并发地访问队列。</li>
-<li>元素出列的操作将会阻塞，直到队列不为空。</li>
-<li>元素出列时保证异常安全性。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/08/24/C-实现阻塞队列/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -972,7 +967,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-count">13</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -989,7 +984,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
