@@ -4,6 +4,46 @@
 
     
   <url>
+    <loc>http://senlinzhan.github.io/2016/10/23/%E5%A4%84%E7%90%86%E5%99%A8%E4%BA%B2%E5%92%8C%E6%80%A7/</loc>
+    <lastmod>2016-10-23T14:24:53.693Z</lastmod>
+    <data>
+        <display>
+        <title>进程调度与 CPU 亲和性</title>
+        <pubTime>2016-10-23T12:51:55.000Z</pubTime>
+        
+        <tag>Linux</tag>
+         
+         
+           
+             
+              <breadCrumb title="并发编程" url="http://senlinzhan.github.io/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://senlinzhan.github.io/2016/10/19/%E5%85%B3%E4%BA%8EPthreads%E7%9A%84%E7%BC%96%E7%A8%8B%E7%BB%86%E8%8A%82/</loc>
+    <lastmod>2016-10-23T12:50:51.009Z</lastmod>
+    <data>
+        <display>
+        <title>关于 Pthreads 的编程细节</title>
+        <pubTime>2016-10-19T14:03:48.000Z</pubTime>
+        
+        <tag>Linux</tag>
+         
+         
+           
+             
+              <breadCrumb title="并发编程" url="http://senlinzhan.github.io/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://senlinzhan.github.io/2016/10/04/Linux%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/</loc>
     <lastmod>2016-10-07T07:29:26.109Z</lastmod>
     <data>

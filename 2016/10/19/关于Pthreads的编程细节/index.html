@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Network," />
+  <meta name="keywords" content="Linux," />
 
 
 
@@ -102,19 +102,16 @@
 
 
 
-<meta name="description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
+<meta name="description" content="线程安全　　并不是所有系统调用都是线程安全的，例如rand()和strtok()就不是线程安全的，有趣的是，我们执行man pthreads就可以查到哪些系统调用不是线程安全的。　　如果一个函数访问全局变量却没有使用任何同步机制，那它就不是线程安全的，例如：12345int increment()&amp;#123;    static int counter = 0;    return ++count">
 <meta property="og:type" content="article">
-<meta property="og:title" content="为 connect 设置连接超时">
-<meta property="og:url" content="http://senlinzhan.github.io/2016/08/15/为connect设置超时/index.html">
+<meta property="og:title" content="关于 Pthreads 的编程细节">
+<meta property="og:url" content="http://senlinzhan.github.io/2016/10/19/关于Pthreads的编程细节/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
-<meta property="og:updated_time" content="2016-09-15T02:14:29.372Z">
+<meta property="og:description" content="线程安全　　并不是所有系统调用都是线程安全的，例如rand()和strtok()就不是线程安全的，有趣的是，我们执行man pthreads就可以查到哪些系统调用不是线程安全的。　　如果一个函数访问全局变量却没有使用任何同步机制，那它就不是线程安全的，例如：12345int increment()&amp;#123;    static int counter = 0;    return ++count">
+<meta property="og:updated_time" content="2016-10-23T12:50:51.009Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="为 connect 设置连接超时">
-<meta name="twitter:description" content="连接超时　　调用connect连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为connect设置连接的超时。考虑到select可以设置一个超时时间，所以我们会使用select来实现这个功能。
-　　我们实现一个函数connect_timeout：123// Return 1 on success, 0 on timeout and -1 on fa">
+<meta name="twitter:title" content="关于 Pthreads 的编程细节">
+<meta name="twitter:description" content="线程安全　　并不是所有系统调用都是线程安全的，例如rand()和strtok()就不是线程安全的，有趣的是，我们执行man pthreads就可以查到哪些系统调用不是线程安全的。　　如果一个函数访问全局变量却没有使用任何同步机制，那它就不是线程安全的，例如：12345int increment()&amp;#123;    static int counter = 0;    return ++count">
 
 
 
@@ -135,9 +132,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/2016/08/15/为connect设置超时/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2016/10/19/关于Pthreads的编程细节/"/>
 
-  <title> 为 connect 设置连接超时 | Senlin's Blog </title>
+  <title> 关于 Pthreads 的编程细节 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -267,7 +264,7 @@
             
             
               
-                为 connect 设置连接超时
+                关于 Pthreads 的编程细节
               
             
           </h1>
@@ -279,8 +276,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-15T22:03:18+08:00" content="2016-08-15">
-              2016-08-15
+            <time itemprop="dateCreated" datetime="2016-10-19T22:03:48+08:00" content="2016-10-19">
+              2016-10-19
             </time>
           </span>
 
@@ -293,8 +290,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
                   </a>
                 </span>
 
@@ -309,8 +306,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/08/15/为connect设置超时/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/15/为connect设置超时/" itemprop="commentsCount"></span>
+                <a href="/2016/10/19/关于Pthreads的编程细节/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/19/关于Pthreads的编程细节/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -320,7 +317,7 @@
 
           
           
-             <span id="/2016/08/15/为connect设置超时/" class="leancloud_visitors" data-flag-title="为 connect 设置连接超时">
+             <span id="/2016/10/19/关于Pthreads的编程细节/" class="leancloud_visitors" data-flag-title="关于 Pthreads 的编程细节">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -342,15 +339,16 @@
       
 
       
-        <h2 id="连接超时"><a href="#连接超时" class="headerlink" title="连接超时"></a>连接超时</h2><p>　　调用<code>connect</code>连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为<code>connect</code>设置连接的超时。考虑到<code>select</code>可以设置一个超时时间，所以我们会使用<code>select</code>来实现这个功能。</p>
-<p>　　我们实现一个函数<code>connect_timeout</code>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Return 1 on success, 0 on timeout and -1 on failed</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr, </span></span></div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout);</div></pre></td></tr></table></figure></p>
-<p>　　其实现并不复杂，首先我们将 socket 设置成非阻塞的，然后调用<code>connect</code>，如果<code>connect</code>返回<code>0</code>就说明连接已经建立了，如果返回<code>-1</code>并且错误码是<code>EINPROGRESS</code>，这说明<code>connect</code>正处在建立连接的过程中，返回其它错误码则表示<code>connect</code>调用失败。</p>
-<p>　　很明显，既然<code>connect</code>正在建立连接，那么它就有可能成功也有可能失败。那么我们可以调用<code>select</code>并且设置一个超时，等待<code>connect</code>建立连接、超时或失败。如果<code>connect</code>成功建立连接，则需要将 socket 重新设置成阻塞的。<br><a id="more"></a><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr,</span></span></div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> flags = fcntl( sockfd, F_GETFL, <span class="number">0</span> );</div><div class="line">    <span class="keyword">if</span> (flags == <span class="number">-1</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (fcntl( sockfd, F_SETFL, flags | O_NONBLOCK ) &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">int</span> status = connect(sockfd, addr, addrlen);</div><div class="line">    <span class="keyword">if</span> (status == <span class="number">-1</span> and errno != EINPROGRESS) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (status == <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">if</span> (fcntl(sockfd, F_SETFL, flags) &lt;  <span class="number">0</span>) &#123;</div><div class="line">	    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    fd_set read_events;</div><div class="line">    fd_set write_events;</div><div class="line"></div><div class="line">    FD_ZERO(&amp;read_events);</div><div class="line">    FD_SET(sockfd, &amp;read_events);</div><div class="line">    write_events = read_events;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> rc = select(sockfd + <span class="number">1</span>, &amp;read_events, &amp;write_events, <span class="literal">nullptr</span>, timeout );</div><div class="line">    <span class="keyword">if</span> (rc &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (rc == <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (!isconnected(sockfd, &amp;read_events, &amp;write_events) )</div><div class="line">    &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> ( fcntl( sockfd, F_SETFL, flags ) &lt; <span class="number">0</span> ) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　在<code>select</code>成功返回之后，我们需要判断 socket 的可读写状况，如果它是不可读也不可写的，也就是说连接建立失败。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">bool</span> <span class="title">isconnected</span><span class="params">(<span class="keyword">int</span> sockfd, fd_set *rd, fd_set *wr)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (!FD_ISSET(sockfd, rd) &amp;&amp; !FD_ISSET(sockfd, wr)) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> err;</div><div class="line">    <span class="keyword">socklen_t</span> len = <span class="keyword">sizeof</span>(err);</div><div class="line">    <span class="keyword">if</span> (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &amp;err, &amp;len) &lt; <span class="number">0</span>) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">    errno = err;		<span class="comment">/* in case we're not connected */</span></div><div class="line">    <span class="keyword">return</span> err == <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　注意，如果连接建立失败，那么 socket 是既可读又可写的。但是还有另一种情况，如果在调用<code>connect</code>和<code>select</code>之间，socket 接收到数据，那么在<code>select</code>返回之后，socket 也是既可读又可写的。所以这里要用到<code>getsockopt</code>来判断 socket 是否发生错误。</p>
+        <h2 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h2><p>　　并不是所有系统调用都是线程安全的，例如<code>rand()</code>和<code>strtok()</code>就不是线程安全的，有趣的是，我们执行<code>man pthreads</code>就可以查到哪些系统调用<u>不是</u>线程安全的。<br>　　如果一个函数访问全局变量却没有使用任何同步机制，那它就不是线程安全的，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">increment</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</div><div class="line">    <span class="keyword">return</span> ++counter;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　这种情况下只要简单地使用互斥锁就可以实现线程安全：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">increment_r</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">pthread_mutex_t</span> mutex = PTHREAD_MUTEX_INITIALIZER;</div><div class="line"></div><div class="line">    pthread_mutex_lock(&amp;mutex);</div><div class="line">    <span class="keyword">int</span> result = ++counter;</div><div class="line">    pthread_mutex_unlock(&amp;mutex);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　另一类函数会返回一个指针，指向<code>static</code>变量，这类函数也不是线程安全的，例如标准库的<code>ctime()</code>。然而，在实际开发中，我们往往不知道库函数的实现细节，这就要求我们在不修改<code>ctime()</code>的前提下，实现<code>ctime()</code>的线程安全版本。通常的做法是由用户传递一个缓冲区，在加锁的情况下将函数返回的结果拷贝到用户缓冲区。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">char</span> *<span class="title">my_ctime_r</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span> *timep, <span class="keyword">char</span> *buf)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">pthread_mutex_t</span> mutex = PTHREAD_MUTEX_INITIALIZER;</div><div class="line">    pthread_mutex_lock(&amp;mutex);</div><div class="line">    </div><div class="line">    <span class="keyword">char</span> *ptr = ctime(timep);</div><div class="line">    <span class="built_in">strcpy</span>(buf, ptr);</div><div class="line"></div><div class="line">    pthread_mutex_unlock(&amp;mutex);</div><div class="line">    <span class="keyword">return</span> buf;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　除此之外，Linux 提供了<code>__thread</code>关键字，可以用来修饰全局变量或<code>static</code>变量，表示每个线程都拥有这个变量的一份副本。由于每个线程都拥有一份副本，因此在多线程中访问同一个<code>__thread</code>变量是安全的。例如，我们可以使用<code>__thread</code>来实现线程安全的<code>strerror()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> _GNU_SOURCE</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span>  <span class="comment">// Get '_sys_nerr' and '_sys_errlist' declarations </span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_ERROR_LEN 256     </span></div><div class="line"><span class="keyword">static</span> <span class="number">__</span>thread <span class="keyword">char</span> buf[MAX_ERROR_LEN];</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> *<span class="title">my_strerror_r</span><span class="params">( <span class="keyword">int</span> err )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (err &lt; <span class="number">0</span> || err &gt;= <span class="number">_</span>sys_nerr || <span class="number">_</span>sys_errlist[err] == <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="built_in">snprintf</span>(buf, MAX_ERROR_LEN, <span class="string">"Unknown error %d"</span>, err);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">	<span class="built_in">strncpy</span>(buf, <span class="number">_</span>sys_errlist[err], MAX_ERROR_LEN - <span class="number">1</span>);</div><div class="line">	buf[MAX_ERROR_LEN - <span class="number">1</span>] = <span class="string">'\0'</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> buf;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://www.unixguide.net/network/socketfaq/3.5.shtml" target="_blank" rel="external">How can I set the timeout for the connect() system call?</a></li>
-<li><a href="https://www.amazon.com/Effective-TCP-IP-Programming-Programs/dp/0201615894/ref=sr_1_1?ie=UTF8&amp;qid=1471276673&amp;sr=8-1&amp;keywords=effective+tcp+ip+programming" target="_blank" rel="external">Effective TCP/IP Programming: 44 Tips to Improve Your Network Programs</a></li>
+<li><a href="https://www.amazon.com/Computer-Systems-Programmers-Perspective-3rd/dp/013409266X/ref=sr_1_1?ie=UTF8&amp;qid=1475743600&amp;sr=8-1&amp;keywords=csapp" target="_blank" rel="external">Computer Systems: A Programmer’s Perspective (3rd Edition)</a></li>
+<li><a href="https://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1477226990&amp;sr=8-1&amp;keywords=The+linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+<li><a href="https://book.douban.com/subject/20471211/" target="_blank" rel="external"> Linux多线程服务端编程 - 使用muduo C++网络库</a></li>
 </ul>
 
       
@@ -374,7 +372,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Network/" rel="tag">#Network</a>
+            <a href="/tags/Linux/" rel="tag">#Linux</a>
           
         </div>
       
@@ -383,16 +381,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/07/30/Python协程的前世今生/" rel="next" title="Python 协程的前世今生">
-                <i class="fa fa-chevron-left"></i> Python 协程的前世今生
+              <a href="/2016/10/04/Linux信号处理/" rel="next" title="Linux 安全的信号处理">
+                <i class="fa fa-chevron-left"></i> Linux 安全的信号处理
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/09/15/安全关闭TCP连接/" rel="prev" title="如何可靠关闭 TCP 连接">
-                如何可靠关闭 TCP 连接 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/10/23/处理器亲和性/" rel="prev" title="进程调度与 CPU 亲和性">
+                进程调度与 CPU 亲和性 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -419,8 +417,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/08/15/为connect设置超时/"
-           data-title="为 connect 设置连接超时" data-url="http://senlinzhan.github.io/2016/08/15/为connect设置超时/">
+      <div class="ds-thread" data-thread-key="2016/10/19/关于Pthreads的编程细节/"
+           data-title="关于 Pthreads 的编程细节" data-url="http://senlinzhan.github.io/2016/10/19/关于Pthreads的编程细节/">
       </div>
     
   </div>
