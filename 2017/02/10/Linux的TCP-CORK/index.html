@@ -102,16 +102,18 @@
 
 
 
-<meta name="description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含40个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
+<meta name="description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux 的 socket 选项 TCP_CORK">
+<meta property="og:title" content="Nagle 算法与 TCP socket 选项 TCP_CORK">
 <meta property="og:url" content="http://senlinzhan.github.io/2017/02/10/Linux的TCP-CORK/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含40个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
-<meta property="og:updated_time" content="2017-02-12T10:12:05.000Z">
+<meta property="og:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/delayed_ack.png">
+<meta property="og:updated_time" content="2017-02-12T15:34:19.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux 的 socket 选项 TCP_CORK">
-<meta name="twitter:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含40个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
+<meta name="twitter:title" content="Nagle 算法与 TCP socket 选项 TCP_CORK">
+<meta name="twitter:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
+<meta name="twitter:image" content="http://senlinzhan.github.io/images/linux/delayed_ack.png">
 
 
 
@@ -134,7 +136,7 @@
 
   <link rel="canonical" href="http://senlinzhan.github.io/2017/02/10/Linux的TCP-CORK/"/>
 
-  <title> Linux 的 socket 选项 TCP_CORK | Senlin's Blog </title>
+  <title> Nagle 算法与 TCP socket 选项 TCP_CORK | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -264,7 +266,7 @@
             
             
               
-                Linux 的 socket 选项 TCP_CORK
+                Nagle 算法与 TCP socket 选项 TCP_CORK
               
             
           </h1>
@@ -317,7 +319,7 @@
 
           
           
-             <span id="/2017/02/10/Linux的TCP-CORK/" class="leancloud_visitors" data-flag-title="Linux 的 socket 选项 TCP_CORK">
+             <span id="/2017/02/10/Linux的TCP-CORK/" class="leancloud_visitors" data-flag-title="Nagle 算法与 TCP socket 选项 TCP_CORK">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -339,12 +341,22 @@
       
 
       
-        <h2 id="Nagle-算法"><a href="#Nagle-算法" class="headerlink" title="Nagle 算法"></a>Nagle 算法</h2><p>　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含40个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。<br>　　为了减小这种开销，Nagle算法指出，当TCP发送了一个小的segment(小于MSS)，它必须等到接收了对方的ACK之后，才能继续发送另一个小的segment。那么在等待的过程中(一个RTT时间)，TCP就能尽量多地将要发送的数据收集在一起，从而减少要发送的segment的数量。<br>　　默认情况下，TCP开启了Nagle算法，然而Nagle算法并不是灵丹妙药，它会增加TCP发送数据的延迟，在一些要求低延迟的应用程序中，则需要禁用Nagle算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> optval = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &amp;optval, <span class="keyword">sizeof</span>(optval));</div></pre></td></tr></table></figure></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+        <h2 id="Nagle-算法"><a href="#Nagle-算法" class="headerlink" title="Nagle 算法"></a>Nagle 算法</h2><p>　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。<br>　　为了减小这种开销，Nagle算法指出，当TCP发送了一个小的segment(小于MSS)，它必须等到接收了对方的ACK之后，才能继续发送另一个小的segment。那么在等待的过程中(一个RTT时间)，TCP就能尽量多地将要发送的数据收集在一起，从而减少要发送的segment的数量。<br>　　默认情况下，TCP开启了Nagle算法，然而Nagle算法并不是灵丹妙药，它会增加TCP发送数据的延迟。在一些要求低延迟的应用程序中(例如即时通讯应用)，则需要禁用Nagle算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> optval = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &amp;optval, <span class="keyword">sizeof</span>(optval));</div></pre></td></tr></table></figure></p>
+<h2 id="Delayed-ACK"><a href="#Delayed-ACK" class="headerlink" title="Delayed ACK"></a>Delayed ACK</h2><p>　　TCP的 Delayed ACK 与Nagle算法有异曲同工之妙，Delayed ACK很好理解，当TCP接收到数据时，并不会立即发送ACK给对方，相反，它会等待应用层产生数据，以便将ACK和数据一起发送(在Linux最多等待40ms)。<a id="more"></a><br>　　我们知道，Nagle算法会增加TCP发送数据的延迟，然而，在某些情况下，Delayed ACK会放大这种延迟。一个常见的例子是HTTP协议，首先看看客户端的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">write(http_request_header);</div><div class="line">write(http_request_body);</div><div class="line"></div><div class="line"><span class="comment">// get response from server ...</span></div></pre></td></tr></table></figure></p>
+<p>　　客户端调用两次<code>write()</code>来模拟发送HTTP POST请求，服务端则需要调用两次<code>read()</code>读取客户端的HTTP请求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">http_request_header = read(...);</div><div class="line">http_request_body = read(...);</div><div class="line"></div><div class="line"><span class="comment">// write response to client ...</span></div></pre></td></tr></table></figure></p>
+<p>　　通常来说，HTTP请求的header和body都是小的segment，但由于TCP默认开启Nagle算法，因此客户端在发送请求的header之后，如果还未收到ACK，则不能发送body。</p>
+<p><div align="center"><br>    <img src="/images/linux/delayed_ack.png" width="320" align="center"><br></div><br>　　Server在收到请求的header之后，由于还没有收到请求的body，因此无法立即产生HTTP响应给客户端，这就导致了http_request_header的ACK大概会延迟40ms才发送。<br>　　为避免这种延迟的出现，需要做两件事：</p>
+<ul>
+<li>设置<code>TCP_NODELAY</code>选项。</li>
+<li>将客户端的两次<code>write()</code>合并成一个，避免服务端的Delayed ACK。</li>
+</ul>
+<p>　　将两次<code>write()</code>操作合并在一起，可以使用<code>writev()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> iovec iov[<span class="number">2</span>];</div><div class="line">iov[<span class="number">0</span>].iov_base = http_request_header;</div><div class="line">iov[<span class="number">0</span>].iov_len = <span class="keyword">sizeof</span>(http_request_header);</div><div class="line">iov[<span class="number">1</span>].iov_base = http_request_body;</div><div class="line">iov[<span class="number">1</span>].iov_len = <span class="keyword">sizeof</span>(http_request_body);</div><div class="line"><span class="keyword">ssize_t</span> nwritten = writev(fd, iov, <span class="number">2</span>);</div><div class="line">    </div><div class="line"><span class="comment">// get response from server ...</span></div></pre></td></tr></table></figure></p>
+<h2 id="TCP-CORK"><a href="#TCP-CORK" class="headerlink" title="TCP_CORK"></a>TCP_CORK</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_MRG/1.2/html/Realtime_Tuning_Guide/sect-Realtime_Tuning_Guide-Application_Tuning_and_Deployment-TCP_NODELAY_and_Small_Buffer_Writes.html" target="_blank" rel="external">TCP_NODELAY and Small Buffer Writes</a></li>
 <li><a href="http://baus.net/on-tcp_cork" target="_blank" rel="external">TCP_CORK: More than you ever wanted to know</a></li>
 <li><a href="http://www.techrepublic.com/article/tcp-ip-options-for-high-performance-data-transmission/" target="_blank" rel="external">TCP/IP options for high-performance data transmission</a></li>
 <li><a href="https://t37.net/nginx-optimization-understanding-sendfile-tcp_nodelay-and-tcp_nopush.html" target="_blank" rel="external">Nginx Optimization: understanding sendfile, tcp_nodelay and tcp_nopush</a></li>
+<li><a href="https://books.google.com/books?id=2SAQAQAAQBAJ&amp;pg=PA1262&amp;lpg=PA1262&amp;dq=tcp_cork&amp;source=bl&amp;ots=qPy0egFGus&amp;sig=Y3_IGgidMc7K8AceiHG0UVGMwmo&amp;hl=ja&amp;sa=X&amp;ei=-bsWU_bbLqm2yAGKsYG4BQ&amp;ved=0CGMQ6AEwCDgK#v=onepage&amp;q=tcp_cork&amp;f=false" target="_blank" rel="external">The Linux Programming Interface Page 1262</a></li>
 </ul>
 
       
@@ -410,7 +422,7 @@
   <div class="comments" id="comments">
     
       <div class="ds-thread" data-thread-key="2017/02/10/Linux的TCP-CORK/"
-           data-title="Linux 的 socket 选项 TCP_CORK" data-url="http://senlinzhan.github.io/2017/02/10/Linux的TCP-CORK/">
+           data-title="Nagle 算法与 TCP socket 选项 TCP_CORK" data-url="http://senlinzhan.github.io/2017/02/10/Linux的TCP-CORK/">
       </div>
     
   </div>
