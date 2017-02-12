@@ -342,7 +342,9 @@
       
         
           
-            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+            <h2 id="Nagle-算法"><a href="#Nagle-算法" class="headerlink" title="Nagle 算法"></a>Nagle 算法</h2><p>　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含40个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。<br>　　为了减小这种开销，Nagle算法指出，当TCP发送了一个小的segment(小于MSS)，它必须等到接收了对方的ACK之后，才能继续发送另一个小的segment。那么在等待的过程中(一个RTT时间)，TCP就能尽量多地将要发送的数据收集在一起，从而减少要发送的segment的数量。<br>　　默认情况下，TCP开启了Nagle算法，然而Nagle算法并不是灵丹妙药，它会增加TCP发送数据的延迟，在一些要求低延迟的应用程序中，则需要禁用Nagle算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> optval = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &amp;optval, <span class="keyword">sizeof</span>(optval));</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_MRG/1.2/html/Realtime_Tuning_Guide/sect-Realtime_Tuning_Guide-Application_Tuning_and_Deployment-TCP_NODELAY_and_Small_Buffer_Writes.html" target="_blank" rel="external">TCP_NODELAY and Small Buffer Writes</a></li>
 <li><a href="http://baus.net/on-tcp_cork" target="_blank" rel="external">TCP_CORK: More than you ever wanted to know</a></li>
 <li><a href="http://www.techrepublic.com/article/tcp-ip-options-for-high-performance-data-transmission/" target="_blank" rel="external">TCP/IP options for high-performance data transmission</a></li>
 <li><a href="https://t37.net/nginx-optimization-understanding-sendfile-tcp_nodelay-and-tcp_nopush.html" target="_blank" rel="external">Nginx Optimization: understanding sendfile, tcp_nodelay and tcp_nopush</a></li>
