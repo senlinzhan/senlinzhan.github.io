@@ -102,18 +102,16 @@
 
 
 
-<meta name="description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
+<meta name="description" content="select 和 poll 的缺陷　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。select()是最早出现的I/O多路复用方式，然而由于早期select()的API设计不当，导致了select()存在不少缺陷。12int select(int nfds, fd_set *readfds, fd_set *writefds,">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Nagle 算法与 TCP socket 选项 TCP_CORK">
-<meta property="og:url" content="http://senlinzhan.github.io/2017/02/10/Linux的TCP-CORK/index.html">
+<meta property="og:title" content="几种 I/O Multiplexing 方式的比较">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/02/17/IO多路复用/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
-<meta property="og:image" content="http://senlinzhan.github.io/images/linux/delayed_ack.png">
-<meta property="og:updated_time" content="2017-02-15T10:34:50.000Z">
+<meta property="og:description" content="select 和 poll 的缺陷　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。select()是最早出现的I/O多路复用方式，然而由于早期select()的API设计不当，导致了select()存在不少缺陷。12int select(int nfds, fd_set *readfds, fd_set *writefds,">
+<meta property="og:updated_time" content="2017-02-20T16:19:57.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Nagle 算法与 TCP socket 选项 TCP_CORK">
-<meta name="twitter:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
-<meta name="twitter:image" content="http://senlinzhan.github.io/images/linux/delayed_ack.png">
+<meta name="twitter:title" content="几种 I/O Multiplexing 方式的比较">
+<meta name="twitter:description" content="select 和 poll 的缺陷　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。select()是最早出现的I/O多路复用方式，然而由于早期select()的API设计不当，导致了select()存在不少缺陷。12int select(int nfds, fd_set *readfds, fd_set *writefds,">
 
 
 
@@ -134,9 +132,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/2017/02/10/Linux的TCP-CORK/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/02/17/IO多路复用/"/>
 
-  <title> Nagle 算法与 TCP socket 选项 TCP_CORK | Senlin's Blog </title>
+  <title> 几种 I/O Multiplexing 方式的比较 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -266,7 +264,7 @@
             
             
               
-                Nagle 算法与 TCP socket 选项 TCP_CORK
+                几种 I/O Multiplexing 方式的比较
               
             
           </h1>
@@ -278,8 +276,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-10T22:49:15+08:00" content="2017-02-10">
-              2017-02-10
+            <time itemprop="dateCreated" datetime="2017-02-17T23:46:11+08:00" content="2017-02-17">
+              2017-02-17
             </time>
           </span>
 
@@ -308,8 +306,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/02/10/Linux的TCP-CORK/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/10/Linux的TCP-CORK/" itemprop="commentsCount"></span>
+                <a href="/2017/02/17/IO多路复用/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/17/IO多路复用/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -319,7 +317,7 @@
 
           
           
-             <span id="/2017/02/10/Linux的TCP-CORK/" class="leancloud_visitors" data-flag-title="Nagle 算法与 TCP socket 选项 TCP_CORK">
+             <span id="/2017/02/17/IO多路复用/" class="leancloud_visitors" data-flag-title="几种 I/O Multiplexing 方式的比较">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -341,32 +339,17 @@
       
 
       
-        <h2 id="Nagle-算法"><a href="#Nagle-算法" class="headerlink" title="Nagle 算法"></a>Nagle 算法</h2><p>　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。<br>　　为了减小这种开销，Nagle算法指出，当TCP发送了一个小的segment(小于MSS)，它必须等到接收了对方的ACK之后，才能继续发送另一个小的segment。那么在等待的过程中(一个RTT时间)，TCP就能尽量多地将要发送的数据收集在一起，从而减少要发送的segment的数量。<br>　　默认情况下，TCP开启了Nagle算法，然而Nagle算法并不是灵丹妙药，它会增加TCP发送数据的延迟。在一些要求低延迟的应用程序中(例如即时通讯应用)，则需要禁用Nagle算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> optval = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &amp;optval, <span class="keyword">sizeof</span>(optval));</div></pre></td></tr></table></figure></p>
-<h2 id="Delayed-ACK"><a href="#Delayed-ACK" class="headerlink" title="Delayed ACK"></a>Delayed ACK</h2><p>　　TCP的 Delayed ACK 与Nagle算法有异曲同工之妙，Delayed ACK很好理解，当TCP接收到数据时，并不会立即发送ACK给对方，相反，它会等待应用层产生数据，以便将ACK和数据一起发送(在Linux最多等待40ms)。<a id="more"></a><br>　　我们知道，Nagle算法会增加TCP发送数据的延迟，然而，在某些情况下，Delayed ACK会放大这种延迟。一个常见的例子客户端HTTP POST协议，首先看看客户端的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">write(http_request_header);</div><div class="line">write(http_request_body);</div><div class="line"></div><div class="line"><span class="comment">// get response from server ...</span></div></pre></td></tr></table></figure></p>
-<p>　　客户端调用两次<code>write()</code>来发送HTTP POST请求，服务端则需要调用两次<code>read()</code>读取客户端的HTTP请求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">http_request_header = read(...);</div><div class="line">http_request_body = read(...);</div><div class="line"></div><div class="line"><span class="comment">// write response to client ...</span></div></pre></td></tr></table></figure></p>
-<p>　　通常来说，HTTP请求的header和body都是小的segment，但由于TCP默认开启Nagle算法，因此客户端在发送请求的header之后，如果还未收到ACK，则不能发送body。</p>
-<p><div align="center"><br>    <img src="/images/linux/delayed_ack.png" width="320" align="center"><br></div><br>　　Server在收到请求的header之后，由于还没有收到请求的body，因此无法立即产生HTTP响应给客户端，这就导致了http_request_header的ACK大概会延迟40ms才发送。<br>　　为避免这种延迟的出现，需要做两件事：</p>
-<ul>
-<li>设置<code>TCP_NODELAY</code>选项。</li>
-<li>将客户端的两次<code>write()</code>合并成一个，避免服务端的Delayed ACK。</li>
-</ul>
-<h2 id="Scatter-Gather-I-O"><a href="#Scatter-Gather-I-O" class="headerlink" title="Scatter-Gather I/O"></a>Scatter-Gather I/O</h2><p>　　<code>write()</code>函数负责将应用程序缓冲区的数据写入内核缓冲区中，那么合并两次<code>write()</code>操作，一种常见的做法是先分配一块比较大的缓冲区，接着将两块小的缓冲区的数据依次拷贝到这块大的缓冲区中，最后调用<code>write()</code>一次性写入这块大的缓冲区的数据。然而这种做法带来不小的开销，一次内存分配操作和两次<code>memcpy()</code>操作。幸运的是，Linux提供了<code>writev()</code>函数，它可以将几块不连续的缓冲区的数据写入内核中。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> iovec iov[<span class="number">2</span>];</div><div class="line">iov[<span class="number">0</span>].iov_base = http_request_header;</div><div class="line">iov[<span class="number">0</span>].iov_len = <span class="keyword">sizeof</span>(http_request_header);</div><div class="line">iov[<span class="number">1</span>].iov_base = http_request_body;</div><div class="line">iov[<span class="number">1</span>].iov_len = <span class="keyword">sizeof</span>(http_request_body);</div><div class="line"><span class="keyword">ssize_t</span> nwritten = writev(fd, iov, <span class="number">2</span>);</div></pre></td></tr></table></figure></p>
-<h2 id="TCP-CORK"><a href="#TCP-CORK" class="headerlink" title="TCP_CORK"></a>TCP_CORK</h2><p>　　大多数Web Server为了提高性能，在发送数据是并不会直接使用<code>write()</code>，一个典型的例子就是，Web Server响应客户端请求的时候，它需要先发送HTTP响应header，接着发送网页的内容，而网页的内容存在于磁盘中，为了减少数据的拷贝开销，通常是使用<code>sendfile()</code>去发送页面内容的，这种情况下，应用程序就不需要在用户态分配内存来存储页面内容了。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> <span class="keyword">char</span> *filename = <span class="string">"index.html"</span>;</div><div class="line">fd = open(filename, O_RDONLY)</div><div class="line"></div><div class="line">write(http_resp_header);</div><div class="line">sendfile(sockfd, fd, &amp;off, len);</div></pre></td></tr></table></figure></p>
-<p>　　为了发送HTTP响应，Server调用了一次<code>write()</code>和一次<code>sendfile()</code>，在开启<code>TCP_NODELAY</code>的情况下，这会导致至少两个TCP segment发送出去。但更多时候页面的数据是很少的，在这种情况下，<code>write()</code>会发送一个segment，<code>sendfile()</code>也会发送一个segment，那么有没有办法让这两个segment合并在一起再发送出去呢？<br>　　为解决这个问题，Linux提供了<code>TCP_CORK</code>选项，如果在某个TCP socket上开启了这个选项，那就相当于在这个socket的出口堵上了塞子，往这个socket写入的数据都会聚集起来。虽然堵上了塞子，但是segment总得发送，不然数据会塞满整个TCP发送缓冲区的，那么什么时候塞子会打开呢？下面几种情况都会导致这个塞子打开，这样TCP就能继续发送segment出来了。</p>
-<ul>
-<li>程序取消设置TCP_CORK这个选项。</li>
-<li>socket聚集的数据大于一个MSS的大小。</li>
-<li>自从堵上塞子写入第一个字节开始，已经经过200ms。</li>
-<li>socket被关闭了。</li>
-</ul>
-<p>　　一旦满足上面的任何一个条件，TCP就会将数据发送出去。对于Server来说，发送HTTP响应既要发送尽量少的segment，同时又要保证低延迟，那么需要在写完数据后显式取消设置<code>TCP_CORK</code>选项，让数据立即发送出去：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> state = <span class="number">1</span>;</div><div class="line">setsockopt(fd, IPPROTO_TCP, TCP_CORK, &amp;state, <span class="keyword">sizeof</span>(state));</div><div class="line"></div><div class="line">write(http_resp_header);</div><div class="line">sendfile(sockfd, fd, &amp;off, len);</div><div class="line"></div><div class="line">state = <span class="number">0</span>;</div><div class="line">setsockopt(fd, IPPROTO_TCP, TCP_CORK, &amp;state, <span class="keyword">sizeof</span>(state));</div></pre></td></tr></table></figure></p>
+        <h2 id="select-和-poll-的缺陷"><a href="#select-和-poll-的缺陷" class="headerlink" title="select 和 poll 的缺陷"></a>select 和 poll 的缺陷</h2><p>　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。<code>select()</code>是最早出现的I/O多路复用方式，然而由于早期<code>select()</code>的API设计不当，导致了<code>select()</code>存在不少缺陷。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds, </span></span></div><div class="line">           fd_set *exceptfds, <span class="keyword">struct</span> timeval *timeout);</div></pre></td></tr></table></figure></p>
+<p>　　从API层面来讲，<code>select()</code>使用<code>fd_set</code>来表示文件描述符的集合，而<code>fd_set</code>其实就是一个固定长度的位向量(bit vector)，在Linux上，这个固定长度是<code>FD_SETSIZE</code>，其数值是1024。这就带来了一个限制：凡是<code>select()</code>监听的文件描述符，它的大小必须小于1024。<br>　　<code>poll()</code>在某些程度上改进了<code>select()</code>存在的一些问题，例如<code>poll()</code>要求用户传递一个<code>pollfd</code>数组，但它不会限定这个数组的长度，所以理论上<code>poll()</code>可以监听任意数量的文件描述符（但实际上仍受限于进程最多能打开的文件描述符数量或系统的内存）。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>select()</code>或<code>poll()</code>监听大量的文件描述符时，往往会遭遇到性能问题。当用户每次调用<code>select()</code>或<code>poll()</code>时，内核会对传入的所有文件描述符都检查一遍，并记录其中有哪些文件描述符存在I/O就绪，这个操作的耗时将随着文件描述符数量的增加而线性增长。<br>　　另一个重要因素也会影响<code>select()</code>和<code>poll()</code>的性能，例如用户每次调用<code>poll()</code>时，都需要传递一个<code>pollfd</code>数组，而<code>poll()</code>会将这个数组从用户空间拷贝到内核空间，当内核对这个数组作了修改之后，<code>poll()</code>又会将这个数组从内核空间拷贝到用户空间。随着<code>pollfd</code>数组长度的增加，每次拷贝的时间也会线性增长，一旦<code>poll()</code>需要监听大量的文件描述符，每次调用<code>poll()</code>时，这个拷贝操作将带来不小的开销。这个问题的根源在于<code>select()</code>和<code>poll()</code>的API设计不当，例如，对于应用程序来说，它每次调用<code>poll()</code>所监听的文件描述符集合应该是差不多的，所以我们不禁这样想，如果内核愿意提供一个数据结构，记录程序所要监听的文件描述符集合，这样每次用户调用<code>poll()</code>时，<code>poll()</code>就不需要将<code>pollfd</code>数组拷贝来拷贝去了（没错，epoll 就是这样解决的）。</p>
+<h2 id="epoll-的救赎"><a href="#epoll-的救赎" class="headerlink" title="epoll 的救赎"></a>epoll 的救赎</h2><p>　　epoll 很好地解决了<code>select()</code>和<code>poll()</code>中存在的问题，从API层面来讲，epoll 使用 3 个调用来完成原本由<code>select()</code>或<code>poll()</code>所做的事，首先<code>epoll_create()</code>负责在内核中创建一个<code>eventpoll</code>类型的数据结构：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> eventpoll </div><div class="line">&#123;</div><div class="line">    <span class="comment">// 红黑树，用来记录进程所要监听的文件描述符（及其要监听的事件）</span></div><div class="line">    <span class="keyword">struct</span> rb_root rbr;</div><div class="line">	</div><div class="line">    <span class="comment">// 双向链表，用来记录有哪些文件描述符已经就绪了</span></div><div class="line">    <span class="keyword">struct</span> list_head rdllist;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　<code>epoll_ctl()</code>负责增加、删除或修改红黑树上的节点，而<code>epoll_wait()</code>则负责向双向链表中增加已经就绪的文件描述符(及其事件)。说到这里，我们不禁要问，epoll是怎样知道有哪些文件描述符已经就绪的呢？难道是遍历一次红黑树？不可能，这效率太低了。<br>　　与<code>select()</code>或<code>poll()</code>不同，epoll 是事件驱动的，简单来说，当网卡收到一个 packet 的时候，会触发一个硬件中断，这导致内核调用相应的中断 handler，从网卡中读入数据放到协议栈，当数据量满足一定条件时，内核将回调<code>ep_poll_callback()</code>这个方法，它负责把这个就绪的文件描述符添加到双向链表中。用户调用<code>epoll_wait()</code>时，<code>epoll_wait()</code>所做的就只是检查双向链表是否为空，如果不为空，就把文件描述符和数量返回给用户即可。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_MRG/1.2/html/Realtime_Tuning_Guide/sect-Realtime_Tuning_Guide-Application_Tuning_and_Deployment-TCP_NODELAY_and_Small_Buffer_Writes.html" target="_blank" rel="external">TCP_NODELAY and Small Buffer Writes</a></li>
-<li><a href="http://baus.net/on-tcp_cork" target="_blank" rel="external">TCP_CORK: More than you ever wanted to know</a></li>
-<li><a href="http://www.techrepublic.com/article/tcp-ip-options-for-high-performance-data-transmission/" target="_blank" rel="external">TCP/IP options for high-performance data transmission</a></li>
-<li><a href="https://t37.net/nginx-optimization-understanding-sendfile-tcp_nodelay-and-tcp_nopush.html" target="_blank" rel="external">Nginx Optimization: understanding sendfile, tcp_nodelay and tcp_nopush</a></li>
-<li><a href="https://books.google.com/books?id=2SAQAQAAQBAJ&amp;pg=PA1262&amp;lpg=PA1262&amp;dq=tcp_cork&amp;source=bl&amp;ots=qPy0egFGus&amp;sig=Y3_IGgidMc7K8AceiHG0UVGMwmo&amp;hl=ja&amp;sa=X&amp;ei=-bsWU_bbLqm2yAGKsYG4BQ&amp;ved=0CGMQ6AEwCDgK#v=onepage&amp;q=tcp_cork&amp;f=false" target="_blank" rel="external">The Linux Programming Interface Page 1262</a></li>
-<li><a href="http://stackoverflow.com/questions/10520182/linux-when-to-use-scatter-gather-io-readv-writev-vs-a-large-buffer-with-frea" target="_blank" rel="external">Linux: When to use scatter/gather IO (readv, writev) vs a large buffer with fread</a></li>
+<li><a href="https://idea.popcount.org/2017-01-06-select-is-fundamentally-broken/" target="_blank" rel="external">Select is fundamentally broken</a></li>
+<li><a href="https://www.kernel.org/doc/ols/2004/ols2004v1-pages-215-226.pdf" target="_blank" rel="external">Comparing and Evaluating epoll, select, and poll Event Mechanisms</a></li>
+<li><a href="https://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1477226990&amp;sr=8-1&amp;keywords=The+linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+<li><a href="https://idndx.com/2014/09/01/the-implementation-of-epoll-1/" target="_blank" rel="external">The Implementation of epoll (1)</a></li>
+<li><a href="https://book.douban.com/subject/26745255/" target="_blank" rel="external">深入理解Nginx（第2版）</a></li>
 </ul>
 
       
@@ -399,17 +382,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/08/Linux的SO-REUSEPORT选项/" rel="next" title="Linux 的 socket 选项 SO_REUSEPORT">
-                <i class="fa fa-chevron-left"></i> Linux 的 socket 选项 SO_REUSEPORT
+              <a href="/2017/02/10/Linux的TCP-CORK/" rel="next" title="Nagle 算法与 TCP socket 选项 TCP_CORK">
+                <i class="fa fa-chevron-left"></i> Nagle 算法与 TCP socket 选项 TCP_CORK
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/02/17/IO多路复用/" rel="prev" title="几种 I/O Multiplexing 方式的比较">
-                几种 I/O Multiplexing 方式的比较 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -435,8 +414,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/02/10/Linux的TCP-CORK/"
-           data-title="Nagle 算法与 TCP socket 选项 TCP_CORK" data-url="http://senlinzhan.github.io/2017/02/10/Linux的TCP-CORK/">
+      <div class="ds-thread" data-thread-key="2017/02/17/IO多路复用/"
+           data-title="几种 I/O Multiplexing 方式的比较" data-url="http://senlinzhan.github.io/2017/02/17/IO多路复用/">
       </div>
     
   </div>
