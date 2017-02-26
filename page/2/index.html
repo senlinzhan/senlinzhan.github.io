@@ -263,6 +263,139 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/12/protobuf的自动反射/" itemprop="url">
+                  浅谈 Prorobuf 的自动反射功能
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-12T20:51:52+08:00" content="2016-11-12">
+              2016-11-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/12/protobuf的自动反射/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/12/protobuf的自动反射/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/11/12/protobuf的自动反射/" class="leancloud_visitors" data-flag-title="浅谈 Prorobuf 的自动反射功能">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Protobuf-的介绍"><a href="#Protobuf-的介绍" class="headerlink" title="Protobuf 的介绍"></a>Protobuf 的介绍</h2><p>　　Protobuf 是一种序列化工具，用来将程序的数据结构序列化成字节流，方便网络传输。将数据结构序列化成字节流之前，首先你得向 Protobuf 提供一个 <code>.proto</code>文件，用来描述你的数据结构。举个例子，假设你想存储公司员工的信息，那么首先你需要描述一下员工的信息是怎样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">package company;</div><div class="line"></div><div class="line">message Employee &#123;</div><div class="line">    required string name = 1;</div><div class="line">    required string email = 2;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　将文件保存为<code>company.proto</code>，接着用 Protobuf 编译器自动生成一个<code>Employee</code>类：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">protoc --cpp_out . company.proto</div></pre></td></tr></table></figure></p>
+<p>　　根据生成的<code>Employee</code>类，我们就可以将员工信息序列成字节流，或从字节流读取员工信息。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/11/12/protobuf的自动反射/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/23/处理器亲和性/" itemprop="url">
                   进程调度与 CPU 亲和性
                 </a>
@@ -788,145 +921,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/15/为connect设置超时/" itemprop="url">
-                  为 connect 设置连接超时
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-15T22:03:18+08:00" content="2016-08-15">
-              2016-08-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/08/15/为connect设置超时/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/15/为connect设置超时/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/08/15/为connect设置超时/" class="leancloud_visitors" data-flag-title="为 connect 设置连接超时">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="连接超时"><a href="#连接超时" class="headerlink" title="连接超时"></a>连接超时</h2><p>　　调用<code>connect</code>连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为<code>connect</code>设置连接的超时。考虑到<code>select</code>可以设置一个超时时间，所以我们会使用<code>select</code>来实现这个功能。</p>
-<p>　　我们实现一个函数<code>connect_timeout</code>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Return 1 on success, 0 on timeout and -1 on failed</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr, </div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　其实现并不复杂，首先我们将 socket 设置成非阻塞的，然后调用<code>connect</code>，如果<code>connect</code>返回<code>0</code>就说明连接已经建立了，如果返回<code>-1</code>并且错误码是<code>EINPROGRESS</code>，这说明<code>connect</code>正处在建立连接的过程中，返回其它错误码则表示<code>connect</code>调用失败。</p>
-<p>　　很明显，既然<code>connect</code>正在建立连接，那么它就有可能成功也有可能失败。那么我们可以调用<code>select</code>并且设置一个超时，等待<code>connect</code>建立连接、超时或失败。如果<code>connect</code>成功建立连接，则需要将 socket 重新设置成阻塞的。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/08/15/为connect设置超时/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -967,7 +966,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">20</span>
+              <span class="site-state-item-count">21</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
