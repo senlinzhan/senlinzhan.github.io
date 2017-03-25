@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Network," />
 
 
 
@@ -102,13 +102,31 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/404.html">
+<meta name="description" content="敬请期待参考资料
+tee() with your splice()?
+Zero Copy I: User-Mode Perspective
+Efficient data transfer through zero copy
+Two new system calls: splice() and sync_file_range()
+Zero-Copy in Linux with sendfile()">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈 Linux 的 Zero Copy 技术">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/03/25/网络编程中的zerocpoy技术/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:updated_time" content="2016-11-02T14:11:39.000Z">
+<meta property="og:description" content="敬请期待参考资料
+tee() with your splice()?
+Zero Copy I: User-Mode Perspective
+Efficient data transfer through zero copy
+Two new system calls: splice() and sync_file_range()
+Zero-Copy in Linux with sendfile()">
+<meta property="og:updated_time" content="2017-03-25T16:09:45.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:title" content="谈谈 Linux 的 Zero Copy 技术">
+<meta name="twitter:description" content="敬请期待参考资料
+tee() with your splice()?
+Zero Copy I: User-Mode Perspective
+Efficient data transfer through zero copy
+Two new system calls: splice() and sync_file_range()
+Zero-Copy in Linux with sendfile()">
 
 
 
@@ -129,15 +147,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/404.html"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/03/25/网络编程中的zerocpoy技术/"/>
 
-  <title>
-  
-
-  
-     | Senlin's Blog
-  
-</title>
+  <title> 谈谈 Linux 的 Zero Copy 技术 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -158,7 +170,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -248,25 +260,160 @@
 
   <div id="posts" class="posts-expand">
     
-    
-      <!DOCTYPE HTML>
-<html>
-<head>
-  <meta http-equiv="content-type" content="text/html;charset=utf-8;">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="robots" content="all">
-  <meta name="robots" content="index,follow">
-</head>
-<body>
 
-<script type="text/javascript" src="http://www.qq.com/404/search_children.js" charset="utf-8" homepageurl="http://senlinzhan.github.io" homepagename="回到我的主页">
-</script>
+  
+  
 
-</body>
-</html>
+  
+  
+  
 
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
 
     
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                谈谈 Linux 的 Zero Copy 技术
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-25T23:52:21+08:00" content="2017-03-25">
+              2017-03-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/03/25/网络编程中的zerocpoy技术/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/25/网络编程中的zerocpoy技术/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="谈谈 Linux 的 Zero Copy 技术">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="敬请期待"><a href="#敬请期待" class="headerlink" title="敬请期待"></a>敬请期待</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://lwn.net/Articles/179492/" target="_blank" rel="external">tee() with your splice()?</a></li>
+<li><a href="http://www.linuxjournal.com/article/6345" target="_blank" rel="external">Zero Copy I: User-Mode Perspective</a></li>
+<li><a href="http://sungsoo.github.io/papers/zerocopy.pdf" target="_blank" rel="external">Efficient data transfer through zero copy</a></li>
+<li><a href="https://lwn.net/Articles/178199/?cm_mc_uid=50553639714214791397030&amp;cm_mc_sid_50200000=1490457333" target="_blank" rel="external">Two new system calls: splice() and sync_file_range()</a></li>
+<li><a href="http://blog.superpat.com/2010/06/01/zero-copy-in-linux-with-sendfile-and-splice/" target="_blank" rel="external">Zero-Copy in Linux with sendfile() and splice()</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Network/" rel="tag">#Network</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/20/动态库/" rel="next" title="如何设计动态链接库">
+                <i class="fa fa-chevron-left"></i> 如何设计动态链接库
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -277,8 +424,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="404.html"
-           data-title="" data-url="http://senlinzhan.github.io/404.html">
+      <div class="ds-thread" data-thread-key="2017/03/25/网络编程中的zerocpoy技术/"
+           data-title="谈谈 Linux 的 Zero Copy 技术" data-url="http://senlinzhan.github.io/2017/03/25/网络编程中的zerocpoy技术/">
       </div>
     
   </div>
@@ -454,6 +601,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
