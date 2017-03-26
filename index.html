@@ -264,7 +264,7 @@
               
                 
                 <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
-                  谈谈 Linux 的 Zero Copy 技术
+                  浅谈 Linux 的 Zero Copy 技术
                 </a>
               
             
@@ -318,7 +318,7 @@
 
           
           
-             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="谈谈 Linux 的 Zero Copy 技术">
+             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的 Zero Copy 技术">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -344,7 +344,7 @@
           <h2 id="mmap-文件映射"><a href="#mmap-文件映射" class="headerlink" title="mmap 文件映射"></a>mmap 文件映射</h2><p>　　通常情况下，我们可以使用<code>read()</code>和<code>write()</code>去访问文件，除此之外，Linux 还提供了<code>mmap()</code>系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与<code>read()</code>和<code>write()</code>相比，使用<code>mmap()</code>去访问文件能带来什么好处呢？<br>　　使用<code>mmap()</code>一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用<code>read()</code>读取文件时，通常的做法是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[SIZE];</div><div class="line"><span class="keyword">ssize_t</span> n = read(fd, buffer, SIZE);</div></pre></td></tr></table></figure></p>
 <p>　　这个过程实际上发生了两次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到用户缓冲区。而使用<code>mmap()</code>读取文件时，只会发生第一次拷贝操作，也就是将文件内容拷贝到 OS 文件系统缓冲区，完成这个拷贝操作之后，<code>mmap()</code>还会执行其它一些复杂的操作，例如将相应的 OS 缓冲区映射到进程的地址空间。<br>　　尽管<code>mmap()</code>可以减少一次 I/O 拷贝，但由于<code>mmap()</code>的实现很复杂，调用<code>mmap()</code>将会带来额外的开销，因此在一些情况下，没有使用<code>mmap()</code>的必要：</p>
 <ul>
-<li>访问小文件时，直接使用<code>read()</code>和<code>write()</code>将更加高效。</li>
+<li>访问小文件时，直接使用<code>read()</code>或<code>write()</code>将更加高效。</li>
 <li>单个进程对文件执行顺序访问时(sequential access)，使用<code>mmap()</code>几乎不会带来性能上的提升。譬如说，使用<code>read()</code>顺序读取文件时，文件系统会使用 read-ahead 的方式提前将文件内容缓存到文件系统的缓冲区，因此使用<code>read()</code>将很大程度上可以命中缓存。</li>
 </ul>
 <p>　　那么，在什么情况下使用<code>mmap()</code>去访问文件会更高效呢？</p>
