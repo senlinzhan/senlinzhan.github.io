@@ -534,145 +534,6 @@ bind(sockfd, ...);
             
               
                 
-                <a class="post-title-link" href="/2016/10/23/处理器亲和性/" itemprop="url">
-                  进程调度与 CPU 亲和性
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-23T20:51:55+08:00" content="2016-10-23">
-              2016-10-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/10/23/处理器亲和性/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/23/处理器亲和性/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/10/23/处理器亲和性/" class="leancloud_visitors" data-flag-title="进程调度与 CPU 亲和性">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="CPU-亲和性"><a href="#CPU-亲和性" class="headerlink" title="CPU 亲和性"></a>CPU 亲和性</h2><p>　　Linux 可以运行在多处理器的机器上，而多核机器的进程调度是一个有趣的话题：</p>
-<ul>
-<li>为了维持多个 CPU 之间的负载均衡，调度器会选择从负载较高的 CPU 上挪动部分进程到负载较低的 CPU 上。</li>
-<li>现代处理器往往拥有多级缓存，也就是说，每个 CPU 都拥有自己的缓存。假设 CPU-0 的一个进程被挪动到 CPU-1，那么这个进程就无法利用到原先 CPU-0 上的缓存数据。从这个角度来讲，调度器会让进程在同一个 CPU 上运行尽量长的时间。</li>
-</ul>
-<p>　　调度器的这两个目标看起来是矛盾的，所以调度器必须在这两个目标之间权衡。</p>
-<hr>
-<p>　　然而，如果我们拥有固定数目的进程，为了避免进程调度所带来的开销，我们可以选择将进程绑定到特定的 CPU 上。在四核的机器上，假定我们想让进程只运行在 CPU-0 上，那么可以这样做：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">cpu_set_t</span> <span class="built_in">set</span>;</div><div class="line"></div><div class="line">CPU_ZERO(&amp;<span class="built_in">set</span>);</div><div class="line">CPU_SET(<span class="number">0</span>, &amp;<span class="built_in">set</span>);</div><div class="line">CPU_CLR(<span class="number">1</span>, &amp;<span class="built_in">set</span>);</div><div class="line">CPU_CLR(<span class="number">2</span>, &amp;<span class="built_in">set</span>);</div><div class="line">CPU_CLR(<span class="number">3</span>, &amp;<span class="built_in">set</span>);</div><div class="line">    </div><div class="line"><span class="keyword">int</span> ret = sched_setaffinity (<span class="number">0</span>, <span class="keyword">sizeof</span>(<span class="keyword">cpu_set_t</span>), &amp;<span class="built_in">set</span>);</div><div class="line"><span class="keyword">if</span> (ret == <span class="number">-1</span>) &#123;</div><div class="line">    perror (<span class="string">"sched_getaffinity"</span>);</div><div class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; CPU_SETSIZE; i++) &#123;</div><div class="line">    <span class="keyword">int</span> cpu = CPU_ISSET (i, &amp;<span class="built_in">set</span>);</div><div class="line">    <span class="built_in">printf</span> (<span class="string">"cpu=%i is %s\n"</span>, i, cpu ? <span class="string">"set"</span> : <span class="string">"unset"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.amazon.com/Linux-System-Programming-Talking-Directly/dp/1449339530/ref=sr_1_1?ie=UTF8&amp;qid=1477232630&amp;sr=8-1&amp;keywords=linux+system+programming" target="_blank" rel="external">Linux System Programming: Talking Directly to the Kernel and C Library 2nd Edition</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2016/10/19/关于Pthreads的编程细节/" itemprop="url">
                   关于 Pthreads 的编程细节
                 </a>
@@ -933,6 +794,139 @@ bind(sockfd, ...);
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/15/安全关闭TCP连接/" itemprop="url">
+                  如何可靠关闭 TCP 连接
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-15T10:13:27+08:00" content="2016-09-15">
+              2016-09-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/15/安全关闭TCP连接/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/15/安全关闭TCP连接/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/15/安全关闭TCP连接/" class="leancloud_visitors" data-flag-title="如何可靠关闭 TCP 连接">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="write-的含义"><a href="#write-的含义" class="headerlink" title="write 的含义"></a>write 的含义</h2><p>　　用<code>write()</code>向 socket 描述符写入<code>n</code>个字节，<code>write()</code>返回<code>n</code>，这意味着什么呢？你可能这样想，<code>write()</code>返回<code>n</code>，那不就表示对方已经收到<code>n</code>个字节了吗？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[<span class="number">1024</span>];</div><div class="line"><span class="keyword">ssize_t</span> n = write(sockfd, buffer, <span class="keyword">sizeof</span>(buffer));</div></pre></td></tr></table></figure></p>
+<p>　　然而，实际上<code>write()</code>返回<code>n</code>仅仅保证将<code>n</code>个字节写入内核中<code>sockfd</code>的发送缓冲区。但是内核是否已经将数据转发给网卡，对方是否收到了数据，就无从得知了。</p>
+<h2 id="TCP-的可靠关闭"><a href="#TCP-的可靠关闭" class="headerlink" title="TCP 的可靠关闭"></a>TCP 的可靠关闭</h2><p>　　既然调用<code>write()</code>无法确保对方收到了数据，那么在调用<code>write()</code>之后就调用<code>close()</code>来关闭连接是否合适呢？<a href="https://tools.ietf.org/html/rfc1122#page-87">RFC1122</a>指出，由于 TCP 是全双工的，调用<code>close()</code>时如果有可读数据停留在接收缓冲区，或者在<code>close()</code>之后收到新的数据，数据就无法被读取，这时 TCP 将会发送 RST 通知对方数据已经丢失了。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/15/安全关闭TCP连接/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -978,7 +972,7 @@ bind(sockfd, ...);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">22</span>
+              <span class="site-state-item-count">21</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -986,7 +980,7 @@ bind(sockfd, ...);
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -995,7 +989,7 @@ bind(sockfd, ...);
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
