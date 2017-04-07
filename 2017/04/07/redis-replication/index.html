@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Database," />
 
 
 
@@ -102,12 +102,25 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/archives/2017/03/index.html">
+<meta name="description" content="为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。
+参考资料
+Replication – Redis
+Redis in Action">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 主从复制的原理">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/04/07/redis-replication/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。
+参考资料
+Replication – Redis
+Redis in Action">
+<meta property="og:updated_time" content="2017-04-07T15:19:29.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:title" content="Redis 主从复制的原理">
+<meta name="twitter:description" content="为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。
+参考资料
+Replication – Redis
+Redis in Action">
 
 
 
@@ -128,9 +141,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/archives/2017/03/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/04/07/redis-replication/"/>
 
-  <title> 归档 | Senlin's Blog </title>
+  <title> Redis 主从复制的原理 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -151,7 +164,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -239,103 +252,162 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 22 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2017">2017</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
-              
-                <span itemprop="name">浅谈 Linux 的 Zero Copy 技术</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-25T23:52:21+08:00"
-              content="2017-03-25" >
-          03-25
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
-              
-                <span itemprop="name">如何设计动态链接库</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-20T20:23:09+08:00"
-              content="2017-03-20" >
-          03-20
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
+  
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Redis 主从复制的原理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-07T21:32:17+08:00" content="2017-04-07">
+              2017-04-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/07/redis-replication/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/07/redis-replication/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/07/redis-replication/" class="leancloud_visitors" data-flag-title="Redis 主从复制的原理">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://redis.io/topics/replication" target="_blank" rel="external">Replication – Redis</a></li>
+<li><a href="https://www.amazon.com/Redis-Action-Josiah-L-Carlson/dp/1617290858/ref=sr_1_1?ie=UTF8&amp;qid=1491572988&amp;sr=8-1&amp;keywords=redis+in+action" target="_blank" rel="external">Redis in Action</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-configure-a-redis-cluster-on-ubuntu-14-04" target="_blank" rel="external">How To Configure a Redis Cluster on Ubuntu 14.04</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Database/" rel="tag">#Database</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/25/网络编程中的zerocpoy技术/" rel="next" title="浅谈 Linux 的 Zero Copy 技术">
+                <i class="fa fa-chevron-left"></i> 浅谈 Linux 的 Zero Copy 技术
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -343,6 +415,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/04/07/redis-replication/"
+           data-title="Redis 主从复制的原理" data-url="http://senlinzhan.github.io/2017/04/07/redis-replication/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -514,11 +594,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
 
 
   
