@@ -102,25 +102,16 @@
 
 
 
-<meta name="description" content="为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。
-参考资料
-Replication – Redis
-Redis in Action">
+<meta name="description" content="配置主从复制　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。　　设置主从复制很简单，只需要在slave实例的配置文件加入一行，然后">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis 主从复制的原理">
 <meta property="og:url" content="http://senlinzhan.github.io/2017/04/07/redis-replication/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。
-参考资料
-Replication – Redis
-Redis in Action">
-<meta property="og:updated_time" content="2017-04-07T15:19:29.000Z">
+<meta property="og:description" content="配置主从复制　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。　　设置主从复制很简单，只需要在slave实例的配置文件加入一行，然后">
+<meta property="og:updated_time" content="2017-04-08T03:45:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 主从复制的原理">
-<meta name="twitter:description" content="为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。
-参考资料
-Replication – Redis
-Redis in Action">
+<meta name="twitter:description" content="配置主从复制　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。　　设置主从复制很简单，只需要在slave实例的配置文件加入一行，然后">
 
 
 
@@ -348,11 +339,19 @@ Redis in Action">
       
 
       
-        <p>　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。</p>
+        <h2 id="配置主从复制"><a href="#配置主从复制" class="headerlink" title="配置主从复制"></a>配置主从复制</h2><p>　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。<br>　　设置主从复制很简单，只需要在slave实例的配置文件加入一行，然后重启slave实例：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># /etc/redis/redis.conf</span></div><div class="line">slaveof your_redis_master_ip 6379</div></pre></td></tr></table></figure></p>
+<h2 id="主从复制的原理"><a href="#主从复制的原理" class="headerlink" title="主从复制的原理"></a>主从复制的原理</h2><p>　　在设置好主从复制之后，一开始 slave 与 master 之间的数据是不同步的，为了让 slave 与 master 之间保存数据同步，slave 会发送一个 PSYNC 命令给 master。由于 slave 是初次连接上 master，所以 master 接收到 PSYNC 命令之后会执行完整重同步(full resynchronization)，具体的过程是这样的：</p>
+<ul>
+<li>首先 master 会执行 BGSAVE 命令，在后台生成一个 RDB 文件，与此同时开辟一个缓冲区用于存储 client 发来的命令。</li>
+<li>当 BGSAVE 执行成功之后，master 会将这个 RDB 文件发送给 slave，slave 在接收到这个 RDB 文件之后会将它加载到内存。</li>
+<li>接着 master 会将缓冲区内的所有命令发送给 slave 去执行。</li>
+</ul>
+<hr>
+<p>　　主从复制时还可能出现另一种情况，譬如说，master 与 slave 之间已经保持同步了，但是由于网络状况不好，导致 master 与 slave 断开连接，一段时间之后网络变好了，slave 又重新连上 master，但此时 slave 已经与 master 不同步了。那么为了让 slave 与 master 继续保持同步，这时候它们会怎么做呢？<a id="more"></a></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://redis.io/topics/replication" target="_blank" rel="external">Replication – Redis</a></li>
 <li><a href="https://www.amazon.com/Redis-Action-Josiah-L-Carlson/dp/1617290858/ref=sr_1_1?ie=UTF8&amp;qid=1491572988&amp;sr=8-1&amp;keywords=redis+in+action" target="_blank" rel="external">Redis in Action</a></li>
-<li><a href="https://www.digitalocean.com/community/tutorials/how-to-configure-a-redis-cluster-on-ubuntu-14-04" target="_blank" rel="external">How To Configure a Redis Cluster on Ubuntu 14.04</a></li>
+<li><a href="https://book.douban.com/subject/25900156/" target="_blank" rel="external">Redis设计与实现</a></li>
 </ul>
 
       
