@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Database," />
 
 
 
@@ -102,12 +102,19 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/tags/Python/index.html">
+<meta name="description" content="高可用性　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。
+数据分片　　整个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis Cluster">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/04/08/redis-cluster/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="高可用性　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。
+数据分片　　整个">
+<meta property="og:updated_time" content="2017-04-08T14:34:12.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:title" content="Redis Cluster">
+<meta name="twitter:description" content="高可用性　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。
+数据分片　　整个">
 
 
 
@@ -128,9 +135,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/tags/Python/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/04/08/redis-cluster/"/>
 
-  <title> 标签: Python | Senlin's Blog </title>
+  <title> Redis Cluster | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -151,7 +158,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -239,46 +246,163 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-collapse">
-    <div class="collection-title">
-      <h2 >
-        Python
-        <small>标签</small>
-      </h2>
-    </div>
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
 
     
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Redis Cluster
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-08T21:33:03+08:00" content="2017-04-08">
+              2017-04-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/08/redis-cluster/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/08/redis-cluster/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/08/redis-cluster/" class="leancloud_visitors" data-flag-title="Redis Cluster">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
       
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+      
+        <h2 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h2><p>　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。</p>
+<h2 id="数据分片"><a href="#数据分片" class="headerlink" title="数据分片"></a>数据分片</h2><p>　　整个集群固定地拥有 16384 个 hash slot，集群中的每个 master 节点都拥有若干个 slot，可以使用下面的算法计算某个 key 被分配到的哪个 slot 中：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HASH_SLOT = CRC16(key) mod 16384</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.amazon.com/Redis-Essentials-Maxwell-Dayvson-Silva" target="_blank" rel="external">Redis Essentials</a></li>
+<li><a href="https://redis.io/topics/cluster-tutorial" target="_blank" rel="external">https://redis.io/topics/cluster-tutorial</a></li>
+<li><a href="https://book.douban.com/subject/25900156/" target="_blank" rel="external">Redis设计与实现</a></li>
+</ul>
 
-      <h1 class="post-title">
+      
+    </div>
+
+    <div>
+      
         
-            <a class="post-title-link" href="/2016/07/30/Python协程的前世今生/" itemprop="url">
-              
-                <span itemprop="name">Python 协程的前世今生</span>
-              
-            </a>
+
+      
+    </div>
+
+    <div>
+      
         
-      </h1>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-07-30T10:25:21+08:00"
-              content="2016-07-30" >
-          07-30
-        </time>
-      </div>
+      
+    </div>
 
-    </header>
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Database/" rel="tag">#Database</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/08/redis-sentinel/" rel="next" title="Redis Sentinel 与高可用">
+                <i class="fa fa-chevron-left"></i> Redis Sentinel 与高可用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </article>
 
 
-    
-  </div>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -286,6 +410,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/04/08/redis-cluster/"
+           data-title="Redis Cluster" data-url="http://senlinzhan.github.io/2017/04/08/redis-cluster/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -457,6 +589,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 

@@ -263,6 +263,141 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/08/redis-cluster/" itemprop="url">
+                  Redis Cluster
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-08T21:33:03+08:00" content="2017-04-08">
+              2017-04-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/08/redis-cluster/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/08/redis-cluster/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/08/redis-cluster/" class="leancloud_visitors" data-flag-title="Redis Cluster">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h2><p>　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。</p>
+<h2 id="数据分片"><a href="#数据分片" class="headerlink" title="数据分片"></a>数据分片</h2><p>　　整个集群固定地拥有 16384 个 hash slot，集群中的每个 master 节点都拥有若干个 slot，可以使用下面的算法计算某个 key 被分配到的哪个 slot 中：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HASH_SLOT = CRC16(key) mod 16384</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.amazon.com/Redis-Essentials-Maxwell-Dayvson-Silva" target="_blank" rel="external">Redis Essentials</a></li>
+<li><a href="https://redis.io/topics/cluster-tutorial" target="_blank" rel="external">https://redis.io/topics/cluster-tutorial</a></li>
+<li><a href="https://book.douban.com/subject/25900156/" target="_blank" rel="external">Redis设计与实现</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/08/redis-sentinel/" itemprop="url">
                   Redis Sentinel 与高可用
                 </a>
@@ -791,138 +926,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/26/C-多线程编程要点/" itemprop="url">
-                  C++ 多线程编程精要
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-26T16:13:53+08:00" content="2017-02-26">
-              2017-02-26
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/26/C-多线程编程要点/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/26/C-多线程编程要点/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/26/C-多线程编程要点/" class="leancloud_visitors" data-flag-title="C++ 多线程编程精要">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="CPU-亲和性"><a href="#CPU-亲和性" class="headerlink" title="CPU 亲和性"></a>CPU 亲和性</h2><p>　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。<br>　　在Linux中，可以使用<code>pthread_setaffinity_np()</code>为线程设置CPU的亲和性：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pthread_setaffinity_np</span><span class="params">(<span class="keyword">pthread_t</span> thread, <span class="keyword">size_t</span> cpusetsize,</div><div class="line">                           <span class="keyword">const</span> <span class="keyword">cpu_set_t</span> *cpuset)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　注意到，它的第一个参数类型是<code>pthread_t</code>，代表 Linux 线程的ID。在C++中，每个<code>std::thread</code>都对应着底层操作系统的一个线程，不过我们可以使用<code>std::thread</code>的<code>native_handle()</code>函数来返回它对应的 OS 线程的ID，在Linux系统中，这个函数的返回值类型是<code>pthread_t</code>。<br>　　下面的例子，我们让线程绑定到 CPU-0 上：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sched.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">([]()</span> </span>&#123;</div><div class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::milliseconds(<span class="number">100</span>));</div><div class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Thread #"</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id()</div><div class="line">                      &lt;&lt; <span class="string">": on CPU"</span> &lt;&lt; sched_getcpu() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">cpu_set_t</span> cpuset;</div><div class="line">    CPU_ZERO(&amp;cpuset);</div><div class="line">    CPU_SET(<span class="number">0</span>, &amp;cpuset);</div><div class="line"></div><div class="line">    pthread_setaffinity_np(t.native_handle(), <span class="keyword">sizeof</span>(<span class="keyword">cpu_set_t</span>), &amp;cpuset);</div><div class="line">    t.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/26/C-多线程编程要点/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -968,7 +971,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
