@@ -263,6 +263,139 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/17/IO多路复用/" itemprop="url">
+                  几种 I/O Multiplexing 方式的比较
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-17T23:46:11+08:00" content="2017-02-17">
+              2017-02-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/17/IO多路复用/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/17/IO多路复用/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/17/IO多路复用/" class="leancloud_visitors" data-flag-title="几种 I/O Multiplexing 方式的比较">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="select-和-poll-的缺陷"><a href="#select-和-poll-的缺陷" class="headerlink" title="select 和 poll 的缺陷"></a>select 和 poll 的缺陷</h2><p>　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。<code>select()</code>是最早出现的I/O多路复用方式，然而由于早期<code>select()</code>的API设计不当，导致了<code>select()</code>存在不少缺陷。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds, </div><div class="line">           fd_set *exceptfds, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　从API层面来讲，<code>select()</code>使用<code>fd_set</code>来表示文件描述符的集合，而<code>fd_set</code>其实就是一个固定长度的位向量(bit vector)，在Linux上，这个固定长度是<code>FD_SETSIZE</code>，其数值是1024。这就带来了一个限制：凡是<code>select()</code>监听的文件描述符，它的大小必须小于1024。<br>　　<code>poll()</code>在某些程度上改进了<code>select()</code>存在的一些问题，例如<code>poll()</code>要求用户传递一个<code>pollfd</code>数组，但它不会限定这个数组的长度，所以理论上<code>poll()</code>可以监听任意数量的文件描述符（但实际上仍受限于进程最多能打开的文件描述符数量或系统的内存）。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>select()</code>或<code>poll()</code>监听大量的文件描述符时，往往会遭遇到性能问题。当用户每次调用<code>select()</code>或<code>poll()</code>时，内核会对传入的所有文件描述符都检查一遍，并记录其中有哪些文件描述符存在I/O就绪，这个操作的耗时将随着文件描述符数量的增加而线性增长。<br>　　另一个重要因素也会影响<code>select()</code>和<code>poll()</code>的性能，例如用户每次调用<code>poll()</code>时，都需要传递一个<code>pollfd</code>数组，而<code>poll()</code>会将这个数组从用户空间拷贝到内核空间，当内核对这个数组作了修改之后，<code>poll()</code>又会将这个数组从内核空间拷贝到用户空间。随着<code>pollfd</code>数组长度的增加，每次拷贝的时间也会线性增长，一旦<code>poll()</code>需要监听大量的文件描述符，每次调用<code>poll()</code>时，这个拷贝操作将带来不小的开销。这个问题的根源在于<code>select()</code>和<code>poll()</code>的API设计不当，例如，对于应用程序来说，它每次调用<code>poll()</code>所监听的文件描述符集合应该是差不多的，所以我们不禁这样想，如果内核愿意提供一个数据结构，记录程序所要监听的文件描述符集合，这样每次用户调用<code>poll()</code>时，<code>poll()</code>就不需要将<code>pollfd</code>数组拷贝来拷贝去了（没错，epoll 就是这样解决的）。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/17/IO多路复用/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/10/Linux的TCP-CORK/" itemprop="url">
                   Nagle 算法与 TCP socket 选项 TCP_CORK
                 </a>
@@ -791,141 +924,6 @@ bind(sockfd, ...);
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/04/Linux信号处理/" itemprop="url">
-                  Linux 安全的信号处理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-04T15:00:22+08:00" content="2016-10-04">
-              2016-10-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/10/04/Linux信号处理/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/04/Linux信号处理/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/10/04/Linux信号处理/" class="leancloud_visitors" data-flag-title="Linux 安全的信号处理">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="信号处理"><a href="#信号处理" class="headerlink" title="信号处理"></a>信号处理</h2><p>　　在 Linux 中，信号就是一个整数，每个进程都拥有两个位向量，其中一个是<code>pending</code>位向量，用来暂存还未处理的信号，另一个则是<code>blocked</code>位向量，包含了进程所屏蔽的信号。例如，当进程接收到一个<code>SIGINT</code>信号，它会执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pending[SIGINT] = <span class="literal">true</span>;    <span class="comment">// pseudocode</span></div></pre></td></tr></table></figure></p>
-<p>　　而当进程决定要处理信号时，它会从<code>pending</code>位向量中选择一个<u>没有被屏蔽</u>的信号<code>sig</code>，也就是说信号<code>sig</code>需要满足：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (pending[sig] &amp;&amp; (!blocked[sig])) &#123;    <span class="comment">// pseudocode</span></div><div class="line">    <span class="comment">// ....</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　然后进程就会从<code>pending</code>中清除这个信号，并且开始处理这个信号：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">pending[sig] = <span class="literal">false</span>;　　　　<span class="comment">// pseudocode</span></div><div class="line"></div><div class="line"><span class="comment">// call handler for sig</span></div></pre></td></tr></table></figure></p>
-<p>　　由于<code>pending</code>是一个位向量而不是队列，所以<code>pending</code>只能记录进程是否接收到了某种类型的信号，但却无法记录这种类型的信号出现了多少次。譬如说，假设某个父进程的<code>pending</code>位向量中拥有<code>SIGCHLD</code>信号（也就是说<code>pending[SIGCHLD]</code>的值为<code>true</code>），这时要是它的另一个子进程也终止了，那么它将收到内核发送的另一个<code>SIGCHLD</code>信号：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pending[SIGCHLD] = <span class="literal">true</span>;    <span class="comment">// pseudocode</span></div></pre></td></tr></table></figure></p>
-<p>　　既然父进程并不知道它接收了多少次<code>SIGCHLD</code>信号，那么为了防止僵尸子进程继续消耗系统资源，父进程在处理<code>SIGCHLD</code>信号时，应该<u>尽量多</u>地清理僵尸子进程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sig_safe_error</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *msg)</span></div><div class="line"></span>&#123;</div><div class="line">    write(STDERR_FILENO, msg, <span class="built_in">strlen</span>(msg));</div><div class="line">    _exit(<span class="number">1</span>);  <span class="comment">// async-signal-safe version of exit()</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// signal handler for SIGCHLD</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigchld_handler</span><span class="params">(<span class="keyword">int</span> sig)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">int</span> olderrno = errno;</div><div class="line">    <span class="keyword">pid_t</span> pid;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> ((pid = waitpid(<span class="number">-1</span>, <span class="literal">NULL</span>, WNOHANG)) &gt; <span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">	<span class="keyword">continue</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (pid == <span class="number">-1</span> &amp;&amp; errno != ECHILD)</div><div class="line">    &#123;</div><div class="line">	sig_safe_error(<span class="string">"waitpid error"</span>);</div><div class="line">    &#125;</div><div class="line">    errno = olderrno;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/10/04/Linux信号处理/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -971,7 +969,7 @@ bind(sockfd, ...);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">22</span>
+              <span class="site-state-item-count">23</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

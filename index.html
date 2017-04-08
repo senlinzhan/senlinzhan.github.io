@@ -263,6 +263,137 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/08/redis-sentinel/" itemprop="url">
+                  Redis Sentinel 与高可用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-08T15:50:32+08:00" content="2017-04-08">
+              2017-04-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/08/redis-sentinel/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/08/redis-sentinel/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/08/redis-sentinel/" class="leancloud_visitors" data-flag-title="Redis Sentinel 与高可用">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Redis-的高可用"><a href="#Redis-的高可用" class="headerlink" title="Redis 的高可用"></a>Redis 的高可用</h2><p>　　使用 Redis Sentinel 可以提高 Redis 的可用性，譬如说，当 Redis 开启了主从复制功能之后，如果 master 实例发生故障，那么 Sentinel 可以做到自动的故障转移(failover)：当 master 实例故障时，它的其中一个 slave 实例会自动提升成为新的 master 实例，同时其它的 slave 会重新指向这个新的 master 实例。<br>　　对于一个健壮的系统来说，通常至少需要三个 Sentinel 实例，譬如说，如果拥有一个 master 实例和两个 slave 实例，那么经常使用的架构是这样的，即三台服务器上面各自运行一个 Redis 实例和一个 Sentinel 进程：<div align="center"> <img src="/images/linux/redis-sentinel.png" width = "350" /></div>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/04/08/redis-sentinel/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/07/redis-replication/" itemprop="url">
                   Redis 主从复制的原理
                 </a>
@@ -792,139 +923,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/17/IO多路复用/" itemprop="url">
-                  几种 I/O Multiplexing 方式的比较
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-17T23:46:11+08:00" content="2017-02-17">
-              2017-02-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/17/IO多路复用/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/17/IO多路复用/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/17/IO多路复用/" class="leancloud_visitors" data-flag-title="几种 I/O Multiplexing 方式的比较">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="select-和-poll-的缺陷"><a href="#select-和-poll-的缺陷" class="headerlink" title="select 和 poll 的缺陷"></a>select 和 poll 的缺陷</h2><p>　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。<code>select()</code>是最早出现的I/O多路复用方式，然而由于早期<code>select()</code>的API设计不当，导致了<code>select()</code>存在不少缺陷。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds, </div><div class="line">           fd_set *exceptfds, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　从API层面来讲，<code>select()</code>使用<code>fd_set</code>来表示文件描述符的集合，而<code>fd_set</code>其实就是一个固定长度的位向量(bit vector)，在Linux上，这个固定长度是<code>FD_SETSIZE</code>，其数值是1024。这就带来了一个限制：凡是<code>select()</code>监听的文件描述符，它的大小必须小于1024。<br>　　<code>poll()</code>在某些程度上改进了<code>select()</code>存在的一些问题，例如<code>poll()</code>要求用户传递一个<code>pollfd</code>数组，但它不会限定这个数组的长度，所以理论上<code>poll()</code>可以监听任意数量的文件描述符（但实际上仍受限于进程最多能打开的文件描述符数量或系统的内存）。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　使用<code>select()</code>或<code>poll()</code>监听大量的文件描述符时，往往会遭遇到性能问题。当用户每次调用<code>select()</code>或<code>poll()</code>时，内核会对传入的所有文件描述符都检查一遍，并记录其中有哪些文件描述符存在I/O就绪，这个操作的耗时将随着文件描述符数量的增加而线性增长。<br>　　另一个重要因素也会影响<code>select()</code>和<code>poll()</code>的性能，例如用户每次调用<code>poll()</code>时，都需要传递一个<code>pollfd</code>数组，而<code>poll()</code>会将这个数组从用户空间拷贝到内核空间，当内核对这个数组作了修改之后，<code>poll()</code>又会将这个数组从内核空间拷贝到用户空间。随着<code>pollfd</code>数组长度的增加，每次拷贝的时间也会线性增长，一旦<code>poll()</code>需要监听大量的文件描述符，每次调用<code>poll()</code>时，这个拷贝操作将带来不小的开销。这个问题的根源在于<code>select()</code>和<code>poll()</code>的API设计不当，例如，对于应用程序来说，它每次调用<code>poll()</code>所监听的文件描述符集合应该是差不多的，所以我们不禁这样想，如果内核愿意提供一个数据结构，记录程序所要监听的文件描述符集合，这样每次用户调用<code>poll()</code>时，<code>poll()</code>就不需要将<code>pollfd</code>数组拷贝来拷贝去了（没错，epoll 就是这样解决的）。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/17/IO多路复用/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -970,7 +968,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">22</span>
+              <span class="site-state-item-count">23</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
