@@ -109,7 +109,7 @@
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
 <meta property="og:image" content="http://senlinzhan.github.io/images/linux/delayed_ack.png">
-<meta property="og:updated_time" content="2017-03-26T07:36:39.000Z">
+<meta property="og:updated_time" content="2017-04-16T01:56:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nagle 算法与 TCP socket 选项 TCP_CORK">
 <meta name="twitter:description" content="Nagle 算法　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。　　为了减">
@@ -359,7 +359,7 @@
 <li>自从堵上塞子写入第一个字节开始，已经经过200ms。</li>
 <li>socket被关闭了。</li>
 </ul>
-<p>　　一旦满足上面的任何一个条件，TCP就会将数据发送出去。对于Server来说，发送HTTP响应既要发送尽量少的segment，同时又要保证低延迟，那么需要在写完数据后显式取消设置<code>TCP_CORK</code>选项，让数据立即发送出去：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> state = <span class="number">1</span>;</div><div class="line">setsockopt(fd, IPPROTO_TCP, TCP_CORK, &amp;state, <span class="keyword">sizeof</span>(state));</div><div class="line"></div><div class="line">write(http_resp_header);</div><div class="line">sendfile(sockfd, fd, &amp;off, len);</div><div class="line"></div><div class="line">state = <span class="number">0</span>;</div><div class="line">setsockopt(fd, IPPROTO_TCP, TCP_CORK, &amp;state, <span class="keyword">sizeof</span>(state));</div></pre></td></tr></table></figure></p>
+<p>　　一旦满足上面的任何一个条件，TCP就会将数据发送出去。对于Server来说，发送HTTP响应既要发送尽量少的segment，同时又要保证低延迟，那么需要在写完数据后显式取消设置<code>TCP_CORK</code>选项，让数据立即发送出去：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> state = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_CORK, &amp;state, <span class="keyword">sizeof</span>(state));</div><div class="line"></div><div class="line">write(http_resp_header);</div><div class="line">sendfile(sockfd, fd, &amp;off, len);</div><div class="line"></div><div class="line">state = <span class="number">0</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_CORK, &amp;state, <span class="keyword">sizeof</span>(state));</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_MRG/1.2/html/Realtime_Tuning_Guide/sect-Realtime_Tuning_Guide-Application_Tuning_and_Deployment-TCP_NODELAY_and_Small_Buffer_Writes.html" target="_blank" rel="external">TCP_NODELAY and Small Buffer Writes</a></li>
 <li><a href="http://baus.net/on-tcp_cork" target="_blank" rel="external">TCP_CORK: More than you ever wanted to know</a></li>
