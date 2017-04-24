@@ -263,6 +263,139 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/24/nginx-memory-pool/" itemprop="url">
+                  Nginx 内存池源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-24T23:01:44+08:00" content="2017-04-24">
+              2017-04-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/24/nginx-memory-pool/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/24/nginx-memory-pool/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/24/nginx-memory-pool/" class="leancloud_visitors" data-flag-title="Nginx 内存池源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="内存池原理"><a href="#内存池原理" class="headerlink" title="内存池原理"></a>内存池原理</h2><p>　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过<code>malloc()</code>去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。<br>　　Nginx 使用内存池<code>ngx_pool_t</code>来管理内存，这带来了不少的好处：</p>
+<ul>
+<li>当程序需要内存时，只管向内存池申请，申请而来的内存也无需手动释放，因为内存池销毁时会负责释放所有的内存。</li>
+<li>对于那些需要频繁分配和释放小块内存的程序来说，使用内存池可以减少<code>malloc()</code>的次数，除了降低了调用开销之外，还减少了内存碎片的产生。</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/20/grpc/" itemprop="url">
                   gRPC 编程指南
                 </a>
@@ -780,151 +913,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
-                  浅谈 Linux 的 Zero Copy 技术
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-25T23:52:21+08:00" content="2017-03-25">
-              2017-03-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/03/25/网络编程中的zerocpoy技术/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/25/网络编程中的zerocpoy技术/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的 Zero Copy 技术">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="mmap-文件映射"><a href="#mmap-文件映射" class="headerlink" title="mmap 文件映射"></a>mmap 文件映射</h2><p>　　通常情况下，我们可以使用<code>read()</code>和<code>write()</code>去访问文件，除此之外，Linux 还提供了<code>mmap()</code>系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与<code>read()</code>和<code>write()</code>相比，使用<code>mmap()</code>去访问文件能带来什么好处呢？<br>　　使用<code>mmap()</code>一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用<code>read()</code>读取文件时，通常的做法是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[SIZE];</div><div class="line"><span class="keyword">ssize_t</span> n = read(fd, buffer, SIZE);</div></pre></td></tr></table></figure></p>
-<p>　　这个过程实际上发生了两次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到用户缓冲区。而使用<code>mmap()</code>读取文件时，只会发生第一次拷贝操作，也就是将文件内容拷贝到 OS 文件系统缓冲区，完成这个拷贝操作之后，<code>mmap()</code>还会执行其它一些复杂的操作，例如将相应的 OS 缓冲区映射到进程的地址空间。<br>　　尽管<code>mmap()</code>可以减少一次 I/O 拷贝，但由于<code>mmap()</code>的实现很复杂，调用<code>mmap()</code>将会带来额外的开销，因此在一些情况下，没有使用<code>mmap()</code>的必要：</p>
-<ul>
-<li>访问小文件时，直接使用<code>read()</code>或<code>write()</code>将更加高效。</li>
-<li>单个进程对文件执行顺序访问时(sequential access)，使用<code>mmap()</code>几乎不会带来性能上的提升。譬如说，使用<code>read()</code>顺序读取文件时，文件系统会使用 read-ahead 的方式提前将文件内容缓存到文件系统的缓冲区，因此使用<code>read()</code>将很大程度上可以命中缓存。</li>
-</ul>
-<p>　　那么，在什么情况下使用<code>mmap()</code>去访问文件会更高效呢？</p>
-<ul>
-<li>对文件执行随机访问时，如果使用<code>read()</code>或<code>write()</code>，则意味着较低的 cache 命中率。这种情况下使用<code>mmap()</code>通常将更高效。</li>
-<li>多个进程同时访问同一个文件时（无论是顺序访问还是随机访问），如果使用<code>mmap()</code>，那么 OS 缓冲区的文件内容可以在多个进程之间共享，从操作系统角度来看，使用<code>mmap()</code>可以大大节省内存。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/25/网络编程中的zerocpoy技术/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -965,7 +958,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-count">26</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

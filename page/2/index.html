@@ -263,6 +263,146 @@
             
               
                 
+                <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
+                  浅谈 Linux 的 Zero Copy 技术
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-25T23:52:21+08:00" content="2017-03-25">
+              2017-03-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/03/25/网络编程中的zerocpoy技术/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/25/网络编程中的zerocpoy技术/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的 Zero Copy 技术">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="mmap-文件映射"><a href="#mmap-文件映射" class="headerlink" title="mmap 文件映射"></a>mmap 文件映射</h2><p>　　通常情况下，我们可以使用<code>read()</code>和<code>write()</code>去访问文件，除此之外，Linux 还提供了<code>mmap()</code>系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与<code>read()</code>和<code>write()</code>相比，使用<code>mmap()</code>去访问文件能带来什么好处呢？<br>　　使用<code>mmap()</code>一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用<code>read()</code>读取文件时，通常的做法是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[SIZE];</div><div class="line"><span class="keyword">ssize_t</span> n = read(fd, buffer, SIZE);</div></pre></td></tr></table></figure></p>
+<p>　　这个过程实际上发生了两次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到用户缓冲区。而使用<code>mmap()</code>读取文件时，只会发生第一次拷贝操作，也就是将文件内容拷贝到 OS 文件系统缓冲区，完成这个拷贝操作之后，<code>mmap()</code>还会执行其它一些复杂的操作，例如将相应的 OS 缓冲区映射到进程的地址空间。<br>　　尽管<code>mmap()</code>可以减少一次 I/O 拷贝，但由于<code>mmap()</code>的实现很复杂，调用<code>mmap()</code>将会带来额外的开销，因此在一些情况下，没有使用<code>mmap()</code>的必要：</p>
+<ul>
+<li>访问小文件时，直接使用<code>read()</code>或<code>write()</code>将更加高效。</li>
+<li>单个进程对文件执行顺序访问时(sequential access)，使用<code>mmap()</code>几乎不会带来性能上的提升。譬如说，使用<code>read()</code>顺序读取文件时，文件系统会使用 read-ahead 的方式提前将文件内容缓存到文件系统的缓冲区，因此使用<code>read()</code>将很大程度上可以命中缓存。</li>
+</ul>
+<p>　　那么，在什么情况下使用<code>mmap()</code>去访问文件会更高效呢？</p>
+<ul>
+<li>对文件执行随机访问时，如果使用<code>read()</code>或<code>write()</code>，则意味着较低的 cache 命中率。这种情况下使用<code>mmap()</code>通常将更高效。</li>
+<li>多个进程同时访问同一个文件时（无论是顺序访问还是随机访问），如果使用<code>mmap()</code>，那么 OS 缓冲区的文件内容可以在多个进程之间共享，从操作系统角度来看，使用<code>mmap()</code>可以大大节省内存。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/25/网络编程中的zerocpoy技术/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
                   如何设计动态链接库
                 </a>
@@ -778,149 +918,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/08/Linux的SO-REUSEPORT选项/" itemprop="url">
-                  Linux 的 socket 选项 SO_REUSEPORT
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-08T20:34:16+08:00" content="2017-02-08">
-              2017-02-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/08/Linux的SO-REUSEPORT选项/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/08/Linux的SO-REUSEPORT选项/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/08/Linux的SO-REUSEPORT选项/" class="leancloud_visitors" data-flag-title="Linux 的 socket 选项 SO_REUSEPORT">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="均衡转发"><a href="#均衡转发" class="headerlink" title="均衡转发"></a>均衡转发</h2><p>　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用<code>accept()</code>，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，<code>accept()</code>不会导致惊群。) 然而，正如<a href="https://lwn.net/Articles/542629/">这篇文章</a>所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式去唤醒线程。这就导致了有的线程处理太多请求而忙不过来，而有的线程则很空闲。<br>　　Linux 3.9提供了<code>SO_REUSEPORT</code>选项，对于TCP来说，它允许多个listening socket绑定到同一个端口，也就是说，所有线程都可以创建一个listening socket绑定到同一个端口，并且可以调用<code>accept()</code>在这个socket上等待连接请求。使用<code>SO_REUSEPORT</code>的好处就是，由于内核会将客户端的连接请求均衡地分发给每个listening socket，在多线程环境中，这有利于充分利用好每个 CPU 核心。<br>　　<code>SO_REUSEPORT</code>的用法很简单，只要每个listening socket在调用<code>bind()</code>之前设置好这个选项就可以了：</p>
-<pre><code class="C++"><span class="keyword">int</span> sockfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);
-
-<span class="keyword">int</span> optval = <span class="number">1</span>;
-setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &amp;optval, <span class="keyword">sizeof</span>(optval));
-
-bind(sockfd, ...);
-</code></pre>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/08/Linux的SO-REUSEPORT选项/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -961,7 +963,7 @@ bind(sockfd, ...);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/">
-              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-count">26</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

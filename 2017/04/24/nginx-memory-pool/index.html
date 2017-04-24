@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Network," />
 
 
 
@@ -102,12 +102,22 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/archives/2017/03/index.html">
+<meta name="description" content="内存池原理　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过malloc()去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。　　Nginx 使用内存池ngx_pool_t来管理内存，这带来了不少的好处：
+
+当程序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx 内存池源码分析">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/04/24/nginx-memory-pool/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="内存池原理　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过malloc()去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。　　Nginx 使用内存池ngx_pool_t来管理内存，这带来了不少的好处：
+
+当程序">
+<meta property="og:updated_time" content="2017-04-24T15:48:47.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:title" content="Nginx 内存池源码分析">
+<meta name="twitter:description" content="内存池原理　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过malloc()去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。　　Nginx 使用内存池ngx_pool_t来管理内存，这带来了不少的好处：
+
+当程序">
 
 
 
@@ -128,9 +138,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/archives/2017/03/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/04/24/nginx-memory-pool/"/>
 
-  <title> 归档 | Senlin's Blog </title>
+  <title> Nginx 内存池源码分析 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -151,7 +161,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -239,103 +249,161 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 26 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2017">2017</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
-              
-                <span itemprop="name">浅谈 Linux 的 Zero Copy 技术</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-25T23:52:21+08:00"
-              content="2017-03-25" >
-          03-25
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
-              
-                <span itemprop="name">如何设计动态链接库</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-20T20:23:09+08:00"
-              content="2017-03-20" >
-          03-20
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
+  
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Nginx 内存池源码分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-24T23:01:44+08:00" content="2017-04-24">
+              2017-04-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/24/nginx-memory-pool/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/24/nginx-memory-pool/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/24/nginx-memory-pool/" class="leancloud_visitors" data-flag-title="Nginx 内存池源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="内存池原理"><a href="#内存池原理" class="headerlink" title="内存池原理"></a>内存池原理</h2><p>　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过<code>malloc()</code>去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。<br>　　Nginx 使用内存池<code>ngx_pool_t</code>来管理内存，这带来了不少的好处：</p>
+<ul>
+<li>当程序需要内存时，只管向内存池申请，申请而来的内存也无需手动释放，因为内存池销毁时会负责释放所有的内存。</li>
+<li>对于那些需要频繁分配和释放小块内存的程序来说，使用内存池可以减少<code>malloc()</code>的次数，除了降低了调用开销之外，还减少了内存碎片的产生。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Network/" rel="tag">#Network</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/20/grpc/" rel="next" title="gRPC 编程指南">
+                <i class="fa fa-chevron-left"></i> gRPC 编程指南
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -343,6 +411,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/04/24/nginx-memory-pool/"
+           data-title="Nginx 内存池源码分析" data-url="http://senlinzhan.github.io/2017/04/24/nginx-memory-pool/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -514,11 +590,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
 
 
   
