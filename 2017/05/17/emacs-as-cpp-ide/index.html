@@ -1,0 +1,826 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tools," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="IDE 介绍　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：
+
+支持代码语义跳转。
+支持代码自动补全。
+支持代码语法检查。
+支持 cmake。
+
+通用配置　　下面是一些比较有用的设置，打开~/.emacs文件，写入以下内容：12345678910111213141516171819202122232425262728;; 启动时不显示信息(setq inhibit-sta">
+<meta property="og:type" content="article">
+<meta property="og:title" content="打造 Mac OS 的 C++ IDE（Emacs 篇）">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/05/17/emacs-as-cpp-ide/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="IDE 介绍　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：
+
+支持代码语义跳转。
+支持代码自动补全。
+支持代码语法检查。
+支持 cmake。
+
+通用配置　　下面是一些比较有用的设置，打开~/.emacs文件，写入以下内容：12345678910111213141516171819202122232425262728;; 启动时不显示信息(setq inhibit-sta">
+<meta property="og:updated_time" content="2017-05-19T16:08:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="打造 Mac OS 的 C++ IDE（Emacs 篇）">
+<meta name="twitter:description" content="IDE 介绍　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：
+
+支持代码语义跳转。
+支持代码自动补全。
+支持代码语法检查。
+支持 cmake。
+
+通用配置　　下面是一些比较有用的设置，打开~/.emacs文件，写入以下内容：12345678910111213141516171819202122232425262728;; 启动时不显示信息(setq inhibit-sta">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/05/17/emacs-as-cpp-ide/"/>
+
+  <title> 打造 Mac OS 的 C++ IDE（Emacs 篇） | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                打造 Mac OS 的 C++ IDE（Emacs 篇）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-05-17T20:52:24+08:00" content="2017-05-17">
+              2017-05-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/开发环境/" itemprop="url" rel="index">
+                    <span itemprop="name">开发环境</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/05/17/emacs-as-cpp-ide/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/05/17/emacs-as-cpp-ide/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/17/emacs-as-cpp-ide/" class="leancloud_visitors" data-flag-title="打造 Mac OS 的 C++ IDE（Emacs 篇）">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="IDE-介绍"><a href="#IDE-介绍" class="headerlink" title="IDE 介绍"></a>IDE 介绍</h2><p>　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：</p>
+<ul>
+<li>支持代码语义跳转。</li>
+<li>支持代码自动补全。</li>
+<li>支持代码语法检查。</li>
+<li>支持 cmake。</li>
+</ul>
+<h2 id="通用配置"><a href="#通用配置" class="headerlink" title="通用配置"></a>通用配置</h2><p>　　下面是一些比较有用的设置，打开<code>~/.emacs</code>文件，写入以下内容：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 启动时不显示信息</span></div><div class="line">(<span class="name">setq</span> inhibit-startup-message <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 显示行号</span></div><div class="line">(<span class="name">global-linum-mode</span> <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 自动补全括号</span></div><div class="line">(<span class="name">electric-pair-mode</span> <span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 按 Ctl-Enter 开始选中文本</span></div><div class="line">(<span class="name">global-set-key</span> (<span class="name">kbd</span> <span class="string">"C-&lt;return&gt;"</span>) 'set-mark-command)</div><div class="line"></div><div class="line"><span class="comment">;; 设置代码风格</span></div><div class="line">(<span class="name">c-add-style</span> <span class="string">"my-style"</span></div><div class="line">             '(<span class="string">"stroustrup"</span></div><div class="line">               (indent-tabs-mode . <span class="literal">nil</span>)        ; 使用空格缩进而不是 Tab</div><div class="line">               (c-basic-offset . <span class="number">4</span>)            ; 使用四个空格缩进</div><div class="line">               (c-offsets-alist . ((inline-open . <span class="number">0</span>)</div><div class="line">                                   (brace-list-open . <span class="number">0</span>)</div><div class="line">                                   (statement-case-open . +)))))</div><div class="line"></div><div class="line">(<span class="name">defun</span> my-c++-mode-hook ()</div><div class="line">  (<span class="name">c-set-style</span> <span class="string">"my-style"</span>)        <span class="comment">; use my-style defined above</span></div><div class="line">  (<span class="name">auto-fill-mode</span>)</div><div class="line">  (<span class="name">c-toggle-auto-hungry-state</span> <span class="number">1</span>))</div><div class="line"></div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook 'my-c++-mode-hook)</div><div class="line">(<span class="name">add-hook</span> 'c-mode-hook 'my-c++-mode-hook)</div></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h2 id="软件源设置"><a href="#软件源设置" class="headerlink" title="软件源设置"></a>软件源设置</h2><p>　　Emacs 24开始支持包管理器，为了加快软件包的下载速度，可以设置国内的软件源。<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 设置软件源</span></div><div class="line">(<span class="name">require</span> 'package)</div><div class="line">(<span class="name">setq</span> package-archives '((<span class="string">"gnu"</span>   . <span class="string">"http://elpa.emacs-china.org/gnu/"</span>)</div><div class="line">                         (<span class="string">"melpa"</span> . <span class="string">"http://elpa.emacs-china.org/melpa/"</span>)))</div><div class="line">(<span class="name">package-initialize</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 要安装的软件包列表</span></div><div class="line">(<span class="name">setq</span> package-list '(rtags company-rtags clang-format cmake-ide</div><div class="line">			   company irony company-irony markdown-mode</div><div class="line">			   company-irony-c-headers monokai-theme</div><div class="line">			   flycheck flycheck-irony flycheck-rtags flycheck-irony yasnippet))</div><div class="line"></div><div class="line">(<span class="name">unless</span> package-archive-contents</div><div class="line">  (<span class="name">package-refresh-contents</span>))</div><div class="line"></div><div class="line"><span class="comment">;; 安装列表中尚未安装的软件包</span></div><div class="line">(<span class="name">dolist</span> (<span class="name">package</span> package-list)</div><div class="line">  (<span class="name">unless</span> (<span class="name">package-installed-p</span> package)</div><div class="line">    (<span class="name">package-install</span> package)))</div></pre></td></tr></table></figure></p>
+<h2 id="语义跳转"><a href="#语义跳转" class="headerlink" title="语义跳转"></a>语义跳转</h2><p>　　在 Mac OS，我们可以用 brew 去安装软件，首先更新一下软件源：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ brew update</div></pre></td></tr></table></figure></p>
+<p>　　接着安装 rtags，rtags 是可以实现 C++ 语义跳转的工具。安装 rtags 之前需要安装 LLVM 和 cmake:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ brew install llvm --with-libcxx --with-clang --without-assertions --with-rtti</div><div class="line">$ brew install cmake</div></pre></td></tr></table></figure></p>
+<p>　　在我的电脑上，llvm的安装位置是<code>/usr/local/Cellar/llvm/4.0.0_1/</code>。接着是安装 rtags:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> --recursive https://github.com/Andersbakken/rtags.git</div><div class="line">$ <span class="built_in">cd</span> rtags</div><div class="line">$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DLIBCLANG_LLVM_CONFIG_EXECUTABLE=/usr/<span class="built_in">local</span>/Cellar/llvm/4.0.0_1/bin/llvm-config .</div><div class="line">$ make</div><div class="line">$ make install</div></pre></td></tr></table></figure></p>
+<p>　　还可以安装 clang-format，它可以格式化代码风格：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ brew install clang-format</div></pre></td></tr></table></figure></p>
+<p>　　在<code>.emacs</code>文件中加入 rtags 的配置：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 启动 company 模式</span></div><div class="line">(<span class="name">require</span> 'company)</div><div class="line">(<span class="name">add-hook</span> 'after-init-hook 'global-company-mode)</div><div class="line"></div><div class="line">(<span class="name">require</span> 'rtags)</div><div class="line">(<span class="name">require</span> 'company-rtags)</div><div class="line"></div><div class="line">(<span class="name">setq</span> rtags-completions-enabled <span class="literal">t</span>)</div><div class="line">(<span class="name">eval-after-load</span> 'company</div><div class="line">  '(add-to-list</div><div class="line">    'company-backends 'company-rtags))</div><div class="line">(<span class="name">setq</span> rtags-autostart-diagnostics <span class="literal">t</span>)</div><div class="line">(<span class="name">rtags-enable-standard-keybindings</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 设置快捷键</span></div><div class="line">(<span class="name">define-key</span> c-mode-base-map (<span class="name">kbd</span> <span class="string">"M-."</span>) (<span class="name">function</span> rtags-find-symbol-at-point))</div><div class="line">(<span class="name">define-key</span> c-mode-base-map (<span class="name">kbd</span> <span class="string">"M-,"</span>) (<span class="name">function</span> rtags-find-references-at-point))</div><div class="line">(<span class="name">define-key</span> c-mode-base-map (<span class="name">kbd</span> <span class="string">"M-;"</span>) (<span class="name">function</span> rtags-find-file))</div><div class="line">(<span class="name">define-key</span> c-mode-base-map (<span class="name">kbd</span> <span class="string">"C-."</span>) (<span class="name">function</span> rtags-find-symbol))</div><div class="line">(<span class="name">define-key</span> c-mode-base-map (<span class="name">kbd</span> <span class="string">"C-,"</span>) (<span class="name">function</span> rtags-find-references))</div></pre></td></tr></table></figure></p>
+<p>　　rtags 在解析项目时，需要一个编译时数据库文件<code>compile_commands.json</code>，这个文件描述了项目所用到的编译选项。如果项目是使用cmake编译的，那只需要给 cmake 提供一个<code>-DCMAKE_EXPORT_COMPILE_COMMANDS=1</code>参数，就可以生成<code>compile_commands.json</code>这个文件了。<br>　　下面的是在一个项目中使用 rtags 的例子：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ rdm &amp;</div><div class="line">$ <span class="built_in">cd</span> /path/to/project/root</div><div class="line">$ cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=1</div><div class="line">$ rc -J .</div></pre></td></tr></table></figure></p>
+<p>　　下面是一些快捷键的作用：</p>
+<ul>
+<li><code>M-.</code> 在符号的声明和定义的位置之间跳转。 </li>
+<li><code>M-,</code> 查找项目中哪些地方引用到这个符号。</li>
+<li><code>M-;</code> 根据文件名，自动补全需要查找的文件。</li>
+<li><code>C-.</code> 根据符号的名称，查找所有定义这个符号名称的地方。</li>
+<li><code>C-,</code> 根据符号的名称，查找所有引用这个符号名称的地方。</li>
+</ul>
+<h2 id="语法检查"><a href="#语法检查" class="headerlink" title="语法检查"></a>语法检查</h2><p>　　语法检查使用 flycheck，在<code>.emacs</code>加入下面的配置：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">(<span class="name">require</span> 'flycheck)</div><div class="line"></div><div class="line"><span class="comment">;; 让 flycheck 支持 C++11</span></div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook</div><div class="line">          (<span class="name">lambda</span> () (<span class="name">setq</span> flycheck-clang-language-standard <span class="string">"c++11"</span>)))</div><div class="line"></div><div class="line"><span class="comment">;; 在 C 和 C++ 模式下打开 flycheck</span></div><div class="line">(<span class="name">add-hook</span> 'c-mode-hook 'flycheck-mode)</div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook 'flycheck-mode)</div><div class="line"></div><div class="line">(<span class="name">require</span> 'flycheck-rtags)</div><div class="line"></div><div class="line">(<span class="name">defun</span> my-flycheck-rtags-setup ()</div><div class="line">  (<span class="name">flycheck-select-checker</span> 'rtags)</div><div class="line">  (<span class="name">setq-local</span> flycheck-highlighting-mode <span class="literal">nil</span>) <span class="comment">;; RTags creates more accurate overlays.</span></div><div class="line">  (<span class="name">setq-local</span> flycheck-check-syntax-automatically <span class="literal">nil</span>))</div><div class="line"></div><div class="line"><span class="comment">;; c-mode-common-hook is also called by c++-mode</span></div><div class="line">(<span class="name">add-hook</span> 'c-mode-common-hook #'my-flycheck-rtags-setup)</div></pre></td></tr></table></figure></p>
+<h2 id="自动补全"><a href="#自动补全" class="headerlink" title="自动补全"></a>自动补全</h2><p>　　自动补全使用 irony，打开<code>~/.emacs</code>文件，写入以下内容：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 配置 irony 模式</span></div><div class="line">(<span class="name">require</span> 'irony)</div><div class="line"></div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook 'irony-mode)</div><div class="line">(<span class="name">add-hook</span> 'c-mode-hook 'irony-mode)</div><div class="line">(<span class="name">add-hook</span> 'objc-mode-hook 'irony-mode)</div><div class="line"></div><div class="line">(<span class="name">defun</span> my-irony-mode-hook ()</div><div class="line">  (<span class="name">define-key</span> irony-mode-map [remap completion-at-point]</div><div class="line">    'irony-completion-at-point-async)</div><div class="line">  (<span class="name">define-key</span> irony-mode-map [remap complete-symbol]</div><div class="line">    'irony-completion-at-point-async))</div><div class="line"></div><div class="line">(<span class="name">add-hook</span> 'irony-mode-hook 'my-irony-mode-hook)</div><div class="line">(<span class="name">add-hook</span> 'irony-mode-hook 'irony-cdb-autosetup-compile-options)</div><div class="line"></div><div class="line">(<span class="name">require</span> 'company-irony)</div><div class="line">(<span class="name">add-hook</span> 'irony-mode-hook 'company-irony-setup-begin-commands)</div><div class="line">(<span class="name">setq</span> company-backends (<span class="name">delete</span> 'company-semantic company-backends))</div><div class="line"></div><div class="line">(<span class="name">require</span> 'company-irony-c-headers)</div><div class="line">(<span class="name">eval-after-load</span> 'company</div><div class="line">  '(add-to-list</div><div class="line">    'company-backends '(company-irony-c-headers company-irony)))</div><div class="line"></div><div class="line">(<span class="name">setq</span> company-idle-delay              <span class="literal">t</span></div><div class="line">      company-minimum-prefix-length   <span class="number">2</span></div><div class="line">      company-show-numbers            <span class="literal">t</span></div><div class="line">      company-tooltip-limit           <span class="number">20</span></div><div class="line">      company-dabbrev-downcase        <span class="literal">nil</span>)</div><div class="line"></div><div class="line">(<span class="name">require</span> 'flycheck-irony)</div><div class="line">(<span class="name">eval-after-load</span> 'flycheck</div><div class="line">  '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　除了上面的配置之外，还需要编译 irony，在 Emacs 中运行命令<code>M-x irony-install-server</code>，将出现类似于下面的内容：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cmake -DCMAKE_INSTALL_PREFIX=/Users/senlin/.emacs.d/irony/ /Users/senlin/.emacs.d/elpa/irony-20161102.1337/server &amp;&amp; cmake --build . --use-stderr --config \</div><div class="line">Release --target install</div></pre></td></tr></table></figure></p>
+<p>　　直接运行上面的命令，如果出现错误，可以试着给 cmake 增加下面的参数，然后再运行一次：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-DLIBCLANG_INCLUDE_DIR=/usr/local/Cellar/llvm/4.0.0_1/include -DLIBCLANG_LIBRARY=/usr/local/Cellar/llvm/4.0.0_1/lib/libclang.dylib</div></pre></td></tr></table></figure></p>
+<p>　　如无意外，那么就成功编译好了 irony 了。</p>
+<hr>
+<p>　　另外可以使用 yasnippet 自动生成有用的代码片段，首先需要将代码片段下载到本地：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> https://github.com/AndreaCrotti/yasnippet-snippets.git ~/.emacs.d/yasnippet-snippets/</div></pre></td></tr></table></figure></p>
+<p>　　接着在 Emacs 的配置文件写入：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">(<span class="name">require</span> 'yasnippet)</div><div class="line">(<span class="name">add-to-list</span> 'yas-snippet-dirs <span class="string">"~/.emacs.d/yasnippet-snippets/"</span>)</div><div class="line">(<span class="name">yas-global-mode</span> <span class="number">1</span>)</div><div class="line">(<span class="name">yas-reload-all</span>)</div></pre></td></tr></table></figure></p>
+<p>　　使用 Emacs 打开一个<code>.cpp</code>文件，在文件中输入<code>main</code>，然后按 Tab 键补全，如无意外，将出现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">&#123; </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="外观配置"><a href="#外观配置" class="headerlink" title="外观配置"></a>外观配置</h2><p>　　fantasque-sans 是一款非常好看的字体，可以在<a href="https://github.com/belluzj/fantasque-sans/tree/master/Sources" target="_blank" rel="external">这里</a>安装。安装好之后，在配置文件中加入：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 设置字体</span></div><div class="line">(<span class="name">set-frame-font</span> <span class="string">"fantasque sans mono:pixelsize=14"</span>)</div></pre></td></tr></table></figure></p>
+<p>　　设置主题：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(<span class="name">load-theme</span> 'monokai <span class="literal">t</span>)</div></pre></td></tr></table></figure></p>
+<p>　　开启透明窗口：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">(<span class="name">global-set-key</span> (<span class="name">kbd</span> <span class="string">"&lt;f10&gt;"</span>) 'loop-alpha)</div><div class="line"></div><div class="line"><span class="comment">;当前窗口和非当前窗口时透明度</span></div><div class="line">(<span class="name">setq</span> alpha-list '((<span class="number">85</span> <span class="number">75</span>) (<span class="number">100</span> <span class="number">100</span>)))</div><div class="line"></div><div class="line">(<span class="name">defun</span> loop-alpha ()</div><div class="line">(<span class="name">interactive</span>)</div><div class="line">(<span class="name">let</span> ((<span class="name">h</span> (<span class="name">car</span> alpha-list)))</div><div class="line">((<span class="name">lambda</span> (<span class="name">a</span> ab)</div><div class="line">(<span class="name">set-frame-parameter</span> (<span class="name">selected-frame</span>) 'alpha (<span class="name">list</span> a ab))</div><div class="line">(<span class="name">add-to-list</span> 'default-frame-alist (<span class="name">cons</span> 'alpha (<span class="name">list</span> a ab))))</div><div class="line">(<span class="name">car</span> h) (<span class="name">car</span> (<span class="name">cdr</span> h)))</div><div class="line">(<span class="name">setq</span> alpha-list (<span class="name">cdr</span> (<span class="name">append</span> alpha-list (<span class="name">list</span> h))))))</div><div class="line"></div><div class="line"><span class="comment">;启动窗口时时自动开启窗口半透明效果</span></div><div class="line">(<span class="name">loop-alpha</span>)</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://syamajala.github.io/c-ide.html" target="_blank" rel="external">Emacs as C++ IDE</a></li>
+<li><a href="http://nilsdeppe.com/posts/emacs-c++-ide" target="_blank" rel="external">Using Emacs as a C++ IDE</a></li>
+<li><a href="https://github.com/oneKelvinSmith/monokai-emacs" target="_blank" rel="external">monokai-emacs</a></li>
+<li><a href="https://github.com/belluzj/fantasque-sans" target="_blank" rel="external">fantasque-sans</a></li>
+<li><a href="https://vxlabs.com/2016/04/11/step-by-step-guide-to-c-navigation-and-completion-with-emacs-and-the-clang-based-rtags/" target="_blank" rel="external">Step-by-step guide to C++ navigation and completion with Emacs</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tools/" rel="tag">#Tools</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/16/boost-asio-notes/" rel="next" title="Boost.Asio 编程精要">
+                <i class="fa fa-chevron-left"></i> Boost.Asio 编程精要
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/05/17/emacs-as-cpp-ide/"
+           data-title="打造 Mac OS 的 C++ IDE（Emacs 篇）" data-url="http://senlinzhan.github.io/2017/05/17/emacs-as-cpp-ide/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/">
+              <span class="site-state-item-count">28</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"senlinzhangithubio"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
