@@ -1,0 +1,805 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Concurrency," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="CPU 亲和性　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。　　在Linux中，可以使用pthread_setaffinity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ 多线程编程精要">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/02/26/cpp11_thread/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="CPU 亲和性　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。　　在Linux中，可以使用pthread_setaffinity">
+<meta property="og:updated_time" content="2017-06-17T06:45:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++ 多线程编程精要">
+<meta name="twitter:description" content="CPU 亲和性　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。　　在Linux中，可以使用pthread_setaffinity">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/02/26/cpp11_thread/"/>
+
+  <title> C++ 多线程编程精要 | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                C++ 多线程编程精要
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-26T16:13:53+08:00" content="2017-02-26">
+              2017-02-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/26/cpp11_thread/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/26/cpp11_thread/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/26/cpp11_thread/" class="leancloud_visitors" data-flag-title="C++ 多线程编程精要">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="CPU-亲和性"><a href="#CPU-亲和性" class="headerlink" title="CPU 亲和性"></a>CPU 亲和性</h2><p>　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。<br>　　在Linux中，可以使用<code>pthread_setaffinity_np()</code>为线程设置CPU的亲和性：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pthread_setaffinity_np</span><span class="params">(<span class="keyword">pthread_t</span> thread, <span class="keyword">size_t</span> cpusetsize,</span></span></div><div class="line">                           <span class="keyword">const</span> <span class="keyword">cpu_set_t</span> *cpuset);</div></pre></td></tr></table></figure></p>
+<p>　　注意到，它的第一个参数类型是<code>pthread_t</code>，代表 Linux 线程的ID。在C++中，每个<code>std::thread</code>都对应着底层操作系统的一个线程，不过我们可以使用<code>std::thread</code>的<code>native_handle()</code>函数来返回它对应的 OS 线程的ID，在Linux系统中，这个函数的返回值类型是<code>pthread_t</code>。<br>　　下面的例子，我们让线程绑定到 CPU-0 上：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sched.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">([]()</span> </span>&#123;</div><div class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::milliseconds(<span class="number">100</span>));</div><div class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Thread #"</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id()</div><div class="line">                      &lt;&lt; <span class="string">": on CPU"</span> &lt;&lt; sched_getcpu() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">cpu_set_t</span> cpuset;</div><div class="line">    CPU_ZERO(&amp;cpuset);</div><div class="line">    CPU_SET(<span class="number">0</span>, &amp;cpuset);</div><div class="line"></div><div class="line">    pthread_setaffinity_np(t.native_handle(), <span class="keyword">sizeof</span>(<span class="keyword">cpu_set_t</span>), &amp;cpuset);</div><div class="line">    t.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="改善-std-thread"><a href="#改善-std-thread" class="headerlink" title="改善 std::thread"></a>改善 std::thread</h2><p>　　在工程实践中，你会发现<code>std::thread</code>并不像想象中的那么完美。一个明显的问题是，当<code>std::thread</code>即将析构时，你要人为地确保实际的线程已经结束运行了或者已经分离了(可以分别调用它的<code>join()</code>和<code>detach()</code>成员函数)，否则程序将会抛出<code>std::terminate</code>异常。当然，由于<code>std::thread</code>的析构函数没有保证正确地释放资源，这也同时导致了<code>std::thread</code>不是异常安全的。<br>　　下面提供了一个<code>ThreadRAII</code>类，它在析构时会等待线程运行结束，或者直接分离线程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> ThreadRAII</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">enum</span> <span class="keyword">class</span> DtorAction &#123;join, detach&#125;;</div><div class="line"></div><div class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Ts&gt;</div><div class="line">    ThreadRAII(DtorAction a, Ts&amp;&amp;... params)</div><div class="line">        : action_(a), thread_(<span class="built_in">std</span>::forward&lt;Ts&gt;(params)...)</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ThreadRAII(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    ThreadRAII &amp;<span class="keyword">operator</span>=(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    </div><div class="line">    ~ThreadRAII()</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (thread_.joinable()) &#123;</div><div class="line">            <span class="keyword">if</span> (action_ == DtorAction::join) &#123;</div><div class="line">                thread_.join();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                thread_.detach();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">	</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread &amp;<span class="title">get</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> thread_; &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    DtorAction action_;</div><div class="line">    <span class="built_in">std</span>::thread thread_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　创建<code>ThreadRAII</code>对象时，可以顺带指定它的析构行为，到底是等待线程运行结束呢还是直接分离线程。下面的例子中，程序退出时，<code>ThreadRAII</code>对象的析构函数会保证线程正常结束运行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123; <span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello"</span> &lt;&lt; <span class="built_in">endl</span>; &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    ThreadRAII t&#123;ThreadRAII::DtorAction::join, sayHello&#125;;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h2 id="任务并发"><a href="#任务并发" class="headerlink" title="任务并发"></a>任务并发</h2><p>　　除了<code>std::thread</code>，C++标准库还引入了<code>std::async</code>，提供了所谓的基于任务的并发，也可以说<code>std::async</code>在某些方面弥补<code>std::thread</code>的缺陷。<code>std::thread</code>一个恼人的地方是，你没办法直接地拿到任务的返回值，而必须借助一些迂回的方式：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sum</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;values, <span class="keyword">int</span> *result)</span></span></div><div class="line">&#123;</div><div class="line">    *result = <span class="built_in">std</span>::accumulate(values.cbegin(), values.cend(), <span class="number">0</span>);</div><div class="line">&#125;</div><div class="line"><span class="keyword">int</span> results = <span class="number">0</span>;	</div><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; values = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</div><div class="line"><span class="function">thread <span class="title">t</span><span class="params">(sum, values, &amp;results)</span></span>;</div><div class="line">t.join();</div></pre></td></tr></table></figure></p>
+<p>　　而<code>std::async</code>会返回一个<code>std::future</code>对象，通过这个对象就可以获得任务的返回值了，可以看到<code>std::async</code>让代码变得简洁得多了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;values)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::accumulate(values.cbegin(), values.cend(), <span class="number">0</span>);</div><div class="line">&#125;</div><div class="line"><span class="keyword">int</span> results = <span class="number">0</span>;</div><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; values = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</div><div class="line"><span class="keyword">auto</span> fut = <span class="built_in">std</span>::async(sum, values);</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"results: "</span> &lt;&lt; fut.get() &lt;&lt; <span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="理解-std-async-的行为"><a href="#理解-std-async-的行为" class="headerlink" title="理解 std::async 的行为"></a>理解 std::async 的行为</h2><p>　　当<code>std::async</code>启动一个任务时，它到底会不会创建一个新的线程呢？答案取决于你是怎样使用<code>std::async</code>的，当你把任务交给<code>std::async</code>去执行的时候，可以同时指定任务的启动方式：</p>
+<ul>
+<li><code>std::launch::async</code>表示异步执行，也就是说把任务放到新的线程中并且立即执行。</li>
+<li><code>std::launch::deferred</code>意味着任务会推迟执行，也就是说只有当你调用了<code>std::future</code>对象的<code>get()</code>或<code>wait()</code>方法时，任务才会执行，这时<code>std::async</code>会把任务放到当前线程中执行。</li>
+</ul>
+<p>　　假设我们没有指定使用哪种启动方式，那么<code>std::async</code>会自动在这两种方式中选择一种，这种情况下，我们就无法知道任务到底会不会在新线程中执行了。然而这种不确定性一不小心就会给代码引入 bug，并且这种 bug 很难重现。例如，使用线程局部存储时，就可能遇到不可思议的问题：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">thread_local</span> <span class="keyword">int</span> val = <span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">getVal</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> val;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    val = <span class="number">100</span>;</div><div class="line">    <span class="keyword">auto</span> fut = <span class="built_in">std</span>::async(getVal);</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; fut.get() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　任务的返回结果是不可预测的，因为它返回变量<code>val</code>的值。如果<code>std::async</code>采用的是<code>std::launch::async</code>方式，任务将返回100，否则将返回0，这使得代码中任何依赖这个结果的地方都变得不可确定了，很容易引入难以检测的bug。<br>　　一种更好的做法是，使用<code>std::async</code>时总是让它异步执行，这可以减少不必要的麻烦，可以用一个函数来封装这个行为：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> F, <span class="keyword">typename</span>... Ts&gt;</div><div class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">auto</span> <span class="title">reallyAsync</span><span class="params">(F&amp;&amp; f, Ts&amp;&amp;... params)</span></span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">return</span> <span class="built_in">std</span>::async(<span class="built_in">std</span>::launch::async,</div><div class="line">                    <span class="built_in">std</span>::forward&lt;F&gt;(f),</div><div class="line">                    <span class="built_in">std</span>::forward&lt;Ts&gt;(params)...);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://book.douban.com/subject/25923597/" target="_blank" rel="external">Effective Modern C++</a></li>
+<li><a href="https://akrzemi1.wordpress.com/2012/11/14/not-using-stdthread/" target="_blank" rel="external">(Not) using std::thread</a></li>
+<li><a href="http://eli.thegreenplace.net/2016/the-promises-and-challenges-of-stdasync-task-based-parallelism-in-c11/" target="_blank" rel="external">The promises and challenges of std::async task-based parallelism in C++11</a></li>
+<li><a href="http://eli.thegreenplace.net/2016/c11-threads-affinity-and-hyperthreading/" target="_blank" rel="external">C++11 threads, affinity and hyperthreading</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Concurrency/" rel="tag">#Concurrency</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/20/linux-ipc/" rel="next" title="谈谈 Linux 的进程间通信">
+                <i class="fa fa-chevron-left"></i> 谈谈 Linux 的进程间通信
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/02/sigpipe/" rel="prev" title="网络编程中的 SIGPIPE 信号">
+                网络编程中的 SIGPIPE 信号 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/26/cpp11_thread/"
+           data-title="C++ 多线程编程精要" data-url="http://senlinzhan.github.io/2017/02/26/cpp11_thread/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"senlinzhangithubio"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

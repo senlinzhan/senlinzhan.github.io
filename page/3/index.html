@@ -102,12 +102,15 @@
 
 
 
+<meta name="description" content="高性能">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Senlin's Blog">
 <meta property="og:url" content="http://senlinzhan.github.io/page/3/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="高性能">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:description" content="高性能">
 
 
 
@@ -185,22 +188,22 @@
     <ul id="menu" class="menu">
       
         
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
             分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
           </a>
         </li>
       
@@ -263,8 +266,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/02/17/IO多路复用/" itemprop="url">
-                  几种 I/O Multiplexing 方式的比较
+                <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
+                  浅谈 Linux 的 Zero Copy 技术
                 </a>
               
             
@@ -277,8 +280,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-17T23:46:11+08:00" content="2017-02-17">
-              2017-02-17
+            <time itemprop="dateCreated" datetime="2017-03-25T23:52:21+08:00" content="2017-03-25">
+              2017-03-25
             </time>
           </span>
 
@@ -307,8 +310,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/02/17/IO多路复用/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/17/IO多路复用/" itemprop="commentsCount"></span>
+                <a href="/2017/03/25/网络编程中的zerocpoy技术/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/25/网络编程中的zerocpoy技术/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -318,7 +321,7 @@
 
           
           
-             <span id="/2017/02/17/IO多路复用/" class="leancloud_visitors" data-flag-title="几种 I/O Multiplexing 方式的比较">
+             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的 Zero Copy 技术">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -341,11 +344,18 @@
 
       
         
-          <h2 id="select-和-poll-的缺陷"><a href="#select-和-poll-的缺陷" class="headerlink" title="select 和 poll 的缺陷"></a>select 和 poll 的缺陷</h2><p>　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。<code>select()</code>是最早出现的I/O多路复用方式，然而由于早期<code>select()</code>的API设计不当，导致了<code>select()</code>存在不少缺陷。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds, </div><div class="line">           fd_set *exceptfds, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　从API层面来讲，<code>select()</code>使用<code>fd_set</code>来表示文件描述符的集合，而<code>fd_set</code>其实就是一个固定长度的位向量(bit vector)，在Linux上，这个固定长度是<code>FD_SETSIZE</code>，其数值是1024。这就带来了一个限制：凡是<code>select()</code>监听的文件描述符，它的大小必须小于1024。<br>　　<code>poll()</code>在某些程度上改进了<code>select()</code>存在的一些问题，例如<code>poll()</code>要求用户传递一个<code>pollfd</code>数组，但它不会限定这个数组的长度，所以理论上<code>poll()</code>可以监听任意数量的文件描述符（但实际上仍受限于进程最多能打开的文件描述符数量或系统的内存）。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　使用<code>select()</code>或<code>poll()</code>监听大量的文件描述符时，往往会遭遇到性能问题。当用户每次调用<code>select()</code>或<code>poll()</code>时，内核会对传入的所有文件描述符都检查一遍，并记录其中有哪些文件描述符存在I/O就绪，这个操作的耗时将随着文件描述符数量的增加而线性增长。<br>　　另一个重要因素也会影响<code>select()</code>和<code>poll()</code>的性能，例如用户每次调用<code>poll()</code>时，都需要传递一个<code>pollfd</code>数组，而<code>poll()</code>会将这个数组从用户空间拷贝到内核空间，当内核对这个数组作了修改之后，<code>poll()</code>又会将这个数组从内核空间拷贝到用户空间。随着<code>pollfd</code>数组长度的增加，每次拷贝的时间也会线性增长，一旦<code>poll()</code>需要监听大量的文件描述符，每次调用<code>poll()</code>时，这个拷贝操作将带来不小的开销。这个问题的根源在于<code>select()</code>和<code>poll()</code>的API设计不当，例如，对于应用程序来说，它每次调用<code>poll()</code>所监听的文件描述符集合应该是差不多的，所以我们不禁这样想，如果内核愿意提供一个数据结构，记录程序所要监听的文件描述符集合，这样每次用户调用<code>poll()</code>时，<code>poll()</code>就不需要将<code>pollfd</code>数组拷贝来拷贝去了（没错，epoll 就是这样解决的）。
+          <h2 id="mmap-文件映射"><a href="#mmap-文件映射" class="headerlink" title="mmap 文件映射"></a>mmap 文件映射</h2><p>　　通常情况下，我们可以使用<code>read()</code>和<code>write()</code>去访问文件，除此之外，Linux 还提供了<code>mmap()</code>系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与<code>read()</code>和<code>write()</code>相比，使用<code>mmap()</code>去访问文件能带来什么好处呢？<br>　　使用<code>mmap()</code>一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用<code>read()</code>读取文件时，通常的做法是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[SIZE];</div><div class="line"><span class="keyword">ssize_t</span> n = read(fd, buffer, SIZE);</div></pre></td></tr></table></figure></p>
+<p>　　这个过程实际上发生了两次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到用户缓冲区。而使用<code>mmap()</code>读取文件时，只会发生第一次拷贝操作，也就是将文件内容拷贝到 OS 文件系统缓冲区，完成这个拷贝操作之后，<code>mmap()</code>还会执行其它一些复杂的操作，例如将相应的 OS 缓冲区映射到进程的地址空间。<br>　　尽管<code>mmap()</code>可以减少一次 I/O 拷贝，但由于<code>mmap()</code>的实现很复杂，调用<code>mmap()</code>将会带来额外的开销，因此在一些情况下，没有使用<code>mmap()</code>的必要：</p>
+<ul>
+<li>访问小文件时，直接使用<code>read()</code>或<code>write()</code>将更加高效。</li>
+<li>单个进程对文件执行顺序访问时(sequential access)，使用<code>mmap()</code>几乎不会带来性能上的提升。譬如说，使用<code>read()</code>顺序读取文件时，文件系统会使用 read-ahead 的方式提前将文件内容缓存到文件系统的缓冲区，因此使用<code>read()</code>将很大程度上可以命中缓存。</li>
+</ul>
+<p>　　那么，在什么情况下使用<code>mmap()</code>去访问文件会更高效呢？</p>
+<ul>
+<li>对文件执行随机访问时，如果使用<code>read()</code>或<code>write()</code>，则意味着较低的 cache 命中率。这种情况下使用<code>mmap()</code>通常将更高效。</li>
+<li>多个进程同时访问同一个文件时（无论是顺序访问还是随机访问），如果使用<code>mmap()</code>，那么 OS 缓冲区的文件内容可以在多个进程之间共享，从操作系统角度来看，使用<code>mmap()</code>可以大大节省内存。
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/17/IO多路复用/#more" rel="contents">
+            <a class="btn" href="/2017/03/25/网络编程中的zerocpoy技术/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -396,8 +406,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/02/10/Linux的TCP-CORK/" itemprop="url">
-                  Nagle 算法与 TCP socket 选项 TCP_CORK
+                <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
+                  如何设计动态链接库
                 </a>
               
             
@@ -410,8 +420,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-10T22:49:15+08:00" content="2017-02-10">
-              2017-02-10
+            <time itemprop="dateCreated" datetime="2017-03-20T20:23:09+08:00" content="2017-03-20">
+              2017-03-20
             </time>
           </span>
 
@@ -424,8 +434,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
+                  <a href="/categories/编译链接/" itemprop="url" rel="index">
+                    <span itemprop="name">编译链接</span>
                   </a>
                 </span>
 
@@ -440,8 +450,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/02/10/Linux的TCP-CORK/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/10/Linux的TCP-CORK/" itemprop="commentsCount"></span>
+                <a href="/2017/03/20/动态库/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/20/动态库/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -451,7 +461,7 @@
 
           
           
-             <span id="/2017/02/10/Linux的TCP-CORK/" class="leancloud_visitors" data-flag-title="Nagle 算法与 TCP socket 选项 TCP_CORK">
+             <span id="/2017/03/20/动态库/" class="leancloud_visitors" data-flag-title="如何设计动态链接库">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -474,10 +484,17 @@
 
       
         
-          <h2 id="Nagle-算法"><a href="#Nagle-算法" class="headerlink" title="Nagle 算法"></a>Nagle 算法</h2><p>　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。<br>　　为了减小这种开销，Nagle算法指出，当TCP发送了一个小的segment(小于MSS)，它必须等到接收了对方的ACK之后，才能继续发送另一个小的segment。那么在等待的过程中(一个RTT时间)，TCP就能尽量多地将要发送的数据收集在一起，从而减少要发送的segment的数量。<br>　　默认情况下，TCP开启了Nagle算法，然而Nagle算法并不是灵丹妙药，它会增加TCP发送数据的延迟。在一些要求低延迟的应用程序中(例如即时通讯应用)，则需要禁用Nagle算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> optval = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &amp;optval, <span class="keyword">sizeof</span>(optval));</div></pre></td></tr></table></figure></p>
-<h2 id="Delayed-ACK"><a href="#Delayed-ACK" class="headerlink" title="Delayed ACK"></a>Delayed ACK</h2><p>　　TCP的 Delayed ACK 与Nagle算法有异曲同工之妙，Delayed ACK很好理解，当TCP接收到数据时，并不会立即发送ACK给对方，相反，它会等待应用层产生数据，以便将ACK和数据一起发送(在Linux最多等待40ms)。
+          <h2 id="动态库的创建"><a href="#动态库的创建" class="headerlink" title="动态库的创建"></a>动态库的创建</h2><p>　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -o libdemo.so demo.o</div></pre></td></tr></table></figure></p>
+<p>　　<code>-fPIC</code>选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定这个选项。</p>
+<h2 id="动态库规范"><a href="#动态库规范" class="headerlink" title="动态库规范"></a>动态库规范</h2><p>　　动态库的升级通常也分为小版本的升级和主版本的升级，通常来说主版本的升级是不兼容的，而小版本的升级则是兼容的。动态库通常有一种规范的命名方式，为的是能够清晰地了解不同版本之间的关系：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">libdemo.so.1.0.1    <span class="comment"># 主版本 1，小版本 0.1</span></div><div class="line">libdemo.so.1.0.2    <span class="comment"># 主版本 1，小版本 0.2</span></div><div class="line">libdemo.so.2.0.1    <span class="comment"># 主版本 2，小版本 0.1</span></div></pre></td></tr></table></figure></p>
+<p>　　在编译动态库的时候，通常会为动态库创建一个 soname，作为动态库的别名，例如，这里我们给动态库<code>libdemo.so.1.0.1</code>创建了一个 soname 叫做<code>libdemo.1</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -Wl,-soname,libdemo.so.1 -o libdemo.so.1.0.1 demo.o</div></pre></td></tr></table></figure></p>
+<p>　　在生产环境下，用户自己创建的动态库一般不能随便放置（防止找不到或者不小心被删除了），所以推荐放在系统目录<code>/usr/local/lib/</code>下面：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mv libdemo.so.1.0.1 /usr/<span class="built_in">local</span>/lib/</div></pre></td></tr></table></figure></p>
+<p>　　通常来说，系统会在<code>/etc/ld.so.cache</code>这个文件里面缓存系统的动态库列表。如果用户自己添加了动态库，那么还需要用<code>ldconfig</code>命令去更新系统的动态库缓存列表，同时这个命令会自动创建一个与 soname 同名的符号链接，指向对应的动态库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo ldconfig -v          <span class="comment"># 更新系统动态库缓存列表</span></div><div class="line">/usr/<span class="built_in">local</span>/lib:</div><div class="line">	libdemo.so.1 -&gt; libdemo.so.1.0.1 (changed)</div><div class="line">$ ls <span class="_">-l</span> /usr/<span class="built_in">local</span>/lib/</div><div class="line">lrwxrwxrwx 1 root root    16 Mar 21 22:54 libdemo.so.1 -&gt; libdemo.so.1.0.1</div><div class="line">-rwxr-xr-x 1 root root  8776 Mar 21 22:54 libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
+<p>　　通过这些步骤就顺利安装好了动态库了。那么还有一个问题，在编译程序时，怎么让 linker 找到动态库的位置呢？最简单的方法可以这样做：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall -o main main.c /usr/<span class="built_in">local</span>/lib/libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
+<p>　　在链接的过程中，如果动态库拥有 soname，那么 linker 会将这个 soname 嵌入到可执行文件中，如果动态库没有 soname，嵌入的则是动态库的真名。我们可以用<code>readelf</code>命令看到可执行文件<code>main</code>的 header 中是否包含动态库的信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">readelf <span class="_">-d</span> main | grep libdemo</div><div class="line"> 0x0000000000000001 (NEEDED)             Shared library: [libdemo.so.1]</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，可执行文件<code>main</code>中只记录动态库的 soname。
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/10/Linux的TCP-CORK/#more" rel="contents">
+            <a class="btn" href="/2017/03/20/动态库/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -528,8 +545,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/02/08/Linux的SO-REUSEPORT选项/" itemprop="url">
-                  Linux 的 socket 选项 SO_REUSEPORT
+                <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
+                  网络编程中的 SIGPIPE 信号
                 </a>
               
             
@@ -542,8 +559,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-08T20:34:16+08:00" content="2017-02-08">
-              2017-02-08
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
             </time>
           </span>
 
@@ -572,8 +589,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/02/08/Linux的SO-REUSEPORT选项/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/08/Linux的SO-REUSEPORT选项/" itemprop="commentsCount"></span>
+                <a href="/2017/03/02/sigpipe/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/02/sigpipe/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -583,7 +600,7 @@
 
           
           
-             <span id="/2017/02/08/Linux的SO-REUSEPORT选项/" class="leancloud_visitors" data-flag-title="Linux 的 socket 选项 SO_REUSEPORT">
+             <span id="/2017/03/02/sigpipe/" class="leancloud_visitors" data-flag-title="网络编程中的 SIGPIPE 信号">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -606,16 +623,21 @@
 
       
         
-          <h2 id="均衡转发"><a href="#均衡转发" class="headerlink" title="均衡转发"></a>均衡转发</h2><p>　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用<code>accept()</code>，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，<code>accept()</code>不会导致惊群。) 然而，正如<a href="https://lwn.net/Articles/542629/">这篇文章</a>所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式去唤醒线程。这就导致了有的线程处理太多请求而忙不过来，而有的线程则很空闲。<br>　　Linux 3.9提供了<code>SO_REUSEPORT</code>选项，对于TCP来说，它允许多个listening socket绑定到同一个端口，也就是说，所有线程都可以创建一个listening socket绑定到同一个端口，并且可以调用<code>accept()</code>在这个socket上等待连接请求。使用<code>SO_REUSEPORT</code>的好处就是，由于内核会将客户端的连接请求均衡地分发给每个listening socket，在多线程环境中，这有利于充分利用好每个 CPU 核心。<br>　　<code>SO_REUSEPORT</code>的用法很简单，只要每个listening socket在调用<code>bind()</code>之前设置好这个选项就可以了：</p>
-<pre><code class="C++"><span class="keyword">int</span> sockfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);
-
-<span class="keyword">int</span> optval = <span class="number">1</span>;
-setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &amp;optval, <span class="keyword">sizeof</span>(optval));
-
-bind(sockfd, ...);
-</code></pre>
+          <h2 id="处理-SIGPIPE"><a href="#处理-SIGPIPE" class="headerlink" title="处理 SIGPIPE"></a>处理 SIGPIPE</h2><p>　　在网络编程中经常会遇到<code>SIGPIPE</code>信号，默认情况下这个信号会终止整个进程，当然你并不想让进程被<code>SIGPIPE</code>信号杀死。我们不禁会这样思考：</p>
+<ul>
+<li>在什么场景下会产生<code>SIGPIPE</code>信号？</li>
+<li>要怎样处理<code>SIGPIPE</code>信号？</li>
+</ul>
+<p>　　<code>SIGPIPE</code>产生的原因是这样的：如果一个 socket 在接收到了 RST packet 之后，程序仍然向这个 socket 写入数据，那么就会产生<code>SIGPIPE</code>信号。<br>　　这种现象是很常见的，譬如说，当 client 连接到 server 之后，这时候 server 准备向 client 发送<u>多条</u>消息，但在发送消息之前，client 进程意外奔溃了，那么接下来 server 在发送<u>多条</u>消息的过程中，就会出现<code>SIGPIPE</code>信号。下面我们看看 server 的代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handle_client</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 假设此时 client 奔溃, 那么 server 将接收到 client 发送的 FIN</span></div><div class="line">    sleep(<span class="number">5</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 写入第一条消息</span></div><div class="line">    <span class="keyword">char</span> msg1[MAXLINE] = &#123;<span class="string">"first message"</span>&#125;; </div><div class="line">    <span class="keyword">ssize_t</span> n = write(fd, msg1, <span class="built_in">strlen</span>(msg1));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"write %ld bytes\n"</span>, n);</div><div class="line"></div><div class="line">    <span class="comment">// 此时第一条消息发送成功，server 接收到 client 发送的 RST</span></div><div class="line">    sleep(<span class="number">1</span>); </div><div class="line"></div><div class="line">    <span class="comment">// 写入第二条消息，出现 SIGPIPE 信号，导致 server 被杀死</span></div><div class="line">    <span class="keyword">char</span> msg2[MAXLINE] = &#123;<span class="string">"second message"</span>&#125;;</div><div class="line">    n = write(fd, msg2, <span class="built_in">strlen</span>(msg2));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld, %s\n"</span>, n, strerror(errno));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> port = <span class="number">8888</span>;</div><div class="line">    <span class="keyword">struct</span> sockaddr_in server_addr;</div><div class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    server_addr.sin_family = AF_INET;</div><div class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</div><div class="line">    server_addr.sin_port = htons(port);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> listenfd = socket(AF_INET , SOCK_STREAM , <span class="number">0</span>);</div><div class="line">    bind(listenfd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    listen(listenfd, <span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> fd = accept(listenfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">    handle_client(fd);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们可以使用 Linux 的 nc 工具作为 client，当 client 连接到 server 之后，就立即杀死 client (模拟 client 的意外奔溃)。这时可以观察 server 的运行情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gcc -o server server.c </div><div class="line">$ ./server &amp;              <span class="comment"># 后台运行 server</span></div><div class="line">$ nc localhost 8888       <span class="comment"># 运行 nc 连接到 server</span></div><div class="line">^C                        <span class="comment"># Ctrl-C 杀死 nc</span></div><div class="line"></div><div class="line">write 13 bytes</div><div class="line">[1]+  Broken pipe             ./server</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下整个过程：</p>
+<ul>
+<li>client 连接到 server 之后，client 进程意外奔溃，这时它会发送一个 FIN 给 server。</li>
+<li>此时 server 并不知道 client 已经奔溃了，所以它会发送第一条消息给 client。但 client 已经退出了，所以 client 的 TCP 协议栈会发送一个 RST 给 server。</li>
+<li>server 在接收到 RST 之后，继续写入第二条消息。往一个已经收到 RST 的 socket 继续写入数据，将导致<code>SIGPIPE</code>信号，从而杀死 server。</li>
+</ul>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/08/Linux的SO-REUSEPORT选项/#more" rel="contents">
+            <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -666,8 +688,8 @@ bind(sockfd, ...);
             
               
                 
-                <a class="post-title-link" href="/2016/11/12/protobuf的自动反射/" itemprop="url">
-                  浅谈 Prorobuf 的自动反射功能
+                <a class="post-title-link" href="/2017/03/02/linux-signal/" itemprop="url">
+                  Linux 安全的信号处理方式
                 </a>
               
             
@@ -680,8 +702,8 @@ bind(sockfd, ...);
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-11-12T20:51:52+08:00" content="2016-11-12">
-              2016-11-12
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
             </time>
           </span>
 
@@ -710,8 +732,8 @@ bind(sockfd, ...);
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/11/12/protobuf的自动反射/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/12/protobuf的自动反射/" itemprop="commentsCount"></span>
+                <a href="/2017/03/02/linux-signal/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/02/linux-signal/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -721,7 +743,7 @@ bind(sockfd, ...);
 
           
           
-             <span id="/2016/11/12/protobuf的自动反射/" class="leancloud_visitors" data-flag-title="浅谈 Prorobuf 的自动反射功能">
+             <span id="/2017/03/02/linux-signal/" class="leancloud_visitors" data-flag-title="Linux 安全的信号处理方式">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -744,11 +766,15 @@ bind(sockfd, ...);
 
       
         
-          <h2 id="Protobuf-的介绍"><a href="#Protobuf-的介绍" class="headerlink" title="Protobuf 的介绍"></a>Protobuf 的介绍</h2><p>　　Protobuf 是一种序列化工具，用来将程序的数据结构序列化成字节流，方便网络传输。将数据结构序列化成字节流之前，首先你得向 Protobuf 提供一个 <code>.proto</code>文件，用来描述你的数据结构。举个例子，假设你想存储公司员工的信息，那么首先你需要描述一下员工的信息是怎样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">package company;</div><div class="line"></div><div class="line">message Employee &#123;</div><div class="line">    required string name = 1;</div><div class="line">    required string email = 2;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　将文件保存为<code>company.proto</code>，接着用 Protobuf 编译器自动生成一个<code>Employee</code>类：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">protoc --cpp_out . company.proto</div></pre></td></tr></table></figure></p>
-<p>　　根据生成的<code>Employee</code>类，我们就可以将员工信息序列成字节流，或从字节流读取员工信息。
+          <h2 id="信号处理的机制"><a href="#信号处理的机制" class="headerlink" title="信号处理的机制"></a>信号处理的机制</h2><p>　　在 Linux 中，<u>每个</u>进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：</p>
+<ul>
+<li>一个是<code>pending</code>位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。</li>
+<li>另一个是<code>blocked</code>位向量，它包含了那些被进程屏蔽掉的信号。</li>
+</ul>
+<p>　　当内核发送一个信号给进程时，它将会修改进程的<code>pending</code>位向量，譬如说，当内核发送一个<code>SIGINT</code>信号给进程，那么它会将进程的<code>pending[SIGINT]</code>的值设置成 1：<div align="center"><img src="/images/linux/signal1.png" width="350" align=center /> </div><br>　　同样地，当进程屏蔽掉一个信号时，那么它会修改<code>blocked</code>位向量。那么信号屏蔽是什么意思呢？当进程屏蔽掉一个信号之后，内核仍然可以发送这个信号给进程(保存在进程的<code>pending</code>位向量中)，但进程<u>不会</u>接收并处理这个信号。只有当进程解除了对这个信号的屏蔽之后，进程才会接收并处理这个信号。<br>　　让我们从内核的角度看，大概是这样的：当内核执行 context switch 切换到某个进程的时候，它会检查进程的<code>pending</code>和<code>blocked</code>位向量。如果发现进程还有信号未处理，同时这个信号<u>没有被进程屏蔽</u>，那么内核就会让进程接收并处理这个信号。用伪代码可以这样表示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pending.size(); ++i) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (pending[i] &amp; (~blocked[i])) </div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 将这个信号从 pending 位向量中清除</span></div><div class="line">        pending[i] = <span class="number">0</span>;</div><div class="line">		</div><div class="line">        <span class="comment">// 让进程接收并处理这个信号</span></div><div class="line">        <span class="comment">// ...</span></div><div class="line"></div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　譬如说，下面的程序一开始就屏蔽了<code>SIGINT</code>信号，所以即使内核发送<code>SIGINT</code>信号给这个程序，这个信号也不会得到处理。而当程序解除了对<code>SIGINT</code>的屏蔽之后，这个<code>SIGINT</code>信号才会得到处理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *message = <span class="string">"handle SIGINT signal\n"</span>;</div><div class="line">    write(STDOUT_FILENO, message, <span class="built_in">strlen</span>(message));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    signal(SIGINT, sigint_handler);</div><div class="line"></div><div class="line">    <span class="keyword">sigset_t</span> mask, prev_mask;</div><div class="line">    sigemptyset(&amp;mask);</div><div class="line">    sigaddset(&amp;mask, SIGINT);</div><div class="line"></div><div class="line">    <span class="comment">// 屏蔽掉 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_BLOCK, &amp;mask, &amp;prev_mask);</div><div class="line"></div><div class="line">    <span class="comment">// 假设此时接收到 SIGINT 信号</span></div><div class="line">    sleep(<span class="number">10</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 解除对 SIGINT 的屏蔽之后，进程会开始处理 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_SETMASK, &amp;prev_mask, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/11/12/protobuf的自动反射/#more" rel="contents">
+            <a class="btn" href="/2017/03/02/linux-signal/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -799,8 +825,8 @@ bind(sockfd, ...);
             
               
                 
-                <a class="post-title-link" href="/2016/10/19/关于Pthreads的编程细节/" itemprop="url">
-                  关于 Pthreads 的编程细节
+                <a class="post-title-link" href="/2017/02/26/cpp11_thread/" itemprop="url">
+                  C++ 多线程编程精要
                 </a>
               
             
@@ -813,8 +839,8 @@ bind(sockfd, ...);
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-19T22:03:48+08:00" content="2016-10-19">
-              2016-10-19
+            <time itemprop="dateCreated" datetime="2017-02-26T16:13:53+08:00" content="2017-02-26">
+              2017-02-26
             </time>
           </span>
 
@@ -843,8 +869,8 @@ bind(sockfd, ...);
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/10/19/关于Pthreads的编程细节/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/19/关于Pthreads的编程细节/" itemprop="commentsCount"></span>
+                <a href="/2017/02/26/cpp11_thread/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/26/cpp11_thread/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -854,7 +880,7 @@ bind(sockfd, ...);
 
           
           
-             <span id="/2016/10/19/关于Pthreads的编程细节/" class="leancloud_visitors" data-flag-title="关于 Pthreads 的编程细节">
+             <span id="/2017/02/26/cpp11_thread/" class="leancloud_visitors" data-flag-title="C++ 多线程编程精要">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -877,27 +903,15 @@ bind(sockfd, ...);
 
       
         
-          
-            <h2 id="线程标志"><a href="#线程标志" class="headerlink" title="线程标志"></a>线程标志</h2><p>　　在线程中使用<code>pthread_self()</code>可以获得线程的 ID，它的类型是<code>pthread_t</code>，但是我们无法知道<code>pthread_t</code>的具体类型，因为 Pthreads 标准并没有对此作出规定。</p>
-<ul>
-<li>由于不知道<code>pthread_t</code>的具体类型，所以无法打印<code>pthread_t</code>的数值。</li>
-<li>只能用<code>pthread_equal()</code>来比较两个<code>pthread_t</code>变量是否相同。</li>
-<li>在同个进程内的所有线程的 ID 都是唯一的，但不同进程之间就不保证线程 ID 的唯一性了。</li>
-<li>进程内的某个线程终止(terminate)之后，新创建的线程可能会复用之前终止的线程的 ID。</li>
-</ul>
-<h2 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h2><p>　　并不是所有系统调用都是线程安全的，例如<code>rand()</code>和<code>strtok()</code>就不是线程安全的，有趣的是，我们执行<code>man pthreads</code>就可以查到哪些系统调用<u>不是</u>线程安全的。<br>　　如果一个函数访问全局变量却没有使用任何同步机制，那它就不是线程安全的，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">increment</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</div><div class="line">    <span class="keyword">return</span> ++counter;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　这种情况下只要简单地使用互斥锁就可以实现线程安全：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">increment_r</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">pthread_mutex_t</span> mutex = PTHREAD_MUTEX_INITIALIZER;</div><div class="line"></div><div class="line">    pthread_mutex_lock(&amp;mutex);</div><div class="line">    <span class="keyword">int</span> result = ++counter;</div><div class="line">    pthread_mutex_unlock(&amp;mutex);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<hr>
-<p>　　另一类函数会返回一个指针，指向<code>static</code>变量，这类函数也不是线程安全的，例如标准库的<code>ctime()</code>。然而，在实际开发中，我们往往不知道库函数的实现细节，这就要求我们在不修改<code>ctime()</code>的前提下，实现<code>ctime()</code>的线程安全版本。通常的做法是由用户传递一个缓冲区，在加锁的情况下将函数返回的结果拷贝到用户缓冲区。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">char</span> *<span class="title">my_ctime_r</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span> *timep, <span class="keyword">char</span> *buf)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">pthread_mutex_t</span> mutex = PTHREAD_MUTEX_INITIALIZER;</div><div class="line">    pthread_mutex_lock(&amp;mutex);</div><div class="line">    </div><div class="line">    <span class="keyword">char</span> *ptr = ctime(timep);</div><div class="line">    <span class="built_in">strcpy</span>(buf, ptr);</div><div class="line"></div><div class="line">    pthread_mutex_unlock(&amp;mutex);</div><div class="line">    <span class="keyword">return</span> buf;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<hr>
-<p>　　除此之外，Linux 提供了<code>__thread</code>关键字，可以用来修饰全局变量或<code>static</code>变量，表示每个线程都拥有这个变量的一份副本。由于每个线程都拥有一份副本，因此在多线程中访问同一个<code>__thread</code>变量是安全的。例如，我们可以使用<code>__thread</code>来实现线程安全的<code>strerror()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> _GNU_SOURCE</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span>  <span class="comment">// Get '_sys_nerr' and '_sys_errlist' declarations </span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_ERROR_LEN 256     </span></div><div class="line"><span class="keyword">static</span> __thread <span class="keyword">char</span> buf[MAX_ERROR_LEN];</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> *<span class="title">my_strerror_r</span><span class="params">( <span class="keyword">int</span> err )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (err &lt; <span class="number">0</span> || err &gt;= _sys_nerr || _sys_errlist[err] == <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="built_in">snprintf</span>(buf, MAX_ERROR_LEN, <span class="string">"Unknown error %d"</span>, err);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">	<span class="built_in">strncpy</span>(buf, _sys_errlist[err], MAX_ERROR_LEN - <span class="number">1</span>);</div><div class="line">	buf[MAX_ERROR_LEN - <span class="number">1</span>] = <span class="string">'\0'</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> buf;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.amazon.com/Computer-Systems-Programmers-Perspective-3rd/dp/013409266X/ref=sr_1_1?ie=UTF8&amp;qid=1475743600&amp;sr=8-1&amp;keywords=csapp" target="_blank" rel="external">Computer Systems: A Programmer’s Perspective (3rd Edition)</a></li>
-<li><a href="https://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1477226990&amp;sr=8-1&amp;keywords=The+linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
-<li><a href="https://book.douban.com/subject/20471211/" target="_blank" rel="external"> Linux多线程服务端编程 - 使用muduo C++网络库</a></li>
-</ul>
-
-          
+          <h2 id="CPU-亲和性"><a href="#CPU-亲和性" class="headerlink" title="CPU 亲和性"></a>CPU 亲和性</h2><p>　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。<br>　　在Linux中，可以使用<code>pthread_setaffinity_np()</code>为线程设置CPU的亲和性：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pthread_setaffinity_np</span><span class="params">(<span class="keyword">pthread_t</span> thread, <span class="keyword">size_t</span> cpusetsize,</div><div class="line">                           <span class="keyword">const</span> <span class="keyword">cpu_set_t</span> *cpuset)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　注意到，它的第一个参数类型是<code>pthread_t</code>，代表 Linux 线程的ID。在C++中，每个<code>std::thread</code>都对应着底层操作系统的一个线程，不过我们可以使用<code>std::thread</code>的<code>native_handle()</code>函数来返回它对应的 OS 线程的ID，在Linux系统中，这个函数的返回值类型是<code>pthread_t</code>。<br>　　下面的例子，我们让线程绑定到 CPU-0 上：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sched.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">([]()</span> </span>&#123;</div><div class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::milliseconds(<span class="number">100</span>));</div><div class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Thread #"</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id()</div><div class="line">                      &lt;&lt; <span class="string">": on CPU"</span> &lt;&lt; sched_getcpu() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">cpu_set_t</span> cpuset;</div><div class="line">    CPU_ZERO(&amp;cpuset);</div><div class="line">    CPU_SET(<span class="number">0</span>, &amp;cpuset);</div><div class="line"></div><div class="line">    pthread_setaffinity_np(t.native_handle(), <span class="keyword">sizeof</span>(<span class="keyword">cpu_set_t</span>), &amp;cpuset);</div><div class="line">    t.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="改善-std-thread"><a href="#改善-std-thread" class="headerlink" title="改善 std::thread"></a>改善 std::thread</h2><p>　　在工程实践中，你会发现<code>std::thread</code>并不像想象中的那么完美。一个明显的问题是，当<code>std::thread</code>即将析构时，你要人为地确保实际的线程已经结束运行了或者已经分离了(可以分别调用它的<code>join()</code>和<code>detach()</code>成员函数)，否则程序将会抛出<code>std::terminate</code>异常。当然，由于<code>std::thread</code>的析构函数没有保证正确地释放资源，这也同时导致了<code>std::thread</code>不是异常安全的。<br>　　下面提供了一个<code>ThreadRAII</code>类，它在析构时会等待线程运行结束，或者直接分离线程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> ThreadRAII</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">enum</span> <span class="keyword">class</span> DtorAction &#123;join, detach&#125;;</div><div class="line"></div><div class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Ts&gt;</div><div class="line">    ThreadRAII(DtorAction a, Ts&amp;&amp;... params)</div><div class="line">        : action_(a), thread_(<span class="built_in">std</span>::forward&lt;Ts&gt;(params)...)</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ThreadRAII(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    ThreadRAII &amp;<span class="keyword">operator</span>=(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    </div><div class="line">    ~ThreadRAII()</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (thread_.joinable()) &#123;</div><div class="line">            <span class="keyword">if</span> (action_ == DtorAction::join) &#123;</div><div class="line">                thread_.join();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                thread_.detach();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">	</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread &amp;<span class="title">get</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> thread_; &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    DtorAction action_;</div><div class="line">    <span class="built_in">std</span>::thread thread_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　创建<code>ThreadRAII</code>对象时，可以顺带指定它的析构行为，到底是等待线程运行结束呢还是直接分离线程。下面的例子中，程序退出时，<code>ThreadRAII</code>对象的析构函数会保证线程正常结束运行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123; <span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello"</span> &lt;&lt; <span class="built_in">endl</span>; &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    ThreadRAII t&#123;ThreadRAII::DtorAction::join, sayHello&#125;;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/26/cpp11_thread/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -928,7 +942,7 @@ bind(sockfd, ...);
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -964,12 +978,12 @@ bind(sockfd, ...);
                src="/images/avatar.gif"
                alt="" />
           <p class="site-author-name" itemprop="name"></p>
-          <p class="site-description motion-element" itemprop="description"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
         </div>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
-            <a href="/">
-              <span class="site-state-item-count">28</span>
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -998,6 +1012,26 @@ bind(sockfd, ...);
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
@@ -1022,7 +1056,7 @@ bind(sockfd, ...);
       <div class="footer-inner">
         <div class="copyright" >
   
-  &copy; 
+  &copy;  2015 - 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>

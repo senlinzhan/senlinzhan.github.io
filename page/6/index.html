@@ -102,12 +102,15 @@
 
 
 
+<meta name="description" content="高性能">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Senlin's Blog">
 <meta property="og:url" content="http://senlinzhan.github.io/page/6/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="高性能">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Senlin's Blog">
+<meta name="twitter:description" content="高性能">
 
 
 
@@ -185,22 +188,22 @@
     <ul id="menu" class="menu">
       
         
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
             分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
           </a>
         </li>
       
@@ -263,8 +266,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/03/13/多项式乘法与加法/" itemprop="url">
-                  多项式算法的实现
+                <a class="post-title-link" href="/2015/08/24/C-实现阻塞队列/" itemprop="url">
+                  C++ 实现阻塞队列
                 </a>
               
             
@@ -277,8 +280,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-03-13T11:03:40+08:00" content="2015-03-13">
-              2015-03-13
+            <time itemprop="dateCreated" datetime="2015-08-24T10:07:17+08:00" content="2015-08-24">
+              2015-08-24
             </time>
           </span>
 
@@ -291,8 +294,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/算法分析/" itemprop="url" rel="index">
-                    <span itemprop="name">算法分析</span>
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
                   </a>
                 </span>
 
@@ -307,8 +310,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2015/03/13/多项式乘法与加法/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/03/13/多项式乘法与加法/" itemprop="commentsCount"></span>
+                <a href="/2015/08/24/C-实现阻塞队列/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/08/24/C-实现阻塞队列/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -318,7 +321,7 @@
 
           
           
-             <span id="/2015/03/13/多项式乘法与加法/" class="leancloud_visitors" data-flag-title="多项式算法的实现">
+             <span id="/2015/08/24/C-实现阻塞队列/" class="leancloud_visitors" data-flag-title="C++ 实现阻塞队列">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -341,12 +344,18 @@
 
       
         
-          <p>　　在数值计算中，有时我们需要对多项式进行相加或相乘，此外，还经常需要对多项式进行求值。例如，假定我们需要对两个多项式进行乘法运算：<br>$$<br>(1+x+\frac{x^2}{2}-\frac{x^3}{6}) (1+x+x^2+x^3)= 1 + \frac{x^2}{2} + \frac{x^3}{3} - \frac{2x^4}{3} + \frac{x^5}{3} - \frac{x^6}{3}<br>$$</p>
-<h2 id="多项式的表示"><a href="#多项式的表示" class="headerlink" title="多项式的表示"></a>多项式的表示</h2><p>　　我们可以定义一个<code>Poly</code>类用来表示多项式，在<code>Poly</code>中，我们使用数组来存储多项式的系数，由于系数作为数组的元素，那么系数对应的下标就是多项式的幂，例如，假定我们使用<code>Poly</code>来表示多项式$5+10x+8x^2+20x^4$，那么数组的结构就如下图所示：<br><img src="/images/data-structure/dm.png" alt=""><br>　　我们可以用<code>Poly</code>来表示多项式，例如，我们可以用<code>Poly&lt;int&gt;(2, 2)</code>来表示$2x^2$，当然，我们可以通过全局函数<code>plus()</code>来组合多项式，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> poly = plus(Poly&lt;<span class="keyword">double</span>&gt;(<span class="number">0.5</span>, <span class="number">2</span>), Poly&lt;<span class="keyword">double</span>&gt;(<span class="number">9.9</span>, <span class="number">4</span>));</div></pre></td></tr></table></figure></p>
-<p>　　那么，可以看到，<code>poly</code>就可以用来表示$0.5x^2 + 9.9x^4$，这时，若需要对多项式进行求值，例如，令$x=2$，那么可以使用<code>Poly</code>的成员函数<code>evaluate()</code>来进行求值：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; poly.evaluate(<span class="number">2</span>) &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;　　　　　　　　　    <span class="comment">// print 160.4</span></div></pre></td></tr></table></figure></p>
-<p>　　下面给出<code>Poly</code>的具体实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> Poly</div><div class="line">&#123;</div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Type&gt;</div><div class="line">    <span class="keyword">friend</span> Poly&lt;Type&gt; plus( <span class="keyword">const</span> Poly&lt;Type&gt; &amp;, <span class="keyword">const</span> Poly&lt;Type&gt; &amp; );</div><div class="line"></div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Type&gt;</div><div class="line">    <span class="keyword">friend</span> Poly&lt;Type&gt; multiply( <span class="keyword">const</span> Poly&lt;Type&gt; &amp;, <span class="keyword">const</span> Poly&lt;Type&gt; &amp; );</div><div class="line"></div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Type&gt;</div><div class="line">    <span class="keyword">friend</span> <span class="built_in">std</span>::ostream &amp;<span class="keyword">operator</span>&lt;&lt;( <span class="built_in">std</span>::ostream &amp;, <span class="keyword">const</span> Poly&lt;Type&gt; &amp; );</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    Poly( T coefficient, <span class="keyword">int</span> power )</div><div class="line">        : size_&#123; power + <span class="number">1</span> &#125;, arr_( size_, T&#123; <span class="number">0</span> &#125; ) &#123;</div><div class="line">            arr_[power] = coefficient;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">double</span> <span class="title">evaluate</span><span class="params">( <span class="keyword">double</span> value )</span> <span class="keyword">const</span></span>;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> size_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;T&gt; arr_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="built_in">std</span>::ostream &amp;<span class="keyword">operator</span>&lt;&lt;( <span class="built_in">std</span>::ostream &amp;os, <span class="keyword">const</span> Poly&lt;T&gt; &amp;poly ) &#123;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; poly.size_; ++i ) &#123;</div><div class="line">        <span class="keyword">if</span>( poly.arr_[i] != <span class="number">0</span> ) &#123;</div><div class="line">            os &lt;&lt; poly.arr_[i] &lt;&lt; <span class="string">"x^"</span> &lt;&lt; i </div><div class="line">               &lt;&lt; ( i != poly.size_ - <span class="number">1</span> ? <span class="string">" +"</span> : <span class="string">""</span> ) &lt;&lt; <span class="string">" "</span>;   </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> os;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <h2 id="队列的异常安全"><a href="#队列的异常安全" class="headerlink" title="队列的异常安全"></a>队列的异常安全</h2><p>　　考虑一下 STL 中 queue 的接口：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T&amp; front();</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pop</span><span class="params">()</span></span>;</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span></span>; <span class="comment">// avoid undefined behaviour before calling front() </span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　我们知道，<code>front()</code>用来获得队列头部元素，而<code>pop()</code>则令头部元素出列。但是为什么不设计成这样呢：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T pop();</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　其实这是为了保证异常安全（Exception Safe），像下面这个例子：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">queue</span>&lt;Widget&gt; q;</div><div class="line"><span class="comment">// ... </span></div><div class="line">Widget value = q.top();</div></pre></td></tr></table></figure></p>
+<p>　　设想一下，要是<code>top()</code>将元素出列，并且将这个元素赋值给 value 时，若其拷贝构造函数发生了异常，那么，这个元素就会永远丢失了。</p>
+<h2 id="关于实现的细节"><a href="#关于实现的细节" class="headerlink" title="关于实现的细节"></a>关于实现的细节</h2><p>　　我们将设计一个 ThreadQueue，并且具有以下的特点：</p>
+<ul>
+<li>允许多个读者 ( Reader ) 和多个写者 ( Writer ) 并发地访问队列。</li>
+<li>元素出列的操作将会阻塞，直到队列不为空。</li>
+<li>元素出列时保证异常安全性。</li>
+</ul>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/03/13/多项式乘法与加法/#more" rel="contents">
+            <a class="btn" href="/2015/08/24/C-实现阻塞队列/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -397,8 +406,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/14/unionfind算法/" itemprop="url">
-                  Union-Find算法
+                <a class="post-title-link" href="/2015/05/01/谈谈C-的编译器计算/" itemprop="url">
+                  谈谈 C++ 的编译期计算
                 </a>
               
             
@@ -411,8 +420,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-01-14T22:11:05+08:00" content="2015-01-14">
-              2015-01-14
+            <time itemprop="dateCreated" datetime="2015-05-01T14:38:06+08:00" content="2015-05-01">
+              2015-05-01
             </time>
           </span>
 
@@ -425,8 +434,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/算法分析/" itemprop="url" rel="index">
-                    <span itemprop="name">算法分析</span>
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
                   </a>
                 </span>
 
@@ -441,8 +450,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2015/01/14/unionfind算法/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/01/14/unionfind算法/" itemprop="commentsCount"></span>
+                <a href="/2015/05/01/谈谈C-的编译器计算/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/05/01/谈谈C-的编译器计算/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -452,7 +461,7 @@
 
           
           
-             <span id="/2015/01/14/unionfind算法/" class="leancloud_visitors" data-flag-title="Union-Find算法">
+             <span id="/2015/05/01/谈谈C-的编译器计算/" class="leancloud_visitors" data-flag-title="谈谈 C++ 的编译期计算">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -475,18 +484,25 @@
 
       
         
-          <h2 id="Union-Find算法"><a href="#Union-Find算法" class="headerlink" title="Union-Find算法"></a>Union-Find算法</h2><p>　　在一个连通网络中，如果存在链路，使得一个节点能通过这条链路到达另一个节点，那么我们就说这两个节点之间是连通的。在连通性问题中，通常需要判断给定的两个节点是否已经连通，这个过程称为查找<code>(find)</code>操作，此外，若两个点并没有连通，我们可以创建连通这两个节点的链路，从而使得这两个节点处于连通状态，这个过程称为合并<code>(union)</code>操作。在执行合并操作之后，网络处于新的连接状态，这时，我们就可以根据更新后的网络的状态，来判断给定的其它两个节点之间是否连通了。<br>　　为了简化处理，我们可以使用整数来给网络中的节点进行编号。首先，我们给出一个测试程序，程序每次都会要求用户输入一对整数，并且执行以下操作：</p>
+          <h2 id="const-变量"><a href="#const-变量" class="headerlink" title="const 变量"></a>const 变量</h2><p>　　<code>const</code>修饰变量，表示这个变量是不可修改，<code>const</code>变量必须初始化，一经初始化就不可修改：</p>
 <ul>
-<li>判断这对整数代表的节点是否处于连通状态，这就是查找操作。</li>
-<li>若这两个点没有连通，那么执行合并操作，使得这两个点处于连通状态。 <figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"uf.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="function">UnionFind <span class="title">uf</span><span class="params">(<span class="number">10000</span>)</span></span>;                     <span class="comment">// 10000 nodes</span></div><div class="line">    <span class="keyword">int</span> p, q;</div><div class="line">    <span class="keyword">while</span> (<span class="built_in">cin</span> &gt;&gt; p &gt;&gt; q) </div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (uf.find(p, q)) </div><div class="line">        &#123;</div><div class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"connection "</span> &lt;&lt; p &lt;&lt; <span class="string">"-"</span> &lt;&lt; q &lt;&lt; <span class="string">" already exist!"</span> &lt;&lt; <span class="built_in">endl</span>; </div><div class="line">        &#125; </div><div class="line">        <span class="keyword">else</span> </div><div class="line">        &#123;</div><div class="line">            uf.unite(p, q);</div><div class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"new connection: "</span> &lt;&lt; p &lt;&lt; <span class="string">"-"</span> &lt;&lt; q &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
+<li>编译时初始化。</li>
+<li>运行时初始化。</li>
 </ul>
-<p>　　我们可以使用简单的输入来测试程序，输入的两个整数代表两个节点，若这两个节点尚未连通，那么程序就会负责连通这两个点，若这两个点已经连通，则输出提示信息：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">4 5</div><div class="line">new connection: 4-5</div><div class="line">2 4</div><div class="line">new connection: 2-4</div><div class="line">2 5</div><div class="line">connection 2-5 already exist!</div><div class="line">3 1</div><div class="line">new connection: 3-1</div><div class="line">3 4</div><div class="line">new connection: 3-4</div><div class="line">1 2</div><div class="line">connection 1-2 already exist!</div></pre></td></tr></table></figure></p>
-<p>　　我们可以用下图<code>1.1</code>来表示对节点执行合并操作的过程，从中可以看到，节点之间的连通是具有传递性，最后，图中的<code>5</code>个节点都处于互通的状态：<br><img src="/images/data-structure/uf1.png" alt=""></p>
-<h2 id="Quick-Find算法"><a href="#Quick-Find算法" class="headerlink" title="Quick-Find算法"></a>Quick-Find算法</h2><p>　　在<code>Quick-Find</code>算法中，我们使用数组来表示所有节点的集合，在一开始，数组中的元素的值各不相同，这表示所有的节点均不连通，很显然，要是数组中存在相同的元素值，那么就表示这些元素所代表节点是互通的。由此，判断两个节点是否连通(即查找操作)就变得相当简单，只需要判断数组中的这两项元素的值是否相同，相同就表示它们是连通的。此外，要是这两个节点(假设为<code>A</code>节点和<code>B</code>节点)并不连通，那么就要执行合并操作，这时我们需要遍历整个数组，使得所有与<code>A</code>节点连通的节点都与<code>B</code>节点连通。<br>　　<code>Quick-Find</code>算法中，查找操作的复杂度为<code>O(1)</code>，而合并操作的复杂度为<code>O(N)</code>，<code>N</code>表示数组的长度，即所有节点的数目。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> UnionFind</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    UnionFind(<span class="keyword">int</span> n) </div><div class="line">        : num(n), arr(num)</div><div class="line">    &#123;</div><div class="line">	iota(arr.begin(), arr.end(), <span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">find</span><span class="params">(<span class="keyword">int</span> p, <span class="keyword">int</span> q)</span> <span class="keyword">const</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">return</span> arr[p] == arr[q];</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unite</span><span class="params">(<span class="keyword">int</span> p, <span class="keyword">int</span> q)</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!find(p, q))</div><div class="line">	&#123;</div><div class="line">            <span class="keyword">int</span> origin = arr[p];</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; num; ++i)</div><div class="line">	    &#123;</div><div class="line">                <span class="keyword">if</span> (arr[i] == origin)</div><div class="line">		&#123;</div><div class="line">                    arr[i] = arr[q];</div><div class="line">                &#125;</div><div class="line">            &#125; </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> num;    <span class="comment">// number of nodes</span></div><div class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; arr;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　图<code>1.2</code>表示了<code>Quick-Find</code>算法合并节点的过程，需要注意，节点中的数字表示节点的编号(即数组元素的下标)，而不是数组元素的值。执行一次合并操作，我们需要遍历所有节点。<br><img src="/images/data-structure/uf2.png" alt=""><br>
+<p>　　在编译时，可以使用编译时常量来初始化<code>const</code>变量：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> <span class="keyword">int</span> SIZE = <span class="number">100</span>;</div></pre></td></tr></table></figure></p>
+<p>　　那么，由于<code>SIZE</code>的值是在编译时就已经确定的，编译器会使用常量 100 来替代程序中出现的<code>SIZE</code>。</p>
+<p>　　另一方面，<code>const</code>变量也可以运行时才初始化：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</div><div class="line"><span class="keyword">const</span> <span class="keyword">int</span> i = v.size();</div></pre></td></tr></table></figure></p>
+<h2 id="constexpr-变量"><a href="#constexpr-变量" class="headerlink" title="constexpr 变量"></a>constexpr 变量</h2><p>　　<code>const</code>变量的值可以在编译时或运行时确定，与<code>const</code>相比，<code>constexpr</code>的限制更多，因为<code>constexpr</code>变量的值必须在编译时就能确定。<br>　　在一些场合之下，变量的值要求是编译期就必须确定的，<code>constexpr</code>变量正好满足要求：</p>
+<ul>
+<li>数组的大小必须是编译期常量。</li>
+<li><code>std::array</code>的大小必须是编译期常量。</li>
+<li><code>std::bitset</code>的大小必须是编译期常量。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> SIZE = <span class="number">100</span>;</div><div class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;<span class="keyword">int</span>, SIZE&gt; arr;</div></pre></td></tr></table></figure>
+<h2 id="constexpr-函数"><a href="#constexpr-函数" class="headerlink" title="constexpr 函数"></a>constexpr 函数</h2><p>　　<code>constexpr</code>函数则与编译期计算有关，要是<code>constexpr</code>函数所使用的变量其值能够在编译时就确定，那么<code>constexpr</code>函数就能在编译时执行计算。另一方面，要是<code>constexpr</code>函数所使用的变量其值只能在运行时确定，那么<code>constexpr</code>就和一般的函数没区别。</p>
+<p>　　C++11 要求<code>constexpr</code>函数不能多于一条语句，但是碰到 if-else 语句时，但可以巧妙地使用条件操作符来替代：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">constexpr</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> <span class="title">fib</span><span class="params">( <span class="keyword">unsigned</span> n )</span> <span class="keyword">noexcept</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">return</span> ( n == <span class="number">0</span> || n == <span class="number">1</span> ? n : fib( n - <span class="number">1</span> ) + fib( n - <span class="number">2</span> ) );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/01/14/unionfind算法/#more" rel="contents">
+            <a class="btn" href="/2015/05/01/谈谈C-的编译器计算/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -537,8 +553,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/10/19/优先队列和堆排序/" itemprop="url">
-                  优先队列与堆排序
+                <a class="post-title-link" href="/2015/04/24/深入shared-ptr/" itemprop="url">
+                  谈谈 shared_ptr 的那些坑
                 </a>
               
             
@@ -551,8 +567,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2014-10-19T20:01:10+08:00" content="2014-10-19">
-              2014-10-19
+            <time itemprop="dateCreated" datetime="2015-04-24T14:38:00+08:00" content="2015-04-24">
+              2015-04-24
             </time>
           </span>
 
@@ -565,8 +581,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
                   </a>
                 </span>
 
@@ -581,8 +597,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2014/10/19/优先队列和堆排序/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2014/10/19/优先队列和堆排序/" itemprop="commentsCount"></span>
+                <a href="/2015/04/24/深入shared-ptr/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/04/24/深入shared-ptr/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -592,7 +608,7 @@
 
           
           
-             <span id="/2014/10/19/优先队列和堆排序/" class="leancloud_visitors" data-flag-title="优先队列与堆排序">
+             <span id="/2015/04/24/深入shared-ptr/" class="leancloud_visitors" data-flag-title="谈谈 shared_ptr 的那些坑">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -615,25 +631,310 @@
 
       
         
-          <h2 id="优先队列"><a href="#优先队列" class="headerlink" title="优先队列"></a>优先队列</h2><p>　　二叉堆可分为大根堆和小根堆，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。可以使用数组表示二叉堆，<code>x[0]</code>弃之不用，我们用<code>x[1]</code>表示根节点。假定堆有 n 个元素并且满足大根堆的属性，那么需要满足 <code>x[i]</code> &lt;= <code>x[i/2]</code> ( n 取值 [2, n] )。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> PriorityQueue</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    PriorityQueue()</div><div class="line">        : n( <span class="number">0</span> ), x( <span class="number">1</span> )</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span> </div><div class="line">    </span>&#123; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span>        n;          <span class="comment">// for nodes' number</span></div><div class="line">    <span class="built_in">vector</span>&lt;T&gt;  x;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<p>　　往堆中加入新节点：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></div><div class="line"></span>&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　新节点位于<code>x[n]</code>，这时<code>x[1, ..., n]</code>可能不满足堆的属性：</p>
+          <h2 id="共享所有权"><a href="#共享所有权" class="headerlink" title="共享所有权"></a>共享所有权</h2><p>　　一个动态分配的对象可以在多个<code>shared_ptr</code>之间共享，这是因为<code>shared_ptr</code>支持 copy 操作：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">shared_ptr</span>&lt;<span class="built_in">string</span>&gt; ptr1&#123; <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"hello"</span>) &#125;;</div><div class="line"><span class="keyword">auto</span> ptr2 = ptr1;　<span class="comment">// copy constructor</span></div></pre></td></tr></table></figure></p>
+<h2 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h2><p>　　<code>shared_ptr</code>内部包含两个指针，一个指向对象，另一个指向控制块(control block)，控制块中包含一个<u>引用计数</u>和其它一些数据。由于这个控制块需要在多个<code>shared_ptr</code>之间共享，所以它也是存在于 heap 中的。<code>shared_ptr</code>对象本身是线程安全的，也就是说<code>shared_ptr</code>的引用计数增加和减少的操作都是原子的。<br><img src="/images/data-structure/sh2.png" alt=""><br>　　通过<code>unique_ptr</code>来构造<code>shared_ptr</code>是可行的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">unique_ptr</span>&lt;<span class="built_in">string</span>&gt; p1&#123; <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"senlin"</span>) &#125;;</div><div class="line"><span class="built_in">shared_ptr</span>&lt;<span class="built_in">string</span>&gt; p2&#123; <span class="built_in">std</span>::move(p1) &#125;;</div></pre></td></tr></table></figure></p>
+<h2 id="shared-ptr-的风险"><a href="#shared-ptr-的风险" class="headerlink" title="shared_ptr 的风险"></a>shared_ptr 的风险</h2><p>　　你大概觉得使用智能指针就再也高枕无忧了，不再为内存泄露烦恼了。然而梦想总是美好的，使用<code>shared_ptr</code>时，不可避免地会遇到<u>循环引用</u>的情况，这样容易导致内存泄露。循环引用就像下图所示，通过<code>shared_ptr</code>创建的两个对象，同时它们的内部均包含<code>shared_ptr</code>指向对方。<br><img src="/images/data-structure/am.png" alt=""><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 一段内存泄露的代码</span></div><div class="line"><span class="keyword">struct</span> Son;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> Father　&#123;</div><div class="line">    <span class="built_in">shared_ptr</span>&lt;Son&gt; son_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> Son &#123;</div><div class="line">    <span class="built_in">shared_ptr</span>&lt;Father&gt; father_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> father = make_shared&lt;Father&gt;();</div><div class="line">    <span class="keyword">auto</span> son = make_shared&lt;Son&gt;();</div><div class="line">    father-&gt;son_ = son;</div><div class="line">    son-&gt;father_ = father;</div><div class="line">  </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　分析一下<code>main</code>函数是如何退出的，一切就都明了：</p>
 <ul>
-<li>要是新节点大于它的父节点，则交换它们。</li>
-<li>持续这个过程，直到新节点不大于它的父节点，即小于或等于它的父节点。</li>
+<li><code>main</code>函数退出之前，<code>Father</code>和<code>Son</code>对象的引用计数都是<code>2</code>。</li>
+<li><code>son</code>指针销毁，这时<code>Son</code>对象的引用计数是<code>1</code>。</li>
+<li><code>father</code>指针销毁，这时<code>Father</code>对象的引用计数是<code>1</code>。</li>
+<li>由于<code>Father</code>对象和<code>Son</code>对象的引用计数都是<code>1</code>，这两个对象都不会被销毁，从而发生内存泄露。</li>
 </ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></div><div class="line"></span>&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line"></div><div class="line">    <span class="comment">/**</div><div class="line">        invariant: </div><div class="line">        x[1, ..., n] is heap except perhaps x[i] and x[i / 2]</div><div class="line">    **/</span></div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = n; i &gt; <span class="number">1</span> &amp;&amp; x[i] &gt; x[i / <span class="number">2</span>]; i /= <span class="number">2</span> )</div><div class="line">    &#123;</div><div class="line">        swap( x[i], x[i / <span class="number">2</span>] );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>　　另一个操作时<code>pop()</code>，也就是将最大的节点移除优先队列：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    <span class="comment">/**</div><div class="line">        remove x[1], now x[2, ..., n] is a heap, our goal is make x[1, ..., n - 1] be a heap</div><div class="line">    **/</span></div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　移出了最大的节点<code>x[1]</code>，为了维持堆的属性，可以这样做：</p>
-<ul>
-<li>将最后一个节点<code>elem</code>放到<code>x[1]</code>，<code>n</code>减一 。</li>
-<li>为了维持堆的属性，要是<code>elem</code>小于它的两个子节点的较大者，交换他们。</li>
-<li>持续这个过程，直到<code>elem</code>大于或等于它的两个子节点。</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    x[<span class="number">1</span>] = x[n--];</div><div class="line">    x.pop_back();</div><div class="line">		</div><div class="line">    <span class="keyword">int</span> p;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">1</span>; ( p = i * <span class="number">2</span> ) &lt;= n; i = p )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( p &lt; n &amp;&amp; x[p] &lt; x[p + <span class="number">1</span>] )</div><div class="line">        &#123;</div><div class="line">            ++p;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span>( x[i] &gt;= x[p] )</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        swap( x[i], x[p] );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<p>　　为避免循环引用导致的内存泄露，就需要使用<code>weak_ptr</code>，<code>weak_ptr</code>并不拥有其指向的对象，也就是说，让<code>weak_ptr</code>指向<code>shared_ptr</code>所指向对象，对象的引用计数并不会增加：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> ptr = make_shared&lt;<span class="built_in">string</span>&gt;(<span class="string">"senlin"</span>);</div><div class="line">weak_ptr&lt;<span class="built_in">string</span>&gt; wp1&#123; ptr &#125;;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"use count: "</span> &lt;&lt; ptr.use_count() &lt;&lt; <span class="built_in">endl</span>;<span class="comment">// use count: 1</span></div></pre></td></tr></table></figure></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2014/10/19/优先队列和堆排序/#more" rel="contents">
+            <a class="btn" href="/2015/04/24/深入shared-ptr/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/04/20/谈谈C-的智能指针/" itemprop="url">
+                  深入 C++ 的 unique_ptr
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-04-20T19:22:08+08:00" content="2015-04-20">
+              2015-04-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/04/20/谈谈C-的智能指针/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/04/20/谈谈C-的智能指针/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/04/20/谈谈C-的智能指针/" class="leancloud_visitors" data-flag-title="深入 C++ 的 unique_ptr">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="从异常安全说起"><a href="#从异常安全说起" class="headerlink" title="从异常安全说起"></a>从异常安全说起</h2><p>　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：</p>
+<ul>
+<li>忘记<code>delete</code>内存，造成内存泄露。</li>
+<li>出现异常时，不会执行<code>delete</code>，造成内存泄露。</li>
+</ul>
+<p>　　下面的代码解释了，当一个操作发生异常时，会导致<code>delete</code>不会被执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="comment">// 执行一个会抛出异常的操作</span></div><div class="line">    func_throw_exception();</div><div class="line">    </div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　在 C++98 中我们需要用一种笨拙的方式，写出异常安全的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        func_throw_exception();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">catch</span>(...) &#123;</div><div class="line">        <span class="keyword">delete</span> ptr;</div><div class="line">        <span class="keyword">throw</span>; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　使用智能指针能轻易写出异常安全的代码，因为当对象退出作用域时，智能指针将自动调用对象的析构函数，避免内存泄露：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Widget&gt; ptr&#123; <span class="keyword">new</span> Widget &#125;;</div><div class="line"></div><div class="line">    func_throw_exception();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="unique-ptr-的原理"><a href="#unique-ptr-的原理" class="headerlink" title="unique_ptr 的原理"></a>unique_ptr 的原理</h2><p>　　让我们了解一下<code>unique_ptr</code>的实现细节：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> D = default_delete&lt;T&gt;&gt;</div><div class="line">    <span class="keyword">class</span> <span class="built_in">unique_ptr</span></div><div class="line">    &#123;</div><div class="line">    <span class="keyword">public</span>:</div><div class="line">        <span class="keyword">explicit</span> <span class="built_in">unique_ptr</span>(pointer p) <span class="keyword">noexcept</span>;</div><div class="line">        ~<span class="built_in">unique_ptr</span>() <span class="keyword">noexcept</span>;    </div><div class="line"></div><div class="line">	T&amp; <span class="keyword">operator</span>*() <span class="keyword">const</span>;</div><div class="line">        T* <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line">        <span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="comment">// ...</span></div><div class="line">    <span class="keyword">private</span>:</div><div class="line">        pointer __ptr;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从上面的代码中，我们可以了解到：</p>
+<ul>
+<li><code>unique_ptr</code>内部存储一个 raw pointer，当<code>unique_ptr</code>析构时，它的析构函数将会负责析构它持有的对象。</li>
+<li><code>unique_ptr</code>提供了<code>operator*()</code>和<code>operator-&gt;()</code>成员函数，像 raw pointer 一样，我们可以使用<code>*</code>解引用<code>unique_ptr</code>，使用<code>-&gt;</code>来访问<code>unique_ptr</code>所持有对象的成员。</li>
+<li><code>unique_ptr</code>并不提供 copy 操作，这是为了防止多个<code>unique_ptr</code>指向同一对象。</li>
+<li>但<code>unique_ptr</code>提供了 move 操作，因此我们可以用<code>std::move()</code>来转移<code>unique_ptr</code>。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/04/20/谈谈C-的智能指针/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/03/31/C-使用vector的正确姿势/" itemprop="url">
+                  高效使用 C++ 的 vector
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-03-31T14:38:06+08:00" content="2015-03-31">
+              2015-03-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/03/31/C-使用vector的正确姿势/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/03/31/C-使用vector的正确姿势/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/03/31/C-使用vector的正确姿势/" class="leancloud_visitors" data-flag-title="高效使用 C++ 的 vector">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="预留足够空间"><a href="#预留足够空间" class="headerlink" title="预留足够空间"></a>预留足够空间</h2><p>　　<code>vector</code>实际上是能够动态增长的数组，因此，当<code>vector</code>的容量 ( capacity ) 不足以容纳新元素的时候，<code>vecvtor</code>就会重新分配较大的内存，将原来的元素移动到新的内存，并回收旧的内存。这个过程会导致几个问题：</p>
+<ul>
+<li>每一次重新分配内存的操作都会带来不小的开销。</li>
+<li>由于旧的内存被系统回收，因此，原来所有指向<code>vector</code>元素的指针、迭代器和引用都会失效。</li>
+</ul>
+<p>　　每一次使用<code>push_back()</code>往<code>vector</code>中增加元素，可能会导致<code>vector</code>重新分配内存：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</div><div class="line"><span class="keyword">auto</span> cap = vec.capacity();</div><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"origin capacity: "</span> &lt;&lt; cap &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line"></div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; ++i ) &#123;</div><div class="line">    vec.push_back( i );</div><div class="line">    <span class="keyword">if</span>( cap != vec.capacity() ) &#123;</div><div class="line">        cap = vec.capacity();</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"new capacity: "</span> &lt;&lt; cap &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从例子可以看到，往<code>vector</code>中增加 1000 个元素，会导致<code>vector</code>多次重新分配内存：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">origin capacity: 0</div><div class="line">new capacity: 1</div><div class="line">new capacity: 2</div><div class="line">new capacity: 4</div><div class="line">new capacity: 8</div><div class="line">new capacity: 16</div><div class="line">new capacity: 32</div><div class="line">new capacity: 64</div><div class="line">new capacity: 128</div><div class="line">new capacity: 256</div><div class="line">new capacity: 512</div><div class="line">new capacity: 1024</div></pre></td></tr></table></figure></p>
+<p>　　为了减少重新分配内存带来的开销，实际上我们可以使用<code>v.reserve(n)</code>来预留足够的内存( <code>v</code>是<code>vector</code>的对象 )：</p>
+<ul>
+<li>要是<code>n</code>小于或等于<code>v.capacity()</code>，那么，<code>v</code>将忽略这个操作。</li>
+<li>要是<code>n</code>大于<code>v.capacity()</code>，那么，<code>v</code>将会重新分配内存，并保证新的容量至少为<code>n</code>。</li>
+</ul>
+<p>　　很明显，要是一开始<code>vector</code>就预留足够的空间，那么，即使不断地使用<code>push_back()</code>增加元素，<code>vector</code>也不会重新分配内存，并且所有指向元素的指针、迭代器和引用仍然有效。需要明白一点，<code>reserve()</code>使用空间置配器 ( allocator ) 来分配内存，也就是，没有存储元素的那部分内存是原生 ( raw ) 内存。</p>
+<p>　　根据这个方法，可以减少重新分配内存的次数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> <span class="keyword">int</span> NUM = <span class="number">1000</span>;</div><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</div><div class="line">vec.reserve( NUM );</div><div class="line"></div><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"origin capacity: "</span> &lt;&lt; vec.capacity() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NUM; ++i ) &#123;</div><div class="line">    vec.push_back( i );</div><div class="line">&#125;</div><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"new capacity: "</span> &lt;&lt; vec.capacity() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/03/31/C-使用vector的正确姿势/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -667,7 +968,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -703,12 +1004,12 @@
                src="/images/avatar.gif"
                alt="" />
           <p class="site-author-name" itemprop="name"></p>
-          <p class="site-description motion-element" itemprop="description"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
         </div>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
-            <a href="/">
-              <span class="site-state-item-count">28</span>
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -737,6 +1038,26 @@
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
@@ -761,7 +1082,7 @@
       <div class="footer-inner">
         <div class="copyright" >
   
-  &copy; 
+  &copy;  2015 - 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>

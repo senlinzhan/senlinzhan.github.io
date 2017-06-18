@@ -1,0 +1,818 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Network," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="再谈三次握手　　Linux 提供了listen()系统调用，它的作用是在 server socket 上监听新的连接请求：1int listen(int sockfd, int backlog);
+　　那么listen()的第二个参数backlog的作用是什么呢？让我们先回顾一下 TCP 的三次握手： 　　对于 server 来说，一个新的连接首先会经过 SYN_RECV 状态，然后才会进入 ES">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux TCP/IP 性能调优">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/05/28/tcp-tuning/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="再谈三次握手　　Linux 提供了listen()系统调用，它的作用是在 server socket 上监听新的连接请求：1int listen(int sockfd, int backlog);
+　　那么listen()的第二个参数backlog的作用是什么呢？让我们先回顾一下 TCP 的三次握手： 　　对于 server 来说，一个新的连接首先会经过 SYN_RECV 状态，然后才会进入 ES">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/tcp1.png">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/tcp-synack-retry.png">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/tcp2.png">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/timewait1.png">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/duplicate-segment.png">
+<meta property="og:updated_time" content="2017-06-17T08:23:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux TCP/IP 性能调优">
+<meta name="twitter:description" content="再谈三次握手　　Linux 提供了listen()系统调用，它的作用是在 server socket 上监听新的连接请求：1int listen(int sockfd, int backlog);
+　　那么listen()的第二个参数backlog的作用是什么呢？让我们先回顾一下 TCP 的三次握手： 　　对于 server 来说，一个新的连接首先会经过 SYN_RECV 状态，然后才会进入 ES">
+<meta name="twitter:image" content="http://senlinzhan.github.io/images/linux/tcp1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/05/28/tcp-tuning/"/>
+
+  <title> Linux TCP/IP 性能调优 | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux TCP/IP 性能调优
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-05-28T08:45:16+08:00" content="2017-05-28">
+              2017-05-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/05/28/tcp-tuning/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/05/28/tcp-tuning/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/28/tcp-tuning/" class="leancloud_visitors" data-flag-title="Linux TCP/IP 性能调优">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="再谈三次握手"><a href="#再谈三次握手" class="headerlink" title="再谈三次握手"></a>再谈三次握手</h2><p>　　Linux 提供了<code>listen()</code>系统调用，它的作用是在 server socket 上监听新的连接请求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">listen</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">int</span> backlog)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　那么<code>listen()</code>的第二个参数<code>backlog</code>的作用是什么呢？让我们先回顾一下 TCP 的三次握手：<div align="center"><img src="/images/linux/tcp1.png" width="550" align="center"> </div><br>　　对于 server 来说，一个新的连接首先会经过 SYN_RECV 状态，然后才会进入 ESTABLISHED 状态。那么对于每个 server socket 来说，内核需要两个队列来保存所有连接的信息：</p>
+<ul>
+<li>一个是<u>半连接队列</u> (incompletely queue)，用来保存所有处在 SYN_RECV 状态的连接。</li>
+<li>另一个是<u>连接队列</u> (completely queue)，用来保存所有处在 ESTABLISHED 状态的连接。</li>
+</ul>
+<p>　　也就是说，当一个新的连接进入 SYNC_RECV 状态时，内核会将它放到<u>半连接队列</u>中。而当这个连接从 SYNC_RECV 状态进入到 ESTABLISHED 状态时，内核会将它从<u>半连接队列</u>中移动到<u>连接队列</u>中。最后当<code>accept()</code>返回时，这个连接也会从<u>连接队列</u>中移走。<br>　　<code>listen()</code>的<code>backlog</code>参数其实是用来指定<u>连接队列</u>的长度。而如果要改变<u>半连接队列</u>的长度，则需要改变内核参数：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">net.ipv4.tcp_max_syn_backlog = 1024   <span class="comment"># 半连接队列的长度</span></div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改变生效</span></div></pre></td></tr></table></figure></p>
+<p>　　在实际情况中，如果 server 的负载比较高，无法迅速地<code>accept()</code>新的连接，就可能导致<u>连接队列</u>满了，这时候就需要调高<code>listen()</code>的<code>backlog</code>参数。然而注意到，<code>backlog</code>参数有一个上限，这个上限由内核参数<code>net.core.somaxconn</code>决定，这个参数的默认值是<code>128</code>。也就是说，如果我们要让<code>backlog</code>的上限大于 128，就需要调高<code>net.core.somaxconn</code>这个内核参数的值：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">net.core.somaxconn = 1024             <span class="comment"># listen backlog 的上限，默认值是 128</span></div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改变生效</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　让我们思考一个问题，对于 server 的一个连接来说，当它接收到 client 发送的 ACK segment 之后，就会从 SYNC_RECV 进入到 ESTABLISHED 状态，但如果这时<u>连接队列</u>满了，那么会发生什么事情呢？<br>　　默认情况下，server的 TCP 协议栈会丢弃这个 ACK segment。但此时这个连接仍然处在 SYNC_RECV 状态，所以 server 的 TCP 协议栈会重新发送 SYN/ACK 给 client。下图显示了进行一次重试的过程：<div align="center"><img src="/images/linux/tcp-synack-retry.png" width="450" align="center"> </div><br>　　最大的重传次数由内核参数<code>net.ipv4.tcp_synack_retries</code>规定，默认情况下，这个值是 5，重传 5 次的总耗时约为 180 秒。在某些情况下，我们可以调小这个值，以减小重传的超时时间。<a id="more"></a></p>
+<h2 id="TIME-WAIT-的作用"><a href="#TIME-WAIT-的作用" class="headerlink" title="TIME_WAIT 的作用"></a>TIME_WAIT 的作用</h2><p>　　在 TCP 四次挥手的过程中，主动关闭的一方会进入 TIME_WAIT 状态，并且这个状态会持续 2MSL 时间（在 Linux 这段时间为 60 秒）。那么 TIME_WAIT 状态作用是什么呢？首先让我们回顾一下 TCP 的四次挥手：<div align="center"><img src="/images/linux/tcp2.png" width="500" align="center"> </div><br>　　TIME_WAIT 的第一个作用是保证 TCP 的可靠关闭，譬如说，当图中的 client 发送给 server 的 ACK 丢失了，那么 server 在等待一个 RTO 时间之后，会重新发送 FIN 给 client，当然这个 FIN 在网络中传输<u>最多</u>需要一个 MSL 时间。如果 TIME_WAIT 持续 2MSL 时间，就足以保证当 client 接收到这个重传的 FIN 时，连接仍然有效。下图模拟了这种丢失 ACK 的情况：</p>
+<p><div align="center"><img src="/images/linux/timewait1.png" width="450" align="center"> </div><br>　　值得注意的是，client在接收到server<u>重传</u>的 FIN 之后，会<u>重置</u> TIME_WAIT 状态的 2MSL 定时器。</p>
+<hr>
+<p>　　我们知道，TCP 的超时重传机制可能会导致网络中出现重复的 segment。TIME_WAIT 的另一个作用就是确保当连接消失的时候，由这个连接所产生的重复的 segment 也会在网络中消失。为了保证这一点，TIME_WAIT 需要持续 2MSL 时间。<br>　　如果 TIME_WAIT 持续的时间太短，就会出现下面的这种情况：</p>
+<p><div align="center"><img src="/images/linux/duplicate-segment.png" width="450" align="center"> </div></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://veithen.github.io/2014/01/01/how-tcp-backlog-works-in-linux.html" target="_blank" rel="external">How TCP backlog works in Linux</a></li>
+<li><a href="http://www.cisco.com/c/en/us/about/press/internet-protocol-journal/back-issues/table-contents-34/syn-flooding-attacks.html" target="_blank" rel="external">Defenses Against TCP SYN Flooding Attacks</a></li>
+<li><a href="https://www.speedguide.net/articles/linux-tweaking-121" target="_blank" rel="external">Linux Broadband Tweaks</a></li>
+<li><a href="http://www.lognormal.com/blog/2012/09/27/linux-tcpip-tuning/" target="_blank" rel="external">Linux TCP/IP tuning for scalability</a></li>
+<li><a href="https://vincent.bernat.im/en/blog/2014-tcp-time-wait-state-linux" target="_blank" rel="external">Coping with the TCP TIME-WAIT state on busy Linux servers</a></li>
+<li><a href="http://www.serverframework.com/asynchronousevents/2011/01/time-wait-and-its-design-implications-for-protocols-and-scalable-servers.html" target="_blank" rel="external">TIME_WAIT and its design implications for protocols and scalable client server systems</a></li>
+<li><a href="http://www.isi.edu/touch/pubs/infocomm99/infocomm99-web/" target="_blank" rel="external">The TIME-WAIT state in TCP and Its Effect on Busy Servers</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Network/" rel="tag">#Network</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/16/boost-asio-notes/" rel="next" title="Boost.Asio 编程精要">
+                <i class="fa fa-chevron-left"></i> Boost.Asio 编程精要
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/10/pthread-inside/" rel="prev" title="深入 Linux 多线程编程">
+                深入 Linux 多线程编程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/05/28/tcp-tuning/"
+           data-title="Linux TCP/IP 性能调优" data-url="http://senlinzhan.github.io/2017/05/28/tcp-tuning/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"senlinzhangithubio"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

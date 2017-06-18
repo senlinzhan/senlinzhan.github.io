@@ -110,7 +110,7 @@
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="动态库的创建　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：12$ gcc -g -c -fPIC -Wall demo.c$ gcc -g -shared -o libdemo.so demo.o
 　　-fPIC选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定">
-<meta property="og:updated_time" content="2017-04-06T14:28:47.000Z">
+<meta property="og:updated_time" content="2017-06-10T08:14:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何设计动态链接库">
 <meta name="twitter:description" content="动态库的创建　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：12$ gcc -g -c -fPIC -Wall demo.c$ gcc -g -shared -o libdemo.so demo.o
@@ -190,22 +190,22 @@
     <ul id="menu" class="menu">
       
         
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
             分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
           </a>
         </li>
       
@@ -388,8 +388,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/26/C-多线程编程要点/" rel="next" title="C++ 多线程编程精要">
-                <i class="fa fa-chevron-left"></i> C++ 多线程编程精要
+              <a href="/2017/03/02/linux-signal/" rel="next" title="Linux 安全的信号处理方式">
+                <i class="fa fa-chevron-left"></i> Linux 安全的信号处理方式
               </a>
             
           </div>
@@ -456,12 +456,12 @@
                src="/images/avatar.gif"
                alt="" />
           <p class="site-author-name" itemprop="name"></p>
-          <p class="site-description motion-element" itemprop="description"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
         </div>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
-            <a href="/">
-              <span class="site-state-item-count">28</span>
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -490,6 +490,26 @@
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
@@ -514,7 +534,7 @@
       <div class="footer-inner">
         <div class="copyright" >
   
-  &copy; 
+  &copy;  2015 - 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>

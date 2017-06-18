@@ -1,0 +1,842 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Network," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="信号处理的机制　　在 Linux 中，每个进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：
+
+一个是pending位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。
+另一个是blocked位向量，它包含了那些被进程屏蔽掉的信号。
+
+　　当内核发送一个信号给进程时，它将会修改进程的pending位向量，譬如说，当内核发送一个SIGINT信号给进程，那么它会将进程的pen">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 安全的信号处理方式">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/03/02/linux-signal/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="信号处理的机制　　在 Linux 中，每个进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：
+
+一个是pending位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。
+另一个是blocked位向量，它包含了那些被进程屏蔽掉的信号。
+
+　　当内核发送一个信号给进程时，它将会修改进程的pending位向量，譬如说，当内核发送一个SIGINT信号给进程，那么它会将进程的pen">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/signal1.png">
+<meta property="og:updated_time" content="2017-06-11T09:56:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 安全的信号处理方式">
+<meta name="twitter:description" content="信号处理的机制　　在 Linux 中，每个进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：
+
+一个是pending位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。
+另一个是blocked位向量，它包含了那些被进程屏蔽掉的信号。
+
+　　当内核发送一个信号给进程时，它将会修改进程的pending位向量，譬如说，当内核发送一个SIGINT信号给进程，那么它会将进程的pen">
+<meta name="twitter:image" content="http://senlinzhan.github.io/images/linux/signal1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/03/02/linux-signal/"/>
+
+  <title> Linux 安全的信号处理方式 | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 安全的信号处理方式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/03/02/linux-signal/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/02/linux-signal/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/02/linux-signal/" class="leancloud_visitors" data-flag-title="Linux 安全的信号处理方式">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="信号处理的机制"><a href="#信号处理的机制" class="headerlink" title="信号处理的机制"></a>信号处理的机制</h2><p>　　在 Linux 中，<u>每个</u>进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：</p>
+<ul>
+<li>一个是<code>pending</code>位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。</li>
+<li>另一个是<code>blocked</code>位向量，它包含了那些被进程屏蔽掉的信号。</li>
+</ul>
+<p>　　当内核发送一个信号给进程时，它将会修改进程的<code>pending</code>位向量，譬如说，当内核发送一个<code>SIGINT</code>信号给进程，那么它会将进程的<code>pending[SIGINT]</code>的值设置成 1：<div align="center"><img src="/images/linux/signal1.png" width="350" align="center"> </div><br>　　同样地，当进程屏蔽掉一个信号时，那么它会修改<code>blocked</code>位向量。那么信号屏蔽是什么意思呢？当进程屏蔽掉一个信号之后，内核仍然可以发送这个信号给进程(保存在进程的<code>pending</code>位向量中)，但进程<u>不会</u>接收并处理这个信号。只有当进程解除了对这个信号的屏蔽之后，进程才会接收并处理这个信号。<br>　　让我们从内核的角度看，大概是这样的：当内核执行 context switch 切换到某个进程的时候，它会检查进程的<code>pending</code>和<code>blocked</code>位向量。如果发现进程还有信号未处理，同时这个信号<u>没有被进程屏蔽</u>，那么内核就会让进程接收并处理这个信号。用伪代码可以这样表示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pending.size(); ++i) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (pending[i] &amp; (~blocked[i])) </div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 将这个信号从 pending 位向量中清除</span></div><div class="line">        pending[i] = <span class="number">0</span>;</div><div class="line">		</div><div class="line">        <span class="comment">// 让进程接收并处理这个信号</span></div><div class="line">        <span class="comment">// ...</span></div><div class="line"></div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　譬如说，下面的程序一开始就屏蔽了<code>SIGINT</code>信号，所以即使内核发送<code>SIGINT</code>信号给这个程序，这个信号也不会得到处理。而当程序解除了对<code>SIGINT</code>的屏蔽之后，这个<code>SIGINT</code>信号才会得到处理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *message = <span class="string">"handle SIGINT signal\n"</span>;</div><div class="line">    write(STDOUT_FILENO, message, <span class="built_in">strlen</span>(message));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    signal(SIGINT, sigint_handler);</div><div class="line"></div><div class="line">    <span class="keyword">sigset_t</span> mask, prev_mask;</div><div class="line">    sigemptyset(&amp;mask);</div><div class="line">    sigaddset(&amp;mask, SIGINT);</div><div class="line"></div><div class="line">    <span class="comment">// 屏蔽掉 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_BLOCK, &amp;mask, &amp;prev_mask);</div><div class="line"></div><div class="line">    <span class="comment">// 假设此时接收到 SIGINT 信号</span></div><div class="line">    sleep(<span class="number">10</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 解除对 SIGINT 的屏蔽之后，进程会开始处理 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_SETMASK, &amp;prev_mask, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h2 id="安全地处理信号"><a href="#安全地处理信号" class="headerlink" title="安全地处理信号"></a>安全地处理信号</h2><p>　　通常来说，信号中断有两种情况：</p>
+<ul>
+<li>当进程接收到某个信号时，会调用这个信号的 handler，这会<u>中断</u>主程序的执行。</li>
+<li>当进程在执行某个信号 handler 的过程中，可能会被另一个信号 handler 中断。</li>
+</ul>
+<p>　　上面这两种情况都会带来<u>并发安全</u>的问题，因此在编写信号 handler 时，需要考虑到并发安全的问题。譬如说，由于信号 handler 会中断主程序的执行，如果信号 handler 与主程序<u>共享</u>全局变量，就可能带来并发安全的问题。<br>　　信号 handler 与主程序共享全局变量是很常见的。譬如说，当进程在接收到<code>SIGINT</code>时，为了<u>优雅地</u>退出程序，这时可以使用一个全局变量记录是否接收到<code>SIGINT</code>信号。主程序每次进入循环时都会检查这个变量，如果发现进程接收到<code>SIGINT</code>信号，就释放好资源并退出程序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">int</span> quit = <span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span> </span>&#123;  quit = <span class="number">1</span>;  &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">char</span> *buffer = <span class="built_in">malloc</span>(<span class="number">1024</span> * <span class="keyword">sizeof</span>(<span class="keyword">char</span>));</div><div class="line">    signal(SIGINT, sigint_handler);</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (quit)</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">free</span>(buffer);</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// do something else</span></div><div class="line">        sleep(<span class="number">10</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　上面的代码并不是并发安全的，可能导致两个问题：</p>
+<ul>
+<li>现代编译器通常会优化程序对变量的访问。主程序可能会将<code>quit</code>的副本存储在<u>寄存器</u>中，每次访问<code>quit</code>时就从寄存器中访问。那么即使信号 handler 修改了这个<code>quit</code>在内存中的值，主程序也可能不知道。</li>
+<li>主程序会读取<code>quit</code>的值，信号 handler 会改变<code>quit</code>的值，而这两个操作都<u>不保证</u>是原子的。</li>
+</ul>
+<p>　　我们可以这样解决这两个问题：</p>
+<ul>
+<li>首先将<code>quit</code>声明为<code>volatile</code>变量。<code>volatile</code>可以阻止编译器所做的优化，这样信号 handler 和主程序访问<code>quit</code>时都会从<u>主内存</u>中访问。</li>
+<li>其次将<code>quit</code>的类型改成<code>sig_atomic_t</code>，因为 Linux 保证对<code>sig_atomic_t</code>变量的<u>读写操作</u>都是原子的（不会被信号中断）。</li>
+</ul>
+<p>　　也就是说，只需要改变一行代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">volatile</span> <span class="keyword">sig_atomic_t</span> quit = <span class="number">0</span>;</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　前面我们说到，当进程在执行某个信号 handler 的过程中，可能会被另一个信号 handler <u>中断</u>。这也会导致并发安全的问题。为了保证并发安全，在信号 handler 中，我们只能调用<u>异步信号安全</u>的函数，这类函数要不就是<u>可重入的</u>，要不就是<u>不会</u>被信号 handler 中断的。<br>　　可以使用<code>man 7 signal</code>命令查看哪些系统调用是异步信号安全的。常见的函数，譬如<code>printf()</code>和<code>exit()</code>就<u>不是</u>异步信号安全的，所以在信号 handler 可以使用<code>write()</code>来替代<code>printf()</code>，使用<code>_exit()</code>来替代<code>exit()</code>。具体可以这样做：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sig_safe_error</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *msg)</span> </span></div><div class="line">&#123;</div><div class="line">    write(STDERR_FILENO, msg, <span class="built_in">strlen</span>(msg));</div><div class="line">    _exit(<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sig_safe_print</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *msg)</span> </span></div><div class="line">&#123;</div><div class="line">    write(STDOUT_FILENO, msg, <span class="built_in">strlen</span>(msg));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span> </span></div><div class="line">&#123;</div><div class="line">    sig_safe_error(<span class="string">"receive signal SIGINT"</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></div><div class="line">&#123;</div><div class="line">    signal(SIGINT, sigint_handler);</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="I-O-多路复用与信号"><a href="#I-O-多路复用与信号" class="headerlink" title="I/O 多路复用与信号"></a>I/O 多路复用与信号</h2><p>　　在 Linux 中处理信号是极为麻烦的事情，正如 Linux 标准指出的，当<code>select()</code>、<code>poll()</code>和<code>epoll_wait()</code>被信号中断之后，它们是决不会重启的，所以说如果这些函数被信号中断，我们只好手动重启它们：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</div><div class="line">    <span class="keyword">int</span> n = epoll_wait(<span class="comment">/** ... **/</span>);</div><div class="line">    <span class="keyword">if</span> (n == <span class="number">-1</span> &amp;&amp; errno == EINTR) &#123;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　所幸的是 Linux 提供了<code>signalfd()</code>函数，<code>signalfd()</code>可以将接收到的信号，转化为文件描述符的可读事件，所以<code>signalfd()</code>可以和 select/poll/epoll 配合使用，大大简化信号处理的难度。<br>　　下面的例子将<code>signalfd()</code>与 epoll 配合使用，<code>signalfd()</code>负责将接收到的<code>SIGINT</code>和<code>SIGHUP</code>转换为文件描述符的可读事件：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/epoll.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/signalfd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">// 屏蔽信号 SIGINT 和 SIGHUP</span></div><div class="line">    <span class="keyword">sigset_t</span> mask;</div><div class="line">    sigemptyset(&amp;mask);</div><div class="line">    sigaddset(&amp;mask, SIGINT);</div><div class="line">    sigaddset(&amp;mask, SIGHUP);</div><div class="line">    sigprocmask(SIG_BLOCK, &amp;mask, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> signal_fd = signalfd(<span class="number">-1</span>, &amp;mask, SFD_NONBLOCK | SFD_CLOEXEC);</div><div class="line">    <span class="keyword">int</span> epoll_fd = epoll_create1(EPOLL_CLOEXEC);</div><div class="line"></div><div class="line">    <span class="keyword">struct</span> epoll_event event;</div><div class="line">    <span class="built_in">memset</span>(&amp;event, <span class="number">0</span>, <span class="keyword">sizeof</span>(event));</div><div class="line">    event.events = EPOLLIN;</div><div class="line">    event.data.fd = signal_fd;</div><div class="line"></div><div class="line">    epoll_ctl(epoll_fd, EPOLL_CTL_ADD, signal_fd, &amp;event);</div><div class="line"></div><div class="line">    <span class="keyword">const</span> <span class="keyword">int</span> MAX_EVENTS = <span class="number">64</span>;</div><div class="line">    <span class="keyword">struct</span> epoll_event events[MAX_EVENTS];</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">int</span> n = epoll_wait(epoll_fd, &amp;events[<span class="number">0</span>], MAX_EVENTS, <span class="number">0</span>);</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i)</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">if</span> (events[i].data.fd == signal_fd)</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">struct</span> signalfd_siginfo info;</div><div class="line">                <span class="keyword">ssize_t</span> bytes = read(signal_fd, &amp;info, <span class="keyword">sizeof</span>(info));</div><div class="line">                assert(bytes == <span class="keyword">sizeof</span>(info));</div><div class="line"></div><div class="line">                <span class="keyword">if</span> (info.ssi_signo == SIGINT)</div><div class="line">                &#123;</div><div class="line">                    <span class="built_in">printf</span>(<span class="string">"receive signal SIGINT\n"</span>);</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (info.ssi_signo == SIGHUP)</div><div class="line">                &#123;</div><div class="line">                    <span class="built_in">printf</span>(<span class="string">"receive signal SIGHUP\n"</span>);</div><div class="line">                &#125;</div><div class="line">                <span class="built_in">printf</span>(<span class="string">"Program quit!\n"</span>);</div><div class="line">                <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="跨平台代码"><a href="#跨平台代码" class="headerlink" title="跨平台代码"></a>跨平台代码</h2><p>　　通常来说，我们可以使用<code>signal()</code>为信号注册一个 handler，然而在编写<u>跨平台</u>代码时，则不应该使用<code>signal()</code>，因为<code>signal()</code>在不同平台会表现出<u>不一致</u>的行为。譬如说，在某些 Uninx 系统中，<code>signal()</code>会出现这样的行为：</p>
+<ul>
+<li>每次调用信号 handler 之后，<code>signal()</code>会自动将信号的 handler 重置成<code>SIG_DFL</code>。</li>
+<li>类似于<code>read()</code>和<code>write()</code>这类调用，如果它们被信号 handler 中断，是不会自动重启的。</li>
+</ul>
+<p>　　如果考虑编写跨平台代码，所以我们的程序中应该使用<code>sigaction()</code>来代替<code>signal()</code>。当然，<code>sigaction()</code>的使用比较复杂，所以我们提供了一个<code>Signal()</code>，可以用来代替<code>signal()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*<span class="keyword">sighandler_t</span>)</span><span class="params">(<span class="keyword">int</span>)</span></span>;</div><div class="line"></div><div class="line"><span class="keyword">sighandler_t</span> Signal(<span class="keyword">int</span> signum, <span class="keyword">sighandler_t</span> handler)</div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> sigaction action, old_action;</div><div class="line"> </div><div class="line">    action.sa_handler = handler;</div><div class="line">    sigemptyset(&amp;action.sa_mask);  <span class="comment">// Block sigs of type being handled</span></div><div class="line">    action.sa_flags = SA_RESTART;  <span class="comment">// Restart syscalls if possible</span></div><div class="line">    <span class="keyword">if</span> (sigaction(signum, &amp;action, &amp;old_action) &lt; <span class="number">0</span>) </div><div class="line">    &#123;</div><div class="line">        perror(<span class="string">"sigaction"</span>);</div><div class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> (old_action.sa_handler);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.amazon.com/Unix-Network-Programming-Sockets-Networking/dp/0131411551/ref=sr_1_1?ie=UTF8&amp;qid=1474079308&amp;sr=8-1&amp;keywords=unix+network" target="_blank" rel="external">Unix Network Programming, Volume 1: The Sockets Networking API (3rd Edition)</a></li>
+<li><a href="https://www.amazon.com/Computer-Systems-Programmers-Perspective-3rd/dp/013409266X/ref=sr_1_1?ie=UTF8&amp;qid=1475743600&amp;sr=8-1&amp;keywords=csapp" target="_blank" rel="external">Computer Systems: A Programmer’s Perspective (3rd Edition)</a></li>
+<li><a href="https://gabrbedd.wordpress.com/2013/07/29/handling-signals-with-signalfd/" target="_blank" rel="external">Handling signals with signalfd</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Network/" rel="tag">#Network</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/02/sigpipe/" rel="next" title="网络编程中的 SIGPIPE 信号">
+                <i class="fa fa-chevron-left"></i> 网络编程中的 SIGPIPE 信号
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/20/动态库/" rel="prev" title="如何设计动态链接库">
+                如何设计动态链接库 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/03/02/linux-signal/"
+           data-title="Linux 安全的信号处理方式" data-url="http://senlinzhan.github.io/2017/03/02/linux-signal/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"senlinzhangithubio"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

@@ -108,7 +108,7 @@
 <meta property="og:url" content="http://senlinzhan.github.io/2017/02/08/Linux的SO-REUSEPORT选项/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="均衡转发　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用accept()，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，accept()不会导致惊群。) 然而，正如这篇文章所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式">
-<meta property="og:updated_time" content="2017-02-19T13:47:12.000Z">
+<meta property="og:updated_time" content="2017-06-11T09:55:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux 的 socket 选项 SO_REUSEPORT">
 <meta name="twitter:description" content="均衡转发　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用accept()，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，accept()不会导致惊群。) 然而，正如这篇文章所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式">
@@ -187,22 +187,22 @@
     <ul id="menu" class="menu">
       
         
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
             分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
           </a>
         </li>
       
@@ -383,8 +383,8 @@ bind(sockfd, ...);
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/11/12/protobuf的自动反射/" rel="next" title="浅谈 Prorobuf 的自动反射功能">
-                <i class="fa fa-chevron-left"></i> 浅谈 Prorobuf 的自动反射功能
+              <a href="/2017/01/11/blog-index/" rel="next" title="博客文章索引">
+                <i class="fa fa-chevron-left"></i> 博客文章索引
               </a>
             
           </div>
@@ -451,12 +451,12 @@ bind(sockfd, ...);
                src="/images/avatar.gif"
                alt="" />
           <p class="site-author-name" itemprop="name"></p>
-          <p class="site-description motion-element" itemprop="description"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
         </div>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
-            <a href="/">
-              <span class="site-state-item-count">28</span>
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -485,6 +485,26 @@ bind(sockfd, ...);
 
         <div class="links-of-author motion-element">
           
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
         </div>
 
         
@@ -509,7 +529,7 @@ bind(sockfd, ...);
       <div class="footer-inner">
         <div class="copyright" >
   
-  &copy; 
+  &copy;  2015 - 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
