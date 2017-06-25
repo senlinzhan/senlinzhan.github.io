@@ -1195,9 +1195,6 @@ pre .javascript .function {
   left: 20px;
   top: 5px;
 }
-.posts-collapse .post-comments-count {
-  display: none;
-}
 .posts-collapse .post-title {
   margin-left: 60px;
   font-size: 16px;
@@ -1554,7 +1551,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #5b69b3;
+  background: #ff288c;
 }
 .links-of-blogroll {
   font-size: 13px;
