@@ -266,133 +266,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/02/26/cpp11_thread/" itemprop="url">
-                  C++ 多线程编程精要
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-26T16:13:53+08:00" content="2017-02-26">
-              2017-02-26
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/26/cpp11_thread/" class="leancloud_visitors" data-flag-title="C++ 多线程编程精要">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="CPU-亲和性"><a href="#CPU-亲和性" class="headerlink" title="CPU 亲和性"></a>CPU 亲和性</h2><p>　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。<br>　　在Linux中，可以使用<code>pthread_setaffinity_np()</code>为线程设置CPU的亲和性：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pthread_setaffinity_np</span><span class="params">(<span class="keyword">pthread_t</span> thread, <span class="keyword">size_t</span> cpusetsize,</div><div class="line">                           <span class="keyword">const</span> <span class="keyword">cpu_set_t</span> *cpuset)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　注意到，它的第一个参数类型是<code>pthread_t</code>，代表 Linux 线程的ID。在C++中，每个<code>std::thread</code>都对应着底层操作系统的一个线程，不过我们可以使用<code>std::thread</code>的<code>native_handle()</code>函数来返回它对应的 OS 线程的ID，在Linux系统中，这个函数的返回值类型是<code>pthread_t</code>。<br>　　下面的例子，我们让线程绑定到 CPU-0 上：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sched.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">([]()</span> </span>&#123;</div><div class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::milliseconds(<span class="number">100</span>));</div><div class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Thread #"</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id()</div><div class="line">                      &lt;&lt; <span class="string">": on CPU"</span> &lt;&lt; sched_getcpu() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">cpu_set_t</span> cpuset;</div><div class="line">    CPU_ZERO(&amp;cpuset);</div><div class="line">    CPU_SET(<span class="number">0</span>, &amp;cpuset);</div><div class="line"></div><div class="line">    pthread_setaffinity_np(t.native_handle(), <span class="keyword">sizeof</span>(<span class="keyword">cpu_set_t</span>), &amp;cpuset);</div><div class="line">    t.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="改善-std-thread"><a href="#改善-std-thread" class="headerlink" title="改善 std::thread"></a>改善 std::thread</h2><p>　　在工程实践中，你会发现<code>std::thread</code>并不像想象中的那么完美。一个明显的问题是，当<code>std::thread</code>即将析构时，你要人为地确保实际的线程已经结束运行了或者已经分离了(可以分别调用它的<code>join()</code>和<code>detach()</code>成员函数)，否则程序将会抛出<code>std::terminate</code>异常。当然，由于<code>std::thread</code>的析构函数没有保证正确地释放资源，这也同时导致了<code>std::thread</code>不是异常安全的。<br>　　下面提供了一个<code>ThreadRAII</code>类，它在析构时会等待线程运行结束，或者直接分离线程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> ThreadRAII</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">enum</span> <span class="keyword">class</span> DtorAction &#123;join, detach&#125;;</div><div class="line"></div><div class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Ts&gt;</div><div class="line">    ThreadRAII(DtorAction a, Ts&amp;&amp;... params)</div><div class="line">        : action_(a), thread_(<span class="built_in">std</span>::forward&lt;Ts&gt;(params)...)</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ThreadRAII(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    ThreadRAII &amp;<span class="keyword">operator</span>=(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    </div><div class="line">    ~ThreadRAII()</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (thread_.joinable()) &#123;</div><div class="line">            <span class="keyword">if</span> (action_ == DtorAction::join) &#123;</div><div class="line">                thread_.join();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                thread_.detach();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">	</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread &amp;<span class="title">get</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> thread_; &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    DtorAction action_;</div><div class="line">    <span class="built_in">std</span>::thread thread_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　创建<code>ThreadRAII</code>对象时，可以顺带指定它的析构行为，到底是等待线程运行结束呢还是直接分离线程。下面的例子中，程序退出时，<code>ThreadRAII</code>对象的析构函数会保证线程正常结束运行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123; <span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello"</span> &lt;&lt; <span class="built_in">endl</span>; &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    ThreadRAII t&#123;ThreadRAII::DtorAction::join, sayHello&#125;;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/26/cpp11_thread/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/02/20/linux-ipc/" itemprop="url">
                   谈谈 Linux 的进程间通信
                 </a>
@@ -898,6 +771,132 @@ bind(sockfd, ...);
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/11/12/protobuf的自动反射/" itemprop="url">
+                  浅谈 Prorobuf 的自动反射功能
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-12T20:51:52+08:00" content="2016-11-12">
+              2016-11-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/11/12/protobuf的自动反射/" class="leancloud_visitors" data-flag-title="浅谈 Prorobuf 的自动反射功能">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Protobuf-的介绍"><a href="#Protobuf-的介绍" class="headerlink" title="Protobuf 的介绍"></a>Protobuf 的介绍</h2><p>　　Protobuf 是一种序列化工具，用来将程序的数据结构序列化成字节流，方便网络传输。将数据结构序列化成字节流之前，首先你得向 Protobuf 提供一个 <code>.proto</code>文件，用来描述你的数据结构。举个例子，假设你想存储公司员工的信息，那么首先你需要描述一下员工的信息是怎样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">package company;</div><div class="line"></div><div class="line">message Employee &#123;</div><div class="line">    required string name = 1;</div><div class="line">    required string email = 2;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　将文件保存为<code>company.proto</code>，接着用 Protobuf 编译器自动生成一个<code>Employee</code>类：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">protoc --cpp_out . company.proto</div></pre></td></tr></table></figure></p>
+<p>　　根据生成的<code>Employee</code>类，我们就可以将员工信息序列成字节流，或从字节流读取员工信息。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/11/12/protobuf的自动反射/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -943,7 +942,7 @@ bind(sockfd, ...);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">34</span>
+              <span class="site-state-item-count">33</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
