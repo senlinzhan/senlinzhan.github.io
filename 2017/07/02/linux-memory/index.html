@@ -102,20 +102,25 @@
 
 
 
-<meta name="description" content="mmap 文件映射　　通常情况下，我们可以使用read()和write()去访问文件，除此之外，Linux 还提供了mmap()系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与read()和write()相比，使用mmap()去访问文件能带来什么好处呢？　　使用mmap()一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用read()读取文">
+<meta name="description" content="匿名内存映射　　在 Linux 中，如果使用malloc()分配一块很大的内存 (大于128KB)，这时malloc()不会直接从 heap 上分配内存，而是会调用mmap()创建匿名的内存映射，那么使用mmap()分配内存有何优缺点呢？
+
+使用mmap()分配内存时，不会产生内存碎片。因为当这块内存不需要时，可以直接调用munmap()释放它，这样内存就会直接返回给操作系统。
+在 Linux 中">
 <meta property="og:type" content="article">
-<meta property="og:title" content="浅谈 Linux 的 Zero Copy 技术">
-<meta property="og:url" content="http://senlinzhan.github.io/2017/03/25/网络编程中的zerocpoy技术/index.html">
+<meta property="og:title" content="浅谈 Linux 的内存管理">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/07/02/linux-memory/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="mmap 文件映射　　通常情况下，我们可以使用read()和write()去访问文件，除此之外，Linux 还提供了mmap()系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与read()和write()相比，使用mmap()去访问文件能带来什么好处呢？　　使用mmap()一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用read()读取文">
-<meta property="og:image" content="http://senlinzhan.github.io/images/linux/sendfile1.jpeg">
-<meta property="og:image" content="http://senlinzhan.github.io/images/linux/sendfile2.jpeg">
-<meta property="og:image" content="http://senlinzhan.github.io/images/linux/sendfile3.jpeg">
-<meta property="og:updated_time" content="2017-04-08T08:33:32.000Z">
+<meta property="og:description" content="匿名内存映射　　在 Linux 中，如果使用malloc()分配一块很大的内存 (大于128KB)，这时malloc()不会直接从 heap 上分配内存，而是会调用mmap()创建匿名的内存映射，那么使用mmap()分配内存有何优缺点呢？
+
+使用mmap()分配内存时，不会产生内存碎片。因为当这块内存不需要时，可以直接调用munmap()释放它，这样内存就会直接返回给操作系统。
+在 Linux 中">
+<meta property="og:updated_time" content="2017-07-02T08:39:48.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="浅谈 Linux 的 Zero Copy 技术">
-<meta name="twitter:description" content="mmap 文件映射　　通常情况下，我们可以使用read()和write()去访问文件，除此之外，Linux 还提供了mmap()系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与read()和write()相比，使用mmap()去访问文件能带来什么好处呢？　　使用mmap()一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用read()读取文">
-<meta name="twitter:image" content="http://senlinzhan.github.io/images/linux/sendfile1.jpeg">
+<meta name="twitter:title" content="浅谈 Linux 的内存管理">
+<meta name="twitter:description" content="匿名内存映射　　在 Linux 中，如果使用malloc()分配一块很大的内存 (大于128KB)，这时malloc()不会直接从 heap 上分配内存，而是会调用mmap()创建匿名的内存映射，那么使用mmap()分配内存有何优缺点呢？
+
+使用mmap()分配内存时，不会产生内存碎片。因为当这块内存不需要时，可以直接调用munmap()释放它，这样内存就会直接返回给操作系统。
+在 Linux 中">
 
 
 
@@ -136,9 +141,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/2017/03/25/网络编程中的zerocpoy技术/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/07/02/linux-memory/"/>
 
-  <title> 浅谈 Linux 的 Zero Copy 技术 | Senlin's Blog </title>
+  <title> 浅谈 Linux 的内存管理 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -268,7 +273,7 @@
             
             
               
-                浅谈 Linux 的 Zero Copy 技术
+                浅谈 Linux 的内存管理
               
             
           </h1>
@@ -280,8 +285,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-25T23:52:21+08:00" content="2017-03-25">
-              2017-03-25
+            <time itemprop="dateCreated" datetime="2017-07-02T10:33:12+08:00" content="2017-07-02">
+              2017-07-02
             </time>
           </span>
 
@@ -314,7 +319,7 @@
 
           
           
-             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的 Zero Copy 技术">
+             <span id="/2017/07/02/linux-memory/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的内存管理">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -336,31 +341,22 @@
       
 
       
-        <h2 id="mmap-文件映射"><a href="#mmap-文件映射" class="headerlink" title="mmap 文件映射"></a>mmap 文件映射</h2><p>　　通常情况下，我们可以使用<code>read()</code>和<code>write()</code>去访问文件，除此之外，Linux 还提供了<code>mmap()</code>系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与<code>read()</code>和<code>write()</code>相比，使用<code>mmap()</code>去访问文件能带来什么好处呢？<br>　　使用<code>mmap()</code>一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用<code>read()</code>读取文件时，通常的做法是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[SIZE];</div><div class="line"><span class="keyword">ssize_t</span> n = read(fd, buffer, SIZE);</div></pre></td></tr></table></figure></p>
-<p>　　这个过程实际上发生了两次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到用户缓冲区。而使用<code>mmap()</code>读取文件时，只会发生第一次拷贝操作，也就是将文件内容拷贝到 OS 文件系统缓冲区，完成这个拷贝操作之后，<code>mmap()</code>还会执行其它一些复杂的操作，例如将相应的 OS 缓冲区映射到进程的地址空间。<br>　　尽管<code>mmap()</code>可以减少一次 I/O 拷贝，但由于<code>mmap()</code>的实现很复杂，调用<code>mmap()</code>将会带来额外的开销，因此在一些情况下，没有使用<code>mmap()</code>的必要：</p>
+        <h2 id="匿名内存映射"><a href="#匿名内存映射" class="headerlink" title="匿名内存映射"></a>匿名内存映射</h2><p>　　在 Linux 中，如果使用<code>malloc()</code>分配一块很大的内存 (大于128KB)，这时<code>malloc()</code>不会直接从 heap 上分配内存，而是会调用<code>mmap()</code>创建匿名的内存映射，那么使用<code>mmap()</code>分配内存有何优缺点呢？</p>
 <ul>
-<li>访问小文件时，直接使用<code>read()</code>或<code>write()</code>将更加高效。</li>
-<li>单个进程对文件执行顺序访问时(sequential access)，使用<code>mmap()</code>几乎不会带来性能上的提升。譬如说，使用<code>read()</code>顺序读取文件时，文件系统会使用 read-ahead 的方式提前将文件内容缓存到文件系统的缓冲区，因此使用<code>read()</code>将很大程度上可以命中缓存。</li>
+<li>使用<code>mmap()</code>分配内存时，不会产生<u>内存碎片</u>。因为当这块内存不需要时，可以直接调用<code>munmap()</code>释放它，这样内存就会直接返回给操作系统。</li>
+<li>在 Linux 中，一个页面的大小是 4KB，所以<code>mmap()</code>分配的内存会按照 4KB 的大小对齐。通常来说，分配小块内存并不会用到<code>mmap()</code>，因为<code>mmap()</code>分配的内存是 4KB 的整数倍，如果不能充分利用，就会造成内存的浪费。</li>
+<li>和在 heap 上分配内存相比，使用<code>mmap()</code>分配内存时将带来比较大的开销，所以<code>mmap()</code>不适合频繁地调用，通常只有当分配的内存比较大时，才会使用到<code>mmap()</code>。</li>
 </ul>
-<p>　　那么，在什么情况下使用<code>mmap()</code>去访问文件会更高效呢？</p>
-<ul>
-<li>对文件执行随机访问时，如果使用<code>read()</code>或<code>write()</code>，则意味着较低的 cache 命中率。这种情况下使用<code>mmap()</code>通常将更高效。</li>
-<li>多个进程同时访问同一个文件时（无论是顺序访问还是随机访问），如果使用<code>mmap()</code>，那么 OS 缓冲区的文件内容可以在多个进程之间共享，从操作系统角度来看，使用<code>mmap()</code>可以大大节省内存。<a id="more"></a></li>
-</ul>
-<h2 id="sendfile"><a href="#sendfile" class="headerlink" title="sendfile()"></a>sendfile()</h2><p>　　Web Server 处理静态页面请求时，通常是从磁盘中读取网页的内容，然后发送给客户端：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">read(fd, buffer, len);</div><div class="line">write(sockfd, buffer, len);</div></pre></td></tr></table></figure></p>
-<p><div align="center"><img src="/images/linux/sendfile1.jpeg" alt=""></div><br>　　正如我们前面说到的，使用<code>read()</code>读取文件时，将发生两次 I/O 拷贝。然而，数据发送的过程也发生了两次 I/O 拷贝，第一次是<code>write()</code>将用户缓冲区的数据写入内核的 socket 发送缓冲区，成功写入之后<code>write()</code>会返回，在<code>write()</code>返回之后，内核会将 socket 发送缓冲区的数据拷贝到网卡驱动。可以看到，整个过程发生了四次 I/O 拷贝操作。<br>　　然而除了考虑 I/O 拷贝带来的开销，我们还要考虑系统 context switch 带来的开销，当程序调用<code>read()</code>时，系统会从用户态切换到内核态，而当<code>read()</code>返回时，又会导致系统从内核态切换到用户态，所以调用<code>read()</code>发生两次 context switch，同理，调用<code>write()</code>也会发生两次 context switch。<br>　　Linux 提供了<code>sendfile()</code>用来减少我们前面提到的 I/O 拷贝和 context switch 的次数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sendfile(sockfd, fd, <span class="literal">NULL</span>, len);</div></pre></td></tr></table></figure></p>
-<p><div align="center"><img src="/images/linux/sendfile2.jpeg" alt=""></div><br>　　使用<code>sendfile()</code>发送文件时，实际发生了三次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到 socket 的发送缓冲区，最后一次是将 socket 发送缓冲区的数据发送到网卡驱动。可以看到，与使用<code>read()</code>和<code>write()</code>发送文件相比，使用<code>sendfile()</code>减少了一次 I/O 拷贝和两次 context switch。<br>　　如果使用的网卡支持 scatter-gather 特性，那么还可以再减少一次 I/O 拷贝：</p>
-<p><div align="center"><img src="/images/linux/sendfile3.jpeg" alt=""></div><br>　　这种情况下，使用<code>sendfile()</code>发送文件只会发生两次 I/O 拷贝，第一次是将磁盘中的文件拷贝到 OS 的文件系统缓冲区，而第二次是将 OS 缓冲区的数据直接拷贝到网卡驱动。可以使用下面的命令查看网卡是否支持 scatter-gather 特性：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ ethtool -k eth0 | grep scatter-gather</div><div class="line">scatter-gather: on</div><div class="line">	tx-scatter-gather: on</div><div class="line">		tx-scatter-gather-fraglist: off [fixed]</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>mmap()</code>分配内存有两种形式，一种是私有的内存映射，另一种是共享的内存映射。如果创建的是私有的内存映射，那么在<code>fork()</code>之后，尽管子进程也可以访问这块内存，但是 copy-on-write 会保证父进程和子进程对这块内存的修改<u>不会被彼此看见</u>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">// 创建私有的内存映射, 512 KB</span></div><div class="line">    <span class="keyword">size_t</span> sz = <span class="number">512</span> * <span class="number">1024</span>;</div><div class="line">    <span class="keyword">void</span> *p = mmap(<span class="literal">NULL</span>, sz, PROT_READ | PROT_WRITE, </div><div class="line">                   MAP_PRIVATE | MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>);</div><div class="line">    <span class="keyword">if</span> (p == MAP_FAILED) </div><div class="line">    &#123;</div><div class="line">        perror(<span class="string">"mmap"</span>);</div><div class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *addr = p;</div><div class="line">    <span class="keyword">int</span> n = fork();</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (n == <span class="number">0</span>) </div><div class="line">    &#123;</div><div class="line">        *addr = <span class="number">100</span>;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"Child set value to %d\n"</span>, *addr);</div><div class="line">        munmap(p, sz);</div><div class="line">    &#125; </div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n &gt; <span class="number">0</span>) </div><div class="line">    &#123;</div><div class="line">        wait(<span class="literal">NULL</span>);    <span class="comment">// 等待子进程退出</span></div><div class="line">        <span class="built_in">printf</span>(<span class="string">"Parent get value %d\n"</span>, *addr);</div><div class="line">        munmap(p, sz);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从程序的输出可以看到，子进程对内存的修改<u>不会</u>被父进程看到：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Child <span class="built_in">set</span> value to 100</div><div class="line">Parent get value 0</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　但如果<code>mmap()</code>创建的是共享的内存映射，那么在<code>fork()</code>之后，父进程和子进程对这块内存的修改，对彼此来说都是<u>可见的</u>，因此共享的内存映射可以用来作为进程间通信的一种方式。我们可以试着修改上面的程序，改用共享的内存映射：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 创建共享内存映射, 512 KB</span></div><div class="line"><span class="keyword">size_t</span> sz = <span class="number">512</span> * <span class="number">1024</span>;</div><div class="line"><span class="keyword">void</span> *p = mmap(<span class="literal">NULL</span>, sz, PROT_READ | PROT_WRITE,</div><div class="line">               MAP_SHARED | MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>);</div></pre></td></tr></table></figure></p>
+<p>　　这时运行程序，可以看到子进程修改了内存，对父进程来说是可见的：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Child <span class="built_in">set</span> value to 100</div><div class="line">Parent get value 100</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://lwn.net/Articles/179492/" target="_blank" rel="external">tee() with your splice()?</a></li>
-<li><a href="http://www.linuxjournal.com/article/6345" target="_blank" rel="external">Zero Copy I: User-Mode Perspective</a></li>
-<li><a href="http://sungsoo.github.io/papers/zerocopy.pdf" target="_blank" rel="external">Efficient data transfer through zero copy</a></li>
-<li><a href="https://lwn.net/Articles/178199/?cm_mc_uid=50553639714214791397030&amp;cm_mc_sid_50200000=1490457333" target="_blank" rel="external">Two new system calls: splice() and sync_file_range()</a></li>
-<li><a href="http://blog.superpat.com/2010/06/01/zero-copy-in-linux-with-sendfile-and-splice/" target="_blank" rel="external">Zero-Copy in Linux with sendfile() and splice()</a></li>
-<li><a href="http://archive.is/IcjJV#selection-328.0-328.1" target="_blank" rel="external">Linux: Explaining splice() and tee()</a></li>
-<li><a href="https://www.slideshare.net/gene7299/linux-mmap-ioremap-introduction" target="_blank" rel="external">Linux MMAP &amp; Ioremap introduction</a></li>
-<li><a href="http://stackoverflow.com/questions/45972/mmap-vs-reading-blocks" target="_blank" rel="external">mmap() vs. reading blocks</a></li>
-<li><a href="http://blog.chinaunix.net/uid-20043340-id-154849.html" target="_blank" rel="external">splice()系统调用族探秘</a></li>
+<li><a href="https://techtalk.intersec.com/2013/07/memory-part-1-memory-types/" target="_blank" rel="external">Memory – Part 1: Memory Types</a></li>
+<li><a href="https://techtalk.intersec.com/2013/07/memory-part-2-understanding-process-memory/" target="_blank" rel="external">Memory – Part 2: Understanding Process memory</a></li>
+<li><a href="https://techtalk.intersec.com/2013/08/memory-part-3-managing-memory/" target="_blank" rel="external">Memory – Part 3: Managing memory</a></li>
+<li><a href="https://www.qcloud.com/community/article/164816001481011895" target="_blank" rel="external">十问 Linux 虚拟内存管理 (一)</a></li>
 </ul>
 
       
@@ -393,17 +389,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/03/20/动态库/" rel="next" title="如何设计动态链接库">
-                <i class="fa fa-chevron-left"></i> 如何设计动态链接库
+              <a href="/2017/07/01/linux-tuning/" rel="next" title="Linux 系统参数调优">
+                <i class="fa fa-chevron-left"></i> Linux 系统参数调优
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/04/07/redis-replication/" rel="prev" title="Redis 主从复制的原理">
-                Redis 主从复制的原理 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -649,9 +641,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'http-senlinzhan-github-io';
-      var disqus_identifier = '2017/03/25/网络编程中的zerocpoy技术/';
-      var disqus_title = "浅谈 Linux 的 Zero Copy 技术";
-      var disqus_url = 'http://senlinzhan.github.io/2017/03/25/网络编程中的zerocpoy技术/';
+      var disqus_identifier = '2017/07/02/linux-memory/';
+      var disqus_title = "浅谈 Linux 的内存管理";
+      var disqus_url = 'http://senlinzhan.github.io/2017/07/02/linux-memory/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');

@@ -266,6 +266,139 @@
             
               
                 
+                <a class="post-title-link" href="/2017/05/28/tcp-tuning/" itemprop="url">
+                  Linux TCP/IP 性能调优
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-05-28T08:45:16+08:00" content="2017-05-28">
+              2017-05-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/28/tcp-tuning/" class="leancloud_visitors" data-flag-title="Linux TCP/IP 性能调优">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="再谈三次握手"><a href="#再谈三次握手" class="headerlink" title="再谈三次握手"></a>再谈三次握手</h2><p>　　Linux 提供了<code>listen()</code>系统调用，它的作用是在 server socket 上监听新的连接请求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">listen</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">int</span> backlog)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　那么<code>listen()</code>的第二个参数<code>backlog</code>的作用是什么呢？让我们先回顾一下 TCP 的三次握手：<div align="center"><img src="/images/linux/tcp1.png" width="550" align=center /> </div><br>　　对于 server 来说，一个新的连接首先会经过 SYN_RECV 状态，然后才会进入 ESTABLISHED 状态。那么对于每个 server socket 来说，内核需要两个队列来保存所有连接的信息：</p>
+<ul>
+<li>一个是<u>半连接队列</u> (incompletely queue)，用来保存所有处在 SYN_RECV 状态的连接。</li>
+<li>另一个是<u>连接队列</u> (completely queue)，用来保存所有处在 ESTABLISHED 状态的连接。</li>
+</ul>
+<p>　　也就是说，当一个新的连接进入 SYNC_RECV 状态时，内核会将它放到<u>半连接队列</u>中。而当这个连接从 SYNC_RECV 状态进入到 ESTABLISHED 状态时，内核会将它从<u>半连接队列</u>中移动到<u>连接队列</u>中。最后当<code>accept()</code>返回时，这个连接也会从<u>连接队列</u>中移走。<br>　　<code>listen()</code>的<code>backlog</code>参数其实是用来指定<u>连接队列</u>的长度。而如果要改变<u>半连接队列</u>的长度，则需要改变内核参数：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">net.ipv4.tcp_max_syn_backlog = 1024   <span class="comment"># 半连接队列的长度</span></div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改变生效</span></div></pre></td></tr></table></figure></p>
+<p>　　在实际情况中，如果 server 的负载比较高，无法迅速地<code>accept()</code>新的连接，就可能导致<u>连接队列</u>满了，这时候就需要调高<code>listen()</code>的<code>backlog</code>参数。然而注意到，<code>backlog</code>参数有一个上限，这个上限由内核参数<code>net.core.somaxconn</code>决定，这个参数的默认值是<code>128</code>。也就是说，如果我们要让<code>backlog</code>的上限大于 128，就需要调高<code>net.core.somaxconn</code>这个内核参数的值：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">net.core.somaxconn = 1024             <span class="comment"># listen backlog 的上限，默认值是 128</span></div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改变生效</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　让我们思考一个问题，对于 server 的一个连接来说，当它接收到 client 发送的 ACK segment 之后，就会从 SYNC_RECV 进入到 ESTABLISHED 状态，但如果这时<u>连接队列</u>满了，那么会发生什么事情呢？<br>　　默认情况下，server的 TCP 协议栈会丢弃这个 ACK segment。但此时这个连接仍然处在 SYNC_RECV 状态，所以 server 的 TCP 协议栈会重新发送 SYN/ACK 给 client。下图显示了进行一次重试的过程：<div align="center"><img src="/images/linux/tcp-synack-retry.png" width="450" align=center /> </div><br>　　最大的重传次数由内核参数<code>net.ipv4.tcp_synack_retries</code>规定，默认情况下，这个值是 5，重传 5 次的总耗时约为 180 秒。在某些情况下，我们可以调小这个值，以减小重传的超时时间。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/05/28/tcp-tuning/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/24/nginx-memory-pool/" itemprop="url">
                   Nginx 内存池源码分析
                 </a>
@@ -753,138 +886,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/07/redis-replication/" itemprop="url">
-                  Redis 主从复制的原理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-07T21:32:17+08:00" content="2017-04-07">
-              2017-04-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/07/redis-replication/" class="leancloud_visitors" data-flag-title="Redis 主从复制的原理">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="配置主从复制"><a href="#配置主从复制" class="headerlink" title="配置主从复制"></a>配置主从复制</h2><p>　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。<br>　　设置主从复制很简单，只需要在slave实例的配置文件加入一行，然后重启slave实例：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># /etc/redis/redis.conf</span></div><div class="line">slaveof your_redis_master_ip 6379</div></pre></td></tr></table></figure></p>
-<h2 id="主从复制的原理"><a href="#主从复制的原理" class="headerlink" title="主从复制的原理"></a>主从复制的原理</h2><p>　　在设置好主从复制之后，一开始 slave 与 master 之间的数据是不同步的，为了让 slave 与 master 之间保存数据同步，slave 会发送一个 PSYNC 命令给 master。由于 slave 是初次连接上 master，所以 master 接收到 PSYNC 命令之后会执行完整重同步(full resynchronization)，具体的过程是这样的：</p>
-<ul>
-<li>首先 master 会执行 BGSAVE 命令，在后台生成一个 RDB 文件，与此同时开辟一个缓冲区用于存储 client 发来的命令。</li>
-<li>当 BGSAVE 执行成功之后，master 会将这个 RDB 文件发送给 slave，slave 在接收到这个 RDB 文件之后会将它加载到内存。</li>
-<li>接着 master 会将缓冲区内的所有命令发送给 slave 去执行。</li>
-</ul>
-<hr>
-<p>　　主从复制时还可能出现另一种情况，譬如说，master 与 slave 之间已经保持同步了，但是由于网络状况不好，导致 master 与 slave 断开连接，一段时间之后网络变好了，slave 又重新连上 master，但此时 slave 已经与 master 不同步了。那么为了让 slave 与 master 继续保持同步，这时候它们会怎么做呢？
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/04/07/redis-replication/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -930,7 +931,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-count">34</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -938,7 +939,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -947,7 +948,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
