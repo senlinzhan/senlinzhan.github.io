@@ -266,6 +266,157 @@
             
               
                 
+                <a class="post-title-link" href="/2017/06/10/pthread-inside/" itemprop="url">
+                  深入 Linux 多线程编程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-06-10T22:49:15+08:00" content="2017-06-10">
+              2017-06-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/06/10/pthread-inside/" class="leancloud_visitors" data-flag-title="深入 Linux 多线程编程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="NPTL-线程模型"><a href="#NPTL-线程模型" class="headerlink" title="NPTL 线程模型"></a>NPTL 线程模型</h2><p>　　NPTL，也即 Native POSIX Thread Library，是 Linux 2.6 引入的新的线程库实现，用来替代旧的 LinuxThreads 线程库。在 NPTL 实现中，用户创建的每个线程都对应着一个<u>内核态</u>的线程，内核态线程也是 Linux 的最小调度单元。<br>　　在 NPTL 实现中，线程的创建相当于调用<code>clone()</code>，并指定下面的参数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">CLONE_VM | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_THREAD | CLONE_SETTLS | </div><div class="line">CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM</div></pre></td></tr></table></figure></p>
+<p>　　下面解释一下这些参数的含义：</p>
+<ul>
+<li><code>CLONE_VM</code> 所有线程都共享同一个<u>进程地址空间</u>。</li>
+<li><code>CLONE_FILES</code> 所有线程都共享进程的文件描述符列表 (file descriptor table)。</li>
+<li><code>CLONE_FS</code> 所有线程都共享同一个文件系统的信息。</li>
+<li><code>CLONE_SIGHAND</code> 所有线程都共享同一个信号 handler 列表。</li>
+<li><code>CLONE_THREAD</code> 所有线程都共享同一个进程 ID 以及 父进程 ID。</li>
+</ul>
+<p>　　在 Linux 可以通过下面命令查看线程库的实现方式：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ getconf GNU_LIBPTHREAD_VERSION</div><div class="line">NPTL 2.23</div></pre></td></tr></table></figure></p>
+<h2 id="线程的栈"><a href="#线程的栈" class="headerlink" title="线程的栈"></a>线程的栈</h2><p>　　在 Linux 中，一个进程可以包含多个线程，这些线程将共享进程的全局变量，以及进程的堆，但每个线程都拥有<u>它自己的栈</u>。正如下图所示：</p>
+<p><div align="center"><img src="/images/linux/thread-stack.png" width="490" align="center"> </div><br>　　在 64 位系统中，除了主线程之外，其它线程的栈默认大小为 8M，而主线程的栈则没有这个限制，因为主线程的栈可以动态增长。可以用下面的命令查看线程栈的大小：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> <span class="_">-s</span></div><div class="line">8192</div></pre></td></tr></table></figure></p>
+<p>　　通常来说，默认的线程栈大小可以满足大部分程序的需求，然而在一些特殊的场景下，譬如说，子线程需要在栈上分配大量的变量，或者执行深度比较大的递归调用，这时候就需要改变线程栈的大小了。下面的代码展示了如何修改线程栈的大小：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pthread.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> *<span class="title">thread_func</span><span class="params">(<span class="keyword">void</span> *)</span> </span>&#123;  <span class="keyword">return</span> <span class="literal">NULL</span>;  &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">size_t</span> size;</div><div class="line">    <span class="keyword">pthread_attr_t</span> attr;</div><div class="line">    pthread_attr_init(&amp;attr);</div><div class="line"></div><div class="line">    pthread_attr_getstacksize(&amp;attr, &amp;size);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"Default stack size = %li\n"</span>, size);</div><div class="line"></div><div class="line">    size = <span class="number">32</span> * <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">    pthread_attr_setstacksize (&amp;attr, size);</div><div class="line"></div><div class="line">    <span class="keyword">pthread_t</span> tid;</div><div class="line">    pthread_create(&amp;tid, &amp;attr, thread_func, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    pthread_attr_getstacksize(&amp;attr, &amp;size);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"New stack size = %li\n"</span>, size);</div><div class="line"></div><div class="line">    pthread_attr_destroy(&amp;attr);</div><div class="line">    pthread_join(tid, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　运行程序将输出下面的结果：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Default stack size = 8388608    <span class="comment"># 默认为 8M</span></div><div class="line">New stack size = 33554432       <span class="comment"># 改成了 32 M</span></div></pre></td></tr></table></figure></p>
+<h2 id="线程局部存储"><a href="#线程局部存储" class="headerlink" title="线程局部存储"></a>线程局部存储</h2><p>　　Linux 提供了<code>__thread</code>关键字，用来表示线程局部存储。下面是<code>__thread</code>的使用规则：</p>
+<ul>
+<li><code>__thread</code>可以用来修饰全局变量，以及函数内的 static 变量。</li>
+<li>初始化<code>__thread</code>变量时，只能使用编译期常量。</li>
+<li>在 C++ 中，<code>__thread</code>只能用于修饰 POD 类型，而不能用于修饰 class 类型。</li>
+</ul>
+<p>　　当定义了一个<code>__thread</code>变量之后，每个线程都拥有了这个变量的一份副本。由于每个线程都拥有一份副本，所以在多线程中并发地访问<code>__thread</code>变量是安全的。<br>　　<code>__thread</code>可以帮助我们将不是线程安全的函数，改造成<u>线程安全</u>的。譬如说，标准库的<code>strerror()</code>函数会返回一个指针，指向一个全局变量，所以它不是线程安全的。利用<code>__thread</code>，我们可以实现一个线程安全的<code>strerror()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> _GNU_SOURCE</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span>  <span class="comment">// Get '_sys_nerr' and '_sys_errlist' declarations </span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_ERROR_LEN 256</span></div><div class="line"><span class="keyword">static</span> __thread <span class="keyword">char</span> buf[MAX_ERROR_LEN];</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> *<span class="title">my_strerror_r</span><span class="params">( <span class="keyword">int</span> err )</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (err &lt; <span class="number">0</span> || err &gt;= _sys_nerr || _sys_errlist[err] == <span class="literal">NULL</span>) </div><div class="line">    &#123;</div><div class="line">        <span class="built_in">snprintf</span>(buf, MAX_ERROR_LEN, <span class="string">"Unknown error %d"</span>, err);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="built_in">strncpy</span>(buf, _sys_errlist[err], MAX_ERROR_LEN - <span class="number">1</span>);</div><div class="line">        buf[MAX_ERROR_LEN - <span class="number">1</span>] = <span class="string">'\0'</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> buf;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　前面我们说到，<code>__thread</code>不能用于修饰 C++ 中的 class 类型，不过 C++11 提供了<code>thread_local</code>，除了可以修饰 POD 类型外，还可以修饰 class 类型：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">__thread <span class="built_in">std</span>::<span class="built_in">string</span> s1 = <span class="string">"Hello"</span>;        <span class="comment">// 错误，__thread 不能修饰 class 类型</span></div><div class="line"><span class="keyword">thread_local</span> <span class="built_in">std</span>::<span class="built_in">string</span> s2 = <span class="string">"Hello"</span>;    <span class="comment">// 正确</span></div></pre></td></tr></table></figure></p>
+<h2 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h2><p>　　在多线程编程中，有时候我们需要保证，无论程序创建了多少个线程，某些操作只<u>执行了一次</u>。Linux 提供了<code>pthread_once()</code>系统调用，我们可以借助<code>pthread_once()</code>实现单例模式：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pthread.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> Singleton</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">static</span> T &amp;<span class="title">instance</span><span class="params">()</span></span></div><div class="line">    &#123;</div><div class="line">        pthread_once(&amp;ponce_, &amp;Singleton::init);</div><div class="line">        <span class="keyword">return</span> *value_;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// disable the copy operations</span></div><div class="line">    Singleton(<span class="keyword">const</span> Singleton &amp;) = <span class="keyword">delete</span>;</div><div class="line">    Singleton &amp;<span class="keyword">operator</span>=(<span class="keyword">const</span> Singleton &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    Singleton();</div><div class="line">    ~Singleton();</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span></div><div class="line">    &#123;</div><div class="line">        value_ = <span class="keyword">new</span> T();</div><div class="line">        ::atexit(destroy);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">delete</span> value_;</div><div class="line">        value_ = <span class="literal">nullptr</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">static</span> <span class="keyword">pthread_once_t</span>  ponce_;</div><div class="line">    <span class="keyword">static</span> T              *value_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">pthread_once_t</span> Singleton&lt;T&gt;::ponce_ = PTHREAD_ONCE_INIT;</div><div class="line"></div><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div><div class="line">T *Singleton&lt;T&gt;::value_ = <span class="literal">nullptr</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://pdfs.semanticscholar.org/5481/444c5e420c1d4e9cad70d18155c87f8c904c.pdf" target="_blank" rel="external">The Native POSIX Thread Library for Linux</a></li>
+<li><a href="http://cs.uns.edu.ar/~jechaiz/sosd/clases/extras/03-LinuxThreads%20and%20NPTL.pdf" target="_blank" rel="external">Linux threading models compared: LinuxThreads and NPTL</a></li>
+<li><a href="https://computing.llnl.gov/tutorials/pthreads/" target="_blank" rel="external">POSIX Threads Programming</a></li>
+<li><a href="https://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/ref=sr_1_1?ie=UTF8&amp;qid=1477226990&amp;sr=8-1&amp;keywords=The+linux+programming" target="_blank" rel="external">The Linux Programming Interface: A Linux and UNIX System Programming Handbook</a></li>
+<li><a href="https://book.douban.com/subject/20471211/" target="_blank" rel="external"> Linux多线程服务端编程 - 使用muduo C++网络库</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/05/28/tcp-tuning/" itemprop="url">
                   Linux TCP/IP 性能调优
                 </a>
@@ -762,130 +913,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/08/redis-sentinel/" itemprop="url">
-                  Redis Sentinel 与高可用
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-08T15:50:32+08:00" content="2017-04-08">
-              2017-04-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/08/redis-sentinel/" class="leancloud_visitors" data-flag-title="Redis Sentinel 与高可用">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Redis-的高可用"><a href="#Redis-的高可用" class="headerlink" title="Redis 的高可用"></a>Redis 的高可用</h2><p>　　使用 Redis Sentinel 可以提高 Redis 的可用性，譬如说，当 Redis 开启了主从复制功能之后，如果 master 实例发生故障，那么 Sentinel 可以做到自动的故障转移(failover)：当 master 实例故障时，它的其中一个 slave 实例会自动提升成为新的 master 实例，同时其它的 slave 会重新指向这个新的 master 实例。<br>　　对于一个健壮的系统来说，通常至少需要三个 Sentinel 实例，譬如说，如果拥有一个 master 实例和两个 slave 实例，那么经常使用的架构是这样的，即三台服务器上面各自运行一个 Redis 实例和一个 Sentinel 进程：<div align="center"> <img src="/images/linux/redis-sentinel.png" width = "350" /></div>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/04/08/redis-sentinel/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -931,7 +958,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">34</span>
+              <span class="site-state-item-count">35</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
