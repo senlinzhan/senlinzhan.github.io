@@ -109,7 +109,7 @@
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="按需分配物理页面　　很多情况下，一个进程会申请一块很大的内存，但只是用到其中的一小部分。为了避免内存的浪费，在分配页面时，Linux 采用的是按需分配物理页面的方式。譬如说，某个进程调用malloc()申请了一块小内存，这时内核会分配一个虚拟页面，但这个页面不会映射到实际的物理页面。  　　从图中可以看到，当程序首次访问这个虚拟页面时，会触发一个缺页异常 (page fault)。这时内核会分配一">
 <meta property="og:image" content="http://senlinzhan.github.io/images/linux/oom1.png">
-<meta property="og:updated_time" content="2017-07-11T13:45:50.000Z">
+<meta property="og:updated_time" content="2017-07-11T14:37:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux 的 OOM Killer 机制分析">
 <meta name="twitter:description" content="按需分配物理页面　　很多情况下，一个进程会申请一块很大的内存，但只是用到其中的一小部分。为了避免内存的浪费，在分配页面时，Linux 采用的是按需分配物理页面的方式。譬如说，某个进程调用malloc()申请了一块小内存，这时内核会分配一个虚拟页面，但这个页面不会映射到实际的物理页面。  　　从图中可以看到，当程序首次访问这个虚拟页面时，会触发一个缺页异常 (page fault)。这时内核会分配一">
@@ -344,6 +344,13 @@
 <p>　　那么对内核来说，怎样才算 overcommit 呢？Linux 设定了一个阈值，叫做 CommitLimit，如果所有进程申请的总内存超过了 CommitLimit，那就算是 overcommit 了。在<code>/proc/meminfo</code>中可以看到 CommitLimit 的大小：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/meminfo | grep CommitLimit</div><div class="line">CommitLimit:     3829768 kB</div></pre></td></tr></table></figure></p>
 <p>　　CommitLimit 的值是这样计算的：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CommitLimit = [swap size] + [RAM size] * vm.overcommit_ratio / 100</div></pre></td></tr></table></figure></p>
 <p>　　其中的<code>vm.overcommit_ratio</code>也是内核参数，它的默认值是 50。</p>
+<h2 id="OOM-Killer"><a href="#OOM-Killer" class="headerlink" title="OOM Killer"></a>OOM Killer</h2><p>　　我们知道，当物理内存和交换空间不够用时，OOM Killer 就会选择杀死进程，那么它是怎样知道要先杀死哪个进程呢？其实 Linux 的每个进程都有一个 oom_score (位于<code>/proc/&lt;pid&gt;/oom_score</code>)，这个值越大，就越有可能被 OOM Killer 选中。oom_score 的值是由很多因素共同决定的，这里列举几个因素：</p>
+<ul>
+<li>如果进程消耗的内存越大，它的 oom_score 通常也会越大。 </li>
+<li>如果进程运行了很长时间，并且消耗很多 CPU 时间，那么通常它的 oom_score 会偏小。</li>
+<li>如果进程以 superuser 的身份运行，那么它的 oom_score 也会偏小。</li>
+</ul>
+<p>　　如何才能尽量防止某个重要的进程被杀死呢？Linux 每个进程都有一个 oom_adj (位于<code>/proc/&lt;pid&gt;/oom_adj</code>)，这个值的范围是 [-17, +15]，进程的 oom_adj 会影响 oom_score 的计算，也就是说，我们可以通过调小进程的 oom_adj 从而降低进程的 oom_score。对于一些比较重要的进程，例如 MySQL，我们想尽量避免它被 OOM Killer 杀死，这时候就可以调低它的 oom_adj 的值，例如：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo <span class="built_in">echo</span> -10 &gt; /proc/$(pidof mysqld)/oom_adj</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://en.wikipedia.org/wiki/Memory_overcommitment" target="_blank" rel="external">Memory overcommitment</a></li>
 </ul>
