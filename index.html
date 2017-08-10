@@ -381,6 +381,139 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/10/grpc-async/" itemprop="url">
+                  谈谈 gRPC 的 C++ 异步编程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-10T19:42:23+08:00" content="2017-08-10">
+              2017-08-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/10/grpc-async/" class="leancloud_visitors" data-flag-title="谈谈 gRPC 的 C++ 异步编程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>　　这篇文章我们会介绍 gRPC 的异步编程，如果读者没有使用过 gRPC 的经验，可以先阅读我之前写过的 <a href="http://senlinzhan.github.io/2017/04/20/grpc/">gRPC 编程指南</a>。 </p>
+<h2 id="异步-Client"><a href="#异步-Client" class="headerlink" title="异步 Client"></a>异步 Client</h2><p>　　gRPC 支持同步和异步两种编程方式。同步编程理解起来比较容易，譬如说，当一个同步的 client 调用 server 的某个方法时，它会一直处于阻塞状态，等待 server 发送回响应。<br>　　同步的代码编写起来也很简单，和一般的函数调用差不多：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 调用 server 的 SayHello 方法，阻塞中</span></div><div class="line">Status status = stub_-&gt;SayHello(&amp;context, request, &amp;reply);</div></pre></td></tr></table></figure></p>
+<p>　　然而对于同步的 client 来说，由于调用远程方法时会阻塞当前线程，所以它无法同时发送多个请求。如果需要同时发送多个请求，那么只能每次发送请求时都在<u>新的线程</u>中发送，而频繁地创建线程会带来不小的开销。<br>　　异步 client 成功地解决了这两个问题：它允许同时发送多个请求，并且每次发送请求时都不需要另外创建线程。异步 client 的解决思路很简单：</p>
+<ul>
+<li>gRPC 本身提供了异步 API，譬如说我们想调用 server 的<code>SayHello()</code>方法，我们可以调用它的异步版本<code>AsyncSayHello()</code>，调用之后会立即返回，不会阻塞。</li>
+<li>当方法调用成功时，我们可以让 gRPC <u>自动</u>将返回结果放到一个<code>CompletionQueue</code>的队列中（<code>CompletionQueue</code>是一个阻塞队列，并且是线程安全的）。</li>
+<li>程序可以启动一个线程，这个线程要做的事，就是不断地从队列中取出结果并处理。</li>
+</ul>
+<p>　　相比于同步的 client 来说，异步的 client 会稍显复杂。完整的代码可以看<a href="https://github.com/senlinzhan/grpc-examples/tree/master/async" target="_blank" rel="external">这里</a>:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 记录每个 AsyncSayHello 调用的信息</span></div><div class="line"><span class="keyword">struct</span> AsyncClientCall &#123;</div><div class="line">    HelloReply reply;</div><div class="line">    ClientContext context;</div><div class="line">    Status status;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;ClientAsyncResponseReader&lt;HelloReply&gt;&gt; response_reader;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">class</span> GreeterClient </div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    GreeterClient(<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Channel&gt; channel)</div><div class="line">        : stub_(Greeter::NewStub(channel)) &#123;&#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">SayHello</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; user)</span> </span></div><div class="line">    &#123;</div><div class="line">        HelloRequest request;</div><div class="line">        request.set_name(user);</div><div class="line">        AsyncClientCall* call = <span class="keyword">new</span> AsyncClientCall;</div><div class="line"></div><div class="line">        <span class="comment">// 异步调用，非阻塞</span></div><div class="line">        call-&gt;response_reader = stub_-&gt;AsyncSayHello(&amp;call-&gt;context, request, &amp;cq_);</div><div class="line"></div><div class="line">        <span class="comment">// 当 RPC 调用结束时，让 gRPC 自动将返回结果填充到 AsyncClientCall 中</span></div><div class="line">        <span class="comment">// 并将 AsyncClientCall 的地址加入到队列中</span></div><div class="line">        call-&gt;response_reader-&gt;Finish(&amp;call-&gt;reply, &amp;call-&gt;status, (<span class="keyword">void</span>*)call);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">AsyncCompleteRpc</span><span class="params">()</span> </span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">void</span>* got_tag;</div><div class="line">        <span class="keyword">bool</span> ok = <span class="literal">false</span>;</div><div class="line"></div><div class="line">        <span class="comment">// 从队列中取出 AsyncClientCall 的地址，会阻塞</span></div><div class="line">        <span class="keyword">while</span> (cq_.Next(&amp;got_tag, &amp;ok)) </div><div class="line">        &#123;</div><div class="line">            AsyncClientCall* call = <span class="keyword">static_cast</span>&lt;AsyncClientCall*&gt;(got_tag);</div><div class="line">            <span class="keyword">if</span> (call-&gt;status.ok())</div><div class="line">                <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Greeter received: "</span> &lt;&lt; call-&gt;reply.message() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">            <span class="keyword">else</span></div><div class="line">                <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"RPC failed"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">			</div><div class="line">            <span class="keyword">delete</span> call;  <span class="comment">// 销毁对象 </span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Greeter::Stub&gt; stub_;</div><div class="line">    CompletionQueue cq_;    <span class="comment">// 队列</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">auto</span> channel = grpc::CreateChannel(<span class="string">"localhost:5000"</span>, grpc::InsecureChannelCredentials());</div><div class="line">    <span class="function">GreeterClient <span class="title">greeter</span><span class="params">(channel)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// 启动新线程，从队列中取出结果并处理</span></div><div class="line">    <span class="built_in">std</span>::thread thread_ = <span class="built_in">std</span>::thread(&amp;GreeterClient::AsyncCompleteRpc, &amp;greeter);</div><div class="line"></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</div><div class="line">        <span class="keyword">auto</span> user = <span class="built_in">std</span>::<span class="built_in">string</span>(<span class="string">"hello-world-"</span>) + <span class="built_in">std</span>::to_string(i);</div><div class="line">        greeter.SayHello(user);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://grpc.io/docs/tutorials/async/helloasync-cpp.html" target="_blank" rel="external">Asynchronous Basics: C++</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/07/03/oom-killer/" itemprop="url">
                   Linux 的 OOM Killer 机制分析
                 </a>
@@ -786,141 +919,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/25/openmp/" itemprop="url">
-                  OpenMP 并行编程指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-06-25T19:25:03+08:00" content="2017-06-25">
-              2017-06-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并行计算/" itemprop="url" rel="index">
-                    <span itemprop="name">并行计算</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/06/25/openmp/" class="leancloud_visitors" data-flag-title="OpenMP 并行编程指南">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="并行计算"><a href="#并行计算" class="headerlink" title="并行计算"></a>并行计算</h2><p>　　对于 CPU 密集型的程序来说，可以考虑使用 OpenMP 加快程序的计算速度。OpenMP 是跨平台的，大部分现代的 C/C++ 编译器都支持 OpenMP。OpenMP 在一定程度上对并行算法进行了抽象，因此它使用起来很方便，程序员可以简单地通过编译器指令<code>#pragma omp</code>去控制程序的行为。<br>　　OpenMP 的语法很简单，它看起来是这样的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">pragma</span> omp <span class="meta-string">&lt;directive&gt;</span> [clause[[,] clause] ...]</span></div></pre></td></tr></table></figure></p>
-<p>　　最常见的指令应该算是<code>parallel</code>指令了，紧接在<code>parallel</code>指令后面的那个代码块将会<u>并行地</u>执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="meta">#<span class="meta-keyword">pragma</span> omp parallel</span></div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　程序会启用 N 个线程去执行<code>parallel</code>指令后面的那个代码块 (N 等同于 CPU 的核心数)，执行完这个代码块之后，程序又会变回单线程。编译时只需要提供<code>-fopenmp</code>参数，就可以让编译器启用 OpenMP。例如，下面在双核的机器上运行这个程序，将会打印两条消息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -fopenmp -o main main.cpp</div><div class="line">$ ./main</div><div class="line">Hello, World!</div><div class="line">Hello, World!</div></pre></td></tr></table></figure></p>
-<hr>
-<p>　　OpenMP 还提供了<code>parallel for</code>指令，它的作用就是将 for 循环拆分给 N 个线程去执行，这样每个线程都只需要执行整个 for 循环的<u>其中一部分</u>，所以可以实现并行计算。例如下面的例子，需要计算数组中每个元素的平方，我们可以将它拆分给 N 个线程去执行 (N 等同于 CPU 的核心数)：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdint&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> Int = <span class="keyword">uint64_t</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">constexpr</span> Int size = <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Int&gt; squares(size, <span class="number">0</span>);</div><div class="line"></div><div class="line">    <span class="meta">#<span class="meta-keyword">pragma</span> omp parallel for</span></div><div class="line">    <span class="keyword">for</span> (Int i = <span class="number">0</span>; i &lt; size; ++i)</div><div class="line">    &#123;</div><div class="line">        squares[i] = i * i;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　上面的代码写法很简单，也很清晰。这就是 OpenMP 的优势，只需要加上简单的编译器指令，就可以轻松实现并行计算。然而，如果我们从 OpenMP 实现的角度来看，上面的代码等同于这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;omp.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdint&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> Int = <span class="keyword">uint64_t</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">constexpr</span> Int size = <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Int&gt; squares(size, <span class="number">0</span>);</div><div class="line"></div><div class="line">    <span class="meta">#<span class="meta-keyword">pragma</span> omp parallel</span></div><div class="line">    &#123;</div><div class="line">        Int thread_id = omp_get_thread_num();     <span class="comment">// 线程 ID, 范围从 0 到 N - 1</span></div><div class="line">        Int thread_nums = omp_get_num_threads();  <span class="comment">// 线程的数量</span></div><div class="line"></div><div class="line">        Int first = thread_id * size / thread_nums;</div><div class="line">        Int last = (thread_id + <span class="number">1</span>) * size / thread_nums;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (Int i = first; i &lt; last; ++i)</div><div class="line">        &#123;</div><div class="line">            squares[i] = i * i;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://bisqwit.iki.fi/story/howto/openmp/" target="_blank" rel="external">Guide into OpenMP: Easy multithreading programming for C++</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -961,7 +964,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-count">36</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
