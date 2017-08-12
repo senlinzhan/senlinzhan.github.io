@@ -110,7 +110,7 @@
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="打开文件数　　在 Linux 中，文件描述符是一种资源，为了控制对资源的合理使用，Linux 会限制所有进程所能打开的文件描述符总数。可以通过下面的命令查看：12$ cat /proc/sys/fs/file-max99736
 　　通常来说，如果机器的内存越大，那么file-max的默认值也会越大。当然，也可以手动调大它：123$ sudo vi /etc/sysctl.conffs.file-m">
-<meta property="og:updated_time" content="2017-07-01T09:42:40.000Z">
+<meta property="og:updated_time" content="2017-08-12T02:28:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux 系统参数调优">
 <meta name="twitter:description" content="打开文件数　　在 Linux 中，文件描述符是一种资源，为了控制对资源的合理使用，Linux 会限制所有进程所能打开的文件描述符总数。可以通过下面的命令查看：12$ cat /proc/sys/fs/file-max99736
@@ -342,7 +342,7 @@
 <hr>
 <p>　　然而<code>fs.file-max</code>这个参数是系统级别的限制，除此之外，Linux 还会限制<u>某个用户</u>所能打开的文件描述符数量，这个值默认是 1024，可以用下面命令查看：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> -n</div><div class="line">1024</div></pre></td></tr></table></figure></p>
 <p>　　从上面的命令可以看到，<u>当前用户</u>最多只能打开 1024 个文件描述符。有时在运行高并发服务器的时候，经常会出现文件描述符不够用的错误，这时候就需要调高这个用户所能打开的文件描述符数量了，可以通过下面的命令修改：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/security/limits.conf</div><div class="line">www-data soft nofile 10240</div><div class="line">www-data hard nofile 20480</div></pre></td></tr></table></figure></p>
-<p>　　上面的命令为<code>www-data</code>用户设置所能打开的文件描述符数量，其中软限制为 10240，而硬限制为 20480。那么软限制和硬限制的区别是什么呢？其实进程在运行的时候可以修改软限制的值，但要保证这个值不能超过硬限制。然而进程却无法修改硬限制的值，除非以 superuser 的身份运行。</p>
+<p>　　上面的命令为<code>www-data</code>用户设置所能打开的文件描述符数量，其中软限制为 10240，而硬限制为 20480。那么软限制和硬限制的区别是什么呢？其实进程在运行的时候可以修改软限制的值，但要保证这个值不能超过硬限制。然而进程却无法修改硬限制的值，除非以 superuser 的身份运行。<br><a id="more"></a> </p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="http://www.lognormal.com/blog/2012/09/27/linux-tcpip-tuning/" target="_blank" rel="external">Linux TCP/IP tuning for scalability</a></li>
 <li><a href="https://iniy.org/?p=539&amp;lang=de" target="_blank" rel="external">Guide to limits.conf / ulimit /open file descriptors under linux</a></li>
