@@ -266,6 +266,137 @@
             
               
                 
+                <a class="post-title-link" href="/2017/07/01/linux-tuning/" itemprop="url">
+                  Linux 系统参数调优
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-07-01T20:45:16+08:00" content="2017-07-01">
+              2017-07-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/01/linux-tuning/" class="leancloud_visitors" data-flag-title="Linux 系统参数调优">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="打开文件数"><a href="#打开文件数" class="headerlink" title="打开文件数"></a>打开文件数</h2><p>　　在 Linux 中，文件描述符是一种资源，为了控制对资源的合理使用，Linux 会限制所有进程所能打开的<u>文件描述符总数</u>。可以通过下面的命令查看：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/fs/file-max</div><div class="line">99736</div></pre></td></tr></table></figure></p>
+<p>　　通常来说，如果机器的内存越大，那么<code>file-max</code>的默认值也会越大。当然，也可以手动调大它：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">fs.file-max = 100000</div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改动生效</span></div></pre></td></tr></table></figure></p>
+<p>　　那么要怎样才能知道系统当前打开了多少文件描述符呢？可以用下面的命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/fs/file-nr</div><div class="line">704	0	100000</div></pre></td></tr></table></figure></p>
+<p>　　输出结果的第一个值表示系统当前打开了 704 个文件描述符，在 Linux 2.6 之后，第二个值总是 0，第三个值等于<code>/proc/sys/fs/file-max</code>的值。</p>
+<hr>
+<p>　　然而<code>fs.file-max</code>这个参数是系统级别的限制，除此之外，Linux 还会限制<u>某个用户</u>所能打开的文件描述符数量，这个值默认是 1024，可以用下面命令查看：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> -n</div><div class="line">1024</div></pre></td></tr></table></figure></p>
+<p>　　从上面的命令可以看到，<u>当前用户</u>最多只能打开 1024 个文件描述符。有时在运行高并发服务器的时候，经常会出现文件描述符不够用的错误，这时候就需要调高这个用户所能打开的文件描述符数量了，可以通过下面的命令修改：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/security/limits.conf</div><div class="line">www-data soft nofile 10240</div><div class="line">www-data hard nofile 20480</div></pre></td></tr></table></figure></p>
+<p>　　上面的命令为<code>www-data</code>用户设置所能打开的文件描述符数量，其中软限制为 10240，而硬限制为 20480。那么软限制和硬限制的区别是什么呢？其实进程在运行的时候可以修改软限制的值，但要保证这个值不能超过硬限制。然而进程却无法修改硬限制的值，除非以 superuser 的身份运行。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/07/01/linux-tuning/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/06/25/openmp/" itemprop="url">
                   OpenMP 并行编程指南
                 </a>
@@ -771,130 +902,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/20/grpc/" itemprop="url">
-                  gRPC 编程指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-20T20:48:18+08:00" content="2017-04-20">
-              2017-04-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/20/grpc/" class="leancloud_visitors" data-flag-title="gRPC 编程指南">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="gRPC-介绍"><a href="#gRPC-介绍" class="headerlink" title="gRPC 介绍"></a>gRPC 介绍</h2><p>　　gRPC 是谷歌开源的高性能 RPC 框架。RPC 也即远程方法调用，对于 RPC client 来说，它可以调用远程 server 上的某个方法，看起来就像是在调用本地方法一样。区别就在于，通过 RPC 调用远程方法时，数据经过序列化之后会通过网络发送给远程 server，远程 server 执行方法之后，同样会将返回结果序列化之后发送回 client。在分布式系统中，gRPC 可以用来解耦程序的逻辑，不同组件之间通过 gRPC 进行通信。<br>　　gRPC 使用 Protobuf 作为它的数据序列化的工具，Protobuf 会将数据序列化成二进制的数据流。与 JSON 这类文本形式的数据相比，二进制数据显得更加紧凑和便于解析，在网络传输中，二进制数据由于体积更小，传输也更快。另一方面，gRPC 也是跨多种编程语言的，譬如说，一个 Java 的 client 可以与一个 C++ 的 server 通信。<div align="center"> <img src="/images/linux/grpc.svg" width="400" align=center /> </div>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/04/20/grpc/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -940,7 +947,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">36</span>
+              <span class="site-state-item-count">37</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
