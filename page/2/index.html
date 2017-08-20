@@ -266,6 +266,137 @@
             
               
                 
+                <a class="post-title-link" href="/2017/07/02/linux-memory/" itemprop="url">
+                  浅谈 Linux 的内存管理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-07-02T10:33:12+08:00" content="2017-07-02">
+              2017-07-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/02/linux-memory/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的内存管理">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="匿名内存映射"><a href="#匿名内存映射" class="headerlink" title="匿名内存映射"></a>匿名内存映射</h2><p>　　在 Linux 中，如果使用<code>malloc()</code>分配一块很大的内存 (大于128KB)，这时<code>malloc()</code>不会直接从 heap 上分配内存，而是会调用<code>mmap()</code>创建匿名的内存映射，那么使用<code>mmap()</code>分配内存有何优缺点呢？</p>
+<ul>
+<li>使用<code>mmap()</code>分配内存时，不会产生<u>内存碎片</u>。因为当这块内存不需要时，可以直接调用<code>munmap()</code>释放它，这样内存就会直接返回给操作系统。</li>
+<li>在 Linux 中，一个页面的大小是 4KB，所以<code>mmap()</code>分配的内存会按照 4KB 的大小对齐。通常来说，分配小块内存并不会用到<code>mmap()</code>，因为<code>mmap()</code>分配的内存是 4KB 的整数倍，如果不能充分利用，就会造成内存的浪费。</li>
+<li>和在 heap 上分配内存相比，使用<code>mmap()</code>分配内存时将带来比较大的开销，所以<code>mmap()</code>不适合频繁地调用，通常只有当分配的内存比较大时，才会使用到<code>mmap()</code>。</li>
+</ul>
+<p>　　使用<code>mmap()</code>分配内存有两种形式，一种是私有的内存映射，另一种是共享的内存映射。如果创建的是私有的内存映射，那么在<code>fork()</code>之后，尽管子进程也可以访问这块内存，但是 copy-on-write 会保证父进程和子进程对这块内存的修改<u>不会被彼此看见</u>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 创建私有的内存映射, 512 KB</span></div><div class="line">    <span class="keyword">size_t</span> sz = <span class="number">512</span> * <span class="number">1024</span>;</div><div class="line">    <span class="keyword">void</span> *p = mmap(<span class="literal">NULL</span>, sz, PROT_READ | PROT_WRITE,</div><div class="line">                   MAP_PRIVATE | MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>);</div><div class="line">    <span class="keyword">if</span> (p == MAP_FAILED)</div><div class="line">    &#123;</div><div class="line">        perror(<span class="string">"mmap"</span>);</div><div class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *addr = p;</div><div class="line">    <span class="keyword">int</span> n = fork();</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (n == <span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">        *addr = <span class="number">100</span>;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"Child set value to %d\n"</span>, *addr);</div><div class="line">        <span class="keyword">if</span> (munmap(p, sz) == <span class="number">-1</span>)</div><div class="line">        &#123;</div><div class="line">            perror(<span class="string">"munmap"</span>);</div><div class="line">            <span class="built_in">exit</span>(EXIT_FAILURE);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n &gt; <span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">        wait(<span class="literal">NULL</span>);    <span class="comment">// 等待子进程退出</span></div><div class="line">        <span class="built_in">printf</span>(<span class="string">"Parent get value %d\n"</span>, *addr);</div><div class="line">        <span class="keyword">if</span> (munmap(p, sz) == <span class="number">-1</span>)</div><div class="line">        &#123;</div><div class="line">            perror(<span class="string">"munmap"</span>);</div><div class="line">            <span class="built_in">exit</span>(EXIT_FAILURE);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span></div><div class="line">    &#123;</div><div class="line">        perror(<span class="string">"fork"</span>);</div><div class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从程序的输出可以看到，子进程对内存的修改<u>不会</u>被父进程看到：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Child <span class="built_in">set</span> value to 100</div><div class="line">Parent get value 0</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/07/02/linux-memory/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/07/01/linux-tuning/" itemprop="url">
                   Linux 系统参数调优
                 </a>
@@ -772,136 +903,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/24/nginx-memory-pool/" itemprop="url">
-                  Nginx 内存池源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-24T23:01:44+08:00" content="2017-04-24">
-              2017-04-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/24/nginx-memory-pool/" class="leancloud_visitors" data-flag-title="Nginx 内存池源码分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="内存池介绍"><a href="#内存池介绍" class="headerlink" title="内存池介绍"></a>内存池介绍</h2><p>　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过<code>malloc()</code>去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。<br>　　Nginx 使用内存池<code>ngx_pool_t</code>来管理内存，这带来了不少的好处：</p>
-<ul>
-<li>当程序需要内存时，只管向内存池申请，申请而来的内存也无需手动释放，因为内存池销毁时会负责释放所有的内存。</li>
-<li>对于那些需要频繁分配和释放小块内存的程序来说，使用内存池可以减少<code>malloc()</code>的次数，除了降低了调用开销之外，还减少了内存碎片的产生。</li>
-</ul>
-<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>　　下面是内存池的数据结构，<code>ngx_pool_t</code>代表内存池，<code>ngx_pool_data_t</code>代表小块内存，而<code>ngx_pool_large_t</code>则代表大块内存。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 大块内存</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_pool_large_s  <span class="keyword">ngx_pool_large_t</span>;</div><div class="line"><span class="keyword">struct</span> ngx_pool_large_s &#123;</div><div class="line">    <span class="keyword">ngx_pool_large_t</span>     *next;   <span class="comment">// 所有大块内存都通过链表串联起来</span></div><div class="line">    <span class="keyword">void</span>                 *alloc;  <span class="comment">// 指向实际分配的大块内存</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// 小块内存</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</div><div class="line">    u_char               *last;</div><div class="line">    u_char               *end;</div><div class="line">    <span class="keyword">ngx_pool_t</span>           *next;</div><div class="line">    <span class="keyword">ngx_uint_t</span>            failed;</div><div class="line">&#125; <span class="keyword">ngx_pool_data_t</span>;</div><div class="line"></div><div class="line"><span class="comment">// 内存池</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_pool_s        <span class="keyword">ngx_pool_t</span>;</div><div class="line"><span class="keyword">struct</span> ngx_pool_s &#123;</div><div class="line">    <span class="keyword">ngx_pool_data_t</span>       d;</div><div class="line">    <span class="keyword">size_t</span>                max;</div><div class="line">    <span class="keyword">ngx_pool_t</span>           *current;</div><div class="line">    <span class="keyword">ngx_chain_t</span>          *chain;</div><div class="line">    <span class="keyword">ngx_pool_large_t</span>     *large;     <span class="comment">// 大块内存链表</span></div><div class="line">    <span class="keyword">ngx_pool_cleanup_t</span>   *cleanup;</div><div class="line">    <span class="keyword">ngx_log_t</span>            *<span class="built_in">log</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<h2 id="内存池构造"><a href="#内存池构造" class="headerlink" title="内存池构造"></a>内存池构造</h2><p>　　内存池处理大块内存和小块内存的策略是不同的，譬如说，当用户向内存池申请内存时，内存池会判断申请的是大块内存还是小块内存，如果是小块内存，那么直接在内存池里面分配，但如果是大块内存，就直接向 OS 申请。<code>ngx_pool_t</code>的<code>max</code>成员则作为判断的标准，如果用户申请的内存大于<code>max</code>，则认为是大块内存，否则就是小块内存。下面的<code>ngx_create_pool()</code>函数用于创建和初始化内存池：
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/04/24/nginx-memory-pool/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -947,7 +948,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">37</span>
+              <span class="site-state-item-count">38</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
