@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Concurrency," />
 
 
 
@@ -102,15 +102,42 @@
 
 
 
-<meta name="description" content="高性能">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/archives/2017/page/3/index.html">
+<meta name="description" content="固定线程池　　提到线程池，通常说的都是固定大小的线程池，固定线程池的原理是这样的：
+
+线程池由一个线程安全的队列，以及多个 worker 线程组成。
+可以有多个 producer 线程，它们负责提交任务给线程池。
+接收到新任务之后，线程池会唤醒某个 worker 线程，worker 线程醒来后会取出任务并执行。
+
+ 　　虽然固定线程池实现起来很简单，但却有着几个缺陷：
+
+无法动态扩容：worker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gRPC 的 C++ 动态线程池源码分析">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/09/09/grpc-dynamic-thread-pool/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="高性能">
+<meta property="og:description" content="固定线程池　　提到线程池，通常说的都是固定大小的线程池，固定线程池的原理是这样的：
+
+线程池由一个线程安全的队列，以及多个 worker 线程组成。
+可以有多个 producer 线程，它们负责提交任务给线程池。
+接收到新任务之后，线程池会唤醒某个 worker 线程，worker 线程醒来后会取出任务并执行。
+
+ 　　虽然固定线程池实现起来很简单，但却有着几个缺陷：
+
+无法动态扩容：worker">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/thread-pool.png">
+<meta property="og:updated_time" content="2017-09-09T15:25:24.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
-<meta name="twitter:description" content="高性能">
+<meta name="twitter:title" content="gRPC 的 C++ 动态线程池源码分析">
+<meta name="twitter:description" content="固定线程池　　提到线程池，通常说的都是固定大小的线程池，固定线程池的原理是这样的：
+
+线程池由一个线程安全的队列，以及多个 worker 线程组成。
+可以有多个 producer 线程，它们负责提交任务给线程池。
+接收到新任务之后，线程池会唤醒某个 worker 线程，worker 线程醒来后会取出任务并执行。
+
+ 　　虽然固定线程池实现起来很简单，但却有着几个缺陷：
+
+无法动态扩容：worker">
+<meta name="twitter:image" content="http://senlinzhan.github.io/images/linux/thread-pool.png">
 
 
 
@@ -131,9 +158,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/archives/2017/page/3/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/09/09/grpc-dynamic-thread-pool/"/>
 
-  <title> 归档 | Senlin's Blog </title>
+  <title> gRPC 的 C++ 动态线程池源码分析 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -154,7 +181,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -242,217 +269,160 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-       
-      
-      OK! 目前共计 39 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2017">2017</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/04/24/nginx-memory-pool/" itemprop="url">
-              
-                <span itemprop="name">Nginx 内存池源码分析</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-04-24T23:01:44+08:00"
-              content="2017-04-24" >
-          04-24
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/04/20/grpc/" itemprop="url">
-              
-                <span itemprop="name">gRPC 编程指南</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-04-20T20:48:18+08:00"
-              content="2017-04-20" >
-          04-20
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/04/08/redis-cluster/" itemprop="url">
-              
-                <span itemprop="name">Redis Cluster</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-04-08T21:33:03+08:00"
-              content="2017-04-08" >
-          04-08
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/04/08/redis-sentinel/" itemprop="url">
-              
-                <span itemprop="name">Redis Sentinel 与高可用</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-04-08T15:50:32+08:00"
-              content="2017-04-08" >
-          04-08
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/04/07/redis-replication/" itemprop="url">
-              
-                <span itemprop="name">Redis 主从复制的原理</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-04-07T21:32:17+08:00"
-              content="2017-04-07" >
-          04-07
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/2017/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/archives/2017/">1</a><a class="page-number" href="/archives/2017/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/archives/2017/page/4/">4</a><a class="page-number" href="/archives/2017/page/5/">5</a><a class="extend next" rel="next" href="/archives/2017/page/4/"><i class="fa fa-angle-right"></i></a>
-  </nav>
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                gRPC 的 C++ 动态线程池源码分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-09-09T21:54:51+08:00" content="2017-09-09">
+              2017-09-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/09/09/grpc-dynamic-thread-pool/" class="leancloud_visitors" data-flag-title="gRPC 的 C++ 动态线程池源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
 
 
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="固定线程池"><a href="#固定线程池" class="headerlink" title="固定线程池"></a>固定线程池</h2><p>　　提到线程池，通常说的都是<u>固定大小</u>的线程池，固定线程池的原理是这样的：</p>
+<ul>
+<li>线程池由一个线程安全的队列，以及多个 worker 线程组成。</li>
+<li>可以有多个 producer 线程，它们负责提交任务给线程池。</li>
+<li>接收到新任务之后，线程池会唤醒某个 worker 线程，worker 线程醒来后会取出任务并执行。</li>
+</ul>
+<p><div align="center"><img src="/images/linux/thread-pool.png" width="600" align="center"> </div><br>　　虽然固定线程池实现起来很简单，但却有着几个缺陷：</p>
+<ul>
+<li>无法动态扩容：worker 线程的个数是固定的，不能随着任务数的增长而增长。</li>
+<li>无法动态缩容：如果有很多线程处于<u>空闲状态</u>，就会造成资源的浪费。</li>
+</ul>
+<h2 id="动态线程池"><a href="#动态线程池" class="headerlink" title="动态线程池"></a>动态线程池</h2>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Concurrency/" rel="tag">#Concurrency</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/20/libevent-buffer/" rel="next" title="谈谈 Libevent 的应用层 buffer">
+                <i class="fa fa-chevron-left"></i> 谈谈 Libevent 的应用层 buffer
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -460,6 +430,17 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -651,11 +632,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
 
 
   
@@ -673,9 +652,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'http-senlinzhan-github-io';
-      var disqus_identifier = 'archives/2017/page/3/index.html';
-      var disqus_title = "";
-      var disqus_url = '';
+      var disqus_identifier = '2017/09/09/grpc-dynamic-thread-pool/';
+      var disqus_title = "gRPC 的 C++ 动态线程池源码分析";
+      var disqus_url = 'http://senlinzhan.github.io/2017/09/09/grpc-dynamic-thread-pool/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');
@@ -686,6 +665,8 @@
       }
 
       run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
       
     </script>
   
