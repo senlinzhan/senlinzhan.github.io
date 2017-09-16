@@ -266,141 +266,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/06/10/pthread-inside/" itemprop="url">
-                  深入 Linux 多线程编程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-06-10T22:49:15+08:00" content="2017-06-10">
-              2017-06-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/06/10/pthread-inside/" class="leancloud_visitors" data-flag-title="深入 Linux 多线程编程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="NPTL-线程模型"><a href="#NPTL-线程模型" class="headerlink" title="NPTL 线程模型"></a>NPTL 线程模型</h2><p>　　NPTL，也即 Native POSIX Thread Library，是 Linux 2.6 引入的新的线程库实现，用来替代旧的 LinuxThreads 线程库。在 NPTL 实现中，用户创建的每个线程都对应着一个<u>内核态</u>的线程，内核态线程也是 Linux 的最小调度单元。<br>　　在 NPTL 实现中，线程的创建相当于调用<code>clone()</code>，并指定下面的参数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">CLONE_VM | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_THREAD | CLONE_SETTLS | </div><div class="line">CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM</div></pre></td></tr></table></figure></p>
-<p>　　下面解释一下这些参数的含义：</p>
-<ul>
-<li><code>CLONE_VM</code> 所有线程都共享同一个<u>进程地址空间</u>。</li>
-<li><code>CLONE_FILES</code> 所有线程都共享进程的文件描述符列表 (file descriptor table)。</li>
-<li><code>CLONE_FS</code> 所有线程都共享同一个文件系统的信息。</li>
-<li><code>CLONE_SIGHAND</code> 所有线程都共享同一个信号 handler 列表。</li>
-<li><code>CLONE_THREAD</code> 所有线程都共享同一个进程 ID 以及 父进程 ID。</li>
-</ul>
-<p>　　在 Linux 可以通过下面命令查看线程库的实现方式：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ getconf GNU_LIBPTHREAD_VERSION</div><div class="line">NPTL 2.23</div></pre></td></tr></table></figure></p>
-<h2 id="线程的栈"><a href="#线程的栈" class="headerlink" title="线程的栈"></a>线程的栈</h2><p>　　在 Linux 中，一个进程可以包含多个线程，这些线程将共享进程的全局变量，以及进程的堆，但每个线程都拥有<u>它自己的栈</u>。正如下图所示：</p>
-<p><div align="center"><img src="/images/linux/thread-stack.png" width="490" align=center /> </div><br>　　在 64 位系统中，除了主线程之外，其它线程的栈默认大小为 8M，而主线程的栈则没有这个限制，因为主线程的栈可以动态增长。可以用下面的命令查看线程栈的大小：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> <span class="_">-s</span></div><div class="line">8192</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/06/10/pthread-inside/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/05/28/tcp-tuning/" itemprop="url">
                   Linux TCP/IP 性能调优
                 </a>
@@ -897,6 +762,130 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/08/redis-sentinel/" itemprop="url">
+                  Redis Sentinel 与高可用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-08T15:50:32+08:00" content="2017-04-08">
+              2017-04-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/08/redis-sentinel/" class="leancloud_visitors" data-flag-title="Redis Sentinel 与高可用">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Redis-的高可用"><a href="#Redis-的高可用" class="headerlink" title="Redis 的高可用"></a>Redis 的高可用</h2><p>　　使用 Redis Sentinel 可以提高 Redis 的可用性，譬如说，当 Redis 开启了主从复制功能之后，如果 master 实例发生故障，那么 Sentinel 可以做到自动的故障转移(failover)：当 master 实例故障时，它的其中一个 slave 实例会自动提升成为新的 master 实例，同时其它的 slave 会重新指向这个新的 master 实例。<br>　　对于一个健壮的系统来说，通常至少需要三个 Sentinel 实例，譬如说，如果拥有一个 master 实例和两个 slave 实例，那么经常使用的架构是这样的，即三台服务器上面各自运行一个 Redis 实例和一个 Sentinel 进程：<div align="center"> <img src="/images/linux/redis-sentinel.png" width = "350" /></div>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/04/08/redis-sentinel/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -942,7 +931,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">40</span>
+              <span class="site-state-item-count">39</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

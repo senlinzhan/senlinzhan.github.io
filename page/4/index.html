@@ -266,130 +266,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/04/08/redis-sentinel/" itemprop="url">
-                  Redis Sentinel 与高可用
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-08T15:50:32+08:00" content="2017-04-08">
-              2017-04-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/08/redis-sentinel/" class="leancloud_visitors" data-flag-title="Redis Sentinel 与高可用">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Redis-的高可用"><a href="#Redis-的高可用" class="headerlink" title="Redis 的高可用"></a>Redis 的高可用</h2><p>　　使用 Redis Sentinel 可以提高 Redis 的可用性，譬如说，当 Redis 开启了主从复制功能之后，如果 master 实例发生故障，那么 Sentinel 可以做到自动的故障转移(failover)：当 master 实例故障时，它的其中一个 slave 实例会自动提升成为新的 master 实例，同时其它的 slave 会重新指向这个新的 master 实例。<br>　　对于一个健壮的系统来说，通常至少需要三个 Sentinel 实例，譬如说，如果拥有一个 master 实例和两个 slave 实例，那么经常使用的架构是这样的，即三台服务器上面各自运行一个 Redis 实例和一个 Sentinel 进程：<div align="center"> <img src="/images/linux/redis-sentinel.png" width = "350" /></div>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/04/08/redis-sentinel/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/04/07/redis-replication/" itemprop="url">
                   Redis 主从复制的原理
                 </a>
@@ -896,6 +772,142 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
+                  网络编程中的 SIGPIPE 信号
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/02/sigpipe/" class="leancloud_visitors" data-flag-title="网络编程中的 SIGPIPE 信号">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="处理-SIGPIPE"><a href="#处理-SIGPIPE" class="headerlink" title="处理 SIGPIPE"></a>处理 SIGPIPE</h2><p>　　在网络编程中经常会遇到<code>SIGPIPE</code>信号，默认情况下这个信号会终止整个进程，当然你并不想让进程被<code>SIGPIPE</code>信号杀死。我们不禁会这样思考：</p>
+<ul>
+<li>在什么场景下会产生<code>SIGPIPE</code>信号？</li>
+<li>要怎样处理<code>SIGPIPE</code>信号？</li>
+</ul>
+<p>　　<code>SIGPIPE</code>产生的原因是这样的：如果一个 socket 在接收到了 RST packet 之后，程序仍然向这个 socket 写入数据，那么就会产生<code>SIGPIPE</code>信号。<br>　　这种现象是很常见的，譬如说，当 client 连接到 server 之后，这时候 server 准备向 client 发送<u>多条</u>消息，但在发送消息之前，client 进程意外奔溃了，那么接下来 server 在发送<u>多条</u>消息的过程中，就会出现<code>SIGPIPE</code>信号。下面我们看看 server 的代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handle_client</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 假设此时 client 奔溃, 那么 server 将接收到 client 发送的 FIN</span></div><div class="line">    sleep(<span class="number">5</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 写入第一条消息</span></div><div class="line">    <span class="keyword">char</span> msg1[MAXLINE] = &#123;<span class="string">"first message"</span>&#125;; </div><div class="line">    <span class="keyword">ssize_t</span> n = write(fd, msg1, <span class="built_in">strlen</span>(msg1));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"write %ld bytes\n"</span>, n);</div><div class="line"></div><div class="line">    <span class="comment">// 此时第一条消息发送成功，server 接收到 client 发送的 RST</span></div><div class="line">    sleep(<span class="number">1</span>); </div><div class="line"></div><div class="line">    <span class="comment">// 写入第二条消息，出现 SIGPIPE 信号，导致 server 被杀死</span></div><div class="line">    <span class="keyword">char</span> msg2[MAXLINE] = &#123;<span class="string">"second message"</span>&#125;;</div><div class="line">    n = write(fd, msg2, <span class="built_in">strlen</span>(msg2));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld, %s\n"</span>, n, strerror(errno));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> port = <span class="number">8888</span>;</div><div class="line">    <span class="keyword">struct</span> sockaddr_in server_addr;</div><div class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    server_addr.sin_family = AF_INET;</div><div class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</div><div class="line">    server_addr.sin_port = htons(port);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> listenfd = socket(AF_INET , SOCK_STREAM , <span class="number">0</span>);</div><div class="line">    bind(listenfd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    listen(listenfd, <span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> fd = accept(listenfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">    handle_client(fd);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们可以使用 Linux 的 nc 工具作为 client，当 client 连接到 server 之后，就立即杀死 client (模拟 client 的意外奔溃)。这时可以观察 server 的运行情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gcc -o server server.c </div><div class="line">$ ./server &amp;              <span class="comment"># 后台运行 server</span></div><div class="line">$ nc localhost 8888       <span class="comment"># 运行 nc 连接到 server</span></div><div class="line">^C                        <span class="comment"># Ctrl-C 杀死 nc</span></div><div class="line"></div><div class="line">write 13 bytes</div><div class="line">[1]+  Broken pipe             ./server</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下整个过程：</p>
+<ul>
+<li>client 连接到 server 之后，client 进程意外奔溃，这时它会发送一个 FIN 给 server。</li>
+<li>此时 server 并不知道 client 已经奔溃了，所以它会发送第一条消息给 client。但 client 已经退出了，所以 client 的 TCP 协议栈会发送一个 RST 给 server。</li>
+<li>server 在接收到 RST 之后，继续写入第二条消息。往一个已经收到 RST 的 socket 继续写入数据，将导致<code>SIGPIPE</code>信号，从而杀死 server。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -941,7 +953,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">40</span>
+              <span class="site-state-item-count">39</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
