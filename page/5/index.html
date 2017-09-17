@@ -266,6 +266,142 @@
             
               
                 
+                <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
+                  网络编程中的 SIGPIPE 信号
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/02/sigpipe/" class="leancloud_visitors" data-flag-title="网络编程中的 SIGPIPE 信号">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="处理-SIGPIPE"><a href="#处理-SIGPIPE" class="headerlink" title="处理 SIGPIPE"></a>处理 SIGPIPE</h2><p>　　在网络编程中经常会遇到<code>SIGPIPE</code>信号，默认情况下这个信号会终止整个进程，当然你并不想让进程被<code>SIGPIPE</code>信号杀死。我们不禁会这样思考：</p>
+<ul>
+<li>在什么场景下会产生<code>SIGPIPE</code>信号？</li>
+<li>要怎样处理<code>SIGPIPE</code>信号？</li>
+</ul>
+<p>　　<code>SIGPIPE</code>产生的原因是这样的：如果一个 socket 在接收到了 RST packet 之后，程序仍然向这个 socket 写入数据，那么就会产生<code>SIGPIPE</code>信号。<br>　　这种现象是很常见的，譬如说，当 client 连接到 server 之后，这时候 server 准备向 client 发送<u>多条</u>消息，但在发送消息之前，client 进程意外奔溃了，那么接下来 server 在发送<u>多条</u>消息的过程中，就会出现<code>SIGPIPE</code>信号。下面我们看看 server 的代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handle_client</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 假设此时 client 奔溃, 那么 server 将接收到 client 发送的 FIN</span></div><div class="line">    sleep(<span class="number">5</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 写入第一条消息</span></div><div class="line">    <span class="keyword">char</span> msg1[MAXLINE] = &#123;<span class="string">"first message"</span>&#125;; </div><div class="line">    <span class="keyword">ssize_t</span> n = write(fd, msg1, <span class="built_in">strlen</span>(msg1));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"write %ld bytes\n"</span>, n);</div><div class="line"></div><div class="line">    <span class="comment">// 此时第一条消息发送成功，server 接收到 client 发送的 RST</span></div><div class="line">    sleep(<span class="number">1</span>); </div><div class="line"></div><div class="line">    <span class="comment">// 写入第二条消息，出现 SIGPIPE 信号，导致 server 被杀死</span></div><div class="line">    <span class="keyword">char</span> msg2[MAXLINE] = &#123;<span class="string">"second message"</span>&#125;;</div><div class="line">    n = write(fd, msg2, <span class="built_in">strlen</span>(msg2));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld, %s\n"</span>, n, strerror(errno));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> port = <span class="number">8888</span>;</div><div class="line">    <span class="keyword">struct</span> sockaddr_in server_addr;</div><div class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    server_addr.sin_family = AF_INET;</div><div class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</div><div class="line">    server_addr.sin_port = htons(port);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> listenfd = socket(AF_INET , SOCK_STREAM , <span class="number">0</span>);</div><div class="line">    bind(listenfd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    listen(listenfd, <span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> fd = accept(listenfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">    handle_client(fd);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们可以使用 Linux 的 nc 工具作为 client，当 client 连接到 server 之后，就立即杀死 client (模拟 client 的意外奔溃)。这时可以观察 server 的运行情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gcc -o server server.c </div><div class="line">$ ./server &amp;              <span class="comment"># 后台运行 server</span></div><div class="line">$ nc localhost 8888       <span class="comment"># 运行 nc 连接到 server</span></div><div class="line">^C                        <span class="comment"># Ctrl-C 杀死 nc</span></div><div class="line"></div><div class="line">write 13 bytes</div><div class="line">[1]+  Broken pipe             ./server</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下整个过程：</p>
+<ul>
+<li>client 连接到 server 之后，client 进程意外奔溃，这时它会发送一个 FIN 给 server。</li>
+<li>此时 server 并不知道 client 已经奔溃了，所以它会发送第一条消息给 client。但 client 已经退出了，所以 client 的 TCP 协议栈会发送一个 RST 给 server。</li>
+<li>server 在接收到 RST 之后，继续写入第二条消息。往一个已经收到 RST 的 socket 继续写入数据，将导致<code>SIGPIPE</code>信号，从而杀死 server。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/26/cpp11_thread/" itemprop="url">
                   C++ 多线程编程精要
                 </a>
@@ -764,137 +900,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/08/Linux的SO-REUSEPORT选项/" itemprop="url">
-                  Linux 的 socket 选项 SO_REUSEPORT
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-08T20:34:16+08:00" content="2017-02-08">
-              2017-02-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/08/Linux的SO-REUSEPORT选项/" class="leancloud_visitors" data-flag-title="Linux 的 socket 选项 SO_REUSEPORT">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="均衡转发"><a href="#均衡转发" class="headerlink" title="均衡转发"></a>均衡转发</h2><p>　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用<code>accept()</code>，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，<code>accept()</code>不会导致惊群。) 然而，正如<a href="https://lwn.net/Articles/542629/">这篇文章</a>所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式去唤醒线程。这就导致了有的线程处理太多请求而忙不过来，而有的线程则很空闲。<br>　　Linux 3.9提供了<code>SO_REUSEPORT</code>选项，对于TCP来说，它允许多个listening socket绑定到同一个端口，也就是说，所有线程都可以创建一个listening socket绑定到同一个端口，并且可以调用<code>accept()</code>在这个socket上等待连接请求。使用<code>SO_REUSEPORT</code>的好处就是，由于内核会将客户端的连接请求均衡地分发给每个listening socket，在多线程环境中，这有利于充分利用好每个 CPU 核心。<br>　　<code>SO_REUSEPORT</code>的用法很简单，只要每个listening socket在调用<code>bind()</code>之前设置好这个选项就可以了：</p>
-<pre><code class="C++"><span class="keyword">int</span> sockfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);
-
-<span class="keyword">int</span> optval = <span class="number">1</span>;
-setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &amp;optval, <span class="keyword">sizeof</span>(optval));
-
-bind(sockfd, ...);
-</code></pre>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/08/Linux的SO-REUSEPORT选项/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -940,7 +945,7 @@ bind(sockfd, ...);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-count">40</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

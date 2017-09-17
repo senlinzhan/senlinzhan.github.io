@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Database," />
+  <meta name="keywords" content="Network," />
 
 
 
@@ -102,19 +102,16 @@
 
 
 
-<meta name="description" content="高可用性　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。
-数据分片　　整个">
+<meta name="description" content="支持多线程　　Boost.Asio 如何支持多线程呢？最简单的方法就是开启多个线程，每个线程都调用 I/O srvice 的run()方法。这样，当某个异步事件完成时，I/O service 就会将相应的 event handler 交给其中一个线程去执行。下面就实现了一个线程池，在每个 worker 线程中执行 I/O service 的run()方法：123456789101112131415">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis Cluster">
-<meta property="og:url" content="http://senlinzhan.github.io/2017/04/08/redis-cluster/index.html">
+<meta property="og:title" content="Boost.Asio 编程指南">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/09/17/boost-asio/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="高可用性　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。
-数据分片　　整个">
-<meta property="og:updated_time" content="2017-04-09T13:37:55.000Z">
+<meta property="og:description" content="支持多线程　　Boost.Asio 如何支持多线程呢？最简单的方法就是开启多个线程，每个线程都调用 I/O srvice 的run()方法。这样，当某个异步事件完成时，I/O service 就会将相应的 event handler 交给其中一个线程去执行。下面就实现了一个线程池，在每个 worker 线程中执行 I/O service 的run()方法：123456789101112131415">
+<meta property="og:updated_time" content="2017-09-17T14:16:52.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis Cluster">
-<meta name="twitter:description" content="高可用性　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。
-数据分片　　整个">
+<meta name="twitter:title" content="Boost.Asio 编程指南">
+<meta name="twitter:description" content="支持多线程　　Boost.Asio 如何支持多线程呢？最简单的方法就是开启多个线程，每个线程都调用 I/O srvice 的run()方法。这样，当某个异步事件完成时，I/O service 就会将相应的 event handler 交给其中一个线程去执行。下面就实现了一个线程池，在每个 worker 线程中执行 I/O service 的run()方法：123456789101112131415">
 
 
 
@@ -135,9 +132,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/2017/04/08/redis-cluster/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/09/17/boost-asio/"/>
 
-  <title> Redis Cluster | Senlin's Blog </title>
+  <title> Boost.Asio 编程指南 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -267,7 +264,7 @@
             
             
               
-                Redis Cluster
+                Boost.Asio 编程指南
               
             
           </h1>
@@ -279,8 +276,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-08T21:33:03+08:00" content="2017-04-08">
-              2017-04-08
+            <time itemprop="dateCreated" datetime="2017-09-17T20:48:18+08:00" content="2017-09-17">
+              2017-09-17
             </time>
           </span>
 
@@ -293,8 +290,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
                   </a>
                 </span>
 
@@ -313,7 +310,7 @@
 
           
           
-             <span id="/2017/04/08/redis-cluster/" class="leancloud_visitors" data-flag-title="Redis Cluster">
+             <span id="/2017/09/17/boost-asio/" class="leancloud_visitors" data-flag-title="Boost.Asio 编程指南">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -335,14 +332,15 @@
       
 
       
-        <h2 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h2><p>　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。</p>
-<h2 id="数据分片"><a href="#数据分片" class="headerlink" title="数据分片"></a>数据分片</h2><p>　　整个集群固定地拥有 16384 个 hash slot，集群中的每个 master 节点都拥有若干个 slot，可以使用下面的算法计算某个 key 被分配到的哪个 slot 中：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HASH_SLOT = CRC16(key) mod 16384</div></pre></td></tr></table></figure></p>
-<h2 id="集群配置"><a href="#集群配置" class="headerlink" title="集群配置"></a>集群配置</h2><p>　　为了启动集群，每个节点的配置文件<code>redis.conf</code>都需要指定相应的集群配置信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">cluster-enabled yes               <span class="comment"># 开启集群功能</span></div><div class="line">cluster-config-file nodes.conf</div><div class="line">cluster-node-timeout 2000         <span class="comment"># 2秒</span></div><div class="line">cluster-slave-validity-factor 10</div><div class="line">cluster-migration-barrier 1</div><div class="line">cluster-require-full-coverage yes</div></pre></td></tr></table></figure></p>
-<p>　　对于每个节点来说，它都需要一个配置文件用于记录整个集群的信息。<code>cluster-config-file</code>选项指定了这个配置文件的路径，当集群信息更新时，节点会自动将集群的信息更新到这个配置文件中。<br>　　当集群的某个节点不可用(unavailable)，通常不会立即认定它发生故障了，因为说不定隔一段时间它就恢复可用了。<code>cluster-node-timeout</code>用来指定节点的最大不可用时间，也就是说当节点的不可用时间超过这个值时，集群就会认为这个节点发生故障了。</p>
+        <h2 id="支持多线程"><a href="#支持多线程" class="headerlink" title="支持多线程"></a>支持多线程</h2><p>　　Boost.Asio 如何支持多线程呢？最简单的方法就是开启多个线程，每个线程都调用 I/O srvice 的<code>run()</code>方法。这样，当某个异步事件完成时，I/O service 就会将相应的 event handler 交给其中一个线程去执行。下面就实现了一个线程池，在每个 worker 线程中执行 I/O service 的<code>run()</code>方法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> AsioThreadPool</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    AsioThreadPool(boost::asio::io_service &amp;io_service,</div><div class="line">                   <span class="keyword">int</span> threadNum = <span class="built_in">std</span>::thread::hardware_concurrency())</div><div class="line">        : service_(io_service),</div><div class="line">          work_(<span class="keyword">new</span> boost::asio::io_service::work(io_service))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threadNum; ++i)</div><div class="line">        &#123;</div><div class="line">            threads_.emplace_back([<span class="keyword">this</span>] () &#123;  service_.run();  &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ~AsioThreadPool()</div><div class="line">    &#123;</div><div class="line">        work_.reset();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;t: threads_)</div><div class="line">        &#123;</div><div class="line">            t.join();            </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line"><span class="keyword">private</span>:</div><div class="line">    boost::asio::io_service &amp;service_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;boost::asio::io_service::work&gt; work_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; threads_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　如果需要在 event handler 中执行阻塞的操作，例如数据库查询，这时候就有必要使用多线程。例如，下面的例子使用了 4 个线程，并发地处理 4 个任务：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123; </div><div class="line">    boost::asio::io_service io_service;</div><div class="line">    <span class="function">AsioThreadPool <span class="title">pool</span><span class="params">(io_service, <span class="number">4</span>)</span></span>;    <span class="comment">// 开启 4 个线程</span></div><div class="line">    </div><div class="line">    <span class="built_in">std</span>::mutex mtx;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; ++i)</div><div class="line">    &#123;</div><div class="line">        io_service.post([&amp;mtx, i] ()</div><div class="line">                        &#123;</div><div class="line">                            <span class="comment">// 休眠 1s, 模拟阻塞操作</span></div><div class="line">                            <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));</div><div class="line"></div><div class="line">                            <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(mtx);</div><div class="line">                            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; i &lt;&lt; <span class="string">", thread_id = "</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id()</div><div class="line">                                      &lt;&lt; <span class="string">", Hello World! "</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">                        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从输出中可以看到，任务执行的先后顺序是不确定的：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">3, thread_id = 139752348448512, Hello World!</div><div class="line">2, thread_id = 139752356841216, Hello World!</div><div class="line">1, thread_id = 139752365233920, Hello World!</div><div class="line">0, thread_id = 139752373626624, Hello World!</div></pre></td></tr></table></figure></p>
+<p>　　在多线程的场景下，有些时候我们想让任务的执行顺序与提交顺序保持一致，那要怎么办呢？可以借助<code>boost::asio::io_service::strand</code>实现这个要求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    boost::asio::io_service io_service;</div><div class="line">    <span class="function">AsioThreadPool <span class="title">pool</span><span class="params">(io_service, <span class="number">4</span>)</span></span>;</div><div class="line">    </div><div class="line">    <span class="comment">// 通过 strand 提交的任务，会安装提交的顺序执行</span></div><div class="line">    boost::asio::io_service::<span class="function">strand <span class="title">strand</span><span class="params">(io_service)</span></span>;</div><div class="line">    </div><div class="line">    <span class="built_in">std</span>::mutex mtx;</div><div class="line">    </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; ++i)</div><div class="line">    &#123;</div><div class="line">        strand.post([&amp;mtx, i] ()</div><div class="line">                    &#123;</div><div class="line">                        <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));</div><div class="line">                        <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(mtx);                            </div><div class="line">                        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; i &lt;&lt; <span class="string">", thread_id = "</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id()</div><div class="line">                                  &lt;&lt; <span class="string">", Hello World! "</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">                    &#125;);        </div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从输出可以看到，任务会按照提交的顺序去执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">0</span>, thread_id = <span class="number">140287775889152</span>, Hello World!</div><div class="line"><span class="number">1</span>, thread_id = <span class="number">140287775889152</span>, Hello World!</div><div class="line"><span class="number">2</span>, thread_id = <span class="number">140287775889152</span>, Hello World!</div><div class="line"><span class="number">3</span>, thread_id = <span class="number">140287775889152</span>, Hello World!</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.amazon.com/Redis-Essentials-Maxwell-Dayvson-Silva" target="_blank" rel="external">Redis Essentials</a></li>
-<li><a href="https://redis.io/topics/cluster-tutorial" target="_blank" rel="external">Redis cluster tutorial</a></li>
-<li><a href="https://book.douban.com/subject/25900156/" target="_blank" rel="external">Redis设计与实现</a></li>
+<li><a href="https://theboostcpplibraries.com/boost.asio" target="_blank" rel="external">The Boost C++ Libraries Chapter 32. Boost.Asio</a></li>
+<li><a href="https://www.gamedev.net/blogs/entry/2249317-a-guide-to-getting-started-with-boostasio/" target="_blank" rel="external">A guide to getting started with boost::asio</a></li>
+<li><a href="http://www.boost.org/doc/libs/1_59_0/doc/html/boost_asio/overview/core/strands.html" target="_blank" rel="external">Strands: Use Threads Without Explicit Locking</a></li>
 </ul>
 
       
@@ -366,7 +364,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Database/" rel="tag">#Database</a>
+            <a href="/tags/Network/" rel="tag">#Network</a>
           
         </div>
       
@@ -375,17 +373,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/08/redis-sentinel/" rel="next" title="Redis Sentinel 与高可用">
-                <i class="fa fa-chevron-left"></i> Redis Sentinel 与高可用
+              <a href="/2017/09/09/grpc-dynamic-thread-pool/" rel="next" title="gRPC 的 C++ 动态线程池源码分析">
+                <i class="fa fa-chevron-left"></i> gRPC 的 C++ 动态线程池源码分析
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/04/20/grpc/" rel="prev" title="gRPC 编程指南">
-                gRPC 编程指南 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -631,9 +625,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'http-senlinzhan-github-io';
-      var disqus_identifier = '2017/04/08/redis-cluster/';
-      var disqus_title = "Redis Cluster";
-      var disqus_url = 'http://senlinzhan.github.io/2017/04/08/redis-cluster/';
+      var disqus_identifier = '2017/09/17/boost-asio/';
+      var disqus_title = "Boost.Asio 编程指南";
+      var disqus_url = 'http://senlinzhan.github.io/2017/09/17/boost-asio/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');
