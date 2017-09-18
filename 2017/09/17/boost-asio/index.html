@@ -108,7 +108,7 @@
 <meta property="og:url" content="http://senlinzhan.github.io/2017/09/17/boost-asio/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="支持多线程　　Boost.Asio 如何支持多线程呢？最简单的方法就是使用一个 I/O service，然后开启多个线程，每个线程都调用这个 I/O service 的run()方法。这样，当某个异步事件完成时，I/O service 就会将相应的 event handler 交给其中一个线程去执行。下面就实现了一个线程池，在每个 worker 线程中执行 I/O service 的run()方法">
-<meta property="og:updated_time" content="2017-09-18T14:25:33.000Z">
+<meta property="og:updated_time" content="2017-09-18T15:20:54.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Boost.Asio 编程精要">
 <meta name="twitter:description" content="支持多线程　　Boost.Asio 如何支持多线程呢？最简单的方法就是使用一个 I/O service，然后开启多个线程，每个线程都调用这个 I/O service 的run()方法。这样，当某个异步事件完成时，I/O service 就会将相应的 event handler 交给其中一个线程去执行。下面就实现了一个线程池，在每个 worker 线程中执行 I/O service 的run()方法">
@@ -342,6 +342,9 @@
 <li><a href="https://www.gamedev.net/blogs/entry/2249317-a-guide-to-getting-started-with-boostasio/" target="_blank" rel="external">A guide to getting started with boost::asio</a></li>
 <li><a href="http://www.boost.org/doc/libs/1_59_0/doc/html/boost_asio/overview/core/strands.html" target="_blank" rel="external">Strands: Use Threads Without Explicit Locking</a></li>
 <li><a href="http://thisthread.blogspot.com/2012/04/post-on-asio-strand.html" target="_blank" rel="external">Post on ASIO strand</a></li>
+<li><a href="https://stackoverflow.com/questions/39097644/how-strands-guarantee-correct-execution-of-pending-events-in-boost-asio" target="_blank" rel="external">How strands guarantee correct execution of pending events in boost.asio</a></li>
+<li><a href="https://sourceforge.net/p/asio/mailman/message/19485596/" target="_blank" rel="external">asio C++ library</a></li>
+<li><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3388.pdf" target="_blank" rel="external">Using Asio with C++11</a> </li>
 </ul>
 
       
