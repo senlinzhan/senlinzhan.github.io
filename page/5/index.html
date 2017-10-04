@@ -266,6 +266,136 @@
             
               
                 
+                <a class="post-title-link" href="/2017/03/02/linux-signal/" itemprop="url">
+                  Linux 安全的信号处理方式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/02/linux-signal/" class="leancloud_visitors" data-flag-title="Linux 安全的信号处理方式">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="信号处理的机制"><a href="#信号处理的机制" class="headerlink" title="信号处理的机制"></a>信号处理的机制</h2><p>　　在 Linux 中，<u>每个</u>进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：</p>
+<ul>
+<li>一个是<code>pending</code>位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。</li>
+<li>另一个是<code>blocked</code>位向量，它包含了那些被进程屏蔽掉的信号。</li>
+</ul>
+<p>　　当内核发送一个信号给进程时，它将会修改进程的<code>pending</code>位向量，譬如说，当内核发送一个<code>SIGINT</code>信号给进程，那么它会将进程的<code>pending[SIGINT]</code>的值设置成 1：<div align="center"><img src="/images/linux/signal1.png" width="350" align=center /> </div><br>　　同样地，当进程屏蔽掉一个信号时，那么它会修改<code>blocked</code>位向量。那么信号屏蔽是什么意思呢？当进程屏蔽掉一个信号之后，内核仍然可以发送这个信号给进程(保存在进程的<code>pending</code>位向量中)，但进程<u>不会</u>接收并处理这个信号。只有当进程解除了对这个信号的屏蔽之后，进程才会接收并处理这个信号。<br>　　让我们从内核的角度看，大概是这样的：当内核执行 context switch 切换到某个进程的时候，它会检查进程的<code>pending</code>和<code>blocked</code>位向量。如果发现进程还有信号未处理，同时这个信号<u>没有被进程屏蔽</u>，那么内核就会让进程接收并处理这个信号。用伪代码可以这样表示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pending.size(); ++i) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (pending[i] &amp; (~blocked[i])) </div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 将这个信号从 pending 位向量中清除</span></div><div class="line">        pending[i] = <span class="number">0</span>;</div><div class="line">		</div><div class="line">        <span class="comment">// 让进程接收并处理这个信号</span></div><div class="line">        <span class="comment">// ...</span></div><div class="line"></div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　譬如说，下面的程序一开始就屏蔽了<code>SIGINT</code>信号，所以即使内核发送<code>SIGINT</code>信号给这个程序，这个信号也不会得到处理。而当程序解除了对<code>SIGINT</code>的屏蔽之后，这个<code>SIGINT</code>信号才会得到处理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *message = <span class="string">"handle SIGINT signal\n"</span>;</div><div class="line">    write(STDOUT_FILENO, message, <span class="built_in">strlen</span>(message));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    signal(SIGINT, sigint_handler);</div><div class="line"></div><div class="line">    <span class="keyword">sigset_t</span> mask, prev_mask;</div><div class="line">    sigemptyset(&amp;mask);</div><div class="line">    sigaddset(&amp;mask, SIGINT);</div><div class="line"></div><div class="line">    <span class="comment">// 屏蔽掉 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_BLOCK, &amp;mask, &amp;prev_mask);</div><div class="line"></div><div class="line">    <span class="comment">// 假设此时接收到 SIGINT 信号</span></div><div class="line">    sleep(<span class="number">10</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 解除对 SIGINT 的屏蔽之后，进程会开始处理 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_SETMASK, &amp;prev_mask, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/02/linux-signal/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
                   网络编程中的 SIGPIPE 信号
                 </a>
@@ -768,143 +898,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/10/Linux的TCP-CORK/" itemprop="url">
-                  Nagle 算法与 TCP socket 选项 TCP_CORK
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-10T22:49:15+08:00" content="2017-02-10">
-              2017-02-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/10/Linux的TCP-CORK/" class="leancloud_visitors" data-flag-title="Nagle 算法与 TCP socket 选项 TCP_CORK">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Nagle-算法"><a href="#Nagle-算法" class="headerlink" title="Nagle 算法"></a>Nagle 算法</h2><p>　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。<br>　　为了减小这种开销，Nagle算法指出，当TCP发送了一个小的segment(小于MSS)，它必须等到接收了对方的ACK之后，才能继续发送另一个小的segment。那么在等待的过程中(一个RTT时间)，TCP就能尽量多地将要发送的数据收集在一起，从而减少要发送的segment的数量。<br>　　默认情况下，TCP开启了Nagle算法，然而Nagle算法并不是灵丹妙药，它会增加TCP发送数据的延迟。在一些要求低延迟的应用程序中(例如即时通讯应用)，则需要禁用Nagle算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> optval = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &amp;optval, <span class="keyword">sizeof</span>(optval));</div></pre></td></tr></table></figure></p>
-<h2 id="Delayed-ACK"><a href="#Delayed-ACK" class="headerlink" title="Delayed ACK"></a>Delayed ACK</h2><p>　　TCP的 Delayed ACK 与Nagle算法有异曲同工之妙，Delayed ACK很好理解，当TCP接收到数据时，并不会立即发送ACK给对方，相反，它会等待应用层产生数据，以便将ACK和数据一起发送(在Linux最多等待40ms)。<br>　　我们知道，Nagle算法会增加TCP发送数据的延迟，然而，在某些情况下，Delayed ACK会放大这种延迟。一个常见的例子客户端HTTP POST协议，首先看看客户端的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">write(http_request_header);</div><div class="line">write(http_request_body);</div><div class="line"></div><div class="line"><span class="comment">// get response from server ...</span></div></pre></td></tr></table></figure></p>
-<p>　　客户端调用两次<code>write()</code>来发送HTTP POST请求，服务端则需要调用两次<code>read()</code>读取客户端的HTTP请求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">http_request_header = read(...);</div><div class="line">http_request_body = read(...);</div><div class="line"></div><div class="line"><span class="comment">// write response to client ...</span></div></pre></td></tr></table></figure></p>
-<p>　　通常来说，HTTP请求的header和body都是小的segment，但由于TCP默认开启Nagle算法，因此客户端在发送请求的header之后，如果还未收到ACK，则不能发送body。</p>
-<p><div align="center"><br>    <img src="/images/linux/delayed_ack.png" width="320" align=center /><br></div><br>　　Server在收到请求的header之后，由于还没有收到请求的body，因此无法立即产生HTTP响应给客户端，这就导致了http_request_header的ACK大概会延迟40ms才发送。<br>　　为避免这种延迟的出现，需要做两件事：</p>
-<ul>
-<li>设置<code>TCP_NODELAY</code>选项。</li>
-<li>将客户端的两次<code>write()</code>合并成一个，避免服务端的Delayed ACK。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/10/Linux的TCP-CORK/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -945,7 +943,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">40</span>
+              <span class="site-state-item-count">41</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
