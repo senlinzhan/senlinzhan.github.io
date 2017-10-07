@@ -392,6 +392,125 @@
             
               
                 
+                <a class="post-title-link" href="/2017/10/07/glog/" itemprop="url">
+                  使用 Google 的 glog 日志库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-07T17:53:01+08:00" content="2017-10-07">
+              2017-10-07
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/10/07/glog/" class="leancloud_visitors" data-flag-title="使用 Google 的 glog 日志库">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>　　glog 是一个 C++ 日志库，它提供 C++ 流式风格的 API。在安装 glog 之前需要先安装 gflags，这样 glog 就可以使用 gflags 去解析命令行参数（可以参见<a href="http://senlinzhan.github.io/2017/10/07/gflags/"> gflags 安装教程</a>）。下面是 glog 的安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> https://github.com/google/glog.git</div><div class="line">$ <span class="built_in">cd</span> glog</div><div class="line">$ mkdir build</div><div class="line">$ cmake ..</div><div class="line">$ make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
+<p>　　安装之后要怎么使用 glog 呢？如果程序是使用 CMake 构建的，那么只要在 CMakeListsx.txt 里面加上下面几行配置就可以了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">find_package (glog 0.3.5 REQUIRED)</div><div class="line"></div><div class="line">add_executable (main main.cpp)</div><div class="line">target_link_libraries (main glog::glog)</div></pre></td></tr></table></figure></p>
+<h2 id="日志级别"><a href="#日志级别" class="headerlink" title="日志级别"></a>日志级别</h2><p>　　glog 支持四种日志级别，<code>INFO</code>、<code>WARNING</code>、<code>ERROR</code>和<code>FATAL</code>。默认情况下，在打印完<code>FATAL</code>日志之后，程序将会终止。<code>ERROR</code>和<code>FATAL</code>的日志除了会写到日志中，还会输出到 stderr。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;gflags/gflags.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;glog/logging.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">// 解析命令行参数</span></div><div class="line">    gflags::ParseCommandLineFlags(&amp;argc, &amp;argv, <span class="literal">true</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 初始化日志库</span></div><div class="line">    google::InitGoogleLogging(argv[<span class="number">0</span>]);</div><div class="line"></div><div class="line">    LOG(ERROR) &lt;&lt; <span class="string">"Hello, World!"</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="日志配置"><a href="#日志配置" class="headerlink" title="日志配置"></a>日志配置</h2><p>　　默认情况下，glog 会将日志输出到 /tmp 目录下，日志文件命名格式为：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;program name&gt;.&lt;hostname&gt;.&lt;user name&gt;.log.&lt;severity level&gt;.&lt;date&gt;.&lt;time&gt;.&lt;pid&gt;</div></pre></td></tr></table></figure></p>
+<p>　　那么要怎样改变日志的目录呢？可以通过命令行 flag <code>log_dir</code>指定日志目录，例如：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./main --log_dir=.    <span class="comment"># 将日志输出到当前目录</span></div></pre></td></tr></table></figure></p>
+<p>　　glog 还支持其它的命令行 flag：</p>
+<ul>
+<li><code>logtostderr</code>将日志输出到 stderr，不输出到日志文件，默认值是 false。</li>
+<li><code>minloglevel</code>如果程序输出的日志的级别大于或等于这个值，那么日志就会被记录下来，它的默认值是 0，代表<code>INFO</code> (1 代表<code>WARNING</code>，2 代表<code>ERROR</code>，而 3 代表<code>FATAL</code>)。</li>
+</ul>
+<h2 id="调试模式"><a href="#调试模式" class="headerlink" title="调试模式"></a>调试模式</h2><p>　　一种常见的调试手段就是使用 debug 日志，在调试模式下 (也即没有开启<code>NDEBUG</code>)，可以使用<code>DLOG()</code>来输出 debug 日志，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DLOG(INFO) &lt;&lt; <span class="string">"Hello, World!"</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="检查程序错误"><a href="#检查程序错误" class="headerlink" title="检查程序错误"></a>检查程序错误</h2><p>　　glog 提供了<code>CHECK()</code>宏帮助我们检查程序的错误，当<code>CHECK()</code>的条件不满足时，它会记录<code>FATAL</code>日志并终止程序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CHECK(fun() == <span class="number">0</span>) &lt;&lt; <span class="string">"Call fun() failed!"</span>;</div></pre></td></tr></table></figure></p>
+<p>　　与<code>assert()</code>不同的是，无论程序是否开启<code>NODEBUG</code>，<code>CHECK()</code>都会执行。除了<code>CHECK()</code>，glog 还提供其它的宏，包括<code>CHECK_EQ()</code>、<code>CHECK_NE()</code>、<code>CHECK_LE()</code>、<code>CHECK_LT()</code>、<code>CHECK_GE()</code>和<code>CHECK_GT()</code>。<br>　　在判断指针是否为<code>NULL</code>时，需要注意先将<code>NULL</code>转换成为相应的类型，然后再进行比较：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CHECK_EQ(some_ptr, <span class="keyword">static_cast</span>&lt;SomeType*&gt;(<span class="literal">NULL</span>)) &lt;&lt; <span class="string">"some_ptr is a null pointer"</span>;</div></pre></td></tr></table></figure></p>
+<p>　　glog 还提供了其它宏用来检查<code>char *</code>类型的字符串，包括<code>CHECK_STREQ()</code>、<code>CHECK_STRNE()</code>、<code>CHECK_STRCASEEQ()</code>和<code>CHECK_STRCASENE()</code>，带有 CASE 的版本表示大小写<u>不敏感的</u>。传递<code>NULL</code>值给这些宏是安全的。<br>　　另外，可以使用<code>CHECK_DOUBLE_EQ()</code>检查两个浮点数是否相等，允许出现比较小的误差。如果需要自己提供可以接受的误差范围，可以使用<code>CHECK_NEAR()</code>，它的第三个参数为用户指定的误差范围。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://rpg.ifi.uzh.ch/docs/glog.html" target="_blank" rel="external">How To Use Google Logging Library (glog)</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/10/07/gflags/" itemprop="url">
                   使用 Google gflags 解析命令行参数
                 </a>
@@ -745,151 +864,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/09/09/grpc-dynamic-thread-pool/" itemprop="url">
-                  gRPC 的 C++ 动态线程池源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-09-09T21:54:51+08:00" content="2017-09-09">
-              2017-09-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/09/09/grpc-dynamic-thread-pool/" class="leancloud_visitors" data-flag-title="gRPC 的 C++ 动态线程池源码分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="固定线程池"><a href="#固定线程池" class="headerlink" title="固定线程池"></a>固定线程池</h2><p>　　提到线程池，通常说的都是<u>固定大小</u>的线程池，固定线程池的原理是这样的：</p>
-<ul>
-<li>线程池由一个线程安全的队列，以及多个 worker 线程组成。</li>
-<li>可以有多个 producer 线程，它们负责提交任务给线程池。</li>
-<li>接收到新任务之后，线程池会唤醒某个 worker 线程，worker 线程醒来后会取出任务并执行。</li>
-</ul>
-<p><div align="center"><img src="/images/linux/thread-pool.png" width="600" align=center /> </div><br>　　虽然固定线程池实现起来很简单，但却有着几个缺陷：</p>
-<ul>
-<li>无法动态扩容：worker 线程的个数是固定的，不能随着任务数的增长而增长。</li>
-<li>无法动态缩容：如果有很多 worker 线程处于<u>空闲状态</u>，就会造成资源的浪费。</li>
-</ul>
-<h2 id="动态线程池"><a href="#动态线程池" class="headerlink" title="动态线程池"></a>动态线程池</h2><p>　　对于线程池，我们希望它可以动态增长，这样才不会造成任务队列的堆积，另一反面，也希望它能适当回收一些空闲的线程，以节省系统资源。</p>
-<h4 id="线程池接口"><a href="#线程池接口" class="headerlink" title="线程池接口"></a>线程池接口</h4><p>　　gRPC 内部使用了动态线程池，它的接口长这样：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">class DynamicThreadPool</div><div class="line">&#123;</div><div class="line">public:</div><div class="line">    DynamicThreadPool(int reserve_threads);</div><div class="line">    ~DynamicThreadPool();</div><div class="line"></div><div class="line">    void Add(const std::function&lt;void()&gt; &amp;callback);    // 提交任务</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　那么<code>DynamicThreadPool</code>是怎样管理线程的呢？</p>
-<ul>
-<li><code>DynamicThreadPool</code>并不会限制线程的数量，理论上这意味着线程数量可以无限增长。</li>
-<li>构造函数接收一个参数<code>reserve_threads</code>，这个参数与线程池的缩容策略有关：它表示线程池最多只能有<code>reserve_threads</code>个空闲线程。也就是说，如果线程池的空闲线程数量多于这个值，那么多出来的那些线程就会被系统回收。</li>
-</ul>
-<h4 id="线程池的构造"><a href="#线程池的构造" class="headerlink" title="线程池的构造"></a>线程池的构造</h4><p>　　首先看看<code>DynamicThreadPool</code>的数据成员：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> DynamicThreadPool</div><div class="line">&#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="built_in">std</span>::mutex mu_;                                 <span class="comment">// 互斥锁，保护数据成员</span></div><div class="line">    <span class="built_in">std</span>::condition_variable cv_;                    <span class="comment">// 条件变量</span></div><div class="line">    <span class="built_in">std</span>::condition_variable shutdown_cv_;           <span class="comment">// 条件变量，与线程池析构相关</span></div><div class="line"></div><div class="line">    <span class="keyword">bool</span> shutdown_;                                 <span class="comment">// 线程池是否即将析构</span></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">queue</span>&lt;<span class="built_in">std</span>::function&lt;<span class="keyword">void</span>()&gt;&gt; callbacks_;   <span class="comment">// 任务队列 </span></div><div class="line">    <span class="keyword">int</span> reserve_threads_;                           <span class="comment">// 最大空闲线程数</span></div><div class="line">    <span class="keyword">int</span> nthreads_;                                  <span class="comment">// 当前线程数</span></div><div class="line">    <span class="keyword">int</span> threads_waiting_;                           <span class="comment">// 空闲线程数</span></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">list</span>&lt;DynamicThread*&gt; dead_threads_;        <span class="comment">// 保存已经终止的线程 </span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　<code>DynamicThreadPool</code>的构造函数会先创建<code>reserve_threads</code>个线程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">DynamicThreadPool::DynamicThreadPool(<span class="keyword">int</span> reserve_threads)</div><div class="line">    : shutdown_(<span class="literal">false</span>),</div><div class="line">      reserve_threads_(reserve_threads),</div><div class="line">      nthreads_(<span class="number">0</span>),</div><div class="line">      threads_waiting_(<span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; reserve_threads_; i++)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(mu_);</div><div class="line">        nthreads_++;</div><div class="line">        <span class="keyword">new</span> DynamicThread(<span class="keyword">this</span>);     <span class="comment">// 创建新线程</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，线程池不会直接使用<code>std::thread</code>，而是使用自己封装的<code>DynamicThread</code>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> DynamicThreadPool</div><div class="line">&#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">class</span> DynamicThread</div><div class="line">    &#123;</div><div class="line">    <span class="keyword">public</span>:</div><div class="line">        DynamicThread(DynamicThreadPool* pool);</div><div class="line">        ~DynamicThread();</div><div class="line"></div><div class="line">    <span class="keyword">private</span>:</div><div class="line">        DynamicThreadPool* pool_;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;<span class="built_in">std</span>::thread&gt; thd_;</div><div class="line">        <span class="function"><span class="keyword">void</span> <span class="title">ThreadFunc</span><span class="params">()</span></span>;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　与<code>std::thread</code>相比，<code>DynamicThread</code>遵循了 RAII 的原则：<code>DynamicThread</code>在析构时，会调用线程的<code>join()</code>函数，用来确保正确地释放线程资源：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">DynamicThreadPool::DynamicThread::DynamicThread(DynamicThreadPool *pool)</div><div class="line">    : pool_(pool),</div><div class="line">      thd_(<span class="keyword">new</span> <span class="built_in">std</span>::thread(&amp;DynamicThreadPool::DynamicThread::ThreadFunc, <span class="keyword">this</span>))</div><div class="line">&#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line">DynamicThreadPool::DynamicThread::~DynamicThread()</div><div class="line">&#123;</div><div class="line">    thd_-&gt;join();</div><div class="line">    thd_.reset();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/09/09/grpc-dynamic-thread-pool/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -935,7 +909,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">42</span>
+              <span class="site-state-item-count">43</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
