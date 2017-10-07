@@ -266,6 +266,153 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/20/libevent-buffer/" itemprop="url">
+                  谈谈 Libevent 的应用层 buffer
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-20T21:42:05+08:00" content="2017-08-20">
+              2017-08-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/20/libevent-buffer/" class="leancloud_visitors" data-flag-title="谈谈 Libevent 的应用层 buffer">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>　　非阻塞网络编程通常有一个难点，就是如何管理应用层的缓冲区：从<u>用户态</u>来讲，每个 socket 都必须有一个输入缓冲区和一个输出缓冲区。为什么需要缓冲区的？让我们举个例子理解一下：</p>
+<ul>
+<li>假设某个 socket 可读，并且程序已经从这个 socket 读完了数据，有 10KB 数据。但是需要 100KB 才构成一条完整的消息。那么这 10KB 数据怎么办呢？可以先把它暂时放在输入缓冲区中，等到凑齐了 100KB 再一起处理。</li>
+<li>假设程序需要发送 100KB 的数据，但是调用<code>write()</code>最多写入了 10KB，那么剩下的 90KB 数据怎么办呢？可以先 append 到输出缓冲区中，等到下次 socket 变得可写时再发送出去。</li>
+</ul>
+<h2 id="缓冲区处理"><a href="#缓冲区处理" class="headerlink" title="缓冲区处理"></a>缓冲区处理</h2><p>　　很幸运，Libevent 提供了<code>bufferevent</code>，让缓冲区的处理变得很简单。<code>bufferevent</code>的结构大概是这样的，它包含一个 socket 描述符，以及一个输入缓冲区和一个输出缓冲区：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> bufferevent &#123;</div><div class="line">    <span class="keyword">evutil_socket_t</span>    fd;       <span class="comment">// socket 描述符</span></div><div class="line">    evbuffer           *input;   <span class="comment">// 输入缓冲区</span></div><div class="line">    evbuffer           *output;	 <span class="comment">// 输出缓冲区</span></div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　可以使用<code>bufferevent_socket_new()</code>创建<code>bufferevent</code>结构：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">struct</span> bufferevent *<span class="title">bufferevent_socket_new</span><span class="params">(</div><div class="line">    <span class="keyword">struct</span> event_base *base,           <span class="comment">// 事件循环</span></div><div class="line">    <span class="keyword">evutil_socket_t</span> fd,                <span class="comment">// socket 描述符, 必须先设置成非阻塞的</span></div><div class="line">    <span class="keyword">enum</span> bufferevent_options options   <span class="comment">// 选项</span></div><div class="line">)</span></span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">bufferevent_free</span><span class="params">(<span class="keyword">struct</span> bufferevent *bev)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　其中的<code>options</code>可以设置成<code>BEV_OPT_CLOSE_ON_FREE</code>，也就是说当调用<code>bufferevent_free()</code>，相应的 socket 描述符也会被<code>close()</code>掉。<br>　　<code>bufferevent</code>会自动帮我们管理应用层的缓冲区，那么它具体是怎样起作用的呢？</p>
+<ul>
+<li>如果 socket 可读，<code>bufferevent</code>会自动读取 socket 中的数据，并放到<u>输入缓冲区</u>中。</li>
+<li>如果 socket 可写，<code>bufferevent</code>会自动将<u>输出缓冲区</u>中的数据写到 socket 中。</li>
+</ul>
+<p>　　为了让<code>bufferevent</code>自动帮我们管理缓冲区，还有一个条件，那就是要开启它的<u>读功能</u>和<u>写功能</u>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">bufferevent_enable(b, EV_READ);    <span class="comment">// 开启读功能</span></div><div class="line">bufferevent_enable(b, EV_WRITE);   <span class="comment">// 开启写功能</span></div></pre></td></tr></table></figure></p>
+<p>　　开启<u>读功能</u>之后，如果 socket 可读，<code>bufferevent</code>才会自动读取 socket 中的数据到输入缓冲区中，写功能的作用也同理。默认情况下，使用<code>bufferevent_socket_new()</code>创建<code>bufferevent</code>之后，其实它已经自动开启了<u>写功能</u>了。</p>
+<hr>
+<p>　　一个<code>bufferevent</code>可以设置三个回调函数，分别是读取回调、写入回调和事件回调。可以调用<code>bufferevent_setcb()</code>设置相应的回调函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">bufferevent_setcb</span><span class="params">(</div><div class="line">    <span class="keyword">struct</span> bufferevent *bufev,       <span class="comment">// bufferevent 指针 </span></div><div class="line">    bufferevent_data_cb readcb,      <span class="comment">// 读取回调</span></div><div class="line">    bufferevent_data_cb writecb,     <span class="comment">// 写入回调</span></div><div class="line">    bufferevent_event_cb eventcb,    <span class="comment">// 事件回调</span></div><div class="line">    <span class="keyword">void</span> *cbarg                      <span class="comment">// 传递给回调函数的参数</span></div><div class="line">)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　那么这三个回调函数什么时候才会被调用呢？</p>
+<ul>
+<li>当<u>输入缓冲区</u>的数据大于或等于<u>输入低水位</u>时，读取回调就会被调用。默认情况下，输入低水位的值是 0，也就是说，只要 socket 变得可读，就会调用读取回调。 </li>
+<li>当<u>输出缓冲区</u>的数据小于或等于<u>输出低水位</u>时，写入回调就会被调用。默认情况下，输出低水位的值是 0，也就是说，只有当输出缓冲区的数据都发送完了，才会调用写入回调。因此，默认情况下的写入回调也可以理解成为 write complete callback。</li>
+<li>当连接建立、连接关闭、连接超时或者连接发生错误时，则会调用事件回调。</li>
+</ul>
+<p>　　除此之外，我们还可以设置<code>bufferevent</code>的<u>输入高水位</u>，那么什么是输入高水位呢？默认情况下，<code>bufferevent</code>的输入缓冲区是可以无限增长的，但有时候我们想限制一个 TCP 连接的流量，这时候就可以设置一个<u>输入高水位</u>，这样就能限制输入缓冲区的大小了，保证它不会超过<u>输入高水位</u>。可以使用<code>bufferevent_setwatermark()</code>设置水位线：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">bufferevent_setwatermark</span><span class="params">(<span class="keyword">struct</span> bufferevent *bufev, <span class="keyword">short</span> events,</div><div class="line">                              <span class="keyword">size_t</span> lowmark, <span class="keyword">size_t</span> highmark)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　譬如说，我们设置某个<code>bufferevent</code>的输入高水位为 128 MB：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">bufferevent_setwatermark(b, EV_READ, <span class="number">0</span>, <span class="number">128</span> * <span class="number">1024</span> * <span class="number">1024</span>);</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/20/libevent-buffer/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/08/12/libevent/" itemprop="url">
                   Libevent 编程指南
                 </a>
@@ -782,137 +929,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/01/linux-tuning/" itemprop="url">
-                  Linux 系统参数调优
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-07-01T20:45:16+08:00" content="2017-07-01">
-              2017-07-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/07/01/linux-tuning/" class="leancloud_visitors" data-flag-title="Linux 系统参数调优">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="打开文件数"><a href="#打开文件数" class="headerlink" title="打开文件数"></a>打开文件数</h2><p>　　在 Linux 中，文件描述符是一种资源，为了控制对资源的合理使用，Linux 会限制所有进程所能打开的<u>文件描述符总数</u>。可以通过下面的命令查看：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/fs/file-max</div><div class="line">99736</div></pre></td></tr></table></figure></p>
-<p>　　通常来说，如果机器的内存越大，那么<code>file-max</code>的默认值也会越大。当然，也可以手动调大它：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">fs.file-max = 100000</div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改动生效</span></div></pre></td></tr></table></figure></p>
-<p>　　那么要怎样才能知道系统当前打开了多少文件描述符呢？可以用下面的命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/fs/file-nr</div><div class="line">704	0	100000</div></pre></td></tr></table></figure></p>
-<p>　　输出结果的第一个值表示系统当前打开了 704 个文件描述符，在 Linux 2.6 之后，第二个值总是 0，第三个值等于<code>/proc/sys/fs/file-max</code>的值。</p>
-<hr>
-<p>　　然而<code>fs.file-max</code>这个参数是系统级别的限制，除此之外，Linux 还会限制<u>某个用户</u>所能打开的文件描述符数量，这个值默认是 1024，可以用下面命令查看：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> -n</div><div class="line">1024</div></pre></td></tr></table></figure></p>
-<p>　　从上面的命令可以看到，<u>当前用户</u>最多只能打开 1024 个文件描述符。有时在运行高并发服务器的时候，经常会出现文件描述符不够用的错误，这时候就需要调高这个用户所能打开的文件描述符数量了，可以通过下面的命令修改：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/security/limits.conf</div><div class="line">www-data soft nofile 10240</div><div class="line">www-data hard nofile 20480</div></pre></td></tr></table></figure></p>
-<p>　　上面的命令为<code>www-data</code>用户设置所能打开的文件描述符数量，其中软限制为 10240，而硬限制为 20480。那么软限制和硬限制的区别是什么呢？其实进程在运行的时候可以修改软限制的值，但要保证这个值不能超过硬限制。然而进程却无法修改硬限制的值，除非以 superuser 的身份运行。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/07/01/linux-tuning/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -958,7 +974,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">41</span>
+              <span class="site-state-item-count">42</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -975,7 +991,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

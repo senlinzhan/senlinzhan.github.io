@@ -266,6 +266,139 @@
             
               
                 
+                <a class="post-title-link" href="/2015/01/14/unionfind算法/" itemprop="url">
+                  Union-Find算法
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-01-14T22:11:05+08:00" content="2015-01-14">
+              2015-01-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/算法分析/" itemprop="url" rel="index">
+                    <span itemprop="name">算法分析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/01/14/unionfind算法/" class="leancloud_visitors" data-flag-title="Union-Find算法">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Union-Find算法"><a href="#Union-Find算法" class="headerlink" title="Union-Find算法"></a>Union-Find算法</h2><p>　　在一个连通网络中，如果存在链路，使得一个节点能通过这条链路到达另一个节点，那么我们就说这两个节点之间是连通的。在连通性问题中，通常需要判断给定的两个节点是否已经连通，这个过程称为查找<code>(find)</code>操作，此外，若两个点并没有连通，我们可以创建连通这两个节点的链路，从而使得这两个节点处于连通状态，这个过程称为合并<code>(union)</code>操作。在执行合并操作之后，网络处于新的连接状态，这时，我们就可以根据更新后的网络的状态，来判断给定的其它两个节点之间是否连通了。<br>　　为了简化处理，我们可以使用整数来给网络中的节点进行编号。首先，我们给出一个测试程序，程序每次都会要求用户输入一对整数，并且执行以下操作：</p>
+<ul>
+<li>判断这对整数代表的节点是否处于连通状态，这就是查找操作。</li>
+<li>若这两个点没有连通，那么执行合并操作，使得这两个点处于连通状态。 <figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"uf.hpp"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="function">UnionFind <span class="title">uf</span><span class="params">(<span class="number">10000</span>)</span></span>;                     <span class="comment">// 10000 nodes</span></div><div class="line">    <span class="keyword">int</span> p, q;</div><div class="line">    <span class="keyword">while</span> (<span class="built_in">cin</span> &gt;&gt; p &gt;&gt; q) </div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (uf.find(p, q)) </div><div class="line">        &#123;</div><div class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"connection "</span> &lt;&lt; p &lt;&lt; <span class="string">"-"</span> &lt;&lt; q &lt;&lt; <span class="string">" already exist!"</span> &lt;&lt; <span class="built_in">endl</span>; </div><div class="line">        &#125; </div><div class="line">        <span class="keyword">else</span> </div><div class="line">        &#123;</div><div class="line">            uf.unite(p, q);</div><div class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"new connection: "</span> &lt;&lt; p &lt;&lt; <span class="string">"-"</span> &lt;&lt; q &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>　　我们可以使用简单的输入来测试程序，输入的两个整数代表两个节点，若这两个节点尚未连通，那么程序就会负责连通这两个点，若这两个点已经连通，则输出提示信息：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">4 5</div><div class="line">new connection: 4-5</div><div class="line">2 4</div><div class="line">new connection: 2-4</div><div class="line">2 5</div><div class="line">connection 2-5 already exist!</div><div class="line">3 1</div><div class="line">new connection: 3-1</div><div class="line">3 4</div><div class="line">new connection: 3-4</div><div class="line">1 2</div><div class="line">connection 1-2 already exist!</div></pre></td></tr></table></figure></p>
+<p>　　我们可以用下图<code>1.1</code>来表示对节点执行合并操作的过程，从中可以看到，节点之间的连通是具有传递性，最后，图中的<code>5</code>个节点都处于互通的状态：<br><img src="/images/data-structure/uf1.png" alt=""></p>
+<h2 id="Quick-Find算法"><a href="#Quick-Find算法" class="headerlink" title="Quick-Find算法"></a>Quick-Find算法</h2><p>　　在<code>Quick-Find</code>算法中，我们使用数组来表示所有节点的集合，在一开始，数组中的元素的值各不相同，这表示所有的节点均不连通，很显然，要是数组中存在相同的元素值，那么就表示这些元素所代表节点是互通的。由此，判断两个节点是否连通(即查找操作)就变得相当简单，只需要判断数组中的这两项元素的值是否相同，相同就表示它们是连通的。此外，要是这两个节点(假设为<code>A</code>节点和<code>B</code>节点)并不连通，那么就要执行合并操作，这时我们需要遍历整个数组，使得所有与<code>A</code>节点连通的节点都与<code>B</code>节点连通。<br>　　<code>Quick-Find</code>算法中，查找操作的复杂度为<code>O(1)</code>，而合并操作的复杂度为<code>O(N)</code>，<code>N</code>表示数组的长度，即所有节点的数目。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> UnionFind</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    UnionFind(<span class="keyword">int</span> n) </div><div class="line">        : num(n), arr(num)</div><div class="line">    &#123;</div><div class="line">	iota(arr.begin(), arr.end(), <span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">find</span><span class="params">(<span class="keyword">int</span> p, <span class="keyword">int</span> q)</span> <span class="keyword">const</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">return</span> arr[p] == arr[q];</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unite</span><span class="params">(<span class="keyword">int</span> p, <span class="keyword">int</span> q)</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!find(p, q))</div><div class="line">	&#123;</div><div class="line">            <span class="keyword">int</span> origin = arr[p];</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; num; ++i)</div><div class="line">	    &#123;</div><div class="line">                <span class="keyword">if</span> (arr[i] == origin)</div><div class="line">		&#123;</div><div class="line">                    arr[i] = arr[q];</div><div class="line">                &#125;</div><div class="line">            &#125; </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> num;    <span class="comment">// number of nodes</span></div><div class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; arr;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　图<code>1.2</code>表示了<code>Quick-Find</code>算法合并节点的过程，需要注意，节点中的数字表示节点的编号(即数组元素的下标)，而不是数组元素的值。执行一次合并操作，我们需要遍历所有节点。<br><img src="/images/data-structure/uf2.png" alt=""><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/01/14/unionfind算法/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2014/10/19/优先队列和堆排序/" itemprop="url">
                   优先队列与堆排序
                 </a>
@@ -430,7 +563,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">41</span>
+              <span class="site-state-item-count">42</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -447,7 +580,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
