@@ -266,6 +266,145 @@
             
               
                 
+                <a class="post-title-link" href="/2017/09/17/boost-asio/" itemprop="url">
+                  浅谈 Boost.Asio 的多线程模型
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-09-17T20:48:18+08:00" content="2017-09-17">
+              2017-09-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/09/17/boost-asio/" class="leancloud_visitors" data-flag-title="浅谈 Boost.Asio 的多线程模型">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>　　Boost.Asio 有两种支持多线程的方式，第一种方式比较简单：在多线程的场景下，每个线程都持有一个<code>io_service</code>，并且每个线程都调用各自的<code>io_service</code>的<code>run()</code>方法。<br>　　另一种支持多线程的方式：全局只分配一个<code>io_service</code>，并且让这个<code>io_service</code>在多个线程之间共享，每个线程都调用全局的<code>io_service</code>的<code>run()</code>方法。</p>
+<h2 id="每个线程一个-I-O-Service"><a href="#每个线程一个-I-O-Service" class="headerlink" title="每个线程一个 I/O Service"></a>每个线程一个 I/O Service</h2><p>　　让我们先分析第一种方案：在多线程的场景下，每个线程都持有一个<code>io_service</code> (通常的做法是，让线程数和 CPU 核心数保持一致)。那么这种方案有什么特点呢？</p>
+<ul>
+<li>在多核的机器上，这种方案可以充分利用多个 CPU 核心。</li>
+<li>某个 socket 描述符<u>并不会</u>在多个线程之间共享，所以不需要引入同步机制。</li>
+<li>在 event handler 中不能执行阻塞的操作，否则将会阻塞掉<code>io_service</code>所在的线程。</li>
+</ul>
+<p>　　下面我们实现了一个<code>AsioIOServicePool</code>，封装了线程池的创建操作 <a href="https://github.com/senlinzhan/code-for-blog/blob/master/boost_asio/asio_io_service_pool.hpp">[完整代码]</a>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> AsioIOServicePool</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">using</span> IOService = boost::asio::io_service;</div><div class="line">    <span class="keyword">using</span> Work = boost::asio::io_service::work;</div><div class="line">    <span class="keyword">using</span> WorkPtr = <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Work&gt;;</div><div class="line"></div><div class="line">    AsioIOServicePool(<span class="built_in">std</span>::<span class="keyword">size_t</span> size = <span class="built_in">std</span>::thread::hardware_concurrency())</div><div class="line">        : ioServices_(size),</div><div class="line">          works_(size),</div><div class="line">          nextIOService_(<span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="built_in">std</span>::<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; size; ++i)</div><div class="line">        &#123;</div><div class="line">            works_[i] = <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Work&gt;(<span class="keyword">new</span> Work(ioServices_[i]));</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="built_in">std</span>::<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; ioServices_.size(); ++i)</div><div class="line">        &#123;</div><div class="line">            threads_.emplace_back([<span class="keyword">this</span>, i] ()</div><div class="line">                                  &#123;</div><div class="line">                                      ioServices_[i].run();</div><div class="line">                                  &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    AsioIOServicePool(<span class="keyword">const</span> AsioIOServicePool &amp;) = <span class="keyword">delete</span>;</div><div class="line">    AsioIOServicePool &amp;<span class="keyword">operator</span>=(<span class="keyword">const</span> AsioIOServicePool &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">    <span class="comment">// 使用 round-robin 的方式返回一个 io_service</span></div><div class="line">    boost::asio::<span class="function">io_service &amp;<span class="title">getIOService</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">auto</span> &amp;service = ioServices_[nextIOService_++];</div><div class="line">        <span class="keyword">if</span> (nextIOService_ == ioServices_.size())</div><div class="line">        &#123;</div><div class="line">            nextIOService_ = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> service;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;work: works_)</div><div class="line">        &#123;</div><div class="line">            work.reset();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;t: threads_)</div><div class="line">        &#123;</div><div class="line">            t.join();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;IOService&gt;       ioServices_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;WorkPtr&gt;         works_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt;     threads_;</div><div class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span>                  nextIOService_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　<code>AsioIOServicePool</code>使用起来也很简单：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::mutex mtx;             <span class="comment">// protect std::cout</span></div><div class="line">AsioIOServicePool pool;</div><div class="line"> </div><div class="line">boost::asio::steady_timer timer&#123;pool.getIOService(), <span class="built_in">std</span>::chrono::seconds&#123;<span class="number">2</span>&#125;&#125;;</div><div class="line">timer.async_wait([&amp;mtx] (<span class="keyword">const</span> boost::system::error_code &amp;ec)</div><div class="line">                  &#123;</div><div class="line">                      <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(mtx);</div><div class="line">                      <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World! "</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">                  &#125;);</div><div class="line">pool.stop();</div></pre></td></tr></table></figure></p>
+<h2 id="一个-I-O-Service-与多个线程"><a href="#一个-I-O-Service-与多个线程" class="headerlink" title="一个 I/O Service 与多个线程"></a>一个 I/O Service 与多个线程</h2><p>　　另一种方案则是先分配一个全局<code>io_service</code>，然后开启多个线程，每个线程都调用这个<code>io_service</code>的<code>run()</code>方法。这样，当某个异步事件完成时，<code>io_service</code>就会将相应的 event handler 交给任意一个线程去执行。<br>　　然而这种方案在实际使用中，需要注意一些问题：</p>
+<ul>
+<li>在 event handler 中允许执行阻塞的操作 (例如数据库查询操作)。</li>
+<li>线程数可以大于 CPU 核心数，譬如说，如果需要在 event handler 中执行阻塞的操作，为了提高程序的响应速度，这时就需要提高线程的数目。</li>
+<li>由于多个线程同时运行事件循环(event loop)，所以会导致一个问题：即一个 socket 描述符可能会在多个线程之间共享，容易出现竞态条件 (race condition)。譬如说，如果某个 socket 的可读事件很快发生了两次，那么就会出现两个线程同时读同一个 socket 的问题 (可以使用<code>strand</code>解决这个问题)。</li>
+</ul>
+<p>　　下面实现了一个线程池，在每个 worker 线程中执行<code>io_service</code>的<code>run()</code>方法 <a href="https://github.com/senlinzhan/code-for-blog/blob/master/boost_asio/asio_thread_pool.hpp">[完整代码]</a>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> AsioThreadPool</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    AsioThreadPool(<span class="keyword">int</span> threadNum = <span class="built_in">std</span>::thread::hardware_concurrency())</div><div class="line">        : work_(<span class="keyword">new</span> boost::asio::io_service::work(service_))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threadNum; ++i)</div><div class="line">        &#123;</div><div class="line">            threads_.emplace_back([<span class="keyword">this</span>] () &#123; service_.run(); &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    AsioThreadPool(<span class="keyword">const</span> AsioThreadPool &amp;) = <span class="keyword">delete</span>;</div><div class="line">    AsioThreadPool &amp;<span class="keyword">operator</span>=(<span class="keyword">const</span> AsioThreadPool &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">    boost::asio::<span class="function">io_service &amp;<span class="title">getIOService</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">return</span> service_;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        work_.reset();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;t: threads_)</div><div class="line">        &#123;</div><div class="line">            t.join();            </div><div class="line">        &#125;        </div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    boost::asio::io_service service_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;boost::asio::io_service::work&gt; work_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; threads_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/09/17/boost-asio/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/09/09/grpc-dynamic-thread-pool/" itemprop="url">
                   gRPC 的 C++ 动态线程池源码分析
                 </a>
@@ -803,146 +942,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/03/oom-killer/" itemprop="url">
-                  Linux 的 OOM Killer 机制分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-07-03T21:33:12+08:00" content="2017-07-03">
-              2017-07-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/07/03/oom-killer/" class="leancloud_visitors" data-flag-title="Linux 的 OOM Killer 机制分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="按需分配物理页面"><a href="#按需分配物理页面" class="headerlink" title="按需分配物理页面"></a>按需分配物理页面</h2><p>　　很多情况下，一个进程会申请一块很大的内存，但只是用到其中的一小部分。为了避免内存的浪费，在分配页面时，Linux 采用的是<u>按需分配物理页面</u>的方式。譬如说，某个进程调用<code>malloc()</code>申请了一块小内存，这时内核会分配一个虚拟页面，但这个页面<u>不会映射</u>到实际的物理页面。<div align="center"> <img src="/images/linux/oom1.png" width="400" align=center /> </div><br>　　从图中可以看到，当程序首次访问这个虚拟页面时，会触发一个缺页异常 (page fault)。这时内核会分配一个物理页面，让虚拟页面映射到这个物理页面，同时更新进程的页表 (page table)。</p>
-<h2 id="Memory-Overcommit"><a href="#Memory-Overcommit" class="headerlink" title="Memory Overcommit"></a>Memory Overcommit</h2><p>　　这种按需分配物理页面的方式，可以大大节省物理内存的使用，但有时会导致 Memory Overcommit。所谓 Memory Overcommit，也就是说，所有进程使用的虚拟内存<u>超过了</u>系统的物理内存和交换空间的总和。默认情况下，Linux 是允许 Memory Overcommit 的。并且在大多数情况下，Memory Overcommit 也是安全的，因为很多进程只是申请了很多内存，但实际使用到的内存并不多。<br>　　但万一很多进程都使用了申请来的大部分内存，就可能导致物理内存和交换空间不够用了，这时内核的 OOM Killer 就会出马，它会选择杀掉一个或多个进程，这样就能腾出一些内存给其它进程使用。<br>　　在 Linux 中，可以通过内核参数<code>vm.overcommit_memory</code>去控制是否允许 overcommit：</p>
-<ul>
-<li>默认值是 0，在这种情况下，只允许轻微的 overcommit，而比较明显的 overcommit 将不被允许。</li>
-<li>如果设置为 1，表示总是允许 overcommit。</li>
-<li>如果设置为 2，则表示总是禁止 overcommit。也就是说，如果某个申请内存的操作将导致 overcommit，那么这个操作将<u>不会得逞</u>。</li>
-</ul>
-<p>　　那么对内核来说，怎样才算 overcommit 呢？Linux 设定了一个阈值，叫做 CommitLimit，如果所有进程申请的总内存超过了 CommitLimit，那就算是 overcommit 了。在<code>/proc/meminfo</code>中可以看到 CommitLimit 的大小：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/meminfo | grep CommitLimit</div><div class="line">CommitLimit:     3829768 kB</div></pre></td></tr></table></figure></p>
-<p>　　CommitLimit 的值是这样计算的：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CommitLimit = [swap size] + [RAM size] * vm.overcommit_ratio / 100</div></pre></td></tr></table></figure></p>
-<p>　　其中的<code>vm.overcommit_ratio</code>也是内核参数，它的默认值是 50。</p>
-<h2 id="OOM-Killer"><a href="#OOM-Killer" class="headerlink" title="OOM Killer"></a>OOM Killer</h2><p>　　当物理内存和交换空间不够用时，OOM Killer 就会选择杀死进程，那么它是怎样知道要先杀死哪个进程呢？其实 Linux 的每个进程都有一个 oom_score (位于<code>/proc/&lt;pid&gt;/oom_score</code>)，这个值越大，就越有可能被 OOM Killer 选中。oom_score 的值是由很多因素共同决定的，这里列举几个因素：</p>
-<ul>
-<li>如果进程消耗的内存越大，它的 oom_score 通常也会越大。 </li>
-<li>如果进程运行了很长时间，并且消耗很多 CPU 时间，那么通常它的 oom_score 会偏小。</li>
-<li>如果进程以 superuser 的身份运行，那么它的 oom_score 也会偏小。</li>
-</ul>
-<p>　　如何才能尽量防止某个重要的进程被杀死呢？Linux 每个进程都有一个 oom_adj (位于<code>/proc/&lt;pid&gt;/oom_adj</code>)，这个值的范围是 [-17, +15]，进程的 oom_adj 会影响 oom_score 的计算，也就是说，我们可以通过调小进程的 oom_adj 从而降低进程的 oom_score。对于一些比较重要的进程，例如 MySQL，我们想尽量避免它被 OOM Killer 杀死，这时候就可以调低它的 oom_adj 的值，例如：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo <span class="built_in">echo</span> -10 &gt; /proc/$(pidof mysqld)/oom_adj</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/07/03/oom-killer/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -988,7 +987,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">43</span>
+              <span class="site-state-item-count">44</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -266,6 +266,143 @@
             
               
                 
+                <a class="post-title-link" href="/2015/03/31/C-使用vector的正确姿势/" itemprop="url">
+                  高效使用 C++ 的 vector
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-03-31T14:38:06+08:00" content="2015-03-31">
+              2015-03-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/03/31/C-使用vector的正确姿势/" class="leancloud_visitors" data-flag-title="高效使用 C++ 的 vector">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="预留足够空间"><a href="#预留足够空间" class="headerlink" title="预留足够空间"></a>预留足够空间</h2><p>　　<code>vector</code>实际上是能够动态增长的数组，因此，当<code>vector</code>的容量 ( capacity ) 不足以容纳新元素的时候，<code>vecvtor</code>就会重新分配较大的内存，将原来的元素移动到新的内存，并回收旧的内存。这个过程会导致几个问题：</p>
+<ul>
+<li>每一次重新分配内存的操作都会带来不小的开销。</li>
+<li>由于旧的内存被系统回收，因此，原来所有指向<code>vector</code>元素的指针、迭代器和引用都会失效。</li>
+</ul>
+<p>　　每一次使用<code>push_back()</code>往<code>vector</code>中增加元素，可能会导致<code>vector</code>重新分配内存：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</div><div class="line"><span class="keyword">auto</span> cap = vec.capacity();</div><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"origin capacity: "</span> &lt;&lt; cap &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line"></div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; ++i ) &#123;</div><div class="line">    vec.push_back( i );</div><div class="line">    <span class="keyword">if</span>( cap != vec.capacity() ) &#123;</div><div class="line">        cap = vec.capacity();</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"new capacity: "</span> &lt;&lt; cap &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从例子可以看到，往<code>vector</code>中增加 1000 个元素，会导致<code>vector</code>多次重新分配内存：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">origin capacity: 0</div><div class="line">new capacity: 1</div><div class="line">new capacity: 2</div><div class="line">new capacity: 4</div><div class="line">new capacity: 8</div><div class="line">new capacity: 16</div><div class="line">new capacity: 32</div><div class="line">new capacity: 64</div><div class="line">new capacity: 128</div><div class="line">new capacity: 256</div><div class="line">new capacity: 512</div><div class="line">new capacity: 1024</div></pre></td></tr></table></figure></p>
+<p>　　为了减少重新分配内存带来的开销，实际上我们可以使用<code>v.reserve(n)</code>来预留足够的内存( <code>v</code>是<code>vector</code>的对象 )：</p>
+<ul>
+<li>要是<code>n</code>小于或等于<code>v.capacity()</code>，那么，<code>v</code>将忽略这个操作。</li>
+<li>要是<code>n</code>大于<code>v.capacity()</code>，那么，<code>v</code>将会重新分配内存，并保证新的容量至少为<code>n</code>。</li>
+</ul>
+<p>　　很明显，要是一开始<code>vector</code>就预留足够的空间，那么，即使不断地使用<code>push_back()</code>增加元素，<code>vector</code>也不会重新分配内存，并且所有指向元素的指针、迭代器和引用仍然有效。需要明白一点，<code>reserve()</code>使用空间置配器 ( allocator ) 来分配内存，也就是，没有存储元素的那部分内存是原生 ( raw ) 内存。</p>
+<p>　　根据这个方法，可以减少重新分配内存的次数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> <span class="keyword">int</span> NUM = <span class="number">1000</span>;</div><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</div><div class="line">vec.reserve( NUM );</div><div class="line"></div><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"origin capacity: "</span> &lt;&lt; vec.capacity() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line"><span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NUM; ++i ) &#123;</div><div class="line">    vec.push_back( i );</div><div class="line">&#125;</div><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"new capacity: "</span> &lt;&lt; vec.capacity() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/03/31/C-使用vector的正确姿势/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2015/03/13/多项式乘法与加法/" itemprop="url">
                   多项式算法的实现
                 </a>
@@ -690,7 +827,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">43</span>
+              <span class="site-state-item-count">44</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
