@@ -266,6 +266,137 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/08/Linux的SO-REUSEPORT选项/" itemprop="url">
+                  Linux 的 socket 选项 SO_REUSEPORT
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-08T20:34:16+08:00" content="2017-02-08">
+              2017-02-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/08/Linux的SO-REUSEPORT选项/" class="leancloud_visitors" data-flag-title="Linux 的 socket 选项 SO_REUSEPORT">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="均衡转发"><a href="#均衡转发" class="headerlink" title="均衡转发"></a>均衡转发</h2><p>　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用<code>accept()</code>，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，<code>accept()</code>不会导致惊群。) 然而，正如<a href="https://lwn.net/Articles/542629/">这篇文章</a>所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式去唤醒线程。这就导致了有的线程处理太多请求而忙不过来，而有的线程则很空闲。<br>　　Linux 3.9提供了<code>SO_REUSEPORT</code>选项，对于TCP来说，它允许多个listening socket绑定到同一个端口，也就是说，所有线程都可以创建一个listening socket绑定到同一个端口，并且可以调用<code>accept()</code>在这个socket上等待连接请求。使用<code>SO_REUSEPORT</code>的好处就是，由于内核会将客户端的连接请求均衡地分发给每个listening socket，在多线程环境中，这有利于充分利用好每个 CPU 核心。<br>　　<code>SO_REUSEPORT</code>的用法很简单，只要每个listening socket在调用<code>bind()</code>之前设置好这个选项就可以了：</p>
+<pre><code class="C++"><span class="keyword">int</span> sockfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);
+
+<span class="keyword">int</span> optval = <span class="number">1</span>;
+setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &amp;optval, <span class="keyword">sizeof</span>(optval));
+
+bind(sockfd, ...);
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/08/Linux的SO-REUSEPORT选项/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/12/protobuf的自动反射/" itemprop="url">
                   浅谈 Prorobuf 的自动反射功能
                 </a>
@@ -761,137 +892,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/01/11/emacs-as-cpp-ide/" itemprop="url">
-                  打造 Mac OS 的 C++ IDE（Emacs 篇）
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-01-11T20:52:24+08:00" content="2016-01-11">
-              2016-01-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/开发环境/" itemprop="url" rel="index">
-                    <span itemprop="name">开发环境</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/01/11/emacs-as-cpp-ide/" class="leancloud_visitors" data-flag-title="打造 Mac OS 的 C++ IDE（Emacs 篇）">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="IDE-介绍"><a href="#IDE-介绍" class="headerlink" title="IDE 介绍"></a>IDE 介绍</h2><p>　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：</p>
-<ul>
-<li>支持代码语义跳转。</li>
-<li>支持代码自动补全。</li>
-<li>支持代码语法检查。</li>
-<li>支持 cmake。</li>
-</ul>
-<h2 id="通用配置"><a href="#通用配置" class="headerlink" title="通用配置"></a>通用配置</h2><p>　　下面是一些比较有用的设置，打开<code>~/.emacs</code>文件，写入以下内容：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 启动时不显示信息</span></div><div class="line">(<span class="name">setq</span> inhibit-startup-message <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 显示行号</span></div><div class="line">(<span class="name">global-linum-mode</span> <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 自动补全括号</span></div><div class="line">(<span class="name">electric-pair-mode</span> <span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 按 Ctl-Enter 开始选中文本</span></div><div class="line">(<span class="name">global-set-key</span> (<span class="name">kbd</span> <span class="string">"C-&lt;return&gt;"</span>) 'set-mark-command)</div><div class="line"></div><div class="line"><span class="comment">;; 设置代码风格</span></div><div class="line">(<span class="name">c-add-style</span> <span class="string">"my-style"</span></div><div class="line">             '(<span class="string">"stroustrup"</span></div><div class="line">               (indent-tabs-mode . <span class="literal">nil</span>)        ; 使用空格缩进而不是 Tab</div><div class="line">               (c-basic-offset . <span class="number">4</span>)            ; 使用四个空格缩进</div><div class="line">               (c-offsets-alist . ((inline-open . <span class="number">0</span>)</div><div class="line">                                   (brace-list-open . <span class="number">0</span>)</div><div class="line">                                   (statement-case-open . +)))))</div><div class="line"></div><div class="line">(<span class="name">defun</span> my-c++-mode-hook ()</div><div class="line">  (<span class="name">c-set-style</span> <span class="string">"my-style"</span>)        <span class="comment">; use my-style defined above</span></div><div class="line">  (<span class="name">auto-fill-mode</span>)</div><div class="line">  (<span class="name">c-toggle-auto-hungry-state</span> <span class="number">1</span>))</div><div class="line"></div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook 'my-c++-mode-hook)</div><div class="line">(<span class="name">add-hook</span> 'c-mode-hook 'my-c++-mode-hook)</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/11/emacs-as-cpp-ide/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -937,7 +937,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">44</span>
+              <span class="site-state-item-count">45</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

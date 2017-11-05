@@ -266,6 +266,137 @@
             
               
                 
+                <a class="post-title-link" href="/2016/01/11/emacs-as-cpp-ide/" itemprop="url">
+                  打造 Mac OS 的 C++ IDE（Emacs 篇）
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-01-11T20:52:24+08:00" content="2016-01-11">
+              2016-01-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/开发环境/" itemprop="url" rel="index">
+                    <span itemprop="name">开发环境</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/01/11/emacs-as-cpp-ide/" class="leancloud_visitors" data-flag-title="打造 Mac OS 的 C++ IDE（Emacs 篇）">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="IDE-介绍"><a href="#IDE-介绍" class="headerlink" title="IDE 介绍"></a>IDE 介绍</h2><p>　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：</p>
+<ul>
+<li>支持代码语义跳转。</li>
+<li>支持代码自动补全。</li>
+<li>支持代码语法检查。</li>
+<li>支持 cmake。</li>
+</ul>
+<h2 id="通用配置"><a href="#通用配置" class="headerlink" title="通用配置"></a>通用配置</h2><p>　　下面是一些比较有用的设置，打开<code>~/.emacs</code>文件，写入以下内容：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 启动时不显示信息</span></div><div class="line">(<span class="name">setq</span> inhibit-startup-message <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 显示行号</span></div><div class="line">(<span class="name">global-linum-mode</span> <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 自动补全括号</span></div><div class="line">(<span class="name">electric-pair-mode</span> <span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 按 Ctl-Enter 开始选中文本</span></div><div class="line">(<span class="name">global-set-key</span> (<span class="name">kbd</span> <span class="string">"C-&lt;return&gt;"</span>) 'set-mark-command)</div><div class="line"></div><div class="line"><span class="comment">;; 设置代码风格</span></div><div class="line">(<span class="name">c-add-style</span> <span class="string">"my-style"</span></div><div class="line">             '(<span class="string">"stroustrup"</span></div><div class="line">               (indent-tabs-mode . <span class="literal">nil</span>)        ; 使用空格缩进而不是 Tab</div><div class="line">               (c-basic-offset . <span class="number">4</span>)            ; 使用四个空格缩进</div><div class="line">               (c-offsets-alist . ((inline-open . <span class="number">0</span>)</div><div class="line">                                   (brace-list-open . <span class="number">0</span>)</div><div class="line">                                   (statement-case-open . +)))))</div><div class="line"></div><div class="line">(<span class="name">defun</span> my-c++-mode-hook ()</div><div class="line">  (<span class="name">c-set-style</span> <span class="string">"my-style"</span>)        <span class="comment">; use my-style defined above</span></div><div class="line">  (<span class="name">auto-fill-mode</span>)</div><div class="line">  (<span class="name">c-toggle-auto-hungry-state</span> <span class="number">1</span>))</div><div class="line"></div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook 'my-c++-mode-hook)</div><div class="line">(<span class="name">add-hook</span> 'c-mode-hook 'my-c++-mode-hook)</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/11/emacs-as-cpp-ide/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2015/08/27/设计二叉树迭代器/" itemprop="url">
                   如何设计 C++ 的二叉树的迭代器
                 </a>
@@ -780,145 +911,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/04/20/谈谈C-的智能指针/" itemprop="url">
-                  深入 C++ 的 unique_ptr
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-04-20T19:22:08+08:00" content="2015-04-20">
-              2015-04-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/04/20/谈谈C-的智能指针/" class="leancloud_visitors" data-flag-title="深入 C++ 的 unique_ptr">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="从异常安全说起"><a href="#从异常安全说起" class="headerlink" title="从异常安全说起"></a>从异常安全说起</h2><p>　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：</p>
-<ul>
-<li>忘记<code>delete</code>内存，造成内存泄露。</li>
-<li>出现异常时，不会执行<code>delete</code>，造成内存泄露。</li>
-</ul>
-<p>　　下面的代码解释了，当一个操作发生异常时，会导致<code>delete</code>不会被执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="comment">// 执行一个会抛出异常的操作</span></div><div class="line">    func_throw_exception();</div><div class="line">    </div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　在 C++98 中我们需要用一种笨拙的方式，写出异常安全的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        func_throw_exception();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">catch</span>(...) &#123;</div><div class="line">        <span class="keyword">delete</span> ptr;</div><div class="line">        <span class="keyword">throw</span>; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　使用智能指针能轻易写出异常安全的代码，因为当对象退出作用域时，智能指针将自动调用对象的析构函数，避免内存泄露：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Widget&gt; ptr&#123; <span class="keyword">new</span> Widget &#125;;</div><div class="line"></div><div class="line">    func_throw_exception();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="unique-ptr-的原理"><a href="#unique-ptr-的原理" class="headerlink" title="unique_ptr 的原理"></a>unique_ptr 的原理</h2><p>　　让我们了解一下<code>unique_ptr</code>的实现细节：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> D = default_delete&lt;T&gt;&gt;</div><div class="line">    <span class="keyword">class</span> <span class="built_in">unique_ptr</span></div><div class="line">    &#123;</div><div class="line">    <span class="keyword">public</span>:</div><div class="line">        <span class="keyword">explicit</span> <span class="built_in">unique_ptr</span>(pointer p) <span class="keyword">noexcept</span>;</div><div class="line">        ~<span class="built_in">unique_ptr</span>() <span class="keyword">noexcept</span>;    </div><div class="line"></div><div class="line">	T&amp; <span class="keyword">operator</span>*() <span class="keyword">const</span>;</div><div class="line">        T* <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line">        <span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="comment">// ...</span></div><div class="line">    <span class="keyword">private</span>:</div><div class="line">        pointer __ptr;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　从上面的代码中，我们可以了解到：</p>
-<ul>
-<li><code>unique_ptr</code>内部存储一个 raw pointer，当<code>unique_ptr</code>析构时，它的析构函数将会负责析构它持有的对象。</li>
-<li><code>unique_ptr</code>提供了<code>operator*()</code>和<code>operator-&gt;()</code>成员函数，像 raw pointer 一样，我们可以使用<code>*</code>解引用<code>unique_ptr</code>，使用<code>-&gt;</code>来访问<code>unique_ptr</code>所持有对象的成员。</li>
-<li><code>unique_ptr</code>并不提供 copy 操作，这是为了防止多个<code>unique_ptr</code>指向同一对象。</li>
-<li>但<code>unique_ptr</code>提供了 move 操作，因此我们可以用<code>std::move()</code>来转移<code>unique_ptr</code>。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/04/20/谈谈C-的智能指针/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -964,7 +956,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">44</span>
+              <span class="site-state-item-count">45</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
