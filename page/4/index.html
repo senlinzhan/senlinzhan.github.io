@@ -494,11 +494,11 @@
 <li>Linux fork 子进程采用的是 copy-on-write 的方式。在 Redis 执行 RDB 持久化<u>期间</u>，如果 client 写入数据很频繁，那么将增加 Redis 占用的内存，最坏情况下，内存的占用将达到原先的两倍。</li>
 <li>如果业务场景很看重数据的持久性 (durability)，那么不应该采用 RDB 持久化。譬如说，如果 Redis 每 5 分钟执行一次 RDB 持久化，要是 Redis 意外奔溃了，那么最多会丢失 5 分钟的数据。 </li>
 </ul>
-<h2 id="AOF-持久化"><a href="#AOF-持久化" class="headerlink" title="AOF 持久化"></a>AOF 持久化</h2><p>　　Redis 执行 AOF 持久化时，会将接收到的写命令追加到 AOF 文件的末尾，因此 Redis 只要对 AOF 文件中的命令进行回放，就可以将数据库还原到原先的状态。<br>　　与 RDB 持久化相比，AOF 持久化的一个明显优势就是，它可以提高数据的持久性 (durability)。在 AOF 模式下，通过<code>appendfsync</code>配置项，可以控制 Redis 将命令同步到磁盘的频率：</p>
+<h2 id="AOF-持久化"><a href="#AOF-持久化" class="headerlink" title="AOF 持久化"></a>AOF 持久化</h2><p>　　Redis 执行 AOF 持久化时，会将接收到的写命令追加到 AOF 文件的末尾，因此 Redis 只要对 AOF 文件中的命令进行回放，就可以将数据库还原到原先的状态。<br>　　与 RDB 持久化相比，AOF 持久化的一个明显优势就是，它可以提高数据的持久性 (durability)。因为在 AOF 模式下，Redis 每次接收到 client 的写命令，就会将命令<code>write()</code>到 AOF 文件末尾。<br>　　然而，在 Linux 中，将数据<code>write()</code>到文件后，数据并不会立即刷新到磁盘，而会先暂存在 OS 的文件系统缓冲区。在合适的时机，OS 才会将缓冲区的数据刷新到磁盘（如果需要将文件内容刷新到磁盘，可以调用<code>fsync()</code>或<code>fdatasync()</code>）。<br>　　通过<code>appendfsync</code>配置项，可以控制 Redis 将命令同步到磁盘的频率：</p>
 <ul>
-<li><code>always</code>：每次 Redis 接收到写命令时，都要实时刷新到磁盘。这可以保证最好的数据持久性，但却会给系统带来极大的开销。</li>
-<li><code>no</code>：交由操作系统决定何时将命令刷新到磁盘。</li>
-<li><code>everysec</code>：Redis 会每秒执行一次，将接收到的写命令刷新到磁盘。在实践中，推荐使用这种设置，一定程度上可以保证数据持久性，又不会明显降低 Redis 性能。</li>
+<li><code>always</code>：每次 Redis 将命令<code>write()</code>到 AOF 文件时，都会调用<code>fsync()</code>，将命令刷新到磁盘。这可以保证最好的数据持久性，但却会给系统带来极大的开销。</li>
+<li><code>no</code>：Redis 只将命令<code>write()</code>到 AOF 文件。这会让 OS 决定何时将命令刷新到磁盘。</li>
+<li><code>everysec</code>：除了将命令<code>write()</code>到 AOF 文件，Redis 还会每秒执行一次<code>fsync()</code>。在实践中，推荐使用这种设置，一定程度上可以保证数据持久性，又不会明显降低 Redis 性能。</li>
 </ul>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://redis.io/topics/persistence" target="_blank" rel="external">Redis Persistence</a></li>
