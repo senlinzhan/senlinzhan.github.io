@@ -392,6 +392,154 @@
             
               
                 
+                <a class="post-title-link" href="/2017/11/27/k8s/" itemprop="url">
+                  Kubernetes 入门指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-11-27T15:44:42+08:00" content="2017-11-27">
+              2017-11-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/11/27/k8s/" class="leancloud_visitors" data-flag-title="Kubernetes 入门指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Pod-的介绍"><a href="#Pod-的介绍" class="headerlink" title="Pod 的介绍"></a>Pod 的介绍</h2><p>　　在 Kubernetes 中，Pod 是最小的调度单元，Pod 其实就是一个容器组，它可以包含一个或多个容器（Pod 翻译为豆荚，一个豆荚可以有多个豆子）。对于一个 Pod 来说，它会运行在某个宿主机上，当需要调度的时候，Kubernetes 会将 Pod 作为一个整体进行调度。<br>　　由于整个 Pod 是运行在一个宿主机上的，所以 Pod 中的所有容器共享这些资源：</p>
+<ul>
+<li>所有容器共享同一个 IP。</li>
+<li>所有容器共享同一个 hostname。</li>
+<li>当某个 Volume 被挂载到 Pod 的文件系统时，这个 Volume 可以被多个容器共享。</li>
+<li>容器之间可以通过 System V IPC 或 POSIX 消息队列进行通信。 </li>
+</ul>
+<p>　　思考一下，什么样的容器才适合放到同一个 Pod 中呢？</p>
+<h2 id="Pod-的配置"><a href="#Pod-的配置" class="headerlink" title="Pod 的配置"></a>Pod 的配置</h2><p>　　可以使用 yaml 配置文件去描述 Pod，并写清楚我们希望 Pod 达到的状态：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
+<p>　　使用下面的命令可以创建 Pod，用于运行 Nginx:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
+<p>　　也可以获取 Pod 的运行状态：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME      READY     STATUS    RESTARTS   AGE</div><div class="line">nginx     1/1       Running   0          8m</div></pre></td></tr></table></figure></p>
+<p>　　如果想要获取 Pod 中所有容器的运行状态，可以使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl  get pods nginx -o json</div></pre></td></tr></table></figure></p>
+<p>　　如果想获得 Pod 的更多详细信息（包括所有容器的信息，以及和 Pod 相关的事件），可以使用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl describe pods nginx</div></pre></td></tr></table></figure></p>
+<p>　　删除 Pod 时，可以根据 Pod 的名称删除指定的 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete pods/nginx</div></pre></td></tr></table></figure></p>
+<p>　　也可以根据 yaml 配置文件删除 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
+<h2 id="Pod-的调试"><a href="#Pod-的调试" class="headerlink" title="Pod 的调试"></a>Pod 的调试</h2><p>　　在运行上面的 Nginx Pod 之后，如何判断 Nginx 正常工作呢？Kubernetes API 提供了端口转发的功能，可以在另一个终端执行下面的命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl port-forward nginx 8000:80</div></pre></td></tr></table></figure></p>
+<p>　　上面的命令会将<code>localhost:8000</code>的请求转发到 Nginx Pod 的<code>80</code>端口。可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl localhost:8000</div></pre></td></tr></table></figure></p>
+<p>　　如果没有差错，这个命令会输出 Nginx 首页的内容。</p>
+<hr>
+<p>　　另一种有效的调试手段，就是进入到容器内部去实地考察：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash</div></pre></td></tr></table></figure></p>
+<p>　　如果 Pod 中有多个容器，可以使用<code>-c</code>参数指定具体的容器：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash -c nginx</div></pre></td></tr></table></figure></p>
+<p>　　当然，更加经常使用的调试手段，就是观察容器的输出日志：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl logs nginx</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.amazon.com/Kubernetes-Running-Dive-Future-Infrastructure/dp/1491935677/ref=cm_cr_arp_d_product_top?ie=UTF8" target="_blank" rel="external">Kubernetes Up And Running</a></li>
+<li><a href="https://kubernetes.io/docs/user-guide/walkthrough/" target="_blank" rel="external">Kubernetes 101</a></li>
+<li><a href="https://book.douban.com/subject/26894736/?from=tag" target="_blank" rel="external">Docker——容器与容器云（第2版)</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/10/08/gtest/" itemprop="url">
                   使用 Google Test 测试框架
                 </a>
@@ -692,140 +840,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/10/03/boost-asio-coroutine/" itemprop="url">
-                  在 Boost.Asio 中使用协程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-03T20:48:18+08:00" content="2017-10-03">
-              2017-10-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/10/03/boost-asio-coroutine/" class="leancloud_visitors" data-flag-title="在 Boost.Asio 中使用协程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>　　从 1.54.0 版本开始，Boost.Asio 开始支持协程。异步编程是复杂的，协程可以让我们以<u>同步的方式</u>编写出异步的代码，在提高代码可读性的同时又不会丢失性能。<br>　　在 Boost.Asio 要怎样才能使用协程呢？可以使用<code>boost::asio::spawn()</code>开启一个协程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">boost::asio::spawn(strand, echo);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">echo</span><span class="params">(boost::asio::yield_context yield)</span>  <span class="comment">// 协程</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　<code>spawn()</code>的第一个参数可以是<code>io_service</code>，也可以是<code>strand</code>（如果需要在多线程中保证同步，就需要使用<code>strand</code>，具体可以参见 [<a href="http://senlinzhan.github.io/2017/09/17/boost-asio/">浅谈 Boost.Asio 的多线程模型</a>]）</p>
-<hr>
-<p>　　协程可以提供代码可读性，例如，如果没有使用协程，那么我们需要编写很多回调函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleRead</span><span class="params">(boost::system::error_code ec, <span class="built_in">std</span>::<span class="keyword">size_t</span> bytes_transferred)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">socket.async_read_some(boost::asio::buffer(buffer, buffer.size()),</div><div class="line">                       handleRead);</div></pre></td></tr></table></figure></p>
-<p>　　使用协程之后，就不需要回调函数了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> </div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">        boost::asio::buffer(buffer, buffer.size()), </div><div class="line">        yield</div><div class="line">    );</div><div class="line">&#125; </div><div class="line"><span class="keyword">catch</span> (<span class="built_in">std</span>::exception&amp; e)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　上面的代码，如果出现错误就会抛出异常。当然我们也可以使用错误码替代异常：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">boost::system::error_code ec;</div><div class="line"><span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">    boost::asio::buffer(data, data.size()), </div><div class="line">    yield[ec]</div><div class="line">);</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/10/03/boost-asio-coroutine/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -866,7 +885,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">45</span>
+              <span class="site-state-item-count">46</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -874,7 +893,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -883,7 +902,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
