@@ -108,7 +108,7 @@
 <meta property="og:url" content="http://senlinzhan.github.io/2017/02/08/Linux的SO-REUSEPORT选项/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="均衡转发　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用accept()，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，accept()不会导致惊群。) 然而，正如这篇文章所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式">
-<meta property="og:updated_time" content="2017-11-26T08:03:14.000Z">
+<meta property="og:updated_time" content="2017-11-30T13:54:23.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux 的 socket 选项SO_REUSEPORT">
 <meta name="twitter:description" content="均衡转发　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用accept()，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，accept()不会导致惊群。) 然而，正如这篇文章所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式">
