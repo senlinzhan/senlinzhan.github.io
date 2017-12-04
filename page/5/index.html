@@ -266,6 +266,260 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/24/nginx-memory-pool/" itemprop="url">
+                  Nginx 内存池源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-24T23:01:44+08:00" content="2017-04-24">
+              2017-04-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/24/nginx-memory-pool/" class="leancloud_visitors" data-flag-title="Nginx 内存池源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="内存池介绍"><a href="#内存池介绍" class="headerlink" title="内存池介绍"></a>内存池介绍</h2><p>　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过<code>malloc()</code>去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。<br>　　Nginx 使用内存池<code>ngx_pool_t</code>来管理内存，这带来了不少的好处：</p>
+<ul>
+<li>当程序需要内存时，只管向内存池申请，申请而来的内存也无需手动释放，因为内存池销毁时会负责释放所有的内存。</li>
+<li>对于那些需要频繁分配和释放小块内存的程序来说，使用内存池可以减少<code>malloc()</code>的次数，除了降低了调用开销之外，还减少了内存碎片的产生。</li>
+</ul>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>　　下面是内存池的数据结构，<code>ngx_pool_t</code>代表内存池，<code>ngx_pool_data_t</code>代表小块内存，而<code>ngx_pool_large_t</code>则代表大块内存。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 大块内存</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_pool_large_s  <span class="keyword">ngx_pool_large_t</span>;</div><div class="line"><span class="keyword">struct</span> ngx_pool_large_s &#123;</div><div class="line">    <span class="keyword">ngx_pool_large_t</span>     *next;   <span class="comment">// 所有大块内存都通过链表串联起来</span></div><div class="line">    <span class="keyword">void</span>                 *alloc;  <span class="comment">// 指向实际分配的大块内存</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// 小块内存</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</div><div class="line">    u_char               *last;</div><div class="line">    u_char               *end;</div><div class="line">    <span class="keyword">ngx_pool_t</span>           *next;</div><div class="line">    <span class="keyword">ngx_uint_t</span>            failed;</div><div class="line">&#125; <span class="keyword">ngx_pool_data_t</span>;</div><div class="line"></div><div class="line"><span class="comment">// 内存池</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_pool_s        <span class="keyword">ngx_pool_t</span>;</div><div class="line"><span class="keyword">struct</span> ngx_pool_s &#123;</div><div class="line">    <span class="keyword">ngx_pool_data_t</span>       d;</div><div class="line">    <span class="keyword">size_t</span>                max;</div><div class="line">    <span class="keyword">ngx_pool_t</span>           *current;</div><div class="line">    <span class="keyword">ngx_chain_t</span>          *chain;</div><div class="line">    <span class="keyword">ngx_pool_large_t</span>     *large;     <span class="comment">// 大块内存链表</span></div><div class="line">    <span class="keyword">ngx_pool_cleanup_t</span>   *cleanup;</div><div class="line">    <span class="keyword">ngx_log_t</span>            *<span class="built_in">log</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h2 id="内存池构造"><a href="#内存池构造" class="headerlink" title="内存池构造"></a>内存池构造</h2><p>　　内存池处理大块内存和小块内存的策略是不同的，譬如说，当用户向内存池申请内存时，内存池会判断申请的是大块内存还是小块内存，如果是小块内存，那么直接在内存池里面分配，但如果是大块内存，就直接向 OS 申请。<code>ngx_pool_t</code>的<code>max</code>成员则作为判断的标准，如果用户申请的内存大于<code>max</code>，则认为是大块内存，否则就是小块内存。下面的<code>ngx_create_pool()</code>函数用于创建和初始化内存池：
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/04/24/nginx-memory-pool/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/20/grpc/" itemprop="url">
+                  gRPC 编程指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-20T20:48:18+08:00" content="2017-04-20">
+              2017-04-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/20/grpc/" class="leancloud_visitors" data-flag-title="gRPC 编程指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="gRPC-介绍"><a href="#gRPC-介绍" class="headerlink" title="gRPC 介绍"></a>gRPC 介绍</h2><p>　　gRPC 是谷歌开源的高性能 RPC 框架。RPC 也即远程方法调用，对于 RPC client 来说，它可以调用远程 server 上的某个方法，看起来就像是在调用本地方法一样。区别就在于，通过 RPC 调用远程方法时，数据经过序列化之后会通过网络发送给远程 server，远程 server 执行方法之后，同样会将返回结果序列化之后发送回 client。在分布式系统中，gRPC 可以用来解耦程序的逻辑，不同组件之间通过 gRPC 进行通信。<br>　　gRPC 使用 Protobuf 作为它的数据序列化的工具，Protobuf 会将数据序列化成二进制的数据流。与 JSON 这类文本形式的数据相比，二进制数据显得更加紧凑和便于解析，在网络传输中，二进制数据由于体积更小，传输也更快。另一方面，gRPC 也是跨多种编程语言的，譬如说，一个 Java 的 client 可以与一个 C++ 的 server 通信。<div align="center"> <img src="/images/linux/grpc.svg" width="400" align=center /> </div>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/04/20/grpc/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/08/redis-cluster/" itemprop="url">
                   Redis Cluster
                 </a>
@@ -631,271 +885,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
-                  浅谈 Linux 的 Zero Copy 技术
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-25T23:52:21+08:00" content="2017-03-25">
-              2017-03-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的 Zero Copy 技术">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="mmap-文件映射"><a href="#mmap-文件映射" class="headerlink" title="mmap 文件映射"></a>mmap 文件映射</h2><p>　　通常情况下，我们可以使用<code>read()</code>和<code>write()</code>去访问文件，除此之外，Linux 还提供了<code>mmap()</code>系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与<code>read()</code>和<code>write()</code>相比，使用<code>mmap()</code>去访问文件能带来什么好处呢？<br>　　使用<code>mmap()</code>一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用<code>read()</code>读取文件时，通常的做法是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[SIZE];</div><div class="line"><span class="keyword">ssize_t</span> n = read(fd, buffer, SIZE);</div></pre></td></tr></table></figure></p>
-<p>　　这个过程实际上发生了两次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到用户缓冲区。而使用<code>mmap()</code>读取文件时，只会发生第一次拷贝操作，也就是将文件内容拷贝到 OS 文件系统缓冲区，完成这个拷贝操作之后，<code>mmap()</code>还会执行其它一些复杂的操作，例如将相应的 OS 缓冲区映射到进程的地址空间。<br>　　尽管<code>mmap()</code>可以减少一次 I/O 拷贝，但由于<code>mmap()</code>的实现很复杂，调用<code>mmap()</code>将会带来额外的开销，因此在一些情况下，没有使用<code>mmap()</code>的必要：</p>
-<ul>
-<li>访问小文件时，直接使用<code>read()</code>或<code>write()</code>将更加高效。</li>
-<li>单个进程对文件执行顺序访问时(sequential access)，使用<code>mmap()</code>几乎不会带来性能上的提升。譬如说，使用<code>read()</code>顺序读取文件时，文件系统会使用 read-ahead 的方式提前将文件内容缓存到文件系统的缓冲区，因此使用<code>read()</code>将很大程度上可以命中缓存。</li>
-</ul>
-<p>　　那么，在什么情况下使用<code>mmap()</code>去访问文件会更高效呢？</p>
-<ul>
-<li>对文件执行随机访问时，如果使用<code>read()</code>或<code>write()</code>，则意味着较低的 cache 命中率。这种情况下使用<code>mmap()</code>通常将更高效。</li>
-<li>多个进程同时访问同一个文件时（无论是顺序访问还是随机访问），如果使用<code>mmap()</code>，那么 OS 缓冲区的文件内容可以在多个进程之间共享，从操作系统角度来看，使用<code>mmap()</code>可以大大节省内存。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/25/网络编程中的zerocpoy技术/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
-                  如何设计动态链接库
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-20T20:23:09+08:00" content="2017-03-20">
-              2017-03-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/编译链接/" itemprop="url" rel="index">
-                    <span itemprop="name">编译链接</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/03/20/动态库/" class="leancloud_visitors" data-flag-title="如何设计动态链接库">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="动态库的创建"><a href="#动态库的创建" class="headerlink" title="动态库的创建"></a>动态库的创建</h2><p>　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -o libdemo.so demo.o</div></pre></td></tr></table></figure></p>
-<p>　　<code>-fPIC</code>选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定这个选项。</p>
-<h2 id="动态库规范"><a href="#动态库规范" class="headerlink" title="动态库规范"></a>动态库规范</h2><p>　　动态库的升级通常也分为小版本的升级和主版本的升级，通常来说主版本的升级是不兼容的，而小版本的升级则是兼容的。动态库通常有一种规范的命名方式，为的是能够清晰地了解不同版本之间的关系：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">libdemo.so.1.0.1    <span class="comment"># 主版本 1，小版本 0.1</span></div><div class="line">libdemo.so.1.0.2    <span class="comment"># 主版本 1，小版本 0.2</span></div><div class="line">libdemo.so.2.0.1    <span class="comment"># 主版本 2，小版本 0.1</span></div></pre></td></tr></table></figure></p>
-<p>　　在编译动态库的时候，通常会为动态库创建一个 soname，作为动态库的别名，例如，这里我们给动态库<code>libdemo.so.1.0.1</code>创建了一个 soname 叫做<code>libdemo.1</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -Wl,-soname,libdemo.so.1 -o libdemo.so.1.0.1 demo.o</div></pre></td></tr></table></figure></p>
-<p>　　在生产环境下，用户自己创建的动态库一般不能随便放置（防止找不到或者不小心被删除了），所以推荐放在系统目录<code>/usr/local/lib/</code>下面：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mv libdemo.so.1.0.1 /usr/<span class="built_in">local</span>/lib/</div></pre></td></tr></table></figure></p>
-<p>　　通常来说，系统会在<code>/etc/ld.so.cache</code>这个文件里面缓存系统的动态库列表。如果用户自己添加了动态库，那么还需要用<code>ldconfig</code>命令去更新系统的动态库缓存列表，同时这个命令会自动创建一个与 soname 同名的符号链接，指向对应的动态库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo ldconfig -v          <span class="comment"># 更新系统动态库缓存列表</span></div><div class="line">/usr/<span class="built_in">local</span>/lib:</div><div class="line">	libdemo.so.1 -&gt; libdemo.so.1.0.1 (changed)</div><div class="line">$ ls <span class="_">-l</span> /usr/<span class="built_in">local</span>/lib/</div><div class="line">lrwxrwxrwx 1 root root    16 Mar 21 22:54 libdemo.so.1 -&gt; libdemo.so.1.0.1</div><div class="line">-rwxr-xr-x 1 root root  8776 Mar 21 22:54 libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
-<p>　　通过这些步骤就顺利安装好了动态库了。那么还有一个问题，在编译程序时，怎么让 linker 找到动态库的位置呢？最简单的方法可以这样做：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall -o main main.c /usr/<span class="built_in">local</span>/lib/libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
-<p>　　在链接的过程中，如果动态库拥有 soname，那么 linker 会将这个 soname 嵌入到可执行文件中，如果动态库没有 soname，嵌入的则是动态库的真名。我们可以用<code>readelf</code>命令看到可执行文件<code>main</code>的 header 中是否包含动态库的信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">readelf <span class="_">-d</span> main | grep libdemo</div><div class="line"> 0x0000000000000001 (NEEDED)             Shared library: [libdemo.so.1]</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，可执行文件<code>main</code>中只记录动态库的 soname。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/20/动态库/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -941,7 +930,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-count">48</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

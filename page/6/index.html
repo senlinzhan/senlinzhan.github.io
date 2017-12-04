@@ -266,8 +266,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
-                  网络编程中的 SIGPIPE 信号
+                <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
+                  浅谈 Linux 的 Zero Copy 技术
                 </a>
               
             
@@ -280,8 +280,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
-              2017-03-02
+            <time itemprop="dateCreated" datetime="2017-03-25T23:52:21+08:00" content="2017-03-25">
+              2017-03-25
             </time>
           </span>
 
@@ -314,7 +314,7 @@
 
           
           
-             <span id="/2017/03/02/sigpipe/" class="leancloud_visitors" data-flag-title="网络编程中的 SIGPIPE 信号">
+             <span id="/2017/03/25/网络编程中的zerocpoy技术/" class="leancloud_visitors" data-flag-title="浅谈 Linux 的 Zero Copy 技术">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -337,21 +337,150 @@
 
       
         
-          <h2 id="处理-SIGPIPE"><a href="#处理-SIGPIPE" class="headerlink" title="处理 SIGPIPE"></a>处理 SIGPIPE</h2><p>　　在网络编程中经常会遇到<code>SIGPIPE</code>信号，默认情况下这个信号会终止整个进程，当然你并不想让进程被<code>SIGPIPE</code>信号杀死。我们不禁会这样思考：</p>
+          <h2 id="mmap-文件映射"><a href="#mmap-文件映射" class="headerlink" title="mmap 文件映射"></a>mmap 文件映射</h2><p>　　通常情况下，我们可以使用<code>read()</code>和<code>write()</code>去访问文件，除此之外，Linux 还提供了<code>mmap()</code>系统调用，它可以将文件映射到进程的地址空间，这样程序就可以通过访问内存的方式去访问文件了。那么与<code>read()</code>和<code>write()</code>相比，使用<code>mmap()</code>去访问文件能带来什么好处呢？<br>　　使用<code>mmap()</code>一个明显的好处就是减少一次 I/O 拷贝，譬如说，当我们使用<code>read()</code>读取文件时，通常的做法是这样：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[SIZE];</div><div class="line"><span class="keyword">ssize_t</span> n = read(fd, buffer, SIZE);</div></pre></td></tr></table></figure></p>
+<p>　　这个过程实际上发生了两次 I/O 拷贝，第一次是将磁盘中的文件内容拷贝到 OS 的文件系统缓冲区，第二次是将 OS 缓冲区的数据拷贝到用户缓冲区。而使用<code>mmap()</code>读取文件时，只会发生第一次拷贝操作，也就是将文件内容拷贝到 OS 文件系统缓冲区，完成这个拷贝操作之后，<code>mmap()</code>还会执行其它一些复杂的操作，例如将相应的 OS 缓冲区映射到进程的地址空间。<br>　　尽管<code>mmap()</code>可以减少一次 I/O 拷贝，但由于<code>mmap()</code>的实现很复杂，调用<code>mmap()</code>将会带来额外的开销，因此在一些情况下，没有使用<code>mmap()</code>的必要：</p>
 <ul>
-<li>在什么场景下会产生<code>SIGPIPE</code>信号？</li>
-<li>要怎样处理<code>SIGPIPE</code>信号？</li>
+<li>访问小文件时，直接使用<code>read()</code>或<code>write()</code>将更加高效。</li>
+<li>单个进程对文件执行顺序访问时(sequential access)，使用<code>mmap()</code>几乎不会带来性能上的提升。譬如说，使用<code>read()</code>顺序读取文件时，文件系统会使用 read-ahead 的方式提前将文件内容缓存到文件系统的缓冲区，因此使用<code>read()</code>将很大程度上可以命中缓存。</li>
 </ul>
-<p>　　<code>SIGPIPE</code>产生的原因是这样的：如果一个 socket 在接收到了 RST packet 之后，程序仍然向这个 socket 写入数据，那么就会产生<code>SIGPIPE</code>信号。<br>　　这种现象是很常见的，譬如说，当 client 连接到 server 之后，这时候 server 准备向 client 发送<u>多条</u>消息，但在发送消息之前，client 进程意外奔溃了，那么接下来 server 在发送<u>多条</u>消息的过程中，就会出现<code>SIGPIPE</code>信号。下面我们看看 server 的代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handle_client</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 假设此时 client 奔溃, 那么 server 将接收到 client 发送的 FIN</span></div><div class="line">    sleep(<span class="number">5</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 写入第一条消息</span></div><div class="line">    <span class="keyword">char</span> msg1[MAXLINE] = &#123;<span class="string">"first message"</span>&#125;; </div><div class="line">    <span class="keyword">ssize_t</span> n = write(fd, msg1, <span class="built_in">strlen</span>(msg1));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"write %ld bytes\n"</span>, n);</div><div class="line"></div><div class="line">    <span class="comment">// 此时第一条消息发送成功，server 接收到 client 发送的 RST</span></div><div class="line">    sleep(<span class="number">1</span>); </div><div class="line"></div><div class="line">    <span class="comment">// 写入第二条消息，出现 SIGPIPE 信号，导致 server 被杀死</span></div><div class="line">    <span class="keyword">char</span> msg2[MAXLINE] = &#123;<span class="string">"second message"</span>&#125;;</div><div class="line">    n = write(fd, msg2, <span class="built_in">strlen</span>(msg2));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld, %s\n"</span>, n, strerror(errno));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> port = <span class="number">8888</span>;</div><div class="line">    <span class="keyword">struct</span> sockaddr_in server_addr;</div><div class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    server_addr.sin_family = AF_INET;</div><div class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</div><div class="line">    server_addr.sin_port = htons(port);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> listenfd = socket(AF_INET , SOCK_STREAM , <span class="number">0</span>);</div><div class="line">    bind(listenfd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    listen(listenfd, <span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> fd = accept(listenfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">    handle_client(fd);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　我们可以使用 Linux 的 nc 工具作为 client，当 client 连接到 server 之后，就立即杀死 client (模拟 client 的意外奔溃)。这时可以观察 server 的运行情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gcc -o server server.c </div><div class="line">$ ./server &amp;              <span class="comment"># 后台运行 server</span></div><div class="line">$ nc localhost 8888       <span class="comment"># 运行 nc 连接到 server</span></div><div class="line">^C                        <span class="comment"># Ctrl-C 杀死 nc</span></div><div class="line"></div><div class="line">write 13 bytes</div><div class="line">[1]+  Broken pipe             ./server</div></pre></td></tr></table></figure></p>
-<p>　　让我们分析一下整个过程：</p>
+<p>　　那么，在什么情况下使用<code>mmap()</code>去访问文件会更高效呢？</p>
 <ul>
-<li>client 连接到 server 之后，client 进程意外奔溃，这时它会发送一个 FIN 给 server。</li>
-<li>此时 server 并不知道 client 已经奔溃了，所以它会发送第一条消息给 client。但 client 已经退出了，所以 client 的 TCP 协议栈会发送一个 RST 给 server。</li>
-<li>server 在接收到 RST 之后，继续写入第二条消息。往一个已经收到 RST 的 socket 继续写入数据，将导致<code>SIGPIPE</code>信号，从而杀死 server。</li>
-</ul>
+<li>对文件执行随机访问时，如果使用<code>read()</code>或<code>write()</code>，则意味着较低的 cache 命中率。这种情况下使用<code>mmap()</code>通常将更高效。</li>
+<li>多个进程同时访问同一个文件时（无论是顺序访问还是随机访问），如果使用<code>mmap()</code>，那么 OS 缓冲区的文件内容可以在多个进程之间共享，从操作系统角度来看，使用<code>mmap()</code>可以大大节省内存。
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
+            <a class="btn" href="/2017/03/25/网络编程中的zerocpoy技术/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
+                  如何设计动态链接库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-20T20:23:09+08:00" content="2017-03-20">
+              2017-03-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编译链接/" itemprop="url" rel="index">
+                    <span itemprop="name">编译链接</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/20/动态库/" class="leancloud_visitors" data-flag-title="如何设计动态链接库">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="动态库的创建"><a href="#动态库的创建" class="headerlink" title="动态库的创建"></a>动态库的创建</h2><p>　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -o libdemo.so demo.o</div></pre></td></tr></table></figure></p>
+<p>　　<code>-fPIC</code>选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定这个选项。</p>
+<h2 id="动态库规范"><a href="#动态库规范" class="headerlink" title="动态库规范"></a>动态库规范</h2><p>　　动态库的升级通常也分为小版本的升级和主版本的升级，通常来说主版本的升级是不兼容的，而小版本的升级则是兼容的。动态库通常有一种规范的命名方式，为的是能够清晰地了解不同版本之间的关系：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">libdemo.so.1.0.1    <span class="comment"># 主版本 1，小版本 0.1</span></div><div class="line">libdemo.so.1.0.2    <span class="comment"># 主版本 1，小版本 0.2</span></div><div class="line">libdemo.so.2.0.1    <span class="comment"># 主版本 2，小版本 0.1</span></div></pre></td></tr></table></figure></p>
+<p>　　在编译动态库的时候，通常会为动态库创建一个 soname，作为动态库的别名，例如，这里我们给动态库<code>libdemo.so.1.0.1</code>创建了一个 soname 叫做<code>libdemo.1</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -Wl,-soname,libdemo.so.1 -o libdemo.so.1.0.1 demo.o</div></pre></td></tr></table></figure></p>
+<p>　　在生产环境下，用户自己创建的动态库一般不能随便放置（防止找不到或者不小心被删除了），所以推荐放在系统目录<code>/usr/local/lib/</code>下面：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mv libdemo.so.1.0.1 /usr/<span class="built_in">local</span>/lib/</div></pre></td></tr></table></figure></p>
+<p>　　通常来说，系统会在<code>/etc/ld.so.cache</code>这个文件里面缓存系统的动态库列表。如果用户自己添加了动态库，那么还需要用<code>ldconfig</code>命令去更新系统的动态库缓存列表，同时这个命令会自动创建一个与 soname 同名的符号链接，指向对应的动态库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo ldconfig -v          <span class="comment"># 更新系统动态库缓存列表</span></div><div class="line">/usr/<span class="built_in">local</span>/lib:</div><div class="line">	libdemo.so.1 -&gt; libdemo.so.1.0.1 (changed)</div><div class="line">$ ls <span class="_">-l</span> /usr/<span class="built_in">local</span>/lib/</div><div class="line">lrwxrwxrwx 1 root root    16 Mar 21 22:54 libdemo.so.1 -&gt; libdemo.so.1.0.1</div><div class="line">-rwxr-xr-x 1 root root  8776 Mar 21 22:54 libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
+<p>　　通过这些步骤就顺利安装好了动态库了。那么还有一个问题，在编译程序时，怎么让 linker 找到动态库的位置呢？最简单的方法可以这样做：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall -o main main.c /usr/<span class="built_in">local</span>/lib/libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
+<p>　　在链接的过程中，如果动态库拥有 soname，那么 linker 会将这个 soname 嵌入到可执行文件中，如果动态库没有 soname，嵌入的则是动态库的真名。我们可以用<code>readelf</code>命令看到可执行文件<code>main</code>的 header 中是否包含动态库的信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">readelf <span class="_">-d</span> main | grep libdemo</div><div class="line"> 0x0000000000000001 (NEEDED)             Shared library: [libdemo.so.1]</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，可执行文件<code>main</code>中只记录动态库的 soname。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/20/动态库/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -532,6 +661,142 @@
             
               
                 
+                <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
+                  网络编程中的 SIGPIPE 信号
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/02/sigpipe/" class="leancloud_visitors" data-flag-title="网络编程中的 SIGPIPE 信号">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="处理-SIGPIPE"><a href="#处理-SIGPIPE" class="headerlink" title="处理 SIGPIPE"></a>处理 SIGPIPE</h2><p>　　在网络编程中经常会遇到<code>SIGPIPE</code>信号，默认情况下这个信号会终止整个进程，当然你并不想让进程被<code>SIGPIPE</code>信号杀死。我们不禁会这样思考：</p>
+<ul>
+<li>在什么场景下会产生<code>SIGPIPE</code>信号？</li>
+<li>要怎样处理<code>SIGPIPE</code>信号？</li>
+</ul>
+<p>　　<code>SIGPIPE</code>产生的原因是这样的：如果一个 socket 在接收到了 RST packet 之后，程序仍然向这个 socket 写入数据，那么就会产生<code>SIGPIPE</code>信号。<br>　　这种现象是很常见的，譬如说，当 client 连接到 server 之后，这时候 server 准备向 client 发送<u>多条</u>消息，但在发送消息之前，client 进程意外奔溃了，那么接下来 server 在发送<u>多条</u>消息的过程中，就会出现<code>SIGPIPE</code>信号。下面我们看看 server 的代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handle_client</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 假设此时 client 奔溃, 那么 server 将接收到 client 发送的 FIN</span></div><div class="line">    sleep(<span class="number">5</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 写入第一条消息</span></div><div class="line">    <span class="keyword">char</span> msg1[MAXLINE] = &#123;<span class="string">"first message"</span>&#125;; </div><div class="line">    <span class="keyword">ssize_t</span> n = write(fd, msg1, <span class="built_in">strlen</span>(msg1));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"write %ld bytes\n"</span>, n);</div><div class="line"></div><div class="line">    <span class="comment">// 此时第一条消息发送成功，server 接收到 client 发送的 RST</span></div><div class="line">    sleep(<span class="number">1</span>); </div><div class="line"></div><div class="line">    <span class="comment">// 写入第二条消息，出现 SIGPIPE 信号，导致 server 被杀死</span></div><div class="line">    <span class="keyword">char</span> msg2[MAXLINE] = &#123;<span class="string">"second message"</span>&#125;;</div><div class="line">    n = write(fd, msg2, <span class="built_in">strlen</span>(msg2));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld, %s\n"</span>, n, strerror(errno));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> port = <span class="number">8888</span>;</div><div class="line">    <span class="keyword">struct</span> sockaddr_in server_addr;</div><div class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    server_addr.sin_family = AF_INET;</div><div class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</div><div class="line">    server_addr.sin_port = htons(port);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> listenfd = socket(AF_INET , SOCK_STREAM , <span class="number">0</span>);</div><div class="line">    bind(listenfd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    listen(listenfd, <span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> fd = accept(listenfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">    handle_client(fd);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们可以使用 Linux 的 nc 工具作为 client，当 client 连接到 server 之后，就立即杀死 client (模拟 client 的意外奔溃)。这时可以观察 server 的运行情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gcc -o server server.c </div><div class="line">$ ./server &amp;              <span class="comment"># 后台运行 server</span></div><div class="line">$ nc localhost 8888       <span class="comment"># 运行 nc 连接到 server</span></div><div class="line">^C                        <span class="comment"># Ctrl-C 杀死 nc</span></div><div class="line"></div><div class="line">write 13 bytes</div><div class="line">[1]+  Broken pipe             ./server</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下整个过程：</p>
+<ul>
+<li>client 连接到 server 之后，client 进程意外奔溃，这时它会发送一个 FIN 给 server。</li>
+<li>此时 server 并不知道 client 已经奔溃了，所以它会发送第一条消息给 client。但 client 已经退出了，所以 client 的 TCP 协议栈会发送一个 RST 给 server。</li>
+<li>server 在接收到 RST 之后，继续写入第二条消息。往一个已经收到 RST 的 socket 继续写入数据，将导致<code>SIGPIPE</code>信号，从而杀死 server。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/26/cpp11_thread/" itemprop="url">
                   C++ 多线程编程精要
                 </a>
@@ -638,266 +903,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/20/linux-ipc/" itemprop="url">
-                  谈谈 Linux 的进程间通信
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-20T14:42:15+08:00" content="2017-02-20">
-              2017-02-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/20/linux-ipc/" class="leancloud_visitors" data-flag-title="谈谈 Linux 的进程间通信">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>　　管道可以说是 Unix 系统最古老的 IPC 方式了。管道最常见的一个用法，就是将一个进程的输出导入到另一个进程的输入。譬如说，当用户执行下面的命令，<code>ls</code>命令的输出将会作为<code>wc -l</code>的输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls | wc <span class="_">-l</span></div></pre></td></tr></table></figure></p>
-<p>　　在 Linux 系统中，管道有这些特征：</p>
-<ul>
-<li>数据以字节流的形式在管道中传输，也就是说，数据是没有消息边界。</li>
-<li>数据在管道中是<u>单向</u>流动的，管道的一端负责写数据，而另一端负责读数据。</li>
-<li>管道的缓冲区长度是 64 KB。</li>
-<li>调用<code>write()</code>写入数据时，如果指定写入的字节数不超过<code>PIPE_BUF</code>(默认值是 4KB)，那么 Linux 会保证这个写入操作是<u>原子</u>的。</li>
-</ul>
-<p>　　下面的例子中，父进程向子进程发送多条消息：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">readAndPrint</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">char</span> line[MAXLINE];</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</div><div class="line">        <span class="keyword">ssize_t</span> n = read(fd, line, MAXLINE);</div><div class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (n == <span class="number">-1</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (errno == EINTR) &#123;</div><div class="line">                <span class="keyword">continue</span>;</div><div class="line">            &#125;</div><div class="line">            perror(<span class="string">"read"</span>);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        write(STDOUT_FILENO, line, n);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 创建管道, fd[0] 为读端，fd[1] 为写端</span></div><div class="line">    <span class="keyword">int</span> fd[<span class="number">2</span>];	</div><div class="line">    pipe(fd);</div><div class="line"></div><div class="line">    <span class="keyword">pid_t</span> pid = fork();</div><div class="line">    <span class="keyword">if</span> (pid &gt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="comment">// 父进程不需要读数据，所以关闭读端</span></div><div class="line">        close(fd[<span class="number">0</span>]);</div><div class="line"></div><div class="line">        write(fd[<span class="number">1</span>], <span class="string">"first message\n"</span>, <span class="number">14</span>);</div><div class="line">        write(fd[<span class="number">1</span>], <span class="string">"second message\n"</span>, <span class="number">15</span>);</div><div class="line"></div><div class="line">        <span class="comment">// 父进程关闭写端，导致子进程 read() 返回 0</span></div><div class="line">        close(fd[<span class="number">1</span>]);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pid == <span class="number">0</span>) &#123;</div><div class="line">        <span class="comment">// 子进程不需要写数据，所以关闭写端</span></div><div class="line">        close(fd[<span class="number">1</span>]);</div><div class="line"></div><div class="line">        readAndPrint(fd[<span class="number">0</span>]);</div><div class="line">        close(fd[<span class="number">0</span>]);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        perror(<span class="string">"fork"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/20/linux-ipc/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/17/IO多路复用/" itemprop="url">
-                  几种 I/O Multiplexing 方式的比较
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-17T23:46:11+08:00" content="2017-02-17">
-              2017-02-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/17/IO多路复用/" class="leancloud_visitors" data-flag-title="几种 I/O Multiplexing 方式的比较">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="select-和-poll-的缺陷"><a href="#select-和-poll-的缺陷" class="headerlink" title="select 和 poll 的缺陷"></a>select 和 poll 的缺陷</h2><p>　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。<code>select()</code>是最早出现的I/O多路复用方式，然而由于早期<code>select()</code>的API设计不当，导致了<code>select()</code>存在不少缺陷。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds, </div><div class="line">           fd_set *exceptfds, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　从API层面来讲，<code>select()</code>使用<code>fd_set</code>来表示文件描述符的集合，而<code>fd_set</code>其实就是一个固定长度的位向量(bit vector)，在Linux上，这个固定长度是<code>FD_SETSIZE</code>，其数值是1024。这就带来了一个限制：凡是<code>select()</code>监听的文件描述符，它的大小必须小于1024。<br>　　<code>poll()</code>在某些程度上改进了<code>select()</code>存在的一些问题，例如<code>poll()</code>要求用户传递一个<code>pollfd</code>数组，但它不会限定这个数组的长度，所以理论上<code>poll()</code>可以监听任意数量的文件描述符（但实际上仍受限于进程最多能打开的文件描述符数量或系统的内存）。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　使用<code>select()</code>或<code>poll()</code>监听大量的文件描述符时，往往会遭遇到性能问题。当用户每次调用<code>select()</code>或<code>poll()</code>时，内核会对传入的所有文件描述符都检查一遍，并记录其中有哪些文件描述符存在I/O就绪，这个操作的耗时将随着文件描述符数量的增加而线性增长。<br>　　另一个重要因素也会影响<code>select()</code>和<code>poll()</code>的性能，例如用户每次调用<code>poll()</code>时，都需要传递一个<code>pollfd</code>数组，而<code>poll()</code>会将这个数组从用户空间拷贝到内核空间，当内核对这个数组作了修改之后，<code>poll()</code>又会将这个数组从内核空间拷贝到用户空间。随着<code>pollfd</code>数组长度的增加，每次拷贝的时间也会线性增长，一旦<code>poll()</code>需要监听大量的文件描述符，每次调用<code>poll()</code>时，这个拷贝操作将带来不小的开销。这个问题的根源在于<code>select()</code>和<code>poll()</code>的API设计不当，例如，对于应用程序来说，它每次调用<code>poll()</code>所监听的文件描述符集合应该是差不多的，所以我们不禁这样想，如果内核愿意提供一个数据结构，记录程序所要监听的文件描述符集合，这样每次用户调用<code>poll()</code>时，<code>poll()</code>就不需要将<code>pollfd</code>数组拷贝来拷贝去了（没错，epoll 就是这样解决的）。</p>
-<h2 id="epoll-的救赎"><a href="#epoll-的救赎" class="headerlink" title="epoll 的救赎"></a>epoll 的救赎</h2><p>　　epoll 很好地解决了<code>select()</code>和<code>poll()</code>中存在的问题，从API层面来讲，epoll 使用 3 个调用来完成原本由<code>select()</code>或<code>poll()</code>所做的事，首先<code>epoll_create()</code>负责在内核中创建一个<code>eventpoll</code>类型的数据结构：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> eventpoll </div><div class="line">&#123;</div><div class="line">    <span class="comment">// 红黑树，用来记录进程所要监听的文件描述符（及其要监听的事件）</span></div><div class="line">    <span class="keyword">struct</span> rb_root rbr;</div><div class="line">	</div><div class="line">    <span class="comment">// 双向链表，用来记录有哪些文件描述符已经就绪了</span></div><div class="line">    <span class="keyword">struct</span> list_head rdllist;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　<code>epoll_ctl()</code>负责增加、删除或修改红黑树上的节点，而<code>epoll_wait()</code>则负责返回双向链表中就绪的文件描述符(及其事件)。说到这里，我们不禁要问，epoll是怎么知道有哪些文件描述符已经就绪的呢？难道是遍历一次红黑树，逐个检查文件描述符？不可能，这效率太低了。<br>　　与<code>select()</code>或<code>poll()</code>不同，epoll 是事件驱动的，简单来说，当网卡收到一个 packet 的时候，会触发一个硬件中断，这导致内核调用相应的中断 handler，从网卡中读入数据放到协议栈，当数据量满足一定条件时，内核将回调<code>ep_poll_callback()</code>这个方法，它负责把这个就绪的文件描述符添加到双向链表中。这样当用户调用<code>epoll_wait()</code>时，<code>epoll_wait()</code>所做的就只是检查双向链表是否为空，如果不为空，就把文件描述符和数量返回给用户即可。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/17/IO多路复用/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -943,7 +948,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-count">48</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
