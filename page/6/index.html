@@ -531,136 +531,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/03/02/linux-signal/" itemprop="url">
-                  Linux 安全的信号处理方式
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
-              2017-03-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/03/02/linux-signal/" class="leancloud_visitors" data-flag-title="Linux 安全的信号处理方式">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="信号处理的机制"><a href="#信号处理的机制" class="headerlink" title="信号处理的机制"></a>信号处理的机制</h2><p>　　在 Linux 中，<u>每个</u>进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：</p>
-<ul>
-<li>一个是<code>pending</code>位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。</li>
-<li>另一个是<code>blocked</code>位向量，它包含了那些被进程屏蔽掉的信号。</li>
-</ul>
-<p>　　当内核发送一个信号给进程时，它将会修改进程的<code>pending</code>位向量，譬如说，当内核发送一个<code>SIGINT</code>信号给进程，那么它会将进程的<code>pending[SIGINT]</code>的值设置成 1：<div align="center"><img src="/images/linux/signal1.png" width="350" align=center /> </div><br>　　同样地，当进程屏蔽掉一个信号时，那么它会修改<code>blocked</code>位向量。那么信号屏蔽是什么意思呢？当进程屏蔽掉一个信号之后，内核仍然可以发送这个信号给进程(保存在进程的<code>pending</code>位向量中)，但进程<u>不会</u>接收并处理这个信号。只有当进程解除了对这个信号的屏蔽之后，进程才会接收并处理这个信号。<br>　　让我们从内核的角度看，大概是这样的：当内核执行 context switch 切换到某个进程的时候，它会检查进程的<code>pending</code>和<code>blocked</code>位向量。如果发现进程还有信号未处理，同时这个信号<u>没有被进程屏蔽</u>，那么内核就会让进程接收并处理这个信号。用伪代码可以这样表示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pending.size(); ++i) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (pending[i] &amp; (~blocked[i])) </div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 将这个信号从 pending 位向量中清除</span></div><div class="line">        pending[i] = <span class="number">0</span>;</div><div class="line">		</div><div class="line">        <span class="comment">// 让进程接收并处理这个信号</span></div><div class="line">        <span class="comment">// ...</span></div><div class="line"></div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　譬如说，下面的程序一开始就屏蔽了<code>SIGINT</code>信号，所以即使内核发送<code>SIGINT</code>信号给这个程序，这个信号也不会得到处理。而当程序解除了对<code>SIGINT</code>的屏蔽之后，这个<code>SIGINT</code>信号才会得到处理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *message = <span class="string">"handle SIGINT signal\n"</span>;</div><div class="line">    write(STDOUT_FILENO, message, <span class="built_in">strlen</span>(message));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    signal(SIGINT, sigint_handler);</div><div class="line"></div><div class="line">    <span class="keyword">sigset_t</span> mask, prev_mask;</div><div class="line">    sigemptyset(&amp;mask);</div><div class="line">    sigaddset(&amp;mask, SIGINT);</div><div class="line"></div><div class="line">    <span class="comment">// 屏蔽掉 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_BLOCK, &amp;mask, &amp;prev_mask);</div><div class="line"></div><div class="line">    <span class="comment">// 假设此时接收到 SIGINT 信号</span></div><div class="line">    sleep(<span class="number">10</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 解除对 SIGINT 的屏蔽之后，进程会开始处理 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_SETMASK, &amp;prev_mask, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/02/linux-signal/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
                   网络编程中的 SIGPIPE 信号
                 </a>
@@ -747,6 +617,136 @@
 </ul>
           <div class="post-more-link text-center">
             <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/03/02/linux-signal/" itemprop="url">
+                  Linux 安全的信号处理方式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/02/linux-signal/" class="leancloud_visitors" data-flag-title="Linux 安全的信号处理方式">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="信号处理的机制"><a href="#信号处理的机制" class="headerlink" title="信号处理的机制"></a>信号处理的机制</h2><p>　　在 Linux 中，<u>每个</u>进程都拥有两个位向量，这两个位向量共同决定了进程将如何处理信号：</p>
+<ul>
+<li>一个是<code>pending</code>位向量，它包含了那些内核发送给进程，但还没有被进程处理掉的信号。</li>
+<li>另一个是<code>blocked</code>位向量，它包含了那些被进程屏蔽掉的信号。</li>
+</ul>
+<p>　　当内核发送一个信号给进程时，它将会修改进程的<code>pending</code>位向量，譬如说，当内核发送一个<code>SIGINT</code>信号给进程，那么它会将进程的<code>pending[SIGINT]</code>的值设置成 1：<div align="center"><img src="/images/linux/signal1.png" width="350" align=center /> </div><br>　　同样地，当进程屏蔽掉一个信号时，那么它会修改<code>blocked</code>位向量。那么信号屏蔽是什么意思呢？当进程屏蔽掉一个信号之后，内核仍然可以发送这个信号给进程(保存在进程的<code>pending</code>位向量中)，但进程<u>不会</u>接收并处理这个信号。只有当进程解除了对这个信号的屏蔽之后，进程才会接收并处理这个信号。<br>　　让我们从内核的角度看，大概是这样的：当内核执行 context switch 切换到某个进程的时候，它会检查进程的<code>pending</code>和<code>blocked</code>位向量。如果发现进程还有信号未处理，同时这个信号<u>没有被进程屏蔽</u>，那么内核就会让进程接收并处理这个信号。用伪代码可以这样表示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pending.size(); ++i) </div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (pending[i] &amp; (~blocked[i])) </div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 将这个信号从 pending 位向量中清除</span></div><div class="line">        pending[i] = <span class="number">0</span>;</div><div class="line">		</div><div class="line">        <span class="comment">// 让进程接收并处理这个信号</span></div><div class="line">        <span class="comment">// ...</span></div><div class="line"></div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　譬如说，下面的程序一开始就屏蔽了<code>SIGINT</code>信号，所以即使内核发送<code>SIGINT</code>信号给这个程序，这个信号也不会得到处理。而当程序解除了对<code>SIGINT</code>的屏蔽之后，这个<code>SIGINT</code>信号才会得到处理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *message = <span class="string">"handle SIGINT signal\n"</span>;</div><div class="line">    write(STDOUT_FILENO, message, <span class="built_in">strlen</span>(message));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    signal(SIGINT, sigint_handler);</div><div class="line"></div><div class="line">    <span class="keyword">sigset_t</span> mask, prev_mask;</div><div class="line">    sigemptyset(&amp;mask);</div><div class="line">    sigaddset(&amp;mask, SIGINT);</div><div class="line"></div><div class="line">    <span class="comment">// 屏蔽掉 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_BLOCK, &amp;mask, &amp;prev_mask);</div><div class="line"></div><div class="line">    <span class="comment">// 假设此时接收到 SIGINT 信号</span></div><div class="line">    sleep(<span class="number">10</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 解除对 SIGINT 的屏蔽之后，进程会开始处理 SIGINT 信号</span></div><div class="line">    sigprocmask(SIG_SETMASK, &amp;prev_mask, <span class="literal">NULL</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/02/linux-signal/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
