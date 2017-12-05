@@ -116,7 +116,7 @@ CPU 可能会调整指令的执行顺序。
 即使是简单的语句，C++ 也不保证是原子操作。
 CPU 可能会调整指令的执行顺序。
 在 CPU cache 的影响下，一个 CPU 执行了某个指令，不会立即被其它 CPU">
-<meta property="og:updated_time" content="2017-12-05T06:42:36.000Z">
+<meta property="og:updated_time" content="2017-12-05T15:34:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="理解 C++ 的 Memory Order">
 <meta name="twitter:description" content="为什么需要 Memory Order　　如果不使用任何同步机制（例如 mutex 或 atomic），在多线程中读写同一个变量，那么，程序的结果是难以预料的。简单来说，编译器以及 CPU 的一些行为，会影响到程序的执行结果：
@@ -372,7 +372,19 @@ CPU 可能会调整指令的执行顺序。
 <p>　　执行完上面的程序，可能出现<code>r1 == r2 == 42</code>。理解这一点并不难，因为编译器允许调整 C 和 D 的执行顺序。如果程序的执行顺序是 D -&gt; A -&gt; B -&gt; C，那么就会出现<code>r1 == r2 == 42</code>。</p>
 <hr>
 <p>　　如果某个操作只要求是原子操作，除此之外，不需要其它同步的保障，就可以使用 Relaxed ordering。程序计数器是一种典型的应用场景：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::atomic&lt;<span class="keyword">int</span>&gt; cnt = &#123;<span class="number">0</span>&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">1000</span>; ++n) &#123;</div><div class="line">        cnt.fetch_add(<span class="number">1</span>, <span class="built_in">std</span>::memory_order_relaxed);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; v;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">10</span>; ++n) &#123;</div><div class="line">        v.emplace_back(f);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; t : v) &#123;</div><div class="line">        t.join();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    assert(cnt == <span class="number">10000</span>);    <span class="comment">// never failed</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="Release-Acquire-ordering"><a href="#Release-Acquire-ordering" class="headerlink" title="Release-Acquire ordering"></a>Release-Acquire ordering</h2><p>　　在这种模型下，<code>store()</code>使用<code>memory_order_release</code>，而<code>load()</code>使用<code>memory_order_acquire</code>。</p>
+<h2 id="Release-Acquire-ordering"><a href="#Release-Acquire-ordering" class="headerlink" title="Release-Acquire ordering"></a>Release-Acquire ordering</h2><p>　　在这种模型下，<code>store()</code>使用<code>memory_order_release</code>，而<code>load()</code>使用<code>memory_order_acquire</code>。这种模型有两种效果，第一种是可以限制 CPU 指令的重排：</p>
+<ul>
+<li>在<code>store()</code>之前的所有读写操作，<u>不允许</u>被移动到这个<code>store()</code>的后面。</li>
+<li>在<code>load()</code>之后的所有读写操作，<u>不允许</u>被移动到这个<code>load()</code>的前面。</li>
+</ul>
+<p>　　除此之外，还有另一种效果：假设 Thread-1 <code>store()</code>的那个值，成功被 Thread-2 <code>load()</code>到了，那么 Thread-1 在<code>store()</code>之前对内存的<u>所有写入操作</u>，此时对 Thread-2 来说，都是可见的。<br>　　下面的例子阐述了这种模型的原理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::atomic&lt;<span class="keyword">bool</span>&gt; ready&#123; <span class="literal">false</span> &#125;;</div><div class="line"><span class="keyword">int</span> data = <span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">producer</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    data = <span class="number">100</span>;                                       <span class="comment">// A</span></div><div class="line">    ready.store(<span class="literal">true</span>, <span class="built_in">std</span>::memory_order_release);     <span class="comment">// B</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">consumer</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">while</span> (!ready.load(<span class="built_in">std</span>::memory_order_acquire))    <span class="comment">// C</span></div><div class="line">        ;</div><div class="line">    assert(data == <span class="number">100</span>); <span class="comment">// never failed              // D</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(producer)</span></span>;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t2</span><span class="params">(consumer)</span></span>;</div><div class="line"></div><div class="line">    t1.join();</div><div class="line">    t2.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下这个过程：</p>
+<ul>
+<li>首先 A 不允许被移动到 B 的后面。</li>
+<li>同样 D 也不允许被移动到 C 的前面。</li>
+<li>当 C 从 while 循环中退出了，说明 C 读取到了 B <code>store()</code>的那个值，此时，Thread-2 保证能够看见 Thread-1 执行 B 之前的所有写入操作（也即是 A）。</li>
+</ul>
+<a id="more"></a> 
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://bartoszmilewski.com/2008/12/01/c-atomics-and-memory-ordering/" target="_blank" rel="external">C++ atomics and memory ordering</a></li>
 <li><a href="http://en.cppreference.com/w/cpp/atomic/memory_order" target="_blank" rel="external">cppreference.com - std::memory_order</a></li>
@@ -419,6 +431,10 @@ CPU 可能会调整指令的执行顺序。
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/05/envoy/" rel="prev" title="Envoy proxy 入门指南">
+                Envoy proxy 入门指南 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -484,7 +500,7 @@ CPU 可能会调整指令的执行顺序。
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">48</span>
+              <span class="site-state-item-count">49</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -492,7 +508,7 @@ CPU 可能会调整指令的执行顺序。
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -501,7 +517,7 @@ CPU 可能会调整指令的执行顺序。
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
