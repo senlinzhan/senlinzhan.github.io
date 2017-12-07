@@ -266,6 +266,280 @@
             
               
                 
+                <a class="post-title-link" href="/2015/04/24/深入shared-ptr/" itemprop="url">
+                  谈谈 shared_ptr 的那些坑
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-04-24T14:38:00+08:00" content="2015-04-24">
+              2015-04-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/04/24/深入shared-ptr/" class="leancloud_visitors" data-flag-title="谈谈 shared_ptr 的那些坑">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="共享所有权"><a href="#共享所有权" class="headerlink" title="共享所有权"></a>共享所有权</h2><p>　　一个动态分配的对象可以在多个<code>shared_ptr</code>之间共享，这是因为<code>shared_ptr</code>支持 copy 操作：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">shared_ptr</span>&lt;<span class="built_in">string</span>&gt; ptr1&#123; <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"hello"</span>) &#125;;</div><div class="line"><span class="keyword">auto</span> ptr2 = ptr1;　<span class="comment">// copy constructor</span></div></pre></td></tr></table></figure></p>
+<h2 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h2><p>　　<code>shared_ptr</code>内部包含两个指针，一个指向对象，另一个指向控制块(control block)，控制块中包含一个<u>引用计数</u>和其它一些数据。由于这个控制块需要在多个<code>shared_ptr</code>之间共享，所以它也是存在于 heap 中的。<code>shared_ptr</code>对象本身是线程安全的，也就是说<code>shared_ptr</code>的引用计数增加和减少的操作都是原子的。<br><img src="/images/data-structure/sh2.png" alt=""><br>　　通过<code>unique_ptr</code>来构造<code>shared_ptr</code>是可行的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">unique_ptr</span>&lt;<span class="built_in">string</span>&gt; p1&#123; <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"senlin"</span>) &#125;;</div><div class="line"><span class="built_in">shared_ptr</span>&lt;<span class="built_in">string</span>&gt; p2&#123; <span class="built_in">std</span>::move(p1) &#125;;</div></pre></td></tr></table></figure></p>
+<h2 id="shared-ptr-的风险"><a href="#shared-ptr-的风险" class="headerlink" title="shared_ptr 的风险"></a>shared_ptr 的风险</h2><p>　　你大概觉得使用智能指针就再也高枕无忧了，不再为内存泄露烦恼了。然而梦想总是美好的，使用<code>shared_ptr</code>时，不可避免地会遇到<u>循环引用</u>的情况，这样容易导致内存泄露。循环引用就像下图所示，通过<code>shared_ptr</code>创建的两个对象，同时它们的内部均包含<code>shared_ptr</code>指向对方。<br><img src="/images/data-structure/am.png" alt=""><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 一段内存泄露的代码</span></div><div class="line"><span class="keyword">struct</span> Son;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> Father　&#123;</div><div class="line">    <span class="built_in">shared_ptr</span>&lt;Son&gt; son_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> Son &#123;</div><div class="line">    <span class="built_in">shared_ptr</span>&lt;Father&gt; father_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> father = make_shared&lt;Father&gt;();</div><div class="line">    <span class="keyword">auto</span> son = make_shared&lt;Son&gt;();</div><div class="line">    father-&gt;son_ = son;</div><div class="line">    son-&gt;father_ = father;</div><div class="line">  </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　分析一下<code>main</code>函数是如何退出的，一切就都明了：</p>
+<ul>
+<li><code>main</code>函数退出之前，<code>Father</code>和<code>Son</code>对象的引用计数都是<code>2</code>。</li>
+<li><code>son</code>指针销毁，这时<code>Son</code>对象的引用计数是<code>1</code>。</li>
+<li><code>father</code>指针销毁，这时<code>Father</code>对象的引用计数是<code>1</code>。</li>
+<li>由于<code>Father</code>对象和<code>Son</code>对象的引用计数都是<code>1</code>，这两个对象都不会被销毁，从而发生内存泄露。</li>
+</ul>
+<hr>
+<p>　　为避免循环引用导致的内存泄露，就需要使用<code>weak_ptr</code>，<code>weak_ptr</code>并不拥有其指向的对象，也就是说，让<code>weak_ptr</code>指向<code>shared_ptr</code>所指向对象，对象的引用计数并不会增加：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> ptr = make_shared&lt;<span class="built_in">string</span>&gt;(<span class="string">"senlin"</span>);</div><div class="line">weak_ptr&lt;<span class="built_in">string</span>&gt; wp1&#123; ptr &#125;;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"use count: "</span> &lt;&lt; ptr.use_count() &lt;&lt; <span class="built_in">endl</span>;<span class="comment">// use count: 1</span></div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/04/24/深入shared-ptr/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/04/20/谈谈C-的智能指针/" itemprop="url">
+                  深入 C++ 的 unique_ptr
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-04-20T19:22:08+08:00" content="2015-04-20">
+              2015-04-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/04/20/谈谈C-的智能指针/" class="leancloud_visitors" data-flag-title="深入 C++ 的 unique_ptr">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="从异常安全说起"><a href="#从异常安全说起" class="headerlink" title="从异常安全说起"></a>从异常安全说起</h2><p>　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：</p>
+<ul>
+<li>忘记<code>delete</code>内存，造成内存泄露。</li>
+<li>出现异常时，不会执行<code>delete</code>，造成内存泄露。</li>
+</ul>
+<p>　　下面的代码解释了，当一个操作发生异常时，会导致<code>delete</code>不会被执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="comment">// 执行一个会抛出异常的操作</span></div><div class="line">    func_throw_exception();</div><div class="line">    </div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　在 C++98 中我们需要用一种笨拙的方式，写出异常安全的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        func_throw_exception();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">catch</span>(...) &#123;</div><div class="line">        <span class="keyword">delete</span> ptr;</div><div class="line">        <span class="keyword">throw</span>; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　使用智能指针能轻易写出异常安全的代码，因为当对象退出作用域时，智能指针将自动调用对象的析构函数，避免内存泄露：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Widget&gt; ptr&#123; <span class="keyword">new</span> Widget &#125;;</div><div class="line"></div><div class="line">    func_throw_exception();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="unique-ptr-的原理"><a href="#unique-ptr-的原理" class="headerlink" title="unique_ptr 的原理"></a>unique_ptr 的原理</h2><p>　　让我们了解一下<code>unique_ptr</code>的实现细节：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> D = default_delete&lt;T&gt;&gt;</div><div class="line">    <span class="keyword">class</span> <span class="built_in">unique_ptr</span></div><div class="line">    &#123;</div><div class="line">    <span class="keyword">public</span>:</div><div class="line">        <span class="keyword">explicit</span> <span class="built_in">unique_ptr</span>(pointer p) <span class="keyword">noexcept</span>;</div><div class="line">        ~<span class="built_in">unique_ptr</span>() <span class="keyword">noexcept</span>;    </div><div class="line"></div><div class="line">	T&amp; <span class="keyword">operator</span>*() <span class="keyword">const</span>;</div><div class="line">        T* <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line">        <span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="comment">// ...</span></div><div class="line">    <span class="keyword">private</span>:</div><div class="line">        pointer __ptr;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　从上面的代码中，我们可以了解到：</p>
+<ul>
+<li><code>unique_ptr</code>内部存储一个 raw pointer，当<code>unique_ptr</code>析构时，它的析构函数将会负责析构它持有的对象。</li>
+<li><code>unique_ptr</code>提供了<code>operator*()</code>和<code>operator-&gt;()</code>成员函数，像 raw pointer 一样，我们可以使用<code>*</code>解引用<code>unique_ptr</code>，使用<code>-&gt;</code>来访问<code>unique_ptr</code>所持有对象的成员。</li>
+<li><code>unique_ptr</code>并不提供 copy 操作，这是为了防止多个<code>unique_ptr</code>指向同一对象。</li>
+<li>但<code>unique_ptr</code>提供了 move 操作，因此我们可以用<code>std::move()</code>来转移<code>unique_ptr</code>。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/04/20/谈谈C-的智能指针/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2015/03/31/C-使用vector的正确姿势/" itemprop="url">
                   高效使用 C++ 的 vector
                 </a>
@@ -642,151 +916,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/19/优先队列和堆排序/" itemprop="url">
-                  优先队列与堆排序
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2014-10-19T20:01:10+08:00" content="2014-10-19">
-              2014-10-19
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2014/10/19/优先队列和堆排序/" class="leancloud_visitors" data-flag-title="优先队列与堆排序">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="优先队列"><a href="#优先队列" class="headerlink" title="优先队列"></a>优先队列</h2><p>　　二叉堆可分为大根堆和小根堆，在大根堆中，每个节点将大于或等于它的两个子节点，因此，根节点为大根堆的最大节点。可以使用数组表示二叉堆，<code>x[0]</code>弃之不用，我们用<code>x[1]</code>表示根节点。假定堆有 n 个元素并且满足大根堆的属性，那么需要满足 <code>x[i]</code> &lt;= <code>x[i/2]</code> ( n 取值 [2, n] )。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> PriorityQueue</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    PriorityQueue()</div><div class="line">        : n( <span class="number">0</span> ), x( <span class="number">1</span> )</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span> </div><div class="line">    </span>&#123; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span>        n;          <span class="comment">// for nodes' number</span></div><div class="line">    <span class="built_in">vector</span>&lt;T&gt;  x;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<p>　　往堆中加入新节点：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></div><div class="line"></span>&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　新节点位于<code>x[n]</code>，这时<code>x[1, ..., n]</code>可能不满足堆的属性：</p>
-<ul>
-<li>要是新节点大于它的父节点，则交换它们。</li>
-<li>持续这个过程，直到新节点不大于它的父节点，即小于或等于它的父节点。</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></div><div class="line"></span>&#123;</div><div class="line">    ++n;</div><div class="line">    x.push_back( elem );</div><div class="line"></div><div class="line">    <span class="comment">/**</div><div class="line">        invariant: </div><div class="line">        x[1, ..., n] is heap except perhaps x[i] and x[i / 2]</div><div class="line">    **/</span></div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = n; i &gt; <span class="number">1</span> &amp;&amp; x[i] &gt; x[i / <span class="number">2</span>]; i /= <span class="number">2</span> )</div><div class="line">    &#123;</div><div class="line">        swap( x[i], x[i / <span class="number">2</span>] );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>　　另一个操作时<code>pop()</code>，也就是将最大的节点移除优先队列：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    <span class="comment">/**</div><div class="line">        remove x[1], now x[2, ..., n] is a heap, our goal is make x[1, ..., n - 1] be a heap</div><div class="line">    **/</span></div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　移出了最大的节点<code>x[1]</code>，为了维持堆的属性，可以这样做：</p>
-<ul>
-<li>将最后一个节点<code>elem</code>放到<code>x[1]</code>，<code>n</code>减一 。</li>
-<li>为了维持堆的属性，要是<code>elem</code>小于它的两个子节点的较大者，交换他们。</li>
-<li>持续这个过程，直到<code>elem</code>大于或等于它的两个子节点。</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function">T <span class="title">pop</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    T maxElem = x[<span class="number">1</span>];</div><div class="line">    x[<span class="number">1</span>] = x[n--];</div><div class="line">    x.pop_back();</div><div class="line">		</div><div class="line">    <span class="keyword">int</span> p;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">1</span>; ( p = i * <span class="number">2</span> ) &lt;= n; i = p )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span>( p &lt; n &amp;&amp; x[p] &lt; x[p + <span class="number">1</span>] )</div><div class="line">        &#123;</div><div class="line">            ++p;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span>( x[i] &gt;= x[p] )</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        swap( x[i], x[p] );</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> maxElem;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2014/10/19/优先队列和堆排序/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span>
+    <a class="extend prev" rel="prev" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/11/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -827,7 +961,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">49</span>
+              <span class="site-state-item-count">51</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -844,7 +978,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

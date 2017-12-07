@@ -266,6 +266,271 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/02/gdb/" itemprop="url">
+                  gdb 调试指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-02T22:32:10+08:00" content="2017-12-02">
+              2017-12-02
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/02/gdb/" class="leancloud_visitors" data-flag-title="gdb 调试指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.brendangregg.com/blog/2016-08-09/gdb-example-ncurses.html" target="_blank" rel="external">gdb Debugging Full Example (Tutorial): ncurses</a></li>
+<li><a href="http://yusufonlinux.blogspot.com/2010/11/debugging-core-using-gdb.html" target="_blank" rel="external">Debugging core using gdb</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/11/27/k8s/" itemprop="url">
+                  Kubernetes 入门指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-11-27T15:44:42+08:00" content="2017-11-27">
+              2017-11-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/11/27/k8s/" class="leancloud_visitors" data-flag-title="Kubernetes 入门指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Pod-的介绍"><a href="#Pod-的介绍" class="headerlink" title="Pod 的介绍"></a>Pod 的介绍</h2><p>　　在 Kubernetes 中，Pod 是最小的调度单元，Pod 其实就是一个容器组，它可以包含一个或多个容器（Pod 翻译为豆荚，一个豆荚可以有多个豆子）。对于一个 Pod 来说，它会运行在某个宿主机上，当需要调度的时候，Kubernetes 会将 Pod 作为一个整体进行调度。<br>　　由于整个 Pod 是运行在一个宿主机上的，所以 Pod 中的所有容器共享这些资源：</p>
+<ul>
+<li>所有容器共享同一个 IP。</li>
+<li>所有容器共享同一个 hostname。</li>
+<li>当某个 Volume 被挂载到 Pod 的文件系统时，这个 Volume 可以被多个容器共享。</li>
+<li>容器之间可以通过 System V IPC 或 POSIX 消息队列进行通信。 </li>
+</ul>
+<p>　　思考一下，什么样的容器才适合放到同一个 Pod 中呢？</p>
+<h4 id="Pod-的配置"><a href="#Pod-的配置" class="headerlink" title="Pod 的配置"></a>Pod 的配置</h4><p>　　可以使用 yaml 配置文件去描述 Pod，并写清楚我们希望 Pod 达到的状态：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
+<p>　　使用下面的命令可以创建 Pod，用于运行 Nginx:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
+<p>　　也可以获取 Pod 的运行状态：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME      READY     STATUS    RESTARTS   AGE</div><div class="line">nginx     1/1       Running   0          8m</div></pre></td></tr></table></figure></p>
+<p>　　如果想要获取 Pod 中所有容器的运行状态，可以使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl  get pods nginx -o json</div></pre></td></tr></table></figure></p>
+<p>　　如果想获得 Pod 的更多详细信息（包括所有容器的信息，以及和 Pod 相关的事件），可以使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl describe pods nginx</div></pre></td></tr></table></figure></p>
+<p>　　删除 Pod 时，可以根据 Pod 的名称删除指定的 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete pods/nginx</div></pre></td></tr></table></figure></p>
+<p>　　也可以根据 yaml 配置文件删除 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
+<h4 id="Pod-的调试"><a href="#Pod-的调试" class="headerlink" title="Pod 的调试"></a>Pod 的调试</h4><p>　　在运行上面的 Nginx Pod 之后，如何判断 Nginx 正常工作呢？Kubernetes API 提供了端口转发的功能，可以在另一个终端执行下面的命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl port-forward nginx 8000:80</div></pre></td></tr></table></figure></p>
+<p>　　上面的命令会将<code>localhost:8000</code>的请求转发到 Nginx Pod 的<code>80</code>端口。可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl localhost:8000</div></pre></td></tr></table></figure></p>
+<p>　　如果没有差错，这个命令会输出 Nginx 首页的内容。</p>
+<hr>
+<p>　　另一种有效的调试手段，就是进入到容器内部去实地考察：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash</div></pre></td></tr></table></figure></p>
+<p>　　如果 Pod 中有多个容器，可以使用<code>-c</code>参数指定具体的容器：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash -c nginx</div></pre></td></tr></table></figure></p>
+<p>　　当然，更加经常使用的调试手段，就是观察容器的输出日志：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl logs nginx</div></pre></td></tr></table></figure></p>
+<h4 id="Pod-的健康检查"><a href="#Pod-的健康检查" class="headerlink" title="Pod 的健康检查"></a>Pod 的健康检查</h4><p>　　默认情况下，Kubernetes 会开启<u>进程的健康检查</u>：如果 Kubernetes 检测到容器里面的进程退出了，那么它就会重启这个容器。<br>　　只有进程级别的健康检查是远远不够的，设想一下，假设程序发生死锁了，此时进程仍然在运行，但是它已经不能正确输出响应了。为解决这个问题，还需要在<u>应用层</u>实现健康检查。<br>　　Kubernetes 提供了三种类型的健康检查：</p>
+<ul>
+<li>HTTP 健康检查：向容器的 HTTP 接口发起 HTTP 请求，如果返回的状态码在 [200, 400) 之间，就认为请求是成功的。</li>
+<li>TCP 健康检查：与容器的某个 port 建立 TCP 连接，如果连接建立成功，则说明容器是健康的。</li>
+<li>Exec 健康检查：在容器里面执行一个命令，如果返回 0 则认为是成功的，否则失败。</li>
+</ul>
+<p>　　需要注意的是，健康检查是容器级别的，而不是 Pod 级别的。这意味着一个 Pod 里面的每个容器，都需要配置不同的健康检查规则。<br>　　下面的例子使用的是 HTTP 健康检查：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    livenessProbe:</span></div><div class="line"><span class="attr">      httpGet:</span></div><div class="line"><span class="attr">        path:</span> /index.html</div><div class="line"><span class="attr">        port:</span> <span class="number">80</span></div><div class="line"><span class="attr">      initialDelaySeconds:</span> <span class="number">5</span></div><div class="line"><span class="attr">      timeoutSeconds:</span> <span class="number">1</span></div><div class="line"><span class="attr">      periodSeconds:</span> <span class="number">10</span></div><div class="line"><span class="attr">      failureThreshold:</span> <span class="number">3</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
+<p>　　下面解释一下各项配置的意义：</p>
+<ul>
+<li><code>initialDelaySeconds: 5</code>：使用 5 秒用来等待 Pod 的初始化。</li>
+<li><code>timeoutSeconds: 1</code>：为 HTTP 请求设置超时时间为 1 秒。</li>
+<li><code>periodSeconds: 10</code>：每 10 秒执行一次健康检查。</li>
+<li><code>failureThreshold: 3</code>：设置失败的阈值，如果超过 3 次健康检查都失败了，容器就会被重启。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/11/27/k8s/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/10/08/gtest/" itemprop="url">
                   使用 Google Test 测试框架
                 </a>
@@ -566,279 +831,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/10/03/boost-asio-coroutine/" itemprop="url">
-                  在 Boost.Asio 中使用协程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-03T20:48:18+08:00" content="2017-10-03">
-              2017-10-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/10/03/boost-asio-coroutine/" class="leancloud_visitors" data-flag-title="在 Boost.Asio 中使用协程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>　　从 1.54.0 版本开始，Boost.Asio 开始支持协程。异步编程是复杂的，协程可以让我们以<u>同步的方式</u>编写出异步的代码，在提高代码可读性的同时又不会丢失性能。<br>　　在 Boost.Asio 要怎样才能使用协程呢？可以使用<code>boost::asio::spawn()</code>开启一个协程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">boost::asio::spawn(strand, echo);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">echo</span><span class="params">(boost::asio::yield_context yield)</span>  <span class="comment">// 协程</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　<code>spawn()</code>的第一个参数可以是<code>io_service</code>，也可以是<code>strand</code>（如果需要在多线程中保证同步，就需要使用<code>strand</code>，具体可以参见 [<a href="http://senlinzhan.github.io/2017/09/17/boost-asio/">浅谈 Boost.Asio 的多线程模型</a>]）</p>
-<hr>
-<p>　　协程可以提供代码可读性，例如，如果没有使用协程，那么我们需要编写很多回调函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleRead</span><span class="params">(boost::system::error_code ec, <span class="built_in">std</span>::<span class="keyword">size_t</span> bytes_transferred)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">socket.async_read_some(boost::asio::buffer(buffer, buffer.size()),</div><div class="line">                       handleRead);</div></pre></td></tr></table></figure></p>
-<p>　　使用协程之后，就不需要回调函数了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> </div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">        boost::asio::buffer(buffer, buffer.size()), </div><div class="line">        yield</div><div class="line">    );</div><div class="line">&#125; </div><div class="line"><span class="keyword">catch</span> (<span class="built_in">std</span>::exception&amp; e)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　上面的代码，如果出现错误就会抛出异常。当然我们也可以使用错误码替代异常：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">boost::system::error_code ec;</div><div class="line"><span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">    boost::asio::buffer(data, data.size()), </div><div class="line">    yield[ec]</div><div class="line">);</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/10/03/boost-asio-coroutine/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/09/17/boost-asio/" itemprop="url">
-                  浅谈 Boost.Asio 的多线程模型
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-09-17T20:48:18+08:00" content="2017-09-17">
-              2017-09-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/09/17/boost-asio/" class="leancloud_visitors" data-flag-title="浅谈 Boost.Asio 的多线程模型">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>　　Boost.Asio 有两种支持多线程的方式，第一种方式比较简单：在多线程的场景下，每个线程都持有一个<code>io_service</code>，并且每个线程都调用各自的<code>io_service</code>的<code>run()</code>方法。<br>　　另一种支持多线程的方式：全局只分配一个<code>io_service</code>，并且让这个<code>io_service</code>在多个线程之间共享，每个线程都调用全局的<code>io_service</code>的<code>run()</code>方法。</p>
-<h2 id="每个线程一个-I-O-Service"><a href="#每个线程一个-I-O-Service" class="headerlink" title="每个线程一个 I/O Service"></a>每个线程一个 I/O Service</h2><p>　　让我们先分析第一种方案：在多线程的场景下，每个线程都持有一个<code>io_service</code> (通常的做法是，让线程数和 CPU 核心数保持一致)。那么这种方案有什么特点呢？</p>
-<ul>
-<li>在多核的机器上，这种方案可以充分利用多个 CPU 核心。</li>
-<li>某个 socket 描述符<u>并不会</u>在多个线程之间共享，所以不需要引入同步机制。</li>
-<li>在 event handler 中不能执行阻塞的操作，否则将会阻塞掉<code>io_service</code>所在的线程。</li>
-</ul>
-<p>　　下面我们实现了一个<code>AsioIOServicePool</code>，封装了线程池的创建操作 <a href="https://github.com/senlinzhan/code-for-blog/blob/master/boost_asio/asio_io_service_pool.hpp">[完整代码]</a>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> AsioIOServicePool</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">using</span> IOService = boost::asio::io_service;</div><div class="line">    <span class="keyword">using</span> Work = boost::asio::io_service::work;</div><div class="line">    <span class="keyword">using</span> WorkPtr = <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Work&gt;;</div><div class="line"></div><div class="line">    AsioIOServicePool(<span class="built_in">std</span>::<span class="keyword">size_t</span> size = <span class="built_in">std</span>::thread::hardware_concurrency())</div><div class="line">        : ioServices_(size),</div><div class="line">          works_(size),</div><div class="line">          nextIOService_(<span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="built_in">std</span>::<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; size; ++i)</div><div class="line">        &#123;</div><div class="line">            works_[i] = <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Work&gt;(<span class="keyword">new</span> Work(ioServices_[i]));</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="built_in">std</span>::<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; ioServices_.size(); ++i)</div><div class="line">        &#123;</div><div class="line">            threads_.emplace_back([<span class="keyword">this</span>, i] ()</div><div class="line">                                  &#123;</div><div class="line">                                      ioServices_[i].run();</div><div class="line">                                  &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    AsioIOServicePool(<span class="keyword">const</span> AsioIOServicePool &amp;) = <span class="keyword">delete</span>;</div><div class="line">    AsioIOServicePool &amp;<span class="keyword">operator</span>=(<span class="keyword">const</span> AsioIOServicePool &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">    <span class="comment">// 使用 round-robin 的方式返回一个 io_service</span></div><div class="line">    boost::asio::<span class="function">io_service &amp;<span class="title">getIOService</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">auto</span> &amp;service = ioServices_[nextIOService_++];</div><div class="line">        <span class="keyword">if</span> (nextIOService_ == ioServices_.size())</div><div class="line">        &#123;</div><div class="line">            nextIOService_ = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> service;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;work: works_)</div><div class="line">        &#123;</div><div class="line">            work.reset();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;t: threads_)</div><div class="line">        &#123;</div><div class="line">            t.join();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;IOService&gt;       ioServices_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;WorkPtr&gt;         works_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt;     threads_;</div><div class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span>                  nextIOService_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　<code>AsioIOServicePool</code>使用起来也很简单：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::mutex mtx;             <span class="comment">// protect std::cout</span></div><div class="line">AsioIOServicePool pool;</div><div class="line"> </div><div class="line">boost::asio::steady_timer timer&#123;pool.getIOService(), <span class="built_in">std</span>::chrono::seconds&#123;<span class="number">2</span>&#125;&#125;;</div><div class="line">timer.async_wait([&amp;mtx] (<span class="keyword">const</span> boost::system::error_code &amp;ec)</div><div class="line">                  &#123;</div><div class="line">                      <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(mtx);</div><div class="line">                      <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World! "</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">                  &#125;);</div><div class="line">pool.stop();</div></pre></td></tr></table></figure></p>
-<h2 id="一个-I-O-Service-与多个线程"><a href="#一个-I-O-Service-与多个线程" class="headerlink" title="一个 I/O Service 与多个线程"></a>一个 I/O Service 与多个线程</h2><p>　　另一种方案则是先分配一个全局<code>io_service</code>，然后开启多个线程，每个线程都调用这个<code>io_service</code>的<code>run()</code>方法。这样，当某个异步事件完成时，<code>io_service</code>就会将相应的 event handler 交给任意一个线程去执行。<br>　　然而这种方案在实际使用中，需要注意一些问题：</p>
-<ul>
-<li>在 event handler 中允许执行阻塞的操作 (例如数据库查询操作)。</li>
-<li>线程数可以大于 CPU 核心数，譬如说，如果需要在 event handler 中执行阻塞的操作，为了提高程序的响应速度，这时就需要提高线程的数目。</li>
-<li>由于多个线程同时运行事件循环(event loop)，所以会导致一个问题：即一个 socket 描述符可能会在多个线程之间共享，容易出现竞态条件 (race condition)。譬如说，如果某个 socket 的可读事件很快发生了两次，那么就会出现两个线程同时读同一个 socket 的问题 (可以使用<code>strand</code>解决这个问题)。</li>
-</ul>
-<p>　　下面实现了一个线程池，在每个 worker 线程中执行<code>io_service</code>的<code>run()</code>方法 <a href="https://github.com/senlinzhan/code-for-blog/blob/master/boost_asio/asio_thread_pool.hpp">[完整代码]</a>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> AsioThreadPool</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    AsioThreadPool(<span class="keyword">int</span> threadNum = <span class="built_in">std</span>::thread::hardware_concurrency())</div><div class="line">        : work_(<span class="keyword">new</span> boost::asio::io_service::work(service_))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threadNum; ++i)</div><div class="line">        &#123;</div><div class="line">            threads_.emplace_back([<span class="keyword">this</span>] () &#123; service_.run(); &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    AsioThreadPool(<span class="keyword">const</span> AsioThreadPool &amp;) = <span class="keyword">delete</span>;</div><div class="line">    AsioThreadPool &amp;<span class="keyword">operator</span>=(<span class="keyword">const</span> AsioThreadPool &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">    boost::asio::<span class="function">io_service &amp;<span class="title">getIOService</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        <span class="keyword">return</span> service_;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span></div><div class="line">    </span>&#123;</div><div class="line">        work_.reset();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;t: threads_)</div><div class="line">        &#123;</div><div class="line">            t.join();            </div><div class="line">        &#125;        </div><div class="line">    &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    boost::asio::io_service service_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;boost::asio::io_service::work&gt; work_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; threads_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/09/17/boost-asio/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -879,7 +876,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">49</span>
+              <span class="site-state-item-count">51</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -896,7 +893,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

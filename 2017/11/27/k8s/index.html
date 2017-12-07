@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Docker," />
+  <meta name="keywords" content="Kubernetes," />
 
 
 
@@ -112,7 +112,7 @@
 <meta property="og:description" content="Pod 的介绍　　在 Kubernetes 中，Pod 是最小的调度单元，Pod 其实就是一个容器组，它可以包含一个或多个容器（Pod 翻译为豆荚，一个豆荚可以有多个豆子）。对于一个 Pod 来说，它会运行在某个宿主机上，当需要调度的时候，Kubernetes 会将 Pod 作为一个整体进行调度。　　由于整个 Pod 是运行在一个宿主机上的，所以 Pod 中的所有容器共享这些资源：
 
 所有容器共享">
-<meta property="og:updated_time" content="2017-12-01T10:05:30.000Z">
+<meta property="og:updated_time" content="2017-12-07T07:42:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kubernetes 入门指南">
 <meta name="twitter:description" content="Pod 的介绍　　在 Kubernetes 中，Pod 是最小的调度单元，Pod 其实就是一个容器组，它可以包含一个或多个容器（Pod 翻译为豆荚，一个豆荚可以有多个豆子）。对于一个 Pod 来说，它会运行在某个宿主机上，当需要调度的时候，Kubernetes 会将 Pod 作为一个整体进行调度。　　由于整个 Pod 是运行在一个宿主机上的，所以 Pod 中的所有容器共享这些资源：
@@ -410,6 +410,7 @@
 <p>　　可以查看 ReplicaSet 的状态，可以看到有两个 Pod 在运行了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ kubectl describe rs nginx-set</div><div class="line">Name:		nginx-set</div><div class="line">Namespace:	default</div><div class="line">Image(s):	nginx:1.7.9</div><div class="line">Selector:	app=web-server</div><div class="line">Labels:		app=web-server</div><div class="line">Replicas:	2 current / 2 desired</div><div class="line">Pods Status:	2 Running / 0 Waiting / 0 Succeeded / 0 Failed</div><div class="line">No volumes.</div><div class="line">Events:</div><div class="line">  FirstSeen	LastSeen	Count	From				SubObjectPath	Type		Reason			Message</div><div class="line">  ---------	--------	-----	----				-------------	--------	------			-------</div><div class="line">  11m		11m		1	&#123;replicaset-controller &#125;			Normal		SuccessfulCreate	Created pod: nginx-set-25lr7</div><div class="line">  11m		11m		1	&#123;replicaset-controller &#125;			Normal		SuccessfulCreate	Created pod: nginx-set-3tcqn</div></pre></td></tr></table></figure></p>
 <p>　　如果想要改变 ReplicaSet 中 Pod 的数量要怎么做呢？可以修改 yaml 文件中 replicas 的值：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> extensions/v1beta1</div><div class="line"><span class="attr">kind:</span> ReplicaSet</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx-set</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  replicas:</span> <span class="number">4</span>               <span class="comment"># 原来是 2，现在改成 4，会新增 2 个副本</span></div><div class="line"><span class="attr">  selector:</span></div><div class="line"><span class="attr">    matchLabels:</span></div><div class="line"><span class="attr">      app:</span> web-server</div><div class="line"><span class="attr">  template:</span></div><div class="line"><span class="attr">    metadata:</span></div><div class="line"><span class="attr">      labels:</span></div><div class="line"><span class="attr">        app:</span> web-server</div><div class="line"><span class="attr">    spec:</span></div><div class="line"><span class="attr">      containers:</span></div><div class="line"><span class="attr">      - name:</span> nginx</div><div class="line"><span class="attr">        image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">        ports:</span></div><div class="line"><span class="attr">        - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
 <p>　　更新 ReplicaSet，让配置生效：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> rs-nginx.yaml</div></pre></td></tr></table></figure></p>
+<p>　　可以使用<code>kubectl delete</code>删除一个 ReplicaSet，删除之后，由这个 ReplicaSet 管理的 Pod 也会被一并删除：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete rs nginx-set</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://www.amazon.com/Kubernetes-Running-Dive-Future-Infrastructure/dp/1491935677/ref=cm_cr_arp_d_product_top?ie=UTF8" target="_blank" rel="external">Kubernetes Up And Running</a></li>
 <li><a href="https://kubernetes.io/docs/user-guide/walkthrough/" target="_blank" rel="external">Kubernetes 101</a></li>
@@ -439,7 +440,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Docker/" rel="tag">#Docker</a>
+            <a href="/tags/Kubernetes/" rel="tag">#Kubernetes</a>
           
         </div>
       
@@ -524,7 +525,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">49</span>
+              <span class="site-state-item-count">51</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -541,7 +542,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

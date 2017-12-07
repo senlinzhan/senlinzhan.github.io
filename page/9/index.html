@@ -266,6 +266,274 @@
             
               
                 
+                <a class="post-title-link" href="/2016/07/30/Python协程的前世今生/" itemprop="url">
+                  Python 协程的前世今生
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-30T10:25:21+08:00" content="2016-07-30">
+              2016-07-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/07/30/Python协程的前世今生/" class="leancloud_visitors" data-flag-title="Python 协程的前世今生">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="生成器与协程"><a href="#生成器与协程" class="headerlink" title="生成器与协程"></a>生成器与协程</h2><p>　　在Python2.3中，生成器正式被纳入标准。在处理大量数据时，生成器非常有用，例如读取一个几G的文件，你没有必要将文件一次性读取到内存，而是读到一行就将其返回，这样程序不会阻塞在等待读取文件的过程中，也可以大大减少内存的占用。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_lazy</span><span class="params">(file_object)</span>:</span></div><div class="line">    <span class="string">"""Lazy function (generator) to read a file line by line."""</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = file_object.readline()</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">yield</span> data</div></pre></td></tr></table></figure></p>
+<p>　　生成器执行时候每次遇到<code>yield</code>就会停顿一次并返回一个值，而你可以使用<code>next()</code>让生成器继续执行，直到遇到下一个<code>yield</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">f = open(<span class="string">'data'</span>)</div><div class="line"><span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        line = next(f)</div><div class="line">        print(line, end=<span class="string">''</span>)</div><div class="line">    <span class="keyword">except</span> StopIteration:</div><div class="line">        <span class="keyword">break</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　后来人们意识到了，既然有办法暂停一个函数的执行，稍后让它从暂停的地方继续执行，这不就满足了协程的概念吗？然而你只能获得生成器的返回值，而不能向生成器传递值。为支持协程，<a href="https://www.python.org/dev/peps/pep-0342/">PEP 342</a>提出了你可以使用<code>send()</code>向生成器发送一个值同时重启生成器的执行。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">grep</span><span class="params">(pattern)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">            line = (<span class="keyword">yield</span>)</div><div class="line">            <span class="keyword">if</span> pattern <span class="keyword">in</span> line:</div><div class="line">                print(line)</div><div class="line">    <span class="keyword">except</span> GeneratorExit:</div><div class="line">        print(<span class="string">'See you again!'</span>)</div><div class="line"></div><div class="line">g = grep(<span class="string">'Python'</span>)</div><div class="line">g.send(<span class="keyword">None</span>)      <span class="comment"># 启动协程</span></div><div class="line">g.send(<span class="string">"Python Cookbook"</span>)</div><div class="line">g.close()</div></pre></td></tr></table></figure></p>
+<p>　　既然一个协程在执行时候可以通过<code>yield</code>让出当前线程，那么我们就可以在不同的协程之间进行切换从而达到并发的效果，为此你需要编写一个任务调度器，实现基于<a href="https://en.wikipedia.org/wiki/Cooperative_multitasking">Cooperative multitasking</a>的任务调度，通过这个调度器管理不同协程的执行。</p>
+<hr>
+<p>　　下面我们实现一个基于协程的并发Echo Server，这个程序的核心在于任务调度器：</p>
+<ul>
+<li>当EchoServer在执行<code>accept</code>, <code>recv</code>和<code>send</code>这类I/O操作之前，会主动让出，这时控制权将移交到调度器手中。</li>
+<li>当调度器发现将要执行的I/O操作是<code>accept</code>或<code>recv</code>时，就将任务放到等待读取的队列，若是<code>send</code>则将任务放到等待写入的队列。</li>
+<li>调度器会对这两个队列进行I/O轮询，并将就绪的任务放到就绪队列中。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR</div><div class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</div><div class="line"><span class="keyword">from</span> select <span class="keyword">import</span> select</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Scheduler</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.ready = deque()         <span class="comment"># 就绪队列      deque: coroutine </span></div><div class="line">        self.read_waiting = &#123;&#125;       <span class="comment"># 等待读取的队列  dict: socket -&gt; coroutine</span></div><div class="line">        self.write_waiting = &#123;&#125;      <span class="comment"># 等待写入的队列  dict: socket -&gt; coroutine</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_ready</span><span class="params">(self, task)</span>:</span></div><div class="line">        self.ready.append(task)    </div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_read</span><span class="params">(self, fileno, task)</span>:</span></div><div class="line">        self.read_waiting[fileno] = task</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_write</span><span class="params">(self, fileno, task)</span>:</span></div><div class="line">        self.write_waiting[fileno] = task</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">loop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> any([self.ready, self.read_waiting, self.write_waiting]):</div><div class="line">            <span class="comment"># 如果就绪队列是空的，就进行I/O轮询，等待事件就绪</span></div><div class="line">            <span class="keyword">while</span> <span class="keyword">not</span> self.ready:</div><div class="line">                can_read, can_write, _ = select(self.read_waiting,</div><div class="line">                                                self.write_waiting,</div><div class="line">                                                [])</div><div class="line">                <span class="keyword">for</span> fileno <span class="keyword">in</span> can_read:</div><div class="line">                    self.ready.append(self.read_waiting.pop(fileno))</div><div class="line">                <span class="keyword">for</span> fileno <span class="keyword">in</span> can_write:</div><div class="line">                    self.ready.append(self.write_waiting.pop(fileno))</div><div class="line">                </div><div class="line">            task = self.ready.popleft()</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                event, fileno = next(task)  <span class="comment"># 让协程执行到 yield</span></div><div class="line">                <span class="keyword">if</span> event == <span class="string">'read'</span>:</div><div class="line">                    self.read_waiting[fileno] = task</div><div class="line">                <span class="keyword">elif</span> event == <span class="string">'write'</span>:</div><div class="line">                    self.write_waiting[fileno] = task</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">raise</span> RuntimeError(<span class="string">"ERROR!"</span>)            </div><div class="line">            <span class="keyword">except</span> StopIteration:</div><div class="line">                print(<span class="string">'task done'</span>)</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AsyncSocket</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, sock)</span>:</span></div><div class="line">        self.sock = sock</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">recv</span><span class="params">(self, maxsize)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'read'</span>, self.sock   <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        <span class="keyword">return</span> self.sock.recv(maxsize)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self, data)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'write'</span>, self.sock  <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        <span class="keyword">return</span> self.sock.send(data)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">accept</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'read'</span>, self.sock   <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        client, addr = self.sock.accept()</div><div class="line">        <span class="keyword">return</span> AsyncSocket(client), addr </div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></div><div class="line">        <span class="keyword">return</span> getattr(self.sock, name)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(scheduler, address, backlog=<span class="number">5</span>)</span>:</span></div><div class="line">    sock = AsyncSocket(socket(AF_INET, SOCK_STREAM))</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(backlog)</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client_sock, client_addr = <span class="keyword">yield</span> <span class="keyword">from</span> sock.accept()  <span class="comment"># blocking</span></div><div class="line">        scheduler.add_ready(echo_handler(client_addr, client_sock))</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(address, client_sock)</span>:</span></div><div class="line">    print(<span class="string">'Got connection from &#123;&#125;'</span>.format(address))</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        msg = <span class="keyword">yield</span> <span class="keyword">from</span> client_sock.recv(<span class="number">8192</span>)  <span class="comment"># blocking</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> msg:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> client_sock.send(msg)  <span class="comment"># blocking</span></div><div class="line">    client_sock.close()</div><div class="line">        </div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    scheduler = Scheduler()</div><div class="line">    server = echo_server(scheduler, (<span class="string">''</span>, <span class="number">20000</span>))</div><div class="line">    scheduler.add_ready(server)</div><div class="line">    scheduler.loop()</div></pre></td></tr></table></figure>
+<p>　　这段代码实现了一个小型的<u>协作式</u>任务调度器。这里你应该意识到协程与线程的不同点了，线程的调度是基于<u>抢占式</u>调度的，在抢占式调度里面，一个线程可能来不及将寄存器变量写入到内存中，或者处理器的缓存来不及同步到主内存中，就被迫切换到另一线程，这就是线程中为什么需要使用各种同步的方式来保证数据的一致性。而协程是主动让出，所以不存在多个协程同时修改同一变量的情况，也就不需要使用互斥锁等同步方式了。<br>　　而<u>协作式</u>调度的一个明显缺点就是，如果某个协程在执行阻塞的调用，或者执行密集的CPU计算，这时协程就无法让出，整个程序就会失去响应了。这就是为什么当今的操作系统放弃协作式调度的原因了。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/07/30/Python协程的前世今生/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/01/11/emacs-as-cpp-ide/" itemprop="url">
+                  打造 Mac OS 的 C++ IDE（Emacs 篇）
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-01-11T20:52:24+08:00" content="2016-01-11">
+              2016-01-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/开发环境/" itemprop="url" rel="index">
+                    <span itemprop="name">开发环境</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/01/11/emacs-as-cpp-ide/" class="leancloud_visitors" data-flag-title="打造 Mac OS 的 C++ IDE（Emacs 篇）">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="IDE-介绍"><a href="#IDE-介绍" class="headerlink" title="IDE 介绍"></a>IDE 介绍</h2><p>　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：</p>
+<ul>
+<li>支持代码语义跳转。</li>
+<li>支持代码自动补全。</li>
+<li>支持代码语法检查。</li>
+<li>支持 cmake。</li>
+</ul>
+<h2 id="通用配置"><a href="#通用配置" class="headerlink" title="通用配置"></a>通用配置</h2><p>　　下面是一些比较有用的设置，打开<code>~/.emacs</code>文件，写入以下内容：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 启动时不显示信息</span></div><div class="line">(<span class="name">setq</span> inhibit-startup-message <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 显示行号</span></div><div class="line">(<span class="name">global-linum-mode</span> <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 自动补全括号</span></div><div class="line">(<span class="name">electric-pair-mode</span> <span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 按 Ctl-Enter 开始选中文本</span></div><div class="line">(<span class="name">global-set-key</span> (<span class="name">kbd</span> <span class="string">"C-&lt;return&gt;"</span>) 'set-mark-command)</div><div class="line"></div><div class="line"><span class="comment">;; 设置代码风格</span></div><div class="line">(<span class="name">c-add-style</span> <span class="string">"my-style"</span></div><div class="line">             '(<span class="string">"stroustrup"</span></div><div class="line">               (indent-tabs-mode . <span class="literal">nil</span>)        ; 使用空格缩进而不是 Tab</div><div class="line">               (c-basic-offset . <span class="number">4</span>)            ; 使用四个空格缩进</div><div class="line">               (c-offsets-alist . ((inline-open . <span class="number">0</span>)</div><div class="line">                                   (brace-list-open . <span class="number">0</span>)</div><div class="line">                                   (statement-case-open . +)))))</div><div class="line"></div><div class="line">(<span class="name">defun</span> my-c++-mode-hook ()</div><div class="line">  (<span class="name">c-set-style</span> <span class="string">"my-style"</span>)        <span class="comment">; use my-style defined above</span></div><div class="line">  (<span class="name">auto-fill-mode</span>)</div><div class="line">  (<span class="name">c-toggle-auto-hungry-state</span> <span class="number">1</span>))</div><div class="line"></div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook 'my-c++-mode-hook)</div><div class="line">(<span class="name">add-hook</span> 'c-mode-hook 'my-c++-mode-hook)</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/11/emacs-as-cpp-ide/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2015/08/27/设计二叉树迭代器/" itemprop="url">
                   如何设计 C++ 的二叉树的迭代器
                 </a>
@@ -645,285 +913,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/04/24/深入shared-ptr/" itemprop="url">
-                  谈谈 shared_ptr 的那些坑
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-04-24T14:38:00+08:00" content="2015-04-24">
-              2015-04-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/04/24/深入shared-ptr/" class="leancloud_visitors" data-flag-title="谈谈 shared_ptr 的那些坑">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="共享所有权"><a href="#共享所有权" class="headerlink" title="共享所有权"></a>共享所有权</h2><p>　　一个动态分配的对象可以在多个<code>shared_ptr</code>之间共享，这是因为<code>shared_ptr</code>支持 copy 操作：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">shared_ptr</span>&lt;<span class="built_in">string</span>&gt; ptr1&#123; <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"hello"</span>) &#125;;</div><div class="line"><span class="keyword">auto</span> ptr2 = ptr1;　<span class="comment">// copy constructor</span></div></pre></td></tr></table></figure></p>
-<h2 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h2><p>　　<code>shared_ptr</code>内部包含两个指针，一个指向对象，另一个指向控制块(control block)，控制块中包含一个<u>引用计数</u>和其它一些数据。由于这个控制块需要在多个<code>shared_ptr</code>之间共享，所以它也是存在于 heap 中的。<code>shared_ptr</code>对象本身是线程安全的，也就是说<code>shared_ptr</code>的引用计数增加和减少的操作都是原子的。<br><img src="/images/data-structure/sh2.png" alt=""><br>　　通过<code>unique_ptr</code>来构造<code>shared_ptr</code>是可行的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">unique_ptr</span>&lt;<span class="built_in">string</span>&gt; p1&#123; <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"senlin"</span>) &#125;;</div><div class="line"><span class="built_in">shared_ptr</span>&lt;<span class="built_in">string</span>&gt; p2&#123; <span class="built_in">std</span>::move(p1) &#125;;</div></pre></td></tr></table></figure></p>
-<h2 id="shared-ptr-的风险"><a href="#shared-ptr-的风险" class="headerlink" title="shared_ptr 的风险"></a>shared_ptr 的风险</h2><p>　　你大概觉得使用智能指针就再也高枕无忧了，不再为内存泄露烦恼了。然而梦想总是美好的，使用<code>shared_ptr</code>时，不可避免地会遇到<u>循环引用</u>的情况，这样容易导致内存泄露。循环引用就像下图所示，通过<code>shared_ptr</code>创建的两个对象，同时它们的内部均包含<code>shared_ptr</code>指向对方。<br><img src="/images/data-structure/am.png" alt=""><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 一段内存泄露的代码</span></div><div class="line"><span class="keyword">struct</span> Son;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> Father　&#123;</div><div class="line">    <span class="built_in">shared_ptr</span>&lt;Son&gt; son_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> Son &#123;</div><div class="line">    <span class="built_in">shared_ptr</span>&lt;Father&gt; father_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> father = make_shared&lt;Father&gt;();</div><div class="line">    <span class="keyword">auto</span> son = make_shared&lt;Son&gt;();</div><div class="line">    father-&gt;son_ = son;</div><div class="line">    son-&gt;father_ = father;</div><div class="line">  </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　分析一下<code>main</code>函数是如何退出的，一切就都明了：</p>
-<ul>
-<li><code>main</code>函数退出之前，<code>Father</code>和<code>Son</code>对象的引用计数都是<code>2</code>。</li>
-<li><code>son</code>指针销毁，这时<code>Son</code>对象的引用计数是<code>1</code>。</li>
-<li><code>father</code>指针销毁，这时<code>Father</code>对象的引用计数是<code>1</code>。</li>
-<li>由于<code>Father</code>对象和<code>Son</code>对象的引用计数都是<code>1</code>，这两个对象都不会被销毁，从而发生内存泄露。</li>
-</ul>
-<hr>
-<p>　　为避免循环引用导致的内存泄露，就需要使用<code>weak_ptr</code>，<code>weak_ptr</code>并不拥有其指向的对象，也就是说，让<code>weak_ptr</code>指向<code>shared_ptr</code>所指向对象，对象的引用计数并不会增加：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> ptr = make_shared&lt;<span class="built_in">string</span>&gt;(<span class="string">"senlin"</span>);</div><div class="line">weak_ptr&lt;<span class="built_in">string</span>&gt; wp1&#123; ptr &#125;;</div><div class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"use count: "</span> &lt;&lt; ptr.use_count() &lt;&lt; <span class="built_in">endl</span>;<span class="comment">// use count: 1</span></div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/04/24/深入shared-ptr/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/04/20/谈谈C-的智能指针/" itemprop="url">
-                  深入 C++ 的 unique_ptr
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-04-20T19:22:08+08:00" content="2015-04-20">
-              2015-04-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/04/20/谈谈C-的智能指针/" class="leancloud_visitors" data-flag-title="深入 C++ 的 unique_ptr">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="从异常安全说起"><a href="#从异常安全说起" class="headerlink" title="从异常安全说起"></a>从异常安全说起</h2><p>　　使用 raw pointer 管理动态内存时，经常会遇到这样的问题：</p>
-<ul>
-<li>忘记<code>delete</code>内存，造成内存泄露。</li>
-<li>出现异常时，不会执行<code>delete</code>，造成内存泄露。</li>
-</ul>
-<p>　　下面的代码解释了，当一个操作发生异常时，会导致<code>delete</code>不会被执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="comment">// 执行一个会抛出异常的操作</span></div><div class="line">    func_throw_exception();</div><div class="line">    </div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　在 C++98 中我们需要用一种笨拙的方式，写出异常安全的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> Widget;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        func_throw_exception();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">catch</span>(...) &#123;</div><div class="line">        <span class="keyword">delete</span> ptr;</div><div class="line">        <span class="keyword">throw</span>; </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　使用智能指针能轻易写出异常安全的代码，因为当对象退出作用域时，智能指针将自动调用对象的析构函数，避免内存泄露：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Widget&gt; ptr&#123; <span class="keyword">new</span> Widget &#125;;</div><div class="line"></div><div class="line">    func_throw_exception();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="unique-ptr-的原理"><a href="#unique-ptr-的原理" class="headerlink" title="unique_ptr 的原理"></a>unique_ptr 的原理</h2><p>　　让我们了解一下<code>unique_ptr</code>的实现细节：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> D = default_delete&lt;T&gt;&gt;</div><div class="line">    <span class="keyword">class</span> <span class="built_in">unique_ptr</span></div><div class="line">    &#123;</div><div class="line">    <span class="keyword">public</span>:</div><div class="line">        <span class="keyword">explicit</span> <span class="built_in">unique_ptr</span>(pointer p) <span class="keyword">noexcept</span>;</div><div class="line">        ~<span class="built_in">unique_ptr</span>() <span class="keyword">noexcept</span>;    </div><div class="line"></div><div class="line">	T&amp; <span class="keyword">operator</span>*() <span class="keyword">const</span>;</div><div class="line">        T* <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line">        <span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">unique_ptr</span> &amp;) = <span class="keyword">delete</span>;</div><div class="line"></div><div class="line">	<span class="built_in">unique_ptr</span>(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="built_in">unique_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="built_in">unique_ptr</span> &amp;&amp;) <span class="keyword">noexcept</span>;</div><div class="line">	<span class="comment">// ...</span></div><div class="line">    <span class="keyword">private</span>:</div><div class="line">        pointer __ptr;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　从上面的代码中，我们可以了解到：</p>
-<ul>
-<li><code>unique_ptr</code>内部存储一个 raw pointer，当<code>unique_ptr</code>析构时，它的析构函数将会负责析构它持有的对象。</li>
-<li><code>unique_ptr</code>提供了<code>operator*()</code>和<code>operator-&gt;()</code>成员函数，像 raw pointer 一样，我们可以使用<code>*</code>解引用<code>unique_ptr</code>，使用<code>-&gt;</code>来访问<code>unique_ptr</code>所持有对象的成员。</li>
-<li><code>unique_ptr</code>并不提供 copy 操作，这是为了防止多个<code>unique_ptr</code>指向同一对象。</li>
-<li>但<code>unique_ptr</code>提供了 move 操作，因此我们可以用<code>std::move()</code>来转移<code>unique_ptr</code>。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/04/20/谈谈C-的智能指针/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -964,7 +958,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">49</span>
+              <span class="site-state-item-count">51</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -981,7 +975,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

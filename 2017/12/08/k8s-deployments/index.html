@@ -1,0 +1,823 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Kubernetes," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="部署的难题　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：
+
+如何在多台机器实现自动部署？
+在部署的过程，如何保证服务的高可用？
+如何知道新版本是否出现问题，健康检查要怎么做？
+如果新版本出现问题，能够做到回滚？
+
+　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。
+如何部署应用　　下面的配置文件定义了一个 Deployment，其中包含">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何在 Kubernetes 部署应用">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/12/08/k8s-deployments/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="部署的难题　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：
+
+如何在多台机器实现自动部署？
+在部署的过程，如何保证服务的高可用？
+如何知道新版本是否出现问题，健康检查要怎么做？
+如果新版本出现问题，能够做到回滚？
+
+　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。
+如何部署应用　　下面的配置文件定义了一个 Deployment，其中包含">
+<meta property="og:updated_time" content="2017-12-07T10:51:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何在 Kubernetes 部署应用">
+<meta name="twitter:description" content="部署的难题　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：
+
+如何在多台机器实现自动部署？
+在部署的过程，如何保证服务的高可用？
+如何知道新版本是否出现问题，健康检查要怎么做？
+如果新版本出现问题，能够做到回滚？
+
+　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。
+如何部署应用　　下面的配置文件定义了一个 Deployment，其中包含">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/12/08/k8s-deployments/"/>
+
+  <title> 如何在 Kubernetes 部署应用 | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                如何在 Kubernetes 部署应用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-08T15:44:42+08:00" content="2017-12-08">
+              2017-12-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/08/k8s-deployments/" class="leancloud_visitors" data-flag-title="如何在 Kubernetes 部署应用">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="部署的难题"><a href="#部署的难题" class="headerlink" title="部署的难题"></a>部署的难题</h2><p>　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：</p>
+<ul>
+<li>如何在多台机器实现自动部署？</li>
+<li>在部署的过程，如何保证服务的高可用？</li>
+<li>如何知道新版本是否出现问题，健康检查要怎么做？</li>
+<li>如果新版本出现问题，能够做到回滚？</li>
+</ul>
+<p>　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。</p>
+<h2 id="如何部署应用"><a href="#如何部署应用" class="headerlink" title="如何部署应用"></a>如何部署应用</h2><p>　　下面的配置文件定义了一个 Deployment，其中包含两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server    <span class="comment"># 这个 Deployment 管理着那些拥有这个标签的 Pod </span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server  <span class="comment"># 为所有 Pod 都打上这个标签</span></div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.7.9</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
+<p>　　接着，创建这个 Deployment：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   2         2         2            2           5s</div></pre></td></tr></table></figure></p>
+<p>　　可以观察到，这个 Deployment 管理着两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME                                READY     STATUS    RESTARTS   AGE</div><div class="line">nginx-deployment-2569060349-2ph84   1/1       Running   0          2m</div><div class="line">nginx-deployment-2569060349-4wdsd   1/1       Running   0          2m</div></pre></td></tr></table></figure></p>
+<h2 id="比较-Deployment-与-ReplicaSet"><a href="#比较-Deployment-与-ReplicaSet" class="headerlink" title="比较 Deployment 与 ReplicaSet"></a>比较 Deployment 与 ReplicaSet</h2><p>　　在 <a href="http://senlinzhan.github.io/2017/11/27/k8s/">Kubernetes 入门指南</a> 我们说到了 ReplicaSet，ReplicaSet 也是用来管理多个 Pod 的副本，那么 Deployment 和 ReplicaSet 的区别在哪里呢？<br>　　当我们创建了 Deployment 之后，实际上也创建了 ReplicaSet，所以说 Deployment 管理着 ReplicaSet（实际上 Deployment 比 ReplicaSet 有着更多功能）。<br>　　这里可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   2         2         2         26m</div></pre></td></tr></table></figure></p>
+<p>　　由于 ReplicaSet 可以伸缩 Pod 的数量，因此 Deployment 也可以做到：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale deployments nginx-deployment --replicas=3</div><div class="line">deployment <span class="string">"nginx-deployment"</span> scaled</div></pre></td></tr></table></figure></p>
+<p>　　Deployment 管理着 ReplicaSet，因此当 Deployment 伸缩时，由它管理的 ReplicaSet 也会发生伸缩：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   3         3         3         30m</div></pre></td></tr></table></figure></p>
+<p>　　但反过来，如果我们直接伸缩 ReplicaSet，那么 Deployment 也会相应发生伸缩吗？答案是<u>不会的</u>。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale rs nginx-deployment-2569060349 --replicas=1</div><div class="line">replicaset <span class="string">"nginx-deployment-2569060349"</span> scaled</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   3         3         3            3           38m</div></pre></td></tr></table></figure></p>
+<h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>　　发布新版本时，可以借助 Deployment 的滚动升级功能。例如下面的例子中，我们将 Nginx 从<code>1.7.9</code>升级到<code>1.9.0</code>版本：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server</div><div class="line">  strategy:</div><div class="line">    rollingUpdate:</div><div class="line">      maxSurge: 0</div><div class="line">      maxUnavailable: 1</div><div class="line">    <span class="built_in">type</span>: RollingUpdate</div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server</div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.9.0</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
+<p>　　这个配置文件中，我们指定升级的策略为<code>RollingUpdate</code>。<br>　　使用下面的命令开始滚动升级：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div><div class="line">deployment <span class="string">"nginx-deployment"</span> configured</div></pre></td></tr></table></figure></p>
+<p>　　查看升级过程的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl rollout status deployments nginx-deployment</div><div class="line">deployment <span class="string">"nginx-deployment"</span> successfully rolled out</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Kubernetes/" rel="tag">#Kubernetes</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/05/envoy/" rel="next" title="Envoy proxy 入门指南">
+                <i class="fa fa-chevron-left"></i> Envoy proxy 入门指南
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/08/k8s-service/" rel="prev" title="Kubernetes 的服务发现与负载均衡">
+                Kubernetes 的服务发现与负载均衡 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'http-senlinzhan-github-io';
+      var disqus_identifier = '2017/12/08/k8s-deployments/';
+      var disqus_title = "如何在 Kubernetes 部署应用";
+      var disqus_url = 'http://senlinzhan.github.io/2017/12/08/k8s-deployments/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
