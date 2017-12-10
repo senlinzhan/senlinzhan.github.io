@@ -124,7 +124,7 @@
 
 　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。
 如何部署应用　　下面的配置文件定义了一个 Deployment，其中包含">
-<meta property="og:updated_time" content="2017-12-10T08:23:16.000Z">
+<meta property="og:updated_time" content="2017-12-10T10:55:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何在 Kubernetes 部署应用">
 <meta name="twitter:description" content="部署的难题　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：
@@ -377,6 +377,7 @@
 <li><code>maxUnavailable</code>表示在更新过程中，最多有多少个 Pod 不可用（这个数值也可以是百分比，例如 20% 表示最多有 20% 的 Pod 不可用）。譬如说，如果设置<code>maxUnavailable</code>为 1，那么更新过程会分多次进行，每次都是先销毁 1 个旧的 Pod，然后创建 1 个新的 Pod 替换它。</li>
 <li>在更新的过程，如果需要保证服务的 100% 可用，可以使用<code>maxSurge</code>，同时将<code>maxUnavailable</code>设置为 0。譬如说，将<code>maxSurge</code>设置为 1，同时将<code>maxUnavailable</code>设置为 0，那么更新过程会分多次进行，每次都是先创建 1 个新的 Pod，如果新的 Pod 可用了，这时才会替换掉旧的 Pod。</li>
 </ul>
+<a id="more"></a>
 <p>　　使用下面的命令开始滚动升级：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div><div class="line">deployment <span class="string">"nginx-deployment"</span> configured</div></pre></td></tr></table></figure></p>
 <p>　　查看升级过程的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl rollout status deployments nginx-deployment</div><div class="line">deployment <span class="string">"nginx-deployment"</span> successfully rolled out</div></pre></td></tr></table></figure></p>
 <h2 id="回滚"><a href="#回滚" class="headerlink" title="回滚"></a>回滚</h2><p>　　如果新版本出现问题，如何回滚呢？首先，先查看更新的历史：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl  rollout <span class="built_in">history</span> deployment nginx-deployment</div><div class="line">deployments <span class="string">"nginx-deployment"</span></div><div class="line">REVISION	CHANGE-CAUSE</div><div class="line">1		&lt;none&gt;</div><div class="line">2		Update nginx from 1.7.9 to 1.9.0</div></pre></td></tr></table></figure></p>
@@ -420,13 +421,17 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/08/k8s-service/" rel="next" title="Kubernetes 的服务发现与负载均衡">
-                <i class="fa fa-chevron-left"></i> Kubernetes 的服务发现与负载均衡
+              <a href="/2017/12/05/envoy/" rel="next" title="Envoy proxy 入门指南">
+                <i class="fa fa-chevron-left"></i> Envoy proxy 入门指南
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/10/k8s-service/" rel="prev" title="Kubernetes 的服务发现与负载均衡">
+                Kubernetes 的服务发现与负载均衡 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -509,7 +514,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

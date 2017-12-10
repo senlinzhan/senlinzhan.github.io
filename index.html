@@ -392,6 +392,139 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/10/k8s-service/" itemprop="url">
+                  Kubernetes 的服务发现与负载均衡
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-10T15:44:42+08:00" content="2017-12-10">
+              2017-12-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/10/k8s-service/" class="leancloud_visitors" data-flag-title="Kubernetes 的服务发现与负载均衡">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Service-的作用"><a href="#Service-的作用" class="headerlink" title="Service 的作用"></a>Service 的作用</h2><p>　　在 <a href="http://senlinzhan.github.io/2017/12/08/k8s-deployments/">如何在 Kubernetes 部署应用</a> 中，我们讲到了如何部署应用程序，但还有几个问题没有解决：</p>
+<ul>
+<li>服务发现：由于 Kubernetes 的调度机制，在 Kubernetes 中，Pod 的 IP 不是固定的。如果其它程序需要访问这个 Pod，要怎么知道这个 Pod 的 IP 呢？</li>
+<li>负载均衡：由于 Deployment 管理着多个 Pod 的副本，如果其它程序需要访问这些 Pod，显然需要一个 proxy 为这些 Pod 做负载均衡。</li>
+<li>外部路由：如果应用程序运行在 Kubernetes 外部，如何访问 Kubernetes 内部的 Pod 呢？</li>
+</ul>
+<p>　　Kubernetes 提供了 Service 功能，用来解决这些问题。</p>
+<h2 id="服务发现与负载均衡"><a href="#服务发现与负载均衡" class="headerlink" title="服务发现与负载均衡"></a>服务发现与负载均衡</h2><p>　　Service 通常会和 Deployment 结合在一起使用，首先通过 Deployment 部署应用程序，然后再使用 Service 为应用程序提供服务发现、负载均衡和外部路由的功能。<br>　　首先，让我们创建一个 Deployment：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server    <span class="comment"># 这个 Deployment 管理着那些拥有这个标签的 Pod </span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server  <span class="comment"># 为所有 Pod 都打上这个标签</span></div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.7.9</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div></pre></td></tr></table></figure></p>
+<p>　　接着，为这个 Deployment 创建一个 Service：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-service.yaml</div><div class="line">apiVersion: v1</div><div class="line">kind: Service</div><div class="line">metadata:</div><div class="line">  name: nginx-service</div><div class="line">  labels:</div><div class="line">    name: nginx-service</div><div class="line">spec:</div><div class="line">  ports:</div><div class="line">  - port: 5000</div><div class="line">    targetPort: 80</div><div class="line">  selector:</div><div class="line">    app: nginx-server</div><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div></pre></td></tr></table></figure></p>
+<p>　　这里我们创建了一个名为<code>nginx-service</code>的 Service，它监听的端口是 5000，同时它会把全部的流量都转发给它代理的所有 Pod（这些 Pod 都必须拥有<code>name: nginx-service</code>这个标签）。<br>　　Service 提供了两种服务发现的方式，第一种是环境变量，第二种是 DNS。先说第一种，上面我们创建了<code>nginx-service</code>这个 Service，接着如果我们再创建另外一个 Pod，那么在这个 Pod 中，可以通过环境变量知道<code>nginx-service</code>的地址。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/10/k8s-service/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/08/k8s-deployments/" itemprop="url">
                   如何在 Kubernetes 部署应用
                 </a>
@@ -463,8 +596,7 @@
 
       
         
-          
-            <h2 id="部署的难题"><a href="#部署的难题" class="headerlink" title="部署的难题"></a>部署的难题</h2><p>　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：</p>
+          <h2 id="部署的难题"><a href="#部署的难题" class="headerlink" title="部署的难题"></a>部署的难题</h2><p>　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：</p>
 <ul>
 <li>如何在多台机器实现自动部署？</li>
 <li>在部署的过程，如何保证服务的高可用？</li>
@@ -485,141 +617,11 @@
 <li><code>maxUnavailable</code>表示在更新过程中，最多有多少个 Pod 不可用（这个数值也可以是百分比，例如 20% 表示最多有 20% 的 Pod 不可用）。譬如说，如果设置<code>maxUnavailable</code>为 1，那么更新过程会分多次进行，每次都是先销毁 1 个旧的 Pod，然后创建 1 个新的 Pod 替换它。</li>
 <li>在更新的过程，如果需要保证服务的 100% 可用，可以使用<code>maxSurge</code>，同时将<code>maxUnavailable</code>设置为 0。譬如说，将<code>maxSurge</code>设置为 1，同时将<code>maxUnavailable</code>设置为 0，那么更新过程会分多次进行，每次都是先创建 1 个新的 Pod，如果新的 Pod 可用了，这时才会替换掉旧的 Pod。</li>
 </ul>
-<p>　　使用下面的命令开始滚动升级：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div><div class="line">deployment <span class="string">"nginx-deployment"</span> configured</div></pre></td></tr></table></figure></p>
-<p>　　查看升级过程的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl rollout status deployments nginx-deployment</div><div class="line">deployment <span class="string">"nginx-deployment"</span> successfully rolled out</div></pre></td></tr></table></figure></p>
-<h2 id="回滚"><a href="#回滚" class="headerlink" title="回滚"></a>回滚</h2><p>　　如果新版本出现问题，如何回滚呢？首先，先查看更新的历史：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl  rollout <span class="built_in">history</span> deployment nginx-deployment</div><div class="line">deployments <span class="string">"nginx-deployment"</span></div><div class="line">REVISION	CHANGE-CAUSE</div><div class="line">1		&lt;none&gt;</div><div class="line">2		Update nginx from 1.7.9 to 1.9.0</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，有两个版本号，可以查看某个版本的具体细节：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ kubectl  rollout <span class="built_in">history</span> deployment nginx-deployment --revision=2</div><div class="line">deployments <span class="string">"nginx-deployment"</span> with revision <span class="comment">#2</span></div><div class="line">  Labels:	app=nginx-server</div><div class="line">	pod-template-hash=2000470006</div><div class="line">  Annotations:	kubernetes.io/change-cause=Update nginx from 1.7.9 to 1.9.0</div><div class="line">  Containers:</div><div class="line">   nginx:</div><div class="line">    Image:	nginx:1.9.0</div><div class="line">    Port:	80/TCP</div><div class="line">    Volume Mounts:	&lt;none&gt;</div><div class="line">    Environment Variables:	&lt;none&gt;</div><div class="line">  No volumes.</div></pre></td></tr></table></figure></p>
-<p>　　假设我们想回滚到上一个版本，上一个版本的版本号是 1，那么可以执行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl rollout undo deployments nginx-deployment --to-revision=1</div><div class="line">deployment <span class="string">"nginx-deployment"</span> rolled back</div></pre></td></tr></table></figure></p>
-<p>　　接着，查看更新的历史，可以看到已经成功回滚了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl  rollout <span class="built_in">history</span> deployment nginx-deployment</div><div class="line">deployments <span class="string">"nginx-deployment"</span></div><div class="line">REVISION	CHANGE-CAUSE</div><div class="line">2		Update nginx from 1.7.9 to 1.9.0</div><div class="line">3		&lt;none&gt;</div></pre></td></tr></table></figure></p>
-<p>　　版本号为 1 的那个版本不见了，说明被版本 3 替换掉了。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.amazon.com/Kubernetes-Running-Dive-Future-Infrastructure/dp/1491935677/ref=cm_cr_arp_d_product_top?ie=UTF8" target="_blank" rel="external">Kubernetes Up And Running</a></li>
-<li><a href="https://www.amazon.com/Kubernetes-Running-Dive-Future-Infrastructure/dp/1491935677/ref=cm_cr_arp_d_product_top?ie=UTF8" target="_blank" rel="external">Kubernetes Up And Running</a></li>
-<li><a href="https://medium.com/spire-labs/utilizing-kubernetes-liveness-and-readiness-probes-to-automatically-recover-from-failure-2fe0314f2b2e" target="_blank" rel="external">Utilizing Kubernetes Liveness and Readiness Probes to Automatically Recover From Failure</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/08/k8s-service/" itemprop="url">
-                  Kubernetes 的服务发现与负载均衡
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-08T15:44:42+08:00" content="2017-12-08">
-              2017-12-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
-                    <span itemprop="name">虚拟化</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/08/k8s-service/" class="leancloud_visitors" data-flag-title="Kubernetes 的服务发现与负载均衡">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/08/k8s-deployments/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1001,7 +1003,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
