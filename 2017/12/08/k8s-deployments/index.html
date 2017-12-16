@@ -124,7 +124,7 @@
 
 　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。
 如何部署应用　　下面的配置文件定义了一个 Deployment，其中包含">
-<meta property="og:updated_time" content="2017-12-10T10:55:59.000Z">
+<meta property="og:updated_time" content="2017-12-11T02:35:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何在 Kubernetes 部署应用">
 <meta name="twitter:description" content="部署的难题　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：
@@ -386,7 +386,7 @@
 <p>　　接着，查看更新的历史，可以看到已经成功回滚了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl  rollout <span class="built_in">history</span> deployment nginx-deployment</div><div class="line">deployments <span class="string">"nginx-deployment"</span></div><div class="line">REVISION	CHANGE-CAUSE</div><div class="line">2		Update nginx from 1.7.9 to 1.9.0</div><div class="line">3		&lt;none&gt;</div></pre></td></tr></table></figure></p>
 <p>　　版本号为 1 的那个版本不见了，说明被版本 3 替换掉了。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.amazon.com/Kubernetes-Running-Dive-Future-Infrastructure/dp/1491935677/ref=cm_cr_arp_d_product_top?ie=UTF8" target="_blank" rel="external">Kubernetes Up And Running</a></li>
+<li><a href="https://book.douban.com/subject/26894736/?from=tag" target="_blank" rel="external">Docker——容器与容器云（第2版)</a></li>
 <li><a href="https://www.amazon.com/Kubernetes-Running-Dive-Future-Infrastructure/dp/1491935677/ref=cm_cr_arp_d_product_top?ie=UTF8" target="_blank" rel="external">Kubernetes Up And Running</a></li>
 <li><a href="https://medium.com/spire-labs/utilizing-kubernetes-liveness-and-readiness-probes-to-automatically-recover-from-failure-2fe0314f2b2e" target="_blank" rel="external">Utilizing Kubernetes Liveness and Readiness Probes to Automatically Recover From Failure</a></li>
 </ul>
@@ -497,7 +497,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-count">52</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

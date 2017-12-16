@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Database," />
 
 
 
@@ -102,15 +102,19 @@
 
 
 
-<meta name="description" content="高性能">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Senlin's Blog">
-<meta property="og:url" content="http://senlinzhan.github.io/archives/2015/08/index.html">
+<meta name="description" content="分析慢查询日志　　在分析慢查询日志之前，需要先让 MySQL 开启慢查询日志。首先，创建目录用于存放慢查询日志：123$ mkdir -p /home/ubuntu/log/mysql$ chmod 755 /home/ubuntu/log/mysql/$ sudo chown mysql:mysql /home/ubuntu/log/mysql/
+　　下面是和慢查询相关的配置：123456789">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 性能剖析">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/12/16/mysql-query-profiling/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="高性能">
+<meta property="og:description" content="分析慢查询日志　　在分析慢查询日志之前，需要先让 MySQL 开启慢查询日志。首先，创建目录用于存放慢查询日志：123$ mkdir -p /home/ubuntu/log/mysql$ chmod 755 /home/ubuntu/log/mysql/$ sudo chown mysql:mysql /home/ubuntu/log/mysql/
+　　下面是和慢查询相关的配置：123456789">
+<meta property="og:updated_time" content="2017-12-16T15:04:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Senlin's Blog">
-<meta name="twitter:description" content="高性能">
+<meta name="twitter:title" content="MySQL 性能剖析">
+<meta name="twitter:description" content="分析慢查询日志　　在分析慢查询日志之前，需要先让 MySQL 开启慢查询日志。首先，创建目录用于存放慢查询日志：123$ mkdir -p /home/ubuntu/log/mysql$ chmod 755 /home/ubuntu/log/mysql/$ sudo chown mysql:mysql /home/ubuntu/log/mysql/
+　　下面是和慢查询相关的配置：123456789">
 
 
 
@@ -131,9 +135,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/archives/2015/08/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/12/16/mysql-query-profiling/"/>
 
-  <title> 归档 | Senlin's Blog </title>
+  <title> MySQL 性能剖析 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -154,7 +158,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -242,102 +246,167 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-       
-        
-      好! 目前共计 52 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2015">2015</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2015/08/27/设计二叉树迭代器/" itemprop="url">
-              
-                <span itemprop="name">如何设计 C++ 的二叉树的迭代器</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2015-08-27T20:01:10+08:00"
-              content="2015-08-27" >
-          08-27
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2015/08/24/C-实现阻塞队列/" itemprop="url">
-              
-                <span itemprop="name">C++ 实现阻塞队列</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2015-08-24T10:07:17+08:00"
-              content="2015-08-24" >
-          08-24
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
+  
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                MySQL 性能剖析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-16T16:54:25+08:00" content="2017-12-16">
+              2017-12-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/16/mysql-query-profiling/" class="leancloud_visitors" data-flag-title="MySQL 性能剖析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="分析慢查询日志"><a href="#分析慢查询日志" class="headerlink" title="分析慢查询日志"></a>分析慢查询日志</h2><p>　　在分析慢查询日志之前，需要先让 MySQL 开启慢查询日志。首先，创建目录用于存放慢查询日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -p /home/ubuntu/log/mysql</div><div class="line">$ chmod 755 /home/ubuntu/log/mysql/</div><div class="line">$ sudo chown mysql:mysql /home/ubuntu/log/mysql/</div></pre></td></tr></table></figure></p>
+<p>　　下面是和慢查询相关的配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/mysql/conf.d/mysql.cnf</div><div class="line">[mysqld]</div><div class="line">slow_query_log = ON</div><div class="line">slow_query_log_file = /home/ubuntu/log/mysql/mysql-slow.log</div><div class="line"></div><div class="line"># 若查询的耗时超过 2 秒，并且至少需要分析 100 行记录，才会被判定为慢查询</div><div class="line">long_query_time = 2</div><div class="line">min_examined_row_limit = 100</div><div class="line"></div><div class="line"># 若查询没有使用到索引，也会被判定为慢查询</div><div class="line">log-queries-not-using-indexes</div></pre></td></tr></table></figure></p>
+<p>　　在开启慢查询日志之后，可以借助<code>pt-query-digest</code>工具分析慢查询日志，生成剖析报告：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ pt-query-digest mysql-slow.log</div></pre></td></tr></table></figure></p>
+<p>　　生成的报告会对慢查询进行排序，比较严重的慢查询会排在前面：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># Profile</div><div class="line"># Rank Query ID           Response time Calls R/Call V/M   Item</div><div class="line"># ==== ================== ============= ===== ====== ===== ==============</div><div class="line">#    1 0x9F602236FBB89FCB  0.0169 98.7%     1 0.0169  0.00 SELECT payment</div><div class="line">#    2 0x5665CD6BAE86EAEC  0.0002  1.3%     1 0.0002  0.00 SELECT actor</div></pre></td></tr></table></figure></p>
+<p>　　如何解读这份报告呢？</p>
+<ul>
+<li><code>Response</code>：查询的响应时间。</li>
+<li><code>time</code>：查询占总时间的百分比。</li>
+<li><code>Calls</code>：查询的执行次数。</li>
+<li><code>R/Call</code>：单次查询的平均响应时间。</li>
+<li><code>V/M</code>：方差与平均值的比值。如果这个值较大，表示查询对应的执行时间变化较大。</li>
+</ul>
+<a id="more"></a>
+<p>　　除此之外，报告还包含每种查询的详细报告：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">This item is included in the report because it matches --limit.</div><div class="line"># Scores: V/M = 0.00</div><div class="line"># Time range: all events occurred at 2017-12-16 14:17:37</div><div class="line"># Attribute    pct   total     min     max     avg     95%  stddev  median</div><div class="line"># ============ === ======= ======= ======= ======= ======= ======= =======</div><div class="line"># Count         50       1</div><div class="line"># Exec time     98    17ms    17ms    17ms    17ms    17ms       0    17ms</div><div class="line"># Lock time     54    72us    72us    72us    72us    72us       0    72us</div><div class="line"># Rows sent     64     179     179     179     179     179       0     179</div><div class="line"># Rows examine  99  15.67k  15.67k  15.67k  15.67k  15.67k       0  15.67k</div><div class="line"># Rows affecte   0       0       0       0       0       0       0       0</div><div class="line"># Bytes sent    72  11.25k  11.25k  11.25k  11.25k  11.25k       0  11.25k</div><div class="line"># Query size    68      63      63      63      63      63       0      63</div><div class="line"># String:</div><div class="line"># Databases    sakila</div><div class="line"># Hosts        localhost</div><div class="line"># Last errno   0</div><div class="line"># Users        root</div><div class="line"># Query_time distribution</div><div class="line">#   1us</div><div class="line">#  10us</div><div class="line"># 100us</div><div class="line">#   1ms</div><div class="line">#  10ms  ################################################################</div><div class="line"># 100ms</div><div class="line">#    1s</div><div class="line">#  10s+</div><div class="line"># Tables</div><div class="line">#    SHOW TABLE STATUS FROM `sakila` LIKE 'payment'\G</div><div class="line">#    SHOW CREATE TABLE `sakila`.`payment`\G</div><div class="line"># EXPLAIN /*!50100 PARTITIONS*/</div><div class="line">select * from payment where last_update = '2006-02-15 22:12:30'\G</div></pre></td></tr></table></figure></p>
+<p>　　这份报告还包含了一个直方图，可以看到查询时间的分布情况。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://book.douban.com/subject/23008813/" target="_blank" rel="external">高性能MySQL</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Database/" rel="tag">#Database</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/10/k8s-service/" rel="next" title="Kubernetes 的服务发现与负载均衡">
+                <i class="fa fa-chevron-left"></i> Kubernetes 的服务发现与负载均衡
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -345,6 +414,17 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -536,11 +616,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
 
 
   
@@ -558,9 +636,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'http-senlinzhan-github-io';
-      var disqus_identifier = 'archives/2015/08/index.html';
-      var disqus_title = "";
-      var disqus_url = '';
+      var disqus_identifier = '2017/12/16/mysql-query-profiling/';
+      var disqus_title = "MySQL 性能剖析";
+      var disqus_url = 'http://senlinzhan.github.io/2017/12/16/mysql-query-profiling/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');
@@ -571,6 +649,8 @@
       }
 
       run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
       
     </script>
   
