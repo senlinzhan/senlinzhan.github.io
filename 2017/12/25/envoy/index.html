@@ -1,0 +1,803 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Microservices," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="微服务介绍　　在传统模式下，如果微服务之间要进行通信，那么程序需要自己处理各种通信的细节，这就包括服务发现、熔断机制、超时重试和 tracing 等功能。这些功能通常实现为与某种编程语言相关的 library，这也导致了这样的 library 无法在不同的编程语言之间共享。 　　更进一步，如果我们可以将这部分功能抽取出来，形成一个独立的进程，这样的进程称为 Sidecar。通常来说，我们会将应用程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Envoy Proxy 与微服务实践">
+<meta property="og:url" content="http://senlinzhan.github.io/2017/12/25/envoy/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="微服务介绍　　在传统模式下，如果微服务之间要进行通信，那么程序需要自己处理各种通信的细节，这就包括服务发现、熔断机制、超时重试和 tracing 等功能。这些功能通常实现为与某种编程语言相关的 library，这也导致了这样的 library 无法在不同的编程语言之间共享。 　　更进一步，如果我们可以将这部分功能抽取出来，形成一个独立的进程，这样的进程称为 Sidecar。通常来说，我们会将应用程">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/5-a.png">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/6-a.png">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/s2s.svg">
+<meta property="og:image" content="http://senlinzhan.github.io/images/linux/front_proxy.svg">
+<meta property="og:updated_time" content="2017-12-26T10:31:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Envoy Proxy 与微服务实践">
+<meta name="twitter:description" content="微服务介绍　　在传统模式下，如果微服务之间要进行通信，那么程序需要自己处理各种通信的细节，这就包括服务发现、熔断机制、超时重试和 tracing 等功能。这些功能通常实现为与某种编程语言相关的 library，这也导致了这样的 library 无法在不同的编程语言之间共享。 　　更进一步，如果我们可以将这部分功能抽取出来，形成一个独立的进程，这样的进程称为 Sidecar。通常来说，我们会将应用程">
+<meta name="twitter:image" content="http://senlinzhan.github.io/images/linux/5-a.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2017/12/25/envoy/"/>
+
+  <title> Envoy Proxy 与微服务实践 | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Envoy Proxy 与微服务实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-25T18:31:47+08:00" content="2017-12-25">
+              2017-12-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/微服务/" itemprop="url" rel="index">
+                    <span itemprop="name">微服务</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/25/envoy/" class="leancloud_visitors" data-flag-title="Envoy Proxy 与微服务实践">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="微服务介绍"><a href="#微服务介绍" class="headerlink" title="微服务介绍"></a>微服务介绍</h2><p>　　在传统模式下，如果微服务之间要进行通信，那么程序需要自己处理各种通信的细节，这就包括服务发现、熔断机制、超时重试和 tracing 等功能。这些功能通常实现为与某种编程语言相关的 library，这也导致了这样的 library 无法在不同的编程语言之间共享。<div align="center"><img src="/images/linux/5-a.png" width="400" align="center"> </div><br>　　更进一步，如果我们可以将这部分功能抽取出来，形成一个独立的进程，这样的进程称为 Sidecar。通常来说，我们会将应用程序和 Sidecar 部署在一起，那么程序的入口流量和出口流量都会由这个 Sidecar 去代理，这样就可以通过 Sidecar 去实现服务发现、熔断机制、超时重试等功能了。</p>
+<p><div align="center"><img src="/images/linux/6-a.png" width="500" align="center"> </div></p>
+<h2 id="Envoy-Proxy-介绍"><a href="#Envoy-Proxy-介绍" class="headerlink" title="Envoy Proxy 介绍"></a>Envoy Proxy 介绍</h2><p>　　Envoy Proxy 可以用来充当 Sidecar 进程，下图显示的就是服务与服务之间的通信：<div align="center"><img src="/images/linux/s2s.svg" width="300" align="center"> </div><br>　　除了可以充当 Sidecar 进程之外，Envoy Proxy 还可以充当反向代理，将流量转发给后端的微服务。充当反向代理的 Envoy，通常也可以称为 Edge Envoy。</p>
+<p><div align="center"><img src="/images/linux/front_proxy.svg" width="450" align="center"> </div></p>
+<h2 id="在-K8S-部署微服务"><a href="#在-K8S-部署微服务" class="headerlink" title="在 K8S 部署微服务"></a>在 K8S 部署微服务</h2><p>　　下面部署一个简单的微服务，这个微服务由两个进程组成，一个是 Sidecar 进程，另一个是简单的 Python Flask 应用<code>app.py</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> socket</div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line"></div><div class="line"><span class="meta">@app.route('/')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello_world</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">return</span> <span class="string">'Hello, World!'</span></div><div class="line"></div><div class="line"><span class="meta">@app.route('/healthy_check')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">healthy_check</span><span class="params">()</span>:</span></div><div class="line">    service = socket.gethostname()</div><div class="line">    ip = socket.gethostbyname(service)</div><div class="line">    <span class="keyword">return</span> <span class="string">'I am fine! &lt;service_name: &#123;&#125;, ip: &#123;&#125;&gt;'</span>.format(service, ip)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run(debug=<span class="keyword">True</span>, host=<span class="string">'0.0.0.0'</span>, port=<span class="number">5000</span>)</div></pre></td></tr></table></figure></p>
+<a id="more"></a> 
+<p>　　Sidecar 的作用其实很简单，就是监听 80 端口，并将接收到的流量转发给 Flask 程序，下面是它的配置文件<code>envoy.json</code>：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"listeners"</span>: [</div><div class="line">    &#123;</div><div class="line">      <span class="attr">"address"</span>: <span class="string">"tcp://0.0.0.0:80"</span>,</div><div class="line">      <span class="attr">"filters"</span>: [</div><div class="line">        &#123;</div><div class="line">          <span class="attr">"type"</span>: <span class="string">"read"</span>,</div><div class="line">          <span class="attr">"name"</span>: <span class="string">"http_connection_manager"</span>,</div><div class="line">          <span class="attr">"config"</span>: &#123;</div><div class="line">            <span class="attr">"codec_type"</span>: <span class="string">"auto"</span>,</div><div class="line">            <span class="attr">"stat_prefix"</span>: <span class="string">"ingress_http"</span>,</div><div class="line">            <span class="attr">"route_config"</span>: &#123;</div><div class="line">              <span class="attr">"virtual_hosts"</span>: [</div><div class="line">                &#123;</div><div class="line">                  <span class="attr">"name"</span>: <span class="string">"local_service"</span>,</div><div class="line">                  <span class="attr">"domains"</span>: [<span class="string">"foo.com"</span>],</div><div class="line">                  <span class="attr">"routes"</span>: [</div><div class="line">                    &#123;</div><div class="line">                      <span class="attr">"timeout_ms"</span>: <span class="number">0</span>,</div><div class="line">                      <span class="attr">"prefix"</span>: <span class="string">"/"</span>,</div><div class="line">                      <span class="attr">"cluster"</span>: <span class="string">"local_service"</span></div><div class="line">                    &#125;</div><div class="line">                  ]</div><div class="line">                &#125;</div><div class="line">              ]</div><div class="line">            &#125;,</div><div class="line">            <span class="attr">"filters"</span>: [</div><div class="line">              &#123;</div><div class="line">                <span class="attr">"type"</span>: <span class="string">"decoder"</span>,</div><div class="line">                <span class="attr">"name"</span>: <span class="string">"router"</span>,</div><div class="line">                <span class="attr">"config"</span>: &#123;&#125;</div><div class="line">              &#125;</div><div class="line">            ]</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  ],</div><div class="line">  <span class="attr">"admin"</span>: &#123;</div><div class="line">    <span class="attr">"access_log_path"</span>: <span class="string">"/dev/stdout"</span>,</div><div class="line">    <span class="attr">"address"</span>: <span class="string">"tcp://0.0.0.0:8001"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"cluster_manager"</span>: &#123;</div><div class="line">    <span class="attr">"clusters"</span>: [</div><div class="line">      &#123;</div><div class="line">        <span class="attr">"name"</span>: <span class="string">"local_service"</span>,</div><div class="line">        <span class="attr">"connect_timeout_ms"</span>: <span class="number">250</span>,</div><div class="line">        <span class="attr">"type"</span>: <span class="string">"static"</span>,</div><div class="line">        <span class="attr">"lb_type"</span>: <span class="string">"round_robin"</span>,</div><div class="line">        <span class="attr">"hosts"</span>: [</div><div class="line">          &#123;</div><div class="line">            <span class="attr">"url"</span>: <span class="string">"tcp://127.0.0.1:5000"</span></div><div class="line">          &#125;</div><div class="line">        ]</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　这个配置文件中定义了一个<code>listener</code>和一个<code>cluster</code>，其中<code>listener</code>负责监听 80 端口。注意到， <code>listener</code>中包含了一个名为<code>http_connection_manager</code>的<code>filter</code> ，这个<code>filter</code>主要用来处理 HTTP 请求（包括 HTTP/1.1 and HTTP/2 协议）。<code>filter</code>中最主要的配置就是<code>virtual_hosts</code>，它定义了一系列的路由规则，用来指定如何将流量转发给 cluster。例如，下面的配置会将<code>foo.com</code>的所有流量都转发给<code>local_service</code>这个<code>cluster</code>：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">"virtual_hosts": [</div><div class="line">  &#123;</div><div class="line">    "name": "local_service",           # 微服务名称</div><div class="line">    "domains": ["foo.com"],            # DNS 域名</div><div class="line">    "routes": [                        # 路由规则</div><div class="line">      &#123;</div><div class="line">        "timeout_ms": 0,</div><div class="line">        "prefix": "/",                 # URL 前缀</div><div class="line">        "cluster": "local_service"     # cluster 名称</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">  &#125;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>　　<code>cluster</code>的定义也很简单，它会将流量转发给本地的 5000 端口，也就是我们的 Flask 程序：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">"clusters": [</div><div class="line">  &#123;</div><div class="line">    "name": "local_service",                     # cluster 名称</div><div class="line">    "connect_timeout_ms": 250,</div><div class="line">    "type": "static",</div><div class="line">    "lb_type": "round_robin",</div><div class="line">    "hosts": [</div><div class="line">      &#123;</div><div class="line">        "url": "tcp://127.0.0.1:5000"</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">  &#125;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://piotrminkowski.wordpress.com/2017/10/25/envoy-proxy-with-microservices/" target="_blank" rel="external">Envoy Proxy with Microservices</a></li>
+<li><a href="https://www.datawire.io/guide/traffic/getting-started-lyft-envoy-microservices-resilience/" target="_blank" rel="external">Getting started with Lyft Envoy for microservices resilience</a></li>
+<li><a href="https://www.datawire.io/guide/traffic/envoy-flask-kubernetes/" target="_blank" rel="external">Deploying Envoy with a Python Flask webapp and Kubernetes</a></li>
+<li><a href="https://www.datawire.io/guide/traffic/envoy-as-api-gateway/" target="_blank" rel="external">Deploying Envoy as an API Gateway for Microservices</a></li>
+<li><a href="https://lethain.com/envoy-design/" target="_blank" rel="external">Thoughts on Envoy’s Design</a></li>
+<li><a href="http://blog.christianposta.com/microservices/01-microservices-patterns-with-envoy-proxy-part-i-circuit-breaking/" target="_blank" rel="external">Microservices Patterns With Envoy Sidecar Proxy: Circuit breakers (Part I)</a></li>
+<li><a href="http://blog.christianposta.com/microservices/02-microservices-patterns-with-envoy-proxy-part-ii-timeouts-and-retries/" target="_blank" rel="external">Microservices Patterns With Envoy Sidecar Proxy: Retries / Timeouts (Part II)</a></li>
+<li><a href="http://blog.christianposta.com/microservices/03-microservices-patterns-with-envoy-proxy-part-iii-distributed-tracing/" target="_blank" rel="external">Microservices Patterns With Envoy Sidecar Proxy: Distributed Tracing (Part III)</a></li>
+<li><a href="https://medium.com/@dntgss/%E5%9C%A8aws%E4%B8%8A%E9%83%A8%E7%BD%B2grpc-1decd0a1f2dd" target="_blank" rel="external">在AWS上部署gRPC</a></li>
+<li><a href="https://schd.ws/hosted_files/kccncna17/87/Kubecon%2012%252F17.pdf" target="_blank" rel="external">The mechanics of deploying Envoy at Lyft</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Microservices/" rel="tag">#Microservices</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/18/mysql-tuning/" rel="next" title="MySQL InnoDB 性能调优">
+                <i class="fa fa-chevron-left"></i> MySQL InnoDB 性能调优
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">56</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'http-senlinzhan-github-io';
+      var disqus_identifier = '2017/12/25/envoy/';
+      var disqus_title = "Envoy Proxy 与微服务实践";
+      var disqus_url = 'http://senlinzhan.github.io/2017/12/25/envoy/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

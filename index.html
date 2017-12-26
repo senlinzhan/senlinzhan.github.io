@@ -392,8 +392,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/12/16/mysql-query-profiling/" itemprop="url">
-                  MySQL 性能剖析
+                <a class="post-title-link" href="/2017/12/25/envoy/" itemprop="url">
+                  Envoy Proxy 与微服务实践
                 </a>
               
             
@@ -406,420 +406,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-16T16:54:25+08:00" content="2017-12-16">
-              2017-12-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/16/mysql-query-profiling/" class="leancloud_visitors" data-flag-title="MySQL 性能剖析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="分析慢查询日志"><a href="#分析慢查询日志" class="headerlink" title="分析慢查询日志"></a>分析慢查询日志</h2><p>　　在分析慢查询日志之前，需要先让 MySQL 开启慢查询日志。首先，创建目录用于存放慢查询日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -p /home/ubuntu/log/mysql</div><div class="line">$ chmod 755 /home/ubuntu/log/mysql/</div><div class="line">$ sudo chown mysql:mysql /home/ubuntu/log/mysql/</div></pre></td></tr></table></figure></p>
-<p>　　下面是和慢查询相关的配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/mysql/conf.d/mysql.cnf</div><div class="line">[mysqld]</div><div class="line">slow_query_log = ON</div><div class="line">slow_query_log_file = /home/ubuntu/log/mysql/mysql-slow.log</div><div class="line"></div><div class="line"># 若查询的耗时超过 2 秒，并且至少需要分析 100 行记录，才会被判定为慢查询</div><div class="line">long_query_time = 2</div><div class="line">min_examined_row_limit = 100</div><div class="line"></div><div class="line"># 若查询没有使用到索引，也会被判定为慢查询</div><div class="line">log-queries-not-using-indexes</div></pre></td></tr></table></figure></p>
-<p>　　在开启慢查询日志之后，可以借助<code>pt-query-digest</code>工具分析慢查询日志，生成剖析报告：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ pt-query-digest mysql-slow.log</div></pre></td></tr></table></figure></p>
-<p>　　生成的报告会对慢查询进行排序，比较严重的慢查询会排在前面：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># Profile</div><div class="line"># Rank Query ID           Response time Calls R/Call V/M   Item</div><div class="line"># ==== ================== ============= ===== ====== ===== ==============</div><div class="line">#    1 0x9F602236FBB89FCB  0.0169 98.7%     1 0.0169  0.00 SELECT payment</div><div class="line">#    2 0x5665CD6BAE86EAEC  0.0002  1.3%     1 0.0002  0.00 SELECT actor</div></pre></td></tr></table></figure></p>
-<p>　　如何解读这份报告呢？</p>
-<ul>
-<li><code>Response</code>：查询的响应时间。</li>
-<li><code>time</code>：查询占总时间的百分比。</li>
-<li><code>Calls</code>：查询的执行次数。</li>
-<li><code>R/Call</code>：单次查询的平均响应时间。</li>
-<li><code>V/M</code>：方差与平均值的比值。如果这个值较大，表示查询对应的执行时间变化较大。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/16/mysql-query-profiling/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/10/k8s-service/" itemprop="url">
-                  Kubernetes 的服务发现与负载均衡
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-10T15:44:42+08:00" content="2017-12-10">
-              2017-12-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
-                    <span itemprop="name">虚拟化</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/10/k8s-service/" class="leancloud_visitors" data-flag-title="Kubernetes 的服务发现与负载均衡">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Service-的作用"><a href="#Service-的作用" class="headerlink" title="Service 的作用"></a>Service 的作用</h2><p>　　在 <a href="http://senlinzhan.github.io/2017/12/08/k8s-deployments/">如何在 Kubernetes 部署应用</a> 中，我们讲到了如何部署应用程序，但还有几个问题没有解决：</p>
-<ul>
-<li>服务发现：由于 Kubernetes 的调度机制，在 Kubernetes 中，Pod 的 IP 不是固定的。如果其它程序需要访问这个 Pod，要怎么知道这个 Pod 的 IP 呢？</li>
-<li>负载均衡：由于 Deployment 管理着多个 Pod 的副本，如果其它程序需要访问这些 Pod，显然需要一个 proxy 为这些 Pod 做负载均衡。</li>
-<li>外部路由：如果应用程序运行在 Kubernetes 外部，如何访问 Kubernetes 内部的 Pod 呢？</li>
-</ul>
-<p>　　Kubernetes 提供了 Service 功能，用来解决这些问题。</p>
-<h2 id="服务发现与负载均衡"><a href="#服务发现与负载均衡" class="headerlink" title="服务发现与负载均衡"></a>服务发现与负载均衡</h2><p>　　Service 通常会和 Deployment 结合在一起使用，首先通过 Deployment 部署应用程序，然后再使用 Service 为应用程序提供服务发现、负载均衡和外部路由的功能。<br>　　首先，让我们创建一个 Deployment：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server    <span class="comment"># 这个 Deployment 管理着那些拥有这个标签的 Pod </span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server  <span class="comment"># 为所有 Pod 都打上这个标签</span></div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.7.9</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div></pre></td></tr></table></figure></p>
-<p>　　接着，为这个 Deployment 创建一个 Service：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-service.yaml</div><div class="line">apiVersion: v1</div><div class="line">kind: Service</div><div class="line">metadata:</div><div class="line">  name: nginx-service</div><div class="line">  labels:</div><div class="line">    name: nginx-service</div><div class="line">spec:</div><div class="line">  ports:</div><div class="line">  - port: 5000</div><div class="line">    targetPort: 80</div><div class="line">  selector:</div><div class="line">    app: nginx-server</div><div class="line">$ kubectl apply <span class="_">-f</span> nginx-service.yaml</div></pre></td></tr></table></figure></p>
-<p>　　这里我们创建了一个名为<code>nginx-service</code>的 Service，它监听的端口是 5000，同时它会把全部的流量都转发给它代理的所有 Pod（这些 Pod 都必须拥有<code>app: nginx-server</code>这个标签）。<br>　　Service 提供了两种服务发现的方式，第一种是环境变量，第二种是 DNS。先说第一种，上面我们创建了<code>nginx-service</code>这个 Service，接着如果我们再创建另外一个 Pod，那么在这个 Pod 中，可以通过环境变量知道<code>nginx-service</code>的地址。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/10/k8s-service/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/08/k8s-deployments/" itemprop="url">
-                  如何在 Kubernetes 部署应用
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-08T15:44:42+08:00" content="2017-12-08">
-              2017-12-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
-                    <span itemprop="name">虚拟化</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/08/k8s-deployments/" class="leancloud_visitors" data-flag-title="如何在 Kubernetes 部署应用">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="部署的难题"><a href="#部署的难题" class="headerlink" title="部署的难题"></a>部署的难题</h2><p>　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：</p>
-<ul>
-<li>如何在多台机器实现自动部署？</li>
-<li>在部署的过程，如何保证服务的高可用？</li>
-<li>如何知道新版本是否出现问题，健康检查要怎么做？</li>
-<li>如果新版本出现问题，能够做到回滚？</li>
-</ul>
-<p>　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。</p>
-<h2 id="如何部署应用"><a href="#如何部署应用" class="headerlink" title="如何部署应用"></a>如何部署应用</h2><p>　　下面的配置文件定义了一个 Deployment，其中包含两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server    <span class="comment"># 这个 Deployment 管理着那些拥有这个标签的 Pod </span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server  <span class="comment"># 为所有 Pod 都打上这个标签</span></div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.7.9</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
-<p>　　接着，创建这个 Deployment：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   2         2         2            2           5s</div></pre></td></tr></table></figure></p>
-<p>　　可以观察到，这个 Deployment 管理着两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME                                READY     STATUS    RESTARTS   AGE</div><div class="line">nginx-deployment-2569060349-2ph84   1/1       Running   0          2m</div><div class="line">nginx-deployment-2569060349-4wdsd   1/1       Running   0          2m</div></pre></td></tr></table></figure></p>
-<h2 id="比较-Deployment-与-ReplicaSet"><a href="#比较-Deployment-与-ReplicaSet" class="headerlink" title="比较 Deployment 与 ReplicaSet"></a>比较 Deployment 与 ReplicaSet</h2><p>　　在 <a href="http://senlinzhan.github.io/2017/11/27/k8s/">Kubernetes 入门指南</a> 我们说到了 ReplicaSet，ReplicaSet 也是用来管理多个 Pod 的副本，那么 Deployment 和 ReplicaSet 的区别在哪里呢？<br>　　当我们创建了 Deployment 之后，实际上也创建了 ReplicaSet，所以说 Deployment 管理着 ReplicaSet（实际上 Deployment 比 ReplicaSet 有着更多功能）。<br>　　这里可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   2         2         2         26m</div></pre></td></tr></table></figure></p>
-<p>　　由于 ReplicaSet 可以伸缩 Pod 的数量，因此 Deployment 也可以做到：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale deployments nginx-deployment --replicas=3</div><div class="line">deployment <span class="string">"nginx-deployment"</span> scaled</div></pre></td></tr></table></figure></p>
-<p>　　Deployment 管理着 ReplicaSet，因此当 Deployment 伸缩时，由它管理的 ReplicaSet 也会发生伸缩：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   3         3         3         30m</div></pre></td></tr></table></figure></p>
-<p>　　但反过来，如果我们直接伸缩 ReplicaSet，那么 Deployment 也会相应发生伸缩吗？答案是<u>不会的</u>。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale rs nginx-deployment-2569060349 --replicas=1</div><div class="line">replicaset <span class="string">"nginx-deployment-2569060349"</span> scaled</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   3         3         3            3           38m</div></pre></td></tr></table></figure></p>
-<h2 id="滚动更新"><a href="#滚动更新" class="headerlink" title="滚动更新"></a>滚动更新</h2><p>　　更新版本时，如何保证服务的高可用？可以借助 Deployment 的滚动更新功能，例如下面的例子中，我们将 Nginx 从<code>1.7.9</code>升级到<code>1.9.0</code>版本：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">  annotations:</div><div class="line">    kubernetes.io/change-cause: <span class="string">"Update nginx from 1.7.9 to 1.9.0"</span>   <span class="comment"># 注释</span></div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server</div><div class="line">  strategy:                    <span class="comment"># 更新策略</span></div><div class="line">    rollingUpdate:</div><div class="line">      maxSurge: 0</div><div class="line">      maxUnavailable: 1        <span class="comment"># 更新过程中，最多有一个 Pod 不可用</span></div><div class="line">    <span class="built_in">type</span>: RollingUpdate        <span class="comment"># 策略类型: 滚动更新</span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server</div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.9.0</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
-<p>　　上述的配置文件中，我们指定更新策略为<code>RollingUpdate</code>（即滚动更新）。在这种策略下，更新版本的过程是渐进性的，分多次进行，每次都只更新少数几个 Pod，直到所有 Pod 都更新完毕。<br>　　有两个参数可用用来配置滚动更新策略：</p>
-<ul>
-<li><code>maxUnavailable</code>表示在更新过程中，最多有多少个 Pod 不可用（这个数值也可以是百分比，例如 20% 表示最多有 20% 的 Pod 不可用）。譬如说，如果设置<code>maxUnavailable</code>为 1，那么更新过程会分多次进行，每次都是先销毁 1 个旧的 Pod，然后创建 1 个新的 Pod 替换它。</li>
-<li>在更新的过程，如果需要保证服务的 100% 可用，可以使用<code>maxSurge</code>，同时将<code>maxUnavailable</code>设置为 0。譬如说，将<code>maxSurge</code>设置为 1，同时将<code>maxUnavailable</code>设置为 0，那么更新过程会分多次进行，每次都是先创建 1 个新的 Pod，如果新的 Pod 可用了，这时才会替换掉旧的 Pod。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/08/k8s-deployments/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/05/envoy/" itemprop="url">
-                  Envoy proxy 入门指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-05T18:31:47+08:00" content="2017-12-05">
-              2017-12-05
+            <time itemprop="dateCreated" datetime="2017-12-25T18:31:47+08:00" content="2017-12-25">
+              2017-12-25
             </time>
           </span>
 
@@ -852,7 +440,135 @@
 
           
           
-             <span id="/2017/12/05/envoy/" class="leancloud_visitors" data-flag-title="Envoy proxy 入门指南">
+             <span id="/2017/12/25/envoy/" class="leancloud_visitors" data-flag-title="Envoy Proxy 与微服务实践">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="微服务介绍"><a href="#微服务介绍" class="headerlink" title="微服务介绍"></a>微服务介绍</h2><p>　　在传统模式下，如果微服务之间要进行通信，那么程序需要自己处理各种通信的细节，这就包括服务发现、熔断机制、超时重试和 tracing 等功能。这些功能通常实现为与某种编程语言相关的 library，这也导致了这样的 library 无法在不同的编程语言之间共享。<div align="center"><img src="/images/linux/5-a.png" width="400" align=center /> </div><br>　　更进一步，如果我们可以将这部分功能抽取出来，形成一个独立的进程，这样的进程称为 Sidecar。通常来说，我们会将应用程序和 Sidecar 部署在一起，那么程序的入口流量和出口流量都会由这个 Sidecar 去代理，这样就可以通过 Sidecar 去实现服务发现、熔断机制、超时重试等功能了。</p>
+<p><div align="center"><img src="/images/linux/6-a.png" width="500" align=center /> </div></p>
+<h2 id="Envoy-Proxy-介绍"><a href="#Envoy-Proxy-介绍" class="headerlink" title="Envoy Proxy 介绍"></a>Envoy Proxy 介绍</h2><p>　　Envoy Proxy 可以用来充当 Sidecar 进程，下图显示的就是服务与服务之间的通信：<div align="center"><img src="/images/linux/s2s.svg" width="300" align=center /> </div><br>　　除了可以充当 Sidecar 进程之外，Envoy Proxy 还可以充当反向代理，将流量转发给后端的微服务。充当反向代理的 Envoy，通常也可以称为 Edge Envoy。</p>
+<p><div align="center"><img src="/images/linux/front_proxy.svg" width="450" align=center /> </div></p>
+<h2 id="在-K8S-部署微服务"><a href="#在-K8S-部署微服务" class="headerlink" title="在 K8S 部署微服务"></a>在 K8S 部署微服务</h2><p>　　下面部署一个简单的微服务，这个微服务由两个进程组成，一个是 Sidecar 进程，另一个是简单的 Python Flask 应用<code>app.py</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> socket</div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line"></div><div class="line"><span class="meta">@app.route('/')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello_world</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">return</span> <span class="string">'Hello, World!'</span></div><div class="line"></div><div class="line"><span class="meta">@app.route('/healthy_check')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">healthy_check</span><span class="params">()</span>:</span></div><div class="line">    service = socket.gethostname()</div><div class="line">    ip = socket.gethostbyname(service)</div><div class="line">    <span class="keyword">return</span> <span class="string">'I am fine! &lt;service_name: &#123;&#125;, ip: &#123;&#125;&gt;'</span>.format(service, ip)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run(debug=<span class="keyword">True</span>, host=<span class="string">'0.0.0.0'</span>, port=<span class="number">5000</span>)</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/25/envoy/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/18/mysql-tuning/" itemprop="url">
+                  MySQL InnoDB 性能调优
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-18T11:17:54+08:00" content="2017-12-18">
+              2017-12-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/18/mysql-tuning/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 性能调优">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -877,13 +593,268 @@
         
           
             <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.datawire.io/guide/traffic/getting-started-lyft-envoy-microservices-resilience/" target="_blank" rel="external">Getting started with Lyft Envoy for microservices resilience</a></li>
-<li><a href="https://www.datawire.io/guide/traffic/envoy-flask-kubernetes/" target="_blank" rel="external">Deploying Envoy with a Python Flask webapp and Kubernetes</a></li>
-<li><a href="https://www.datawire.io/guide/traffic/envoy-as-api-gateway/" target="_blank" rel="external">Deploying Envoy as an API Gateway for Microservices</a></li>
-<li><a href="https://lethain.com/envoy-design/" target="_blank" rel="external">Thoughts on Envoy’s Design</a></li>
-<li><a href="http://blog.christianposta.com/microservices/01-microservices-patterns-with-envoy-proxy-part-i-circuit-breaking/" target="_blank" rel="external">Microservices Patterns With Envoy Sidecar Proxy: Circuit breakers (Part I)</a></li>
-<li><a href="http://blog.christianposta.com/microservices/02-microservices-patterns-with-envoy-proxy-part-ii-timeouts-and-retries/" target="_blank" rel="external">Microservices Patterns With Envoy Sidecar Proxy: Retries / Timeouts (Part II)</a></li>
-<li><a href="http://blog.christianposta.com/microservices/00-microservices-patterns-with-envoy-proxy-series/" target="_blank" rel="external">Microservices Patterns With Envoy Sidecar Proxy: Distributed Tracing (Part III)</a></li>
+<li><a href="https://www.percona.com/blog/2014/01/28/10-mysql-performance-tuning-settings-after-installation/" target="_blank" rel="external">Ten MySQL performance tuning settings after installation</a></li>
+<li><a href="https://www.percona.com/blog/2016/05/03/best-practices-for-configuring-optimal-mysql-memory-usage/" target="_blank" rel="external">Best Practices for Configuring Optimal MySQL Memory Usage</a></li>
+<li><a href="https://www.slideshare.net/osscube/mysql-performance-tuning-top-10-tips" target="_blank" rel="external">MySQL Performance Tuning: Top 10 Tips</a></li>
+<li><a href="https://github.com/major/MySQLTuner-perl" target="_blank" rel="external">MySQLTuner-perl</a></li>
+<li><a href="http://www.jianshu.com/p/78b6b7e2bb7f" target="_blank" rel="external">我必须得告诉你的MySQL优化原理3</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/18/mysql-indexes/" itemprop="url">
+                  MySQL 索引优化
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-18T10:45:19+08:00" content="2017-12-18">
+              2017-12-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/18/mysql-indexes/" class="leancloud_visitors" data-flag-title="MySQL 索引优化">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.vertabelo.com/blog/technical-articles/an-introduction-to-mysql-indexes" target="_blank" rel="external">An Introduction to MySQL Indexes</a></li>
+<li><a href="http://www.jianshu.com/p/d7665192aaaf" target="_blank" rel="external">我必须得告诉大家的MySQL优化原理</a></li>
+<li><a href="https://tech.meituan.com/mysql-index.html" target="_blank" rel="external">MySQL索引原理及慢查询优化</a></li>
+<li><a href="https://severalnines.com/blog/become-mysql-dba-blog-series-database-indexing" target="_blank" rel="external">Become a MySQL DBA blog series - Database Indexing</a></li>
+<li><a href="http://mysql.rjweb.org/doc.php/index_cookbook_mysql" target="_blank" rel="external">MySQL: Building the best INDEX for a given SELECT</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/18/mysql-partition/" itemprop="url">
+                  MySQL 分区表
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-18T10:45:08+08:00" content="2017-12-18">
+              2017-12-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/18/mysql-partition/" class="leancloud_visitors" data-flag-title="MySQL 分区表">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="水平分区"><a href="#水平分区" class="headerlink" title="水平分区"></a>水平分区</h2><p>　　在 MySQL 中，如果一张表的数据量太大（例如包含百万行数据），为了让表变得方便管理，可以将表拆分成多个分区。MySQL 只支持水平分区，不支持垂直分区。如果使用水平分区，那么 MySQL 会根据用户定义的规则，将表<u>按行</u>进行拆分，这会使得一些行落在一个分区，而另一些行落在另一个分区。</p>
+<h2 id="分区的好处"><a href="#分区的好处" class="headerlink" title="分区的好处"></a>分区的好处</h2><p>　　通常来说，如果打算让一张表存储大量的数据，那么才值得对它进行分区，分区会带来一些好处：<br>-<br>-<br>-</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.vertabelo.com/blog/technical-articles/everything-you-need-to-know-about-mysql-partitions" target="_blank" rel="external">Everything You Need to Know About MySQL Partitions</a></li>
+<li><a href="https://www.percona.com/blog/2010/12/11/mysql-partitioning-can-save-you-or-kill-you/" target="_blank" rel="external">MySQL Partitioning – can save you or kill you</a></li>
+<li><a href="http://mysql.rjweb.org/doc.php/partitionmaint" target="_blank" rel="external">PARTITION Maintenance in MySQL</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/5.6/en/partitioning.html" target="_blank" rel="external">MySQL 5.6 Reference Manual - Partitioning</a></li>
 </ul>
 
           
@@ -917,7 +888,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -958,7 +929,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">52</span>
+              <span class="site-state-item-count">56</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

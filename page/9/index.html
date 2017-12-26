@@ -266,6 +266,521 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/10/Linux的TCP-CORK/" itemprop="url">
+                  Nagle 算法与 TCP socket 选项 TCP_CORK
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-10T22:49:15+08:00" content="2017-02-10">
+              2017-02-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/10/Linux的TCP-CORK/" class="leancloud_visitors" data-flag-title="Nagle 算法与 TCP socket 选项 TCP_CORK">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Nagle-算法"><a href="#Nagle-算法" class="headerlink" title="Nagle 算法"></a>Nagle 算法</h2><p>　　Nagle算法由John Nagle在1984年提出，这个算法可以减少网络中小的packet的数量，从而降低网络的拥塞程度。一个常见的例子就是Telnet程序，用户在控制台的每次击键都会发送一个packet，这个packet通常包含41个字节，然而只有一个字节是payload，其余40个字节都是header，如果每次击键都发送一个packet，那就会造成了巨大的开销。<br>　　为了减小这种开销，Nagle算法指出，当TCP发送了一个小的segment(小于MSS)，它必须等到接收了对方的ACK之后，才能继续发送另一个小的segment。那么在等待的过程中(一个RTT时间)，TCP就能尽量多地将要发送的数据收集在一起，从而减少要发送的segment的数量。<br>　　默认情况下，TCP开启了Nagle算法，然而Nagle算法并不是灵丹妙药，它会增加TCP发送数据的延迟。在一些要求低延迟的应用程序中(例如即时通讯应用)，则需要禁用Nagle算法：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> optval = <span class="number">1</span>;</div><div class="line">setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &amp;optval, <span class="keyword">sizeof</span>(optval));</div></pre></td></tr></table></figure></p>
+<h2 id="Delayed-ACK"><a href="#Delayed-ACK" class="headerlink" title="Delayed ACK"></a>Delayed ACK</h2><p>　　TCP的 Delayed ACK 与Nagle算法有异曲同工之妙，Delayed ACK很好理解，当TCP接收到数据时，并不会立即发送ACK给对方，相反，它会等待应用层产生数据，以便将ACK和数据一起发送(在Linux最多等待40ms)。<br>　　我们知道，Nagle算法会增加TCP发送数据的延迟，然而，在某些情况下，Delayed ACK会放大这种延迟。一个常见的例子客户端HTTP POST协议，首先看看客户端的代码：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">write(http_request_header);</div><div class="line">write(http_request_body);</div><div class="line"></div><div class="line"><span class="comment">// get response from server ...</span></div></pre></td></tr></table></figure></p>
+<p>　　客户端调用两次<code>write()</code>来发送HTTP POST请求，服务端则需要调用两次<code>read()</code>读取客户端的HTTP请求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">http_request_header = read(...);</div><div class="line">http_request_body = read(...);</div><div class="line"></div><div class="line"><span class="comment">// write response to client ...</span></div></pre></td></tr></table></figure></p>
+<p>　　通常来说，HTTP请求的header和body都是小的segment，但由于TCP默认开启Nagle算法，因此客户端在发送请求的header之后，如果还未收到ACK，则不能发送body。</p>
+<p><div align="center"><br>    <img src="/images/linux/delayed_ack.png" width="320" align=center /><br></div><br>　　Server在收到请求的header之后，由于还没有收到请求的body，因此无法立即产生HTTP响应给客户端，这就导致了http_request_header的ACK大概会延迟40ms才发送。<br>　　为避免这种延迟的出现，需要做两件事：</p>
+<ul>
+<li>设置<code>TCP_NODELAY</code>选项。</li>
+<li>将客户端的两次<code>write()</code>合并成一个，避免服务端的Delayed ACK。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/10/Linux的TCP-CORK/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/08/Linux的SO-REUSEPORT选项/" itemprop="url">
+                  Linux 的 socket 选项SO_REUSEPORT
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-08T20:34:16+08:00" content="2017-02-08">
+              2017-02-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/08/Linux的SO-REUSEPORT选项/" class="leancloud_visitors" data-flag-title="Linux 的 socket 选项SO_REUSEPORT">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="均衡转发"><a href="#均衡转发" class="headerlink" title="均衡转发"></a>均衡转发</h2><p>　　多线程服务端编程中经常遇到的一个问题就是，如何将客户端的连接请求均衡地分发给每个线程。一种常见的做法是让多个线程同时调用<code>accept()</code>，在同一个socket描述符上等待连接请求，当请求到达时，内核会随机唤醒一个线程去处理这个请求。(注：Linux 2.6之后，<code>accept()</code>不会导致惊群。) 然而，正如<a href="https://lwn.net/Articles/542629/">这篇文章</a>所说的，当连接请求到达时，若系统负载过高，内核就可能会以一种很不均衡地方式去唤醒线程。这就导致了有的线程处理太多请求而忙不过来，而有的线程则很空闲。<br>　　Linux 3.9提供了<code>SO_REUSEPORT</code>选项，对于TCP来说，它允许多个listening socket绑定到同一个端口，也就是说，所有线程都可以创建一个listening socket绑定到同一个端口，并且可以调用<code>accept()</code>在这个socket上等待连接请求。使用<code>SO_REUSEPORT</code>的好处就是，由于内核会将客户端的连接请求均衡地分发给每个listening socket，在多线程环境中，这有利于充分利用好每个 CPU 核心。<br>　　<code>SO_REUSEPORT</code>的用法很简单，只要每个listening socket在调用<code>bind()</code>之前设置好这个选项就可以了：</p>
+<pre><code class="C++"><span class="keyword">int</span> sockfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);
+
+<span class="keyword">int</span> optval = <span class="number">1</span>;
+setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &amp;optval, <span class="keyword">sizeof</span>(optval));
+
+bind(sockfd, ...);
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/08/Linux的SO-REUSEPORT选项/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/11/12/protobuf的自动反射/" itemprop="url">
+                  浅谈 Prorobuf 的自动反射功能
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-12T20:51:52+08:00" content="2016-11-12">
+              2016-11-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/11/12/protobuf的自动反射/" class="leancloud_visitors" data-flag-title="浅谈 Prorobuf 的自动反射功能">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Protobuf-的介绍"><a href="#Protobuf-的介绍" class="headerlink" title="Protobuf 的介绍"></a>Protobuf 的介绍</h2><p>　　Protobuf 是一种序列化工具，用来将程序的数据结构序列化成字节流，方便网络传输。将数据结构序列化成字节流之前，首先你得向 Protobuf 提供一个 <code>.proto</code>文件，用来描述你的数据结构。举个例子，假设你想存储公司员工的信息，那么首先你需要描述一下员工的信息是怎样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">package company;</div><div class="line"></div><div class="line">message Employee &#123;</div><div class="line">    required string name = 1;</div><div class="line">    required string email = 2;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　将文件保存为<code>company.proto</code>，接着用 Protobuf 编译器自动生成一个<code>Employee</code>类：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">protoc --cpp_out . company.proto</div></pre></td></tr></table></figure></p>
+<p>　　根据生成的<code>Employee</code>类，我们就可以将员工信息序列成字节流，或从字节流读取员工信息。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/11/12/protobuf的自动反射/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/15/安全关闭TCP连接/" itemprop="url">
+                  如何可靠关闭 TCP 连接
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-15T10:13:27+08:00" content="2016-09-15">
+              2016-09-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/15/安全关闭TCP连接/" class="leancloud_visitors" data-flag-title="如何可靠关闭 TCP 连接">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="write-的含义"><a href="#write-的含义" class="headerlink" title="write 的含义"></a>write 的含义</h2><p>　　用<code>write()</code>向 socket 描述符写入<code>n</code>个字节，<code>write()</code>返回<code>n</code>，这意味着什么呢？你可能这样想，<code>write()</code>返回<code>n</code>，那不就表示对方已经收到<code>n</code>个字节了吗？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[<span class="number">1024</span>];</div><div class="line"><span class="keyword">ssize_t</span> n = write(sockfd, buffer, <span class="keyword">sizeof</span>(buffer));</div></pre></td></tr></table></figure></p>
+<p>　　然而，实际上<code>write()</code>返回<code>n</code>仅仅保证将<code>n</code>个字节写入内核中<code>sockfd</code>的发送缓冲区。但是内核是否已经将数据转发给网卡，对方是否收到了数据，就无从得知了。</p>
+<h2 id="TCP-的可靠关闭"><a href="#TCP-的可靠关闭" class="headerlink" title="TCP 的可靠关闭"></a>TCP 的可靠关闭</h2><p>　　既然调用<code>write()</code>无法确保对方收到了数据，那么在调用<code>write()</code>之后就调用<code>close()</code>来关闭连接是否合适呢？<a href="https://tools.ietf.org/html/rfc1122#page-87">RFC1122</a>指出，由于 TCP 是全双工的，调用<code>close()</code>时如果有可读数据停留在接收缓冲区，或者在<code>close()</code>之后收到新的数据，数据就无法被读取，这时 TCP 将会发送 RST 通知对方数据已经丢失了。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/15/安全关闭TCP连接/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/08/15/为connect设置超时/" itemprop="url">
                   为 connect 设置连接超时
                 </a>
@@ -372,539 +887,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/07/30/Python协程的前世今生/" itemprop="url">
-                  Python 协程的前世今生
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-07-30T10:25:21+08:00" content="2016-07-30">
-              2016-07-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/07/30/Python协程的前世今生/" class="leancloud_visitors" data-flag-title="Python 协程的前世今生">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="生成器与协程"><a href="#生成器与协程" class="headerlink" title="生成器与协程"></a>生成器与协程</h2><p>　　在Python2.3中，生成器正式被纳入标准。在处理大量数据时，生成器非常有用，例如读取一个几G的文件，你没有必要将文件一次性读取到内存，而是读到一行就将其返回，这样程序不会阻塞在等待读取文件的过程中，也可以大大减少内存的占用。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_lazy</span><span class="params">(file_object)</span>:</span></div><div class="line">    <span class="string">"""Lazy function (generator) to read a file line by line."""</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = file_object.readline()</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">yield</span> data</div></pre></td></tr></table></figure></p>
-<p>　　生成器执行时候每次遇到<code>yield</code>就会停顿一次并返回一个值，而你可以使用<code>next()</code>让生成器继续执行，直到遇到下一个<code>yield</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">f = open(<span class="string">'data'</span>)</div><div class="line"><span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        line = next(f)</div><div class="line">        print(line, end=<span class="string">''</span>)</div><div class="line">    <span class="keyword">except</span> StopIteration:</div><div class="line">        <span class="keyword">break</span></div></pre></td></tr></table></figure></p>
-<hr>
-<p>　　后来人们意识到了，既然有办法暂停一个函数的执行，稍后让它从暂停的地方继续执行，这不就满足了协程的概念吗？然而你只能获得生成器的返回值，而不能向生成器传递值。为支持协程，<a href="https://www.python.org/dev/peps/pep-0342/">PEP 342</a>提出了你可以使用<code>send()</code>向生成器发送一个值同时重启生成器的执行。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">grep</span><span class="params">(pattern)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">            line = (<span class="keyword">yield</span>)</div><div class="line">            <span class="keyword">if</span> pattern <span class="keyword">in</span> line:</div><div class="line">                print(line)</div><div class="line">    <span class="keyword">except</span> GeneratorExit:</div><div class="line">        print(<span class="string">'See you again!'</span>)</div><div class="line"></div><div class="line">g = grep(<span class="string">'Python'</span>)</div><div class="line">g.send(<span class="keyword">None</span>)      <span class="comment"># 启动协程</span></div><div class="line">g.send(<span class="string">"Python Cookbook"</span>)</div><div class="line">g.close()</div></pre></td></tr></table></figure></p>
-<p>　　既然一个协程在执行时候可以通过<code>yield</code>让出当前线程，那么我们就可以在不同的协程之间进行切换从而达到并发的效果，为此你需要编写一个任务调度器，实现基于<a href="https://en.wikipedia.org/wiki/Cooperative_multitasking">Cooperative multitasking</a>的任务调度，通过这个调度器管理不同协程的执行。</p>
-<hr>
-<p>　　下面我们实现一个基于协程的并发Echo Server，这个程序的核心在于任务调度器：</p>
-<ul>
-<li>当EchoServer在执行<code>accept</code>, <code>recv</code>和<code>send</code>这类I/O操作之前，会主动让出，这时控制权将移交到调度器手中。</li>
-<li>当调度器发现将要执行的I/O操作是<code>accept</code>或<code>recv</code>时，就将任务放到等待读取的队列，若是<code>send</code>则将任务放到等待写入的队列。</li>
-<li>调度器会对这两个队列进行I/O轮询，并将就绪的任务放到就绪队列中。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR</div><div class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</div><div class="line"><span class="keyword">from</span> select <span class="keyword">import</span> select</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Scheduler</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.ready = deque()         <span class="comment"># 就绪队列      deque: coroutine </span></div><div class="line">        self.read_waiting = &#123;&#125;       <span class="comment"># 等待读取的队列  dict: socket -&gt; coroutine</span></div><div class="line">        self.write_waiting = &#123;&#125;      <span class="comment"># 等待写入的队列  dict: socket -&gt; coroutine</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_ready</span><span class="params">(self, task)</span>:</span></div><div class="line">        self.ready.append(task)    </div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_read</span><span class="params">(self, fileno, task)</span>:</span></div><div class="line">        self.read_waiting[fileno] = task</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_write</span><span class="params">(self, fileno, task)</span>:</span></div><div class="line">        self.write_waiting[fileno] = task</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">loop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> any([self.ready, self.read_waiting, self.write_waiting]):</div><div class="line">            <span class="comment"># 如果就绪队列是空的，就进行I/O轮询，等待事件就绪</span></div><div class="line">            <span class="keyword">while</span> <span class="keyword">not</span> self.ready:</div><div class="line">                can_read, can_write, _ = select(self.read_waiting,</div><div class="line">                                                self.write_waiting,</div><div class="line">                                                [])</div><div class="line">                <span class="keyword">for</span> fileno <span class="keyword">in</span> can_read:</div><div class="line">                    self.ready.append(self.read_waiting.pop(fileno))</div><div class="line">                <span class="keyword">for</span> fileno <span class="keyword">in</span> can_write:</div><div class="line">                    self.ready.append(self.write_waiting.pop(fileno))</div><div class="line">                </div><div class="line">            task = self.ready.popleft()</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                event, fileno = next(task)  <span class="comment"># 让协程执行到 yield</span></div><div class="line">                <span class="keyword">if</span> event == <span class="string">'read'</span>:</div><div class="line">                    self.read_waiting[fileno] = task</div><div class="line">                <span class="keyword">elif</span> event == <span class="string">'write'</span>:</div><div class="line">                    self.write_waiting[fileno] = task</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">raise</span> RuntimeError(<span class="string">"ERROR!"</span>)            </div><div class="line">            <span class="keyword">except</span> StopIteration:</div><div class="line">                print(<span class="string">'task done'</span>)</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AsyncSocket</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, sock)</span>:</span></div><div class="line">        self.sock = sock</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">recv</span><span class="params">(self, maxsize)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'read'</span>, self.sock   <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        <span class="keyword">return</span> self.sock.recv(maxsize)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self, data)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'write'</span>, self.sock  <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        <span class="keyword">return</span> self.sock.send(data)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">accept</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">yield</span> <span class="string">'read'</span>, self.sock   <span class="comment"># 主动让出，交给调度器调度</span></div><div class="line">        client, addr = self.sock.accept()</div><div class="line">        <span class="keyword">return</span> AsyncSocket(client), addr </div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></div><div class="line">        <span class="keyword">return</span> getattr(self.sock, name)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(scheduler, address, backlog=<span class="number">5</span>)</span>:</span></div><div class="line">    sock = AsyncSocket(socket(AF_INET, SOCK_STREAM))</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(backlog)</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client_sock, client_addr = <span class="keyword">yield</span> <span class="keyword">from</span> sock.accept()  <span class="comment"># blocking</span></div><div class="line">        scheduler.add_ready(echo_handler(client_addr, client_sock))</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(address, client_sock)</span>:</span></div><div class="line">    print(<span class="string">'Got connection from &#123;&#125;'</span>.format(address))</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        msg = <span class="keyword">yield</span> <span class="keyword">from</span> client_sock.recv(<span class="number">8192</span>)  <span class="comment"># blocking</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> msg:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> client_sock.send(msg)  <span class="comment"># blocking</span></div><div class="line">    client_sock.close()</div><div class="line">        </div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    scheduler = Scheduler()</div><div class="line">    server = echo_server(scheduler, (<span class="string">''</span>, <span class="number">20000</span>))</div><div class="line">    scheduler.add_ready(server)</div><div class="line">    scheduler.loop()</div></pre></td></tr></table></figure>
-<p>　　这段代码实现了一个小型的<u>协作式</u>任务调度器。这里你应该意识到协程与线程的不同点了，线程的调度是基于<u>抢占式</u>调度的，在抢占式调度里面，一个线程可能来不及将寄存器变量写入到内存中，或者处理器的缓存来不及同步到主内存中，就被迫切换到另一线程，这就是线程中为什么需要使用各种同步的方式来保证数据的一致性。而协程是主动让出，所以不存在多个协程同时修改同一变量的情况，也就不需要使用互斥锁等同步方式了。<br>　　而<u>协作式</u>调度的一个明显缺点就是，如果某个协程在执行阻塞的调用，或者执行密集的CPU计算，这时协程就无法让出，整个程序就会失去响应了。这就是为什么当今的操作系统放弃协作式调度的原因了。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/07/30/Python协程的前世今生/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/01/11/emacs-as-cpp-ide/" itemprop="url">
-                  打造 Mac OS 的 C++ IDE（Emacs 篇）
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-01-11T20:52:24+08:00" content="2016-01-11">
-              2016-01-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/开发环境/" itemprop="url" rel="index">
-                    <span itemprop="name">开发环境</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/01/11/emacs-as-cpp-ide/" class="leancloud_visitors" data-flag-title="打造 Mac OS 的 C++ IDE（Emacs 篇）">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="IDE-介绍"><a href="#IDE-介绍" class="headerlink" title="IDE 介绍"></a>IDE 介绍</h2><p>　　本篇文章将从零开始，介绍如何搭建一个好用的 C++ IDE，主要特性：</p>
-<ul>
-<li>支持代码语义跳转。</li>
-<li>支持代码自动补全。</li>
-<li>支持代码语法检查。</li>
-<li>支持 cmake。</li>
-</ul>
-<h2 id="通用配置"><a href="#通用配置" class="headerlink" title="通用配置"></a>通用配置</h2><p>　　下面是一些比较有用的设置，打开<code>~/.emacs</code>文件，写入以下内容：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; 启动时不显示信息</span></div><div class="line">(<span class="name">setq</span> inhibit-startup-message <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 显示行号</span></div><div class="line">(<span class="name">global-linum-mode</span> <span class="literal">t</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 自动补全括号</span></div><div class="line">(<span class="name">electric-pair-mode</span> <span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="comment">;; 按 Ctl-Enter 开始选中文本</span></div><div class="line">(<span class="name">global-set-key</span> (<span class="name">kbd</span> <span class="string">"C-&lt;return&gt;"</span>) 'set-mark-command)</div><div class="line"></div><div class="line"><span class="comment">;; 设置代码风格</span></div><div class="line">(<span class="name">c-add-style</span> <span class="string">"my-style"</span></div><div class="line">             '(<span class="string">"stroustrup"</span></div><div class="line">               (indent-tabs-mode . <span class="literal">nil</span>)        ; 使用空格缩进而不是 Tab</div><div class="line">               (c-basic-offset . <span class="number">4</span>)            ; 使用四个空格缩进</div><div class="line">               (c-offsets-alist . ((inline-open . <span class="number">0</span>)</div><div class="line">                                   (brace-list-open . <span class="number">0</span>)</div><div class="line">                                   (statement-case-open . +)))))</div><div class="line"></div><div class="line">(<span class="name">defun</span> my-c++-mode-hook ()</div><div class="line">  (<span class="name">c-set-style</span> <span class="string">"my-style"</span>)        <span class="comment">; use my-style defined above</span></div><div class="line">  (<span class="name">auto-fill-mode</span>)</div><div class="line">  (<span class="name">c-toggle-auto-hungry-state</span> <span class="number">1</span>))</div><div class="line"></div><div class="line">(<span class="name">add-hook</span> 'c++-mode-hook 'my-c++-mode-hook)</div><div class="line">(<span class="name">add-hook</span> 'c-mode-hook 'my-c++-mode-hook)</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/11/emacs-as-cpp-ide/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/08/27/设计二叉树迭代器/" itemprop="url">
-                  如何设计 C++ 的二叉树的迭代器
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-08-27T20:01:10+08:00" content="2015-08-27">
-              2015-08-27
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/08/27/设计二叉树迭代器/" class="leancloud_visitors" data-flag-title="如何设计 C++ 的二叉树的迭代器">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="中序历遍"><a href="#中序历遍" class="headerlink" title="中序历遍"></a>中序历遍</h2><p>　　我们希望以升序的方式历遍二叉树，这种历遍方式就是<strong>中序</strong>历遍，好了，那看看中序历遍的<strong>非递归</strong>实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> UnaryFuncion&gt;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">inorderTraverse</span><span class="params">( UnaryFuncion visit )</span> <span class="keyword">const</span> </div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> curr = root_;        </div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;node_ptr&gt; nodeStack;</div><div class="line">    </div><div class="line">    <span class="keyword">while</span>( curr || !nodeStack.empty() )</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">while</span>( curr )</div><div class="line">        &#123;</div><div class="line">            nodeStack.push( curr );</div><div class="line">            curr = curr-&gt;left;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">auto</span> top = nodeStack.top();</div><div class="line">        nodeStack.pop();</div><div class="line">        visit( top-&gt;value );</div><div class="line">        curr = top-&gt;right;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　可以想到，将中序历遍分成两部分，初始化阶段，以及迭代阶段。先看看<strong>初始化</strong>阶段：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> curr = root;</div><div class="line"><span class="keyword">while</span>( curr )</div><div class="line">&#123;</div><div class="line">    nodeStack.push( curr );</div><div class="line">    curr = curr-&gt;left;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　还有，<strong>迭代</strong>阶段：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> curr = <span class="built_in">stack</span>.top();</div><div class="line"><span class="built_in">stack</span>.pop();</div><div class="line"></div><div class="line">curr = curr-&gt;right;</div><div class="line"><span class="keyword">while</span>( curr )</div><div class="line">&#123;</div><div class="line">    <span class="built_in">stack</span>.push( curr );</div><div class="line">    curr = curr-&gt;left;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="迭代器设计"><a href="#迭代器设计" class="headerlink" title="迭代器设计"></a>迭代器设计</h2><p>　　二叉树的迭代器是 input iterator，可以这样设计：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> const_iterator</div><div class="line">&#123;</div><div class="line">    <span class="keyword">friend</span> <span class="keyword">class</span> BinaryTree;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">using</span> value_type          = T;</div><div class="line">    <span class="keyword">using</span> pointer             = <span class="keyword">const</span> T*;</div><div class="line">    <span class="keyword">using</span> reference           = <span class="keyword">const</span> T&amp;;</div><div class="line">    <span class="keyword">using</span> iterator_category   = <span class="built_in">std</span>::input_iterator_tag;        </div><div class="line"></div><div class="line">    reference <span class="keyword">operator</span>*() <span class="keyword">const</span>;</div><div class="line"></div><div class="line">    pointer <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span>;</div><div class="line"></div><div class="line">    const_iterator &amp;<span class="keyword">operator</span>++();</div><div class="line"></div><div class="line">    <span class="keyword">const</span> const_iterator <span class="keyword">operator</span>++(<span class="keyword">int</span>);</div><div class="line"></div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>==( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>!=( <span class="keyword">const</span> const_iterator &amp;other ) <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div><div class="line"></div><div class="line"><span class="keyword">protected</span>:</div><div class="line">    const_iterator( <span class="keyword">const</span> BinaryTree *t, <span class="keyword">bool</span> end ) </div><div class="line">        : tree( t ), index( <span class="number">0</span> ) </div><div class="line">    &#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">const</span> BinaryTree             *tree;</div><div class="line">    size_type                    index;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;node_ptr&gt;         <span class="built_in">stack</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/08/27/设计二叉树迭代器/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/08/24/C-实现阻塞队列/" itemprop="url">
-                  C++ 实现阻塞队列
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-08-24T10:07:17+08:00" content="2015-08-24">
-              2015-08-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/08/24/C-实现阻塞队列/" class="leancloud_visitors" data-flag-title="C++ 实现阻塞队列">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="队列的异常安全"><a href="#队列的异常安全" class="headerlink" title="队列的异常安全"></a>队列的异常安全</h2><p>　　考虑一下 STL 中 queue 的接口：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T&amp; front();</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">( <span class="keyword">const</span> T &amp;elem )</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pop</span><span class="params">()</span></span>;</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span></span>; <span class="comment">// avoid undefined behaviour before calling front() </span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　我们知道，<code>front()</code>用来获得队列头部元素，而<code>pop()</code>则令头部元素出列。但是为什么不设计成这样呢：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;T&gt;&gt;</div><div class="line"><span class="keyword">class</span> <span class="built_in">queue</span></div><div class="line">&#123;</div><div class="line">    T pop();</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　其实这是为了保证异常安全（Exception Safe），像下面这个例子：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">queue</span>&lt;Widget&gt; q;</div><div class="line"><span class="comment">// ... </span></div><div class="line">Widget value = q.top();</div></pre></td></tr></table></figure></p>
-<p>　　设想一下，要是<code>top()</code>将元素出列，并且将这个元素赋值给 value 时，若其拷贝构造函数发生了异常，那么，这个元素就会永远丢失了。</p>
-<h2 id="关于实现的细节"><a href="#关于实现的细节" class="headerlink" title="关于实现的细节"></a>关于实现的细节</h2><p>　　我们将设计一个 ThreadQueue，并且具有以下的特点：</p>
-<ul>
-<li>允许多个读者 ( Reader ) 和多个写者 ( Writer ) 并发地访问队列。</li>
-<li>元素出列的操作将会阻塞，直到队列不为空。</li>
-<li>元素出列时保证异常安全性。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/08/24/C-实现阻塞队列/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -945,7 +932,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">52</span>
+              <span class="site-state-item-count">56</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
