@@ -105,14 +105,14 @@
 <meta name="description" content="事务的隔离级别　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。
 未提交读　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL InnoDB 事务模型">
+<meta property="og:title" content="MySQL InnoDB 的锁机制与事务模型">
 <meta property="og:url" content="http://senlinzhan.github.io/2017/12/17/mysql-transaction/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="事务的隔离级别　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。
 未提交读　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提">
-<meta property="og:updated_time" content="2017-12-21T08:54:53.000Z">
+<meta property="og:updated_time" content="2017-12-26T14:47:11.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL InnoDB 事务模型">
+<meta name="twitter:title" content="MySQL InnoDB 的锁机制与事务模型">
 <meta name="twitter:description" content="事务的隔离级别　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。
 未提交读　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提">
 
@@ -137,7 +137,7 @@
 
   <link rel="canonical" href="http://senlinzhan.github.io/2017/12/17/mysql-transaction/"/>
 
-  <title> MySQL InnoDB 事务模型 | Senlin's Blog </title>
+  <title> MySQL InnoDB 的锁机制与事务模型 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -267,7 +267,7 @@
             
             
               
-                MySQL InnoDB 事务模型
+                MySQL InnoDB 的锁机制与事务模型
               
             
           </h1>
@@ -313,7 +313,7 @@
 
           
           
-             <span id="/2017/12/17/mysql-transaction/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 事务模型">
+             <span id="/2017/12/17/mysql-transaction/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 的锁机制与事务模型">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -336,7 +336,7 @@
 
       
         <h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。</p>
-<h4 id="未提交读"><a href="#未提交读" class="headerlink" title="未提交读"></a>未提交读</h4><p>　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提交的情况下，对其它事务来说都是可见的，因此会导致读的不一致性（也即脏读）。</p>
+<h4 id="未提交读"><a href="#未提交读" class="headerlink" title="未提交读"></a>未提交读</h4><p>　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提交的情况下，对其它事务来说都是可见的，因此会导致读的不一致性（也即脏读）。<br><a id="more"></a> </p>
 <h4 id="提交读"><a href="#提交读" class="headerlink" title="提交读"></a>提交读</h4><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://draveness.me/database-concurrency-control" target="_blank" rel="external">浅谈数据库并发控制 - 锁和 MVCC</a></li>
 <li><a href="https://draveness.me/mysql-transaction" target="_blank" rel="external">浅入深出』MySQL 中事务的实现</a></li>
@@ -633,7 +633,7 @@
     <script type="text/javascript">
       var disqus_shortname = 'http-senlinzhan-github-io';
       var disqus_identifier = '2017/12/17/mysql-transaction/';
-      var disqus_title = "MySQL InnoDB 事务模型";
+      var disqus_title = "MySQL InnoDB 的锁机制与事务模型";
       var disqus_url = 'http://senlinzhan.github.io/2017/12/17/mysql-transaction/';
 
       function run_disqus_script(disqus_script){

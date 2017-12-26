@@ -267,7 +267,7 @@
               
                 
                 <a class="post-title-link" href="/2017/12/17/mysql-transaction/" itemprop="url">
-                  MySQL InnoDB 事务模型
+                  MySQL InnoDB 的锁机制与事务模型
                 </a>
               
             
@@ -314,7 +314,7 @@
 
           
           
-             <span id="/2017/12/17/mysql-transaction/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 事务模型">
+             <span id="/2017/12/17/mysql-transaction/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 的锁机制与事务模型">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -337,19 +337,13 @@
 
       
         
-          
-            <h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。</p>
-<h4 id="未提交读"><a href="#未提交读" class="headerlink" title="未提交读"></a>未提交读</h4><p>　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提交的情况下，对其它事务来说都是可见的，因此会导致读的不一致性（也即脏读）。</p>
-<h4 id="提交读"><a href="#提交读" class="headerlink" title="提交读"></a>提交读</h4><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://draveness.me/database-concurrency-control" target="_blank" rel="external">浅谈数据库并发控制 - 锁和 MVCC</a></li>
-<li><a href="https://draveness.me/mysql-transaction" target="_blank" rel="external">浅入深出』MySQL 中事务的实现</a></li>
-<li><a href="https://draveness.me/mysql-innodb" target="_blank" rel="external">『浅入浅出』MySQL 和 InnoDB</a></li>
-<li><a href="http://blog.sina.com.cn/s/blog_499740cb0100ugs7.html" target="_blank" rel="external">MySQL的InnoDB的幻读问题</a></li>
-<li><a href="http://hedengcheng.com/?p=771#_Toc374698317" target="_blank" rel="external">MySQL 加锁处理分析</a></li>
-<li><a href="https://www.percona.com/blog/2012/03/27/innodbs-gap-locks" target="_blank" rel="external">InnoDB’s gap locks</a></li>
-</ul>
-
-          
+          <h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。</p>
+<h4 id="未提交读"><a href="#未提交读" class="headerlink" title="未提交读"></a>未提交读</h4><p>　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提交的情况下，对其它事务来说都是可见的，因此会导致读的不一致性（也即脏读）。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/17/mysql-transaction/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>

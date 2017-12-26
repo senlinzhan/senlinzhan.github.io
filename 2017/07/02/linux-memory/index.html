@@ -114,7 +114,7 @@
 
 使用mmap()分配内存时，不会产生内存碎片。因为当这块内存不需要时，可以直接调用munmap()释放它，这样内存就会直接返回给操作系统。
 在 Linux 中">
-<meta property="og:updated_time" content="2017-08-12T02:28:06.000Z">
+<meta property="og:updated_time" content="2017-12-26T01:58:40.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈 Linux 的内存管理">
 <meta name="twitter:description" content="匿名内存映射　　在 Linux 中，如果使用malloc()分配一块很大的内存 (大于128KB)，这时malloc()不会直接从 heap 上分配内存，而是会调用mmap()创建匿名的内存映射，那么使用mmap()分配内存有何优缺点呢？
