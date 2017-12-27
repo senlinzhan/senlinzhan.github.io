@@ -112,7 +112,7 @@
 <meta property="og:image" content="http://senlinzhan.github.io/images/linux/6-a.png">
 <meta property="og:image" content="http://senlinzhan.github.io/images/linux/s2s.svg">
 <meta property="og:image" content="http://senlinzhan.github.io/images/linux/front_proxy.svg">
-<meta property="og:updated_time" content="2017-12-27T08:51:54.000Z">
+<meta property="og:updated_time" content="2017-12-27T08:55:40.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Envoy Proxy 与微服务实践">
 <meta name="twitter:description" content="微服务介绍　　在传统模式下，如果微服务之间要进行通信，那么程序需要自己处理各种通信的细节，这就包括服务发现、熔断机制、超时重试和 tracing 等功能。这些功能通常实现为与某种编程语言相关的 library，这也导致了这样的 library 无法在不同的编程语言之间共享。 　　更进一步，如果我们可以将这部分功能抽取出来，形成一个独立的进程，这样的进程称为 Sidecar。通常来说，我们会将应用程">
@@ -356,8 +356,7 @@
 <hr>
 <p>　　Kubernetes 配置文件<a href="https://github.com/senlinzhan/envoy-examples" target="_blank" rel="external">放在了这里</a>，git clone这个项目，并执行下面的命令，可以部署 Edge Envoy：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl create configmap edge-envoy-config --from-file edge-envoy/envoy.json</div><div class="line">$ kubectl apply <span class="_">-f</span> edge-envoy/deployment.yaml</div><div class="line">$ kubectl apply <span class="_">-f</span> edge-envoy/service.yaml</div></pre></td></tr></table></figure></p>
 <p>　　Edge Envoy 使用的是 NodePort 的方式暴露端口，可以看到它的端口为 32714：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get services</div><div class="line">NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE</div><div class="line">edge-envoy-service        NodePort    10.43.219.6     &lt;none&gt;        80:32714/TCP   1d</div></pre></td></tr></table></figure></p>
-<p>　　假设集群内，有一个节点的 IP 为<code>172.16.1.127</code>，例如：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get nodes</div><div class="line">NAME              STATUS    ROLES     AGE       VERSION</div><div class="line">hemc-k8s-new-01   Ready     &lt;none&gt;    6d        v1.8.3-rancher3</div></pre></td></tr></table></figure></p>
-<p>　　那么可以测试 Edge Envoy 是否正常工作：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ curl 172.16.1.127:32714 -H <span class="string">"Host: foo.com"</span></div><div class="line">Hello, World!</div></pre></td></tr></table></figure></p>
+<p>　　<u>假设</u>集群内，有一个节点的 IP 为<code>172.16.1.127</code>，那么可以使用下面的命令，测试 Edge Envoy 是否正常工作：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ curl 172.16.1.127:32714 -H <span class="string">"Host: foo.com"</span></div><div class="line">Hello, World!</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://piotrminkowski.wordpress.com/2017/10/25/envoy-proxy-with-microservices/" target="_blank" rel="external">Envoy Proxy with Microservices</a></li>
 <li><a href="https://www.datawire.io/guide/traffic/getting-started-lyft-envoy-microservices-resilience/" target="_blank" rel="external">Getting started with Lyft Envoy for microservices resilience</a></li>
