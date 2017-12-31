@@ -266,6 +266,133 @@
             
               
                 
+                <a class="post-title-link" href="/2015/03/13/多项式乘法与加法/" itemprop="url">
+                  多项式算法的实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-03-13T11:03:40+08:00" content="2015-03-13">
+              2015-03-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/算法分析/" itemprop="url" rel="index">
+                    <span itemprop="name">算法分析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/03/13/多项式乘法与加法/" class="leancloud_visitors" data-flag-title="多项式算法的实现">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>　　在数值计算中，有时我们需要对多项式进行相加或相乘，此外，还经常需要对多项式进行求值。例如，假定我们需要对两个多项式进行乘法运算：<br>$$<br>(1+x+\frac{x^2}{2}-\frac{x^3}{6}) (1+x+x^2+x^3)= 1 + \frac{x^2}{2} + \frac{x^3}{3} - \frac{2x^4}{3} + \frac{x^5}{3} - \frac{x^6}{3}<br>$$</p>
+<h2 id="多项式的表示"><a href="#多项式的表示" class="headerlink" title="多项式的表示"></a>多项式的表示</h2><p>　　我们可以定义一个<code>Poly</code>类用来表示多项式，在<code>Poly</code>中，我们使用数组来存储多项式的系数，由于系数作为数组的元素，那么系数对应的下标就是多项式的幂，例如，假定我们使用<code>Poly</code>来表示多项式$5+10x+8x^2+20x^4$，那么数组的结构就如下图所示：<br><img src="/images/data-structure/dm.png" alt=""><br>　　我们可以用<code>Poly</code>来表示多项式，例如，我们可以用<code>Poly&lt;int&gt;(2, 2)</code>来表示$2x^2$，当然，我们可以通过全局函数<code>plus()</code>来组合多项式，例如：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> poly = plus(Poly&lt;<span class="keyword">double</span>&gt;(<span class="number">0.5</span>, <span class="number">2</span>), Poly&lt;<span class="keyword">double</span>&gt;(<span class="number">9.9</span>, <span class="number">4</span>));</div></pre></td></tr></table></figure></p>
+<p>　　那么，可以看到，<code>poly</code>就可以用来表示$0.5x^2 + 9.9x^4$，这时，若需要对多项式进行求值，例如，令$x=2$，那么可以使用<code>Poly</code>的成员函数<code>evaluate()</code>来进行求值：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; poly.evaluate(<span class="number">2</span>) &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;　　　　　　　　　    <span class="comment">// print 160.4</span></div></pre></td></tr></table></figure></p>
+<p>　　下面给出<code>Poly</code>的具体实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="keyword">class</span> Poly</div><div class="line">&#123;</div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Type&gt;</div><div class="line">    <span class="keyword">friend</span> Poly&lt;Type&gt; plus( <span class="keyword">const</span> Poly&lt;Type&gt; &amp;, <span class="keyword">const</span> Poly&lt;Type&gt; &amp; );</div><div class="line"></div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Type&gt;</div><div class="line">    <span class="keyword">friend</span> Poly&lt;Type&gt; multiply( <span class="keyword">const</span> Poly&lt;Type&gt; &amp;, <span class="keyword">const</span> Poly&lt;Type&gt; &amp; );</div><div class="line"></div><div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Type&gt;</div><div class="line">    <span class="keyword">friend</span> <span class="built_in">std</span>::ostream &amp;<span class="keyword">operator</span>&lt;&lt;( <span class="built_in">std</span>::ostream &amp;, <span class="keyword">const</span> Poly&lt;Type&gt; &amp; );</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    Poly( T coefficient, <span class="keyword">int</span> power )</div><div class="line">        : size_&#123; power + <span class="number">1</span> &#125;, arr_( size_, T&#123; <span class="number">0</span> &#125; ) &#123;</div><div class="line">            arr_[power] = coefficient;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">double</span> <span class="title">evaluate</span><span class="params">( <span class="keyword">double</span> value )</span> <span class="keyword">const</span></span>;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">int</span> size_;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;T&gt; arr_;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="built_in">std</span>::ostream &amp;<span class="keyword">operator</span>&lt;&lt;( <span class="built_in">std</span>::ostream &amp;os, <span class="keyword">const</span> Poly&lt;T&gt; &amp;poly ) &#123;</div><div class="line">    <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; poly.size_; ++i ) &#123;</div><div class="line">        <span class="keyword">if</span>( poly.arr_[i] != <span class="number">0</span> ) &#123;</div><div class="line">            os &lt;&lt; poly.arr_[i] &lt;&lt; <span class="string">"x^"</span> &lt;&lt; i </div><div class="line">               &lt;&lt; ( i != poly.size_ - <span class="number">1</span> ? <span class="string">" +"</span> : <span class="string">""</span> ) &lt;&lt; <span class="string">" "</span>;   </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> os;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/03/13/多项式乘法与加法/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2015/01/14/unionfind算法/" itemprop="url">
                   Union-Find算法
                 </a>
@@ -563,7 +690,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">57</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -266,6 +266,138 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/20/linux-ipc/" itemprop="url">
+                  谈谈 Linux 的进程间通信
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-20T14:42:15+08:00" content="2017-02-20">
+              2017-02-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/20/linux-ipc/" class="leancloud_visitors" data-flag-title="谈谈 Linux 的进程间通信">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>　　管道可以说是 Unix 系统最古老的 IPC 方式了。管道最常见的一个用法，就是将一个进程的输出导入到另一个进程的输入。譬如说，当用户执行下面的命令，<code>ls</code>命令的输出将会作为<code>wc -l</code>的输入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls | wc <span class="_">-l</span></div></pre></td></tr></table></figure></p>
+<p>　　在 Linux 系统中，管道有这些特征：</p>
+<ul>
+<li>数据以字节流的形式在管道中传输，也就是说，数据是没有消息边界。</li>
+<li>数据在管道中是<u>单向</u>流动的，管道的一端负责写数据，而另一端负责读数据。</li>
+<li>管道的缓冲区长度是 64 KB。</li>
+<li>调用<code>write()</code>写入数据时，如果指定写入的字节数不超过<code>PIPE_BUF</code>(默认值是 4KB)，那么 Linux 会保证这个写入操作是<u>原子</u>的。</li>
+</ul>
+<p>　　下面的例子中，父进程向子进程发送多条消息：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">readAndPrint</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">char</span> line[MAXLINE];</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</div><div class="line">        <span class="keyword">ssize_t</span> n = read(fd, line, MAXLINE);</div><div class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (n == <span class="number">-1</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (errno == EINTR) &#123;</div><div class="line">                <span class="keyword">continue</span>;</div><div class="line">            &#125;</div><div class="line">            perror(<span class="string">"read"</span>);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        write(STDOUT_FILENO, line, n);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 创建管道, fd[0] 为读端，fd[1] 为写端</span></div><div class="line">    <span class="keyword">int</span> fd[<span class="number">2</span>];	</div><div class="line">    pipe(fd);</div><div class="line"></div><div class="line">    <span class="keyword">pid_t</span> pid = fork();</div><div class="line">    <span class="keyword">if</span> (pid &gt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="comment">// 父进程不需要读数据，所以关闭读端</span></div><div class="line">        close(fd[<span class="number">0</span>]);</div><div class="line"></div><div class="line">        write(fd[<span class="number">1</span>], <span class="string">"first message\n"</span>, <span class="number">14</span>);</div><div class="line">        write(fd[<span class="number">1</span>], <span class="string">"second message\n"</span>, <span class="number">15</span>);</div><div class="line"></div><div class="line">        <span class="comment">// 父进程关闭写端，导致子进程 read() 返回 0</span></div><div class="line">        close(fd[<span class="number">1</span>]);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pid == <span class="number">0</span>) &#123;</div><div class="line">        <span class="comment">// 子进程不需要写数据，所以关闭写端</span></div><div class="line">        close(fd[<span class="number">1</span>]);</div><div class="line"></div><div class="line">        readAndPrint(fd[<span class="number">0</span>]);</div><div class="line">        close(fd[<span class="number">0</span>]);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        perror(<span class="string">"fork"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/20/linux-ipc/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/17/IO多路复用/" itemprop="url">
                   几种 I/O Multiplexing 方式的比较
                 </a>
@@ -762,132 +894,6 @@ bind(sockfd, ...);
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/15/安全关闭TCP连接/" itemprop="url">
-                  如何可靠关闭 TCP 连接
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-15T10:13:27+08:00" content="2016-09-15">
-              2016-09-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/09/15/安全关闭TCP连接/" class="leancloud_visitors" data-flag-title="如何可靠关闭 TCP 连接">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="write-的含义"><a href="#write-的含义" class="headerlink" title="write 的含义"></a>write 的含义</h2><p>　　用<code>write()</code>向 socket 描述符写入<code>n</code>个字节，<code>write()</code>返回<code>n</code>，这意味着什么呢？你可能这样想，<code>write()</code>返回<code>n</code>，那不就表示对方已经收到<code>n</code>个字节了吗？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> buffer[<span class="number">1024</span>];</div><div class="line"><span class="keyword">ssize_t</span> n = write(sockfd, buffer, <span class="keyword">sizeof</span>(buffer));</div></pre></td></tr></table></figure></p>
-<p>　　然而，实际上<code>write()</code>返回<code>n</code>仅仅保证将<code>n</code>个字节写入内核中<code>sockfd</code>的发送缓冲区。但是内核是否已经将数据转发给网卡，对方是否收到了数据，就无从得知了。</p>
-<h2 id="TCP-的可靠关闭"><a href="#TCP-的可靠关闭" class="headerlink" title="TCP 的可靠关闭"></a>TCP 的可靠关闭</h2><p>　　既然调用<code>write()</code>无法确保对方收到了数据，那么在调用<code>write()</code>之后就调用<code>close()</code>来关闭连接是否合适呢？<a href="https://tools.ietf.org/html/rfc1122#page-87">RFC1122</a>指出，由于 TCP 是全双工的，调用<code>close()</code>时如果有可读数据停留在接收缓冲区，或者在<code>close()</code>之后收到新的数据，数据就无法被读取，这时 TCP 将会发送 RST 通知对方数据已经丢失了。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/15/安全关闭TCP连接/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -933,7 +939,7 @@ bind(sockfd, ...);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">57</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

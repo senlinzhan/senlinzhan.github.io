@@ -393,6 +393,244 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/31/gdb-on-multithreaded/" itemprop="url">
+                  使用 gdb 调试 C++ 多线程程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-31T19:31:43+08:00" content="2017-12-31">
+              2017-12-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
+                    <span itemprop="name">性能剖析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/31/gdb-on-multithreaded/" class="leancloud_visitors" data-flag-title="使用 gdb 调试 C++ 多线程程序">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="生成-core-dump-文件"><a href="#生成-core-dump-文件" class="headerlink" title="生成 core dump 文件"></a>生成 core dump 文件</h2><p>　　如果进程在运行期间发生奔溃，操作系统会为进程生成一个快照文件，这个文件就叫做 core dump。之后我们可以对 core dump 文件进行分析，弄清楚进程为什么会奔溃。<br>　　由于 core dump 文件会占据一定的磁盘空间，默认情况下，Linux 不允许生成 core dump 文件。例如，下面的命令显示，Linux 允许的最大 core dump 文件大小为 0：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> <span class="_">-a</span> | grep core</div><div class="line">core file size          (blocks, -c) 0</div></pre></td></tr></table></figure></p>
+<p>　　可以通过下面设置，允许 Linux 生成 core dump 文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> -c unlimited</div></pre></td></tr></table></figure></p>
+<p>　　注意到，这个设置只对当前登录回话有效。如果想要这个设置持久有效，可以把它写入到<code>/etc/security/limits.conf</code>文件中：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/security/limits.conf</div><div class="line">* soft core unlimited</div><div class="line">* soft hard unlimited</div></pre></td></tr></table></figure></p>
+<p>　　那么 core dump 会存放在哪个目录呢？这是由系统参数<code>kernel.core_pattern</code>决定的。例如，在 Ubuntu 16.04 中，它的值如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/kernel/core_pattern</div><div class="line">|/usr/share/apport/apport %p %s %c %P</div></pre></td></tr></table></figure></p>
+<p>　　开头的<code>I</code>表示，core dump 文件会交给 apport 程序去处理，而 apport 会将 core dump 文件保存在<code>/var/crash</code>目录下，而<code>%p %s %c %P</code>则表示 core dump 文件的命名规则，它们的含义可以自行通过<code>man core</code>命令查看。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://processors.wiki.ti.com/index.php/Multithreaded_Debugging_Made_Easier_by_Forcing_Core_Dumps" target="_blank" rel="external">Multithreaded Debugging Made Easier by Forcing Core Dumps</a></li>
+<li><a href="http://crossbridge.io/docs/gdb_nonstop.html" target="_blank" rel="external">Debugging Multi-threaded Applications with gdb</a></li>
+<li><a href="http://yusufonlinux.blogspot.com/2010/11/debugging-core-using-gdb.html" target="_blank" rel="external">Debugging core using gdb</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/31/gdb/" itemprop="url">
+                  使用 gdb 调试 C++ 程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-31T18:32:10+08:00" content="2017-12-31">
+              2017-12-31
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/31/gdb/" class="leancloud_visitors" data-flag-title="使用 gdb 调试 C++ 程序">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.brendangregg.com/blog/2016-08-09/gdb-example-ncurses.html" target="_blank" rel="external">gdb Debugging Full Example (Tutorial): ncurses</a></li>
+<li><a href="http://yusufonlinux.blogspot.com/2010/11/debugging-core-using-gdb.html" target="_blank" rel="external">Debugging core using gdb</a></li>
+<li><a href="https://www.cs.umd.edu/~srhuang/teaching/cmsc212/gdb-tutorial-handout.pdf" target="_blank" rel="external">GDB Tutorial A Walkthrough with Examples</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/31/valgrind/" itemprop="url">
                   使用 Valgrind 检测 C++ 内存泄漏
                 </a>
@@ -633,262 +871,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/18/mysql-tuning/" itemprop="url">
-                  MySQL InnoDB 性能调优
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-18T11:17:54+08:00" content="2017-12-18">
-              2017-12-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/18/mysql-tuning/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 性能调优">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.percona.com/blog/2014/01/28/10-mysql-performance-tuning-settings-after-installation/" target="_blank" rel="external">Ten MySQL performance tuning settings after installation</a></li>
-<li><a href="https://www.percona.com/blog/2016/05/03/best-practices-for-configuring-optimal-mysql-memory-usage/" target="_blank" rel="external">Best Practices for Configuring Optimal MySQL Memory Usage</a></li>
-<li><a href="https://www.slideshare.net/osscube/mysql-performance-tuning-top-10-tips" target="_blank" rel="external">MySQL Performance Tuning: Top 10 Tips</a></li>
-<li><a href="https://github.com/major/MySQLTuner-perl" target="_blank" rel="external">MySQLTuner-perl</a></li>
-<li><a href="http://www.jianshu.com/p/78b6b7e2bb7f" target="_blank" rel="external">我必须得告诉你的MySQL优化原理3</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/18/mysql-indexes/" itemprop="url">
-                  MySQL 索引优化
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-18T10:45:19+08:00" content="2017-12-18">
-              2017-12-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/18/mysql-indexes/" class="leancloud_visitors" data-flag-title="MySQL 索引优化">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://www.vertabelo.com/blog/technical-articles/an-introduction-to-mysql-indexes" target="_blank" rel="external">An Introduction to MySQL Indexes</a></li>
-<li><a href="http://www.jianshu.com/p/d7665192aaaf" target="_blank" rel="external">我必须得告诉大家的MySQL优化原理</a></li>
-<li><a href="https://tech.meituan.com/mysql-index.html" target="_blank" rel="external">MySQL索引原理及慢查询优化</a></li>
-<li><a href="https://severalnines.com/blog/become-mysql-dba-blog-series-database-indexing" target="_blank" rel="external">Become a MySQL DBA blog series - Database Indexing</a></li>
-<li><a href="http://mysql.rjweb.org/doc.php/index_cookbook_mysql" target="_blank" rel="external">MySQL: Building the best INDEX for a given SELECT</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -934,7 +916,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">57</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

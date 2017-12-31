@@ -266,6 +266,137 @@
             
               
                 
+                <a class="post-title-link" href="/2017/07/01/linux-tuning/" itemprop="url">
+                  Linux 系统参数调优
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-07-01T20:45:16+08:00" content="2017-07-01">
+              2017-07-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/01/linux-tuning/" class="leancloud_visitors" data-flag-title="Linux 系统参数调优">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="打开文件数"><a href="#打开文件数" class="headerlink" title="打开文件数"></a>打开文件数</h2><p>　　在 Linux 中，文件描述符是一种资源，为了控制对资源的合理使用，Linux 会限制所有进程所能打开的<u>文件描述符总数</u>。可以通过下面的命令查看：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/fs/file-max</div><div class="line">99736</div></pre></td></tr></table></figure></p>
+<p>　　通常来说，如果机器的内存越大，那么<code>file-max</code>的默认值也会越大。当然，也可以手动调大它：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">fs.file-max = 100000</div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改动生效</span></div></pre></td></tr></table></figure></p>
+<p>　　那么要怎样才能知道系统当前打开了多少文件描述符呢？可以用下面的命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/fs/file-nr</div><div class="line">704	0	100000</div></pre></td></tr></table></figure></p>
+<p>　　输出结果的第一个值表示系统当前打开了 704 个文件描述符，在 Linux 2.6 之后，第二个值总是 0，第三个值等于<code>/proc/sys/fs/file-max</code>的值。</p>
+<hr>
+<p>　　然而<code>fs.file-max</code>这个参数是系统级别的限制，除此之外，Linux 还会限制<u>某个用户</u>所能打开的文件描述符数量，这个值默认是 1024，可以用下面命令查看：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> -n</div><div class="line">1024</div></pre></td></tr></table></figure></p>
+<p>　　从上面的命令可以看到，<u>当前用户</u>最多只能打开 1024 个文件描述符。有时在运行高并发服务器的时候，经常会出现文件描述符不够用的错误，这时候就需要调高这个用户所能打开的文件描述符数量了，可以通过下面的命令修改：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/security/limits.conf</div><div class="line">www-data soft nofile 10240</div><div class="line">www-data hard nofile 20480</div></pre></td></tr></table></figure></p>
+<p>　　上面的命令为<code>www-data</code>用户设置所能打开的文件描述符数量，其中软限制为 10240，而硬限制为 20480。那么软限制和硬限制的区别是什么呢？其实进程在运行的时候可以修改软限制的值，但要保证这个值不能超过硬限制。然而进程却无法修改硬限制的值，除非以 superuser 的身份运行。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/07/01/linux-tuning/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/06/25/openmp/" itemprop="url">
                   OpenMP 并行编程指南
                 </a>
@@ -804,136 +935,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/24/nginx-memory-pool/" itemprop="url">
-                  Nginx 内存池源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-24T23:01:44+08:00" content="2017-04-24">
-              2017-04-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/24/nginx-memory-pool/" class="leancloud_visitors" data-flag-title="Nginx 内存池源码分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="内存池介绍"><a href="#内存池介绍" class="headerlink" title="内存池介绍"></a>内存池介绍</h2><p>　　在C语言中，程序员需要手动管理动态分配的内存，这带来了不少麻烦的事情。譬如说，当某块内存使用完毕之后，程序员需要记得释放这块内存，否则就会发生内存泄漏。另一方面，如果程序中需要频繁地分配和释放小块的内存，倘若每次都是直接通过<code>malloc()</code>去分配内存，这将带来额外的调用开销，同时也会产生内存碎片。<br>　　Nginx 使用内存池<code>ngx_pool_t</code>来管理内存，这带来了不少的好处：</p>
-<ul>
-<li>当程序需要内存时，只管向内存池申请，申请而来的内存也无需手动释放，因为内存池销毁时会负责释放所有的内存。</li>
-<li>对于那些需要频繁分配和释放小块内存的程序来说，使用内存池可以减少<code>malloc()</code>的次数，除了降低了调用开销之外，还减少了内存碎片的产生。</li>
-</ul>
-<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>　　下面是内存池的数据结构，<code>ngx_pool_t</code>代表内存池，<code>ngx_pool_data_t</code>代表小块内存，而<code>ngx_pool_large_t</code>则代表大块内存。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 大块内存</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_pool_large_s  <span class="keyword">ngx_pool_large_t</span>;</div><div class="line"><span class="keyword">struct</span> ngx_pool_large_s &#123;</div><div class="line">    <span class="keyword">ngx_pool_large_t</span>     *next;   <span class="comment">// 所有大块内存都通过链表串联起来</span></div><div class="line">    <span class="keyword">void</span>                 *alloc;  <span class="comment">// 指向实际分配的大块内存</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// 小块内存</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</div><div class="line">    u_char               *last;</div><div class="line">    u_char               *end;</div><div class="line">    <span class="keyword">ngx_pool_t</span>           *next;</div><div class="line">    <span class="keyword">ngx_uint_t</span>            failed;</div><div class="line">&#125; <span class="keyword">ngx_pool_data_t</span>;</div><div class="line"></div><div class="line"><span class="comment">// 内存池</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_pool_s        <span class="keyword">ngx_pool_t</span>;</div><div class="line"><span class="keyword">struct</span> ngx_pool_s &#123;</div><div class="line">    <span class="keyword">ngx_pool_data_t</span>       d;</div><div class="line">    <span class="keyword">size_t</span>                max;</div><div class="line">    <span class="keyword">ngx_pool_t</span>           *current;</div><div class="line">    <span class="keyword">ngx_chain_t</span>          *chain;</div><div class="line">    <span class="keyword">ngx_pool_large_t</span>     *large;     <span class="comment">// 大块内存链表</span></div><div class="line">    <span class="keyword">ngx_pool_cleanup_t</span>   *cleanup;</div><div class="line">    <span class="keyword">ngx_log_t</span>            *<span class="built_in">log</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<h2 id="内存池构造"><a href="#内存池构造" class="headerlink" title="内存池构造"></a>内存池构造</h2><p>　　内存池处理大块内存和小块内存的策略是不同的，譬如说，当用户向内存池申请内存时，内存池会判断申请的是大块内存还是小块内存，如果是小块内存，那么直接在内存池里面分配，但如果是大块内存，就直接向 OS 申请。<code>ngx_pool_t</code>的<code>max</code>成员则作为判断的标准，如果用户申请的内存大于<code>max</code>，则认为是大块内存，否则就是小块内存。下面的<code>ngx_create_pool()</code>函数用于创建和初始化内存池：
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/04/24/nginx-memory-pool/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -979,7 +980,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">57</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
