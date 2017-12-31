@@ -266,6 +266,130 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/20/grpc/" itemprop="url">
+                  gRPC 编程指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-20T20:48:18+08:00" content="2017-04-20">
+              2017-04-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/20/grpc/" class="leancloud_visitors" data-flag-title="gRPC 编程指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="gRPC-介绍"><a href="#gRPC-介绍" class="headerlink" title="gRPC 介绍"></a>gRPC 介绍</h2><p>　　gRPC 是谷歌开源的高性能 RPC 框架。RPC 也即远程方法调用，对于 RPC client 来说，它可以调用远程 server 上的某个方法，看起来就像是在调用本地方法一样。区别就在于，通过 RPC 调用远程方法时，数据经过序列化之后会通过网络发送给远程 server，远程 server 执行方法之后，同样会将返回结果序列化之后发送回 client。在分布式系统中，gRPC 可以用来解耦程序的逻辑，不同组件之间通过 gRPC 进行通信。<br>　　gRPC 使用 Protobuf 作为它的数据序列化的工具，Protobuf 会将数据序列化成二进制的数据流。与 JSON 这类文本形式的数据相比，二进制数据显得更加紧凑和便于解析，在网络传输中，二进制数据由于体积更小，传输也更快。另一方面，gRPC 也是跨多种编程语言的，譬如说，一个 Java 的 client 可以与一个 C++ 的 server 通信。<div align="center"> <img src="/images/linux/grpc.svg" width="400" align=center /> </div>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/04/20/grpc/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/08/redis-cluster/" itemprop="url">
                   Redis Cluster
                 </a>
@@ -764,138 +888,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
-                  如何设计动态链接库
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-20T20:23:09+08:00" content="2017-03-20">
-              2017-03-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/编译链接/" itemprop="url" rel="index">
-                    <span itemprop="name">编译链接</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/03/20/动态库/" class="leancloud_visitors" data-flag-title="如何设计动态链接库">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="动态库的创建"><a href="#动态库的创建" class="headerlink" title="动态库的创建"></a>动态库的创建</h2><p>　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -o libdemo.so demo.o</div></pre></td></tr></table></figure></p>
-<p>　　<code>-fPIC</code>选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定这个选项。</p>
-<h2 id="动态库规范"><a href="#动态库规范" class="headerlink" title="动态库规范"></a>动态库规范</h2><p>　　动态库的升级通常也分为小版本的升级和主版本的升级，通常来说主版本的升级是不兼容的，而小版本的升级则是兼容的。动态库通常有一种规范的命名方式，为的是能够清晰地了解不同版本之间的关系：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">libdemo.so.1.0.1    <span class="comment"># 主版本 1，小版本 0.1</span></div><div class="line">libdemo.so.1.0.2    <span class="comment"># 主版本 1，小版本 0.2</span></div><div class="line">libdemo.so.2.0.1    <span class="comment"># 主版本 2，小版本 0.1</span></div></pre></td></tr></table></figure></p>
-<p>　　在编译动态库的时候，通常会为动态库创建一个 soname，作为动态库的别名，例如，这里我们给动态库<code>libdemo.so.1.0.1</code>创建了一个 soname 叫做<code>libdemo.1</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -Wl,-soname,libdemo.so.1 -o libdemo.so.1.0.1 demo.o</div></pre></td></tr></table></figure></p>
-<p>　　在生产环境下，用户自己创建的动态库一般不能随便放置（防止找不到或者不小心被删除了），所以推荐放在系统目录<code>/usr/local/lib/</code>下面：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mv libdemo.so.1.0.1 /usr/<span class="built_in">local</span>/lib/</div></pre></td></tr></table></figure></p>
-<p>　　通常来说，系统会在<code>/etc/ld.so.cache</code>这个文件里面缓存系统的动态库列表。如果用户自己添加了动态库，那么还需要用<code>ldconfig</code>命令去更新系统的动态库缓存列表，同时这个命令会自动创建一个与 soname 同名的符号链接，指向对应的动态库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo ldconfig -v          <span class="comment"># 更新系统动态库缓存列表</span></div><div class="line">/usr/<span class="built_in">local</span>/lib:</div><div class="line">	libdemo.so.1 -&gt; libdemo.so.1.0.1 (changed)</div><div class="line">$ ls <span class="_">-l</span> /usr/<span class="built_in">local</span>/lib/</div><div class="line">lrwxrwxrwx 1 root root    16 Mar 21 22:54 libdemo.so.1 -&gt; libdemo.so.1.0.1</div><div class="line">-rwxr-xr-x 1 root root  8776 Mar 21 22:54 libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
-<p>　　通过这些步骤就顺利安装好了动态库了。那么还有一个问题，在编译程序时，怎么让 linker 找到动态库的位置呢？最简单的方法可以这样做：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall -o main main.c /usr/<span class="built_in">local</span>/lib/libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
-<p>　　在链接的过程中，如果动态库拥有 soname，那么 linker 会将这个 soname 嵌入到可执行文件中，如果动态库没有 soname，嵌入的则是动态库的真名。我们可以用<code>readelf</code>命令看到可执行文件<code>main</code>的 header 中是否包含动态库的信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">readelf <span class="_">-d</span> main | grep libdemo</div><div class="line"> 0x0000000000000001 (NEEDED)             Shared library: [libdemo.so.1]</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，可执行文件<code>main</code>中只记录动态库的 soname。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/20/动态库/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -941,7 +933,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">56</span>
+              <span class="site-state-item-count">57</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -949,7 +941,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -958,7 +950,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

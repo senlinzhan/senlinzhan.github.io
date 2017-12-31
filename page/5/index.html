@@ -266,6 +266,141 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/12/libevent/" itemprop="url">
+                  Libevent 编程指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-12T20:48:18+08:00" content="2017-08-12">
+              2017-08-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/12/libevent/" class="leancloud_visitors" data-flag-title="Libevent 编程指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>　　Libevent 是一个高性能，跨平台的 C 语言网络库。Libevent 当前最新的版本是 2.1.8，下面是在 Linux 安装 Libevent 的步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ wget https://github.com/libevent/libevent/releases/download/release-2.1.8-stable/libevent-2.1.8-stable.tar.gz</div><div class="line">$ tar -xzvf libevent-2.1.8-stable.tar.gz</div><div class="line">$ <span class="built_in">cd</span> libevent-2.1.8-stable</div><div class="line">$ ./configure</div><div class="line">$ make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>　　Libevent是基于 Reactor 模式的网络库，在 Reactor 模式中，通常都有一个事件循环(Event Loop)，在 Libevent 中，这个事件循环就是<code>event_base</code>结构体：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">struct</span> event_base *<span class="title">event_base_new</span><span class="params">(<span class="keyword">void</span>)</span></span>;           <span class="comment">// 创建事件循环</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">event_base_free</span><span class="params">(<span class="keyword">struct</span> event_base *base)</span></span>;     <span class="comment">// 销毁事件循环</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">event_base_dispatch</span><span class="params">(<span class="keyword">struct</span> event_base *base)</span></span>;  <span class="comment">// 运行事件循环</span></div></pre></td></tr></table></figure></p>
+<p>　　通常来说，事件循环主要有两个作用：</p>
+<ul>
+<li>用来管理事件，比如说添加我们感兴趣的事件，修改事件或删除事件。</li>
+<li>用来轮询它管理的所有事件，如果发现有事件活跃 (avtive)，就调用相应的回调函数去处理事件。</li>
+</ul>
+<hr>
+<p>　　Libevent 使用<code>event</code>结构体来代表事件，可以使用<code>event_new()</code>创建一个事件：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">struct</span> event *<span class="title">event_new</span><span class="params">(<span class="keyword">struct</span> event_base *base, <span class="comment">// 事件循环</span></div><div class="line">                        <span class="keyword">evutil_socket_t</span> fd,      <span class="comment">// 文件描述符</span></div><div class="line">                        <span class="keyword">short</span> what,              <span class="comment">// 事件类型</span></div><div class="line">                        event_callback_fn cb,    <span class="comment">// 回调函数</span></div><div class="line">                        <span class="keyword">void</span> *arg)</span></span>;              <span class="comment">// 传递给回调函数的参数</span></div></pre></td></tr></table></figure></p>
+<p>　　创建一个事件之后，要怎么把它加入到事件循环呢？可以使用<code>event_add()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">event_add</span><span class="params">(<span class="keyword">struct</span> event *ev,             <span class="comment">// 事件</span></div><div class="line">              <span class="keyword">const</span> <span class="keyword">struct</span> timeval *tv)</span></span>;    <span class="comment">// 超时时间</span></div></pre></td></tr></table></figure></p>
+<p>　　默认情况下，当一个事件变得活跃时，Libevent 会执行这个事件的回调函数，但同时也会将这个事件从事件循环中<u>移除</u>，例如，下面的程序，定时器只会触发一次：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;event2/event.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">timer_cb</span><span class="params">(<span class="keyword">evutil_socket_t</span> fd, <span class="keyword">short</span> what, <span class="keyword">void</span> *arg)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> str = <span class="keyword">static_cast</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span> *&gt;(arg);</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; *str &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> str = <span class="string">"Hello, World!"</span>;</div><div class="line">    <span class="keyword">auto</span> *base = event_base_new();</div><div class="line"></div><div class="line">    <span class="keyword">struct</span> timeval five_seconds = &#123;<span class="number">1</span>, <span class="number">0</span>&#125;;</div><div class="line">    <span class="keyword">auto</span> *ev = event_new(base, <span class="number">-1</span>, EV_TIMEOUT, timer_cb, (<span class="keyword">void</span> *)&amp;str);</div><div class="line"></div><div class="line">    event_add(ev, &amp;five_seconds);</div><div class="line">    event_base_dispatch(base);</div><div class="line"></div><div class="line">    event_free(ev);</div><div class="line">    event_base_free(base);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　那要怎么样才能让事件不被移除呢？当创建事件时，在事件类型加上<code>EV_PERSIST</code>就可以。让我们修改上面的程序，让定时器每秒就触发一次：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> *ev = event_new(base, <span class="number">-1</span>, EV_TIMEOUT|EV_PERSIST, timer_cb, (<span class="keyword">void</span> *)&amp;str);</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/12/libevent/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/08/10/grpc-async/" itemprop="url">
                   谈谈 gRPC 的 C++ 异步编程
                 </a>
@@ -565,8 +700,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
+                  <a href="/categories/内存管理/" itemprop="url" rel="index">
+                    <span itemprop="name">内存管理</span>
                   </a>
                 </span>
 
@@ -778,134 +913,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/25/openmp/" itemprop="url">
-                  OpenMP 并行编程指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-06-25T19:25:03+08:00" content="2017-06-25">
-              2017-06-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并行计算/" itemprop="url" rel="index">
-                    <span itemprop="name">并行计算</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/06/25/openmp/" class="leancloud_visitors" data-flag-title="OpenMP 并行编程指南">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="并行计算"><a href="#并行计算" class="headerlink" title="并行计算"></a>并行计算</h2><p>　　对于 CPU 密集型的程序来说，可以考虑使用 OpenMP 加快程序的计算速度。OpenMP 是跨平台的，大部分现代的 C/C++ 编译器都支持 OpenMP。OpenMP 在一定程度上对并行算法进行了抽象，因此它使用起来很方便，程序员可以简单地通过编译器指令<code>#pragma omp</code>去控制程序的行为。<br>　　OpenMP 的语法很简单，它看起来是这样的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">pragma</span> omp <span class="meta-string">&lt;directive&gt;</span> [clause[[,] clause] ...]</span></div></pre></td></tr></table></figure></p>
-<p>　　最常见的指令应该算是<code>parallel</code>指令了，紧接在<code>parallel</code>指令后面的那个代码块将会<u>并行地</u>执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="meta">#<span class="meta-keyword">pragma</span> omp parallel</span></div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　程序会启用 N 个线程去执行<code>parallel</code>指令后面的那个代码块 (N 等同于 CPU 的核心数)，执行完这个代码块之后，程序又会变回单线程。编译时只需要提供<code>-fopenmp</code>参数，就可以让编译器启用 OpenMP。例如，下面在双核的机器上运行这个程序，将会打印两条消息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -fopenmp -o main main.cpp</div><div class="line">$ ./main</div><div class="line">Hello, World!</div><div class="line">Hello, World!</div></pre></td></tr></table></figure></p>
-<hr>
-<p>　　OpenMP 还提供了<code>parallel for</code>指令，它的作用就是将 for 循环拆分给 N 个线程去执行，这样每个线程都只需要执行整个 for 循环的<u>其中一部分</u>，所以可以实现并行计算。例如下面的例子，需要计算数组中每个元素的平方，我们可以将它拆分给 N 个线程去执行 (N 等同于 CPU 的核心数)：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdint&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> Int = <span class="keyword">uint64_t</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">constexpr</span> Int size = <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Int&gt; squares(size, <span class="number">0</span>);</div><div class="line"></div><div class="line">    <span class="meta">#<span class="meta-keyword">pragma</span> omp parallel for</span></div><div class="line">    <span class="keyword">for</span> (Int i = <span class="number">0</span>; i &lt; size; ++i)</div><div class="line">    &#123;</div><div class="line">        squares[i] = i * i;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/06/25/openmp/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -951,7 +958,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">56</span>
+              <span class="site-state-item-count">57</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -959,7 +966,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -968,7 +975,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
