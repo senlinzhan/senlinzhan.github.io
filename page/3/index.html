@@ -266,6 +266,141 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/16/mysql-query-profiling/" itemprop="url">
+                  MySQL 性能剖析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-16T16:54:25+08:00" content="2017-12-16">
+              2017-12-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/16/mysql-query-profiling/" class="leancloud_visitors" data-flag-title="MySQL 性能剖析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="分析慢查询日志"><a href="#分析慢查询日志" class="headerlink" title="分析慢查询日志"></a>分析慢查询日志</h2><p>　　在分析慢查询日志之前，需要先让 MySQL 开启慢查询日志。首先，创建目录用于存放慢查询日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -p /home/ubuntu/log/mysql</div><div class="line">$ chmod 755 /home/ubuntu/log/mysql/</div><div class="line">$ sudo chown mysql:mysql /home/ubuntu/log/mysql/</div></pre></td></tr></table></figure></p>
+<p>　　下面是和慢查询相关的配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/mysql/conf.d/mysql.cnf</div><div class="line">[mysqld]</div><div class="line">slow_query_log = ON</div><div class="line">slow_query_log_file = /home/ubuntu/log/mysql/mysql-slow.log</div><div class="line"></div><div class="line"># 若查询的耗时超过 2 秒，并且至少需要分析 100 行记录，才会被判定为慢查询</div><div class="line">long_query_time = 2</div><div class="line">min_examined_row_limit = 100</div><div class="line"></div><div class="line"># 若查询没有使用到索引，也会被判定为慢查询</div><div class="line">log-queries-not-using-indexes</div></pre></td></tr></table></figure></p>
+<p>　　在开启慢查询日志之后，可以借助<code>pt-query-digest</code>工具分析慢查询日志，生成剖析报告：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ pt-query-digest mysql-slow.log</div></pre></td></tr></table></figure></p>
+<p>　　生成的报告会对慢查询进行排序，比较严重的慢查询会排在前面：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># Profile</div><div class="line"># Rank Query ID           Response time Calls R/Call V/M   Item</div><div class="line"># ==== ================== ============= ===== ====== ===== ==============</div><div class="line">#    1 0x9F602236FBB89FCB  0.0169 98.7%     1 0.0169  0.00 SELECT payment</div><div class="line">#    2 0x5665CD6BAE86EAEC  0.0002  1.3%     1 0.0002  0.00 SELECT actor</div></pre></td></tr></table></figure></p>
+<p>　　如何解读这份报告呢？</p>
+<ul>
+<li><code>Response</code>：查询的响应时间。</li>
+<li><code>time</code>：查询占总时间的百分比。</li>
+<li><code>Calls</code>：查询的执行次数。</li>
+<li><code>R/Call</code>：单次查询的平均响应时间。</li>
+<li><code>V/M</code>：方差与平均值的比值。如果这个值较大，表示查询对应的执行时间变化较大。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/16/mysql-query-profiling/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/10/k8s-service/" itemprop="url">
                   Kubernetes 的服务发现与负载均衡
                 </a>
@@ -844,114 +979,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/10/08/gtest/" itemprop="url">
-                  使用 Google Test 测试框架
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-08T21:14:00+08:00" content="2017-10-08">
-              2017-10-08
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/10/08/gtest/" class="leancloud_visitors" data-flag-title="使用 Google Test 测试框架">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>　　gtest 是谷歌的 C++ 单元测试框架，下面是安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> https://github.com/google/googletest.git</div><div class="line">$ <span class="built_in">cd</span> googletest</div><div class="line">$ mkdir build</div><div class="line">$ <span class="built_in">cd</span> build</div><div class="line">$ cmake ..</div><div class="line">$ make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
-<p>　　安装 gtest 之后，要怎样在 CMake 中使用 gtest 呢？让我们用一个简单的例子演示一下，首先编写项目的 CMakeLists.txt 文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">cmake_minimum_required (VERSION 2.8)</div><div class="line"></div><div class="line">project(code-for-blog)</div><div class="line"></div><div class="line"><span class="built_in">set</span>(CMAKE_CXX_FLAGS <span class="string">"<span class="variable">$&#123;CMAKE_CXX_FLAGS&#125;</span> -g -std=c++11 -Wall"</span>)</div><div class="line"></div><div class="line">find_package(GTest REQUIRED)</div><div class="line">find_package(Threads REQUIRED)</div><div class="line"></div><div class="line">include_directories(<span class="variable">$&#123;GTEST_INCLUDE_DIRS&#125;</span>)</div><div class="line"></div><div class="line">add_executable(MyTests test.cpp)</div><div class="line">target_link_libraries(MyTests <span class="variable">$&#123;GTEST_BOTH_LIBRARIES&#125;</span>)</div><div class="line">target_link_libraries(MyTests <span class="variable">$&#123;CMAKE_THREAD_LIBS_INIT&#125;</span>)</div><div class="line"></div><div class="line">add_test(Test MyTests)</div><div class="line">enable_testing()</div></pre></td></tr></table></figure></p>
-<p>　　接着编写一个简单的单元测试文件 test.cpp：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;gtest/gtest.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;numeric&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"></div><div class="line"><span class="comment">// 测试集为 MyTest，测试案例为 Sum</span></div><div class="line">TEST(MyTest, Sum)</div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</div><div class="line">    <span class="keyword">int</span> sum = <span class="built_in">std</span>::accumulate(vec.begin(), vec.end(), <span class="number">0</span>);</div><div class="line">    EXPECT_EQ(sum, <span class="number">15</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></div><div class="line"></span>&#123;</div><div class="line">    ::testing::InitGoogleTest(&amp;argc, argv);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> RUN_ALL_TESTS();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　编译好项目之后，使用命令<code>make test</code>就可以执行单元测试了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ make <span class="built_in">test</span></div><div class="line">Running tests...</div><div class="line">Test project /Users/senlin/my-test/build</div><div class="line">    Start 1: Test</div><div class="line">1/1 Test <span class="comment">#1: Test .............................   Passed    0.01 sec</span></div><div class="line"></div><div class="line">100% tests passed, 0 tests failed out of 1</div><div class="line"></div><div class="line">Total Test time (real) =   0.01 sec</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/10/08/gtest/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -997,7 +1024,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">58</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1071,7 +1098,7 @@
         <div class="copyright" >
   
   &copy;  2015 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

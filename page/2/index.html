@@ -266,6 +266,135 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/25/envoy/" itemprop="url">
+                  Envoy Proxy 与微服务实践
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-25T18:31:47+08:00" content="2017-12-25">
+              2017-12-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/微服务/" itemprop="url" rel="index">
+                    <span itemprop="name">微服务</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/25/envoy/" class="leancloud_visitors" data-flag-title="Envoy Proxy 与微服务实践">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="微服务介绍"><a href="#微服务介绍" class="headerlink" title="微服务介绍"></a>微服务介绍</h2><p>　　在传统模式下，如果微服务之间要进行通信，那么程序需要自己处理各种通信的细节，这就包括服务发现、熔断机制、超时重试和 tracing 等功能。这些功能通常实现为与某种编程语言相关的 library，这也导致了这样的 library 无法在不同的编程语言之间共享。<div align="center"><img src="/images/linux/5-a.png" width="400" align=center /> </div><br>　　更进一步，如果我们可以将这部分功能抽取出来，形成一个独立的进程，这样的进程称为 Sidecar。通常来说，我们会将应用程序和 Sidecar 部署在一起，那么程序的入口流量和出口流量都会由这个 Sidecar 去代理，这样就可以通过 Sidecar 去实现服务发现、熔断机制、超时重试等功能了。</p>
+<p><div align="center"><img src="/images/linux/6-a.png" width="500" align=center /> </div></p>
+<h2 id="Envoy-Proxy-介绍"><a href="#Envoy-Proxy-介绍" class="headerlink" title="Envoy Proxy 介绍"></a>Envoy Proxy 介绍</h2><p>　　Envoy Proxy 可以用来充当 Sidecar 进程。通常来说，我们会将应用程序和 Envoy 部署在一起，形成一个<u>微服务</u>。另一方面，为了实现高可用，通常一个微服务会部署多份副本，这些副本加在一起，就形成了 Service Cluster。下图显示的就是服务与服务之间的通信：<div align="center"><img src="/images/linux/s2s.svg" width="300" align=center /> </div><br>　　除了可以充当 Sidecar 进程之外，Envoy Proxy 还可以充当反向代理，将流量转发给后端的 Service Cluster。充当反向代理的 Envoy，通常也可以称为 Edge Envoy。</p>
+<p><div align="center"><img src="/images/linux/front_proxy.svg" width="450" align=center /> </div></p>
+<h2 id="构建程序镜像"><a href="#构建程序镜像" class="headerlink" title="构建程序镜像"></a>构建程序镜像</h2><p>　　在部署应用程序之前，需要先构建 Docker 镜像，下面是一个简单的 Flask 程序<code>app.py</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> socket</div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line"></div><div class="line"><span class="meta">@app.route('/')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello_world</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">return</span> <span class="string">'Hello, World!'</span></div><div class="line"></div><div class="line"><span class="meta">@app.route('/healthy_check')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">healthy_check</span><span class="params">()</span>:</span></div><div class="line">    service = socket.gethostname()</div><div class="line">    ip = socket.gethostbyname(service)</div><div class="line">    <span class="keyword">return</span> <span class="string">'I am fine! &lt;service_name: &#123;&#125;, ip: &#123;&#125;&gt;'</span>.format(service, ip)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run(debug=<span class="keyword">True</span>, host=<span class="string">'0.0.0.0'</span>, port=<span class="number">5000</span>)</div></pre></td></tr></table></figure></p>
+<p>　　具体的 Dockerfile 以及构建镜像需要用到的命令，<a href="https://github.com/senlinzhan/envoy-examples/tree/master/flask-app-envoy">可以见这里</a>。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/25/envoy/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/18/mysql-tuning/" itemprop="url">
                   MySQL InnoDB 性能调优
                 </a>
@@ -760,141 +889,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/16/mysql-query-profiling/" itemprop="url">
-                  MySQL 性能剖析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-16T16:54:25+08:00" content="2017-12-16">
-              2017-12-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/16/mysql-query-profiling/" class="leancloud_visitors" data-flag-title="MySQL 性能剖析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="分析慢查询日志"><a href="#分析慢查询日志" class="headerlink" title="分析慢查询日志"></a>分析慢查询日志</h2><p>　　在分析慢查询日志之前，需要先让 MySQL 开启慢查询日志。首先，创建目录用于存放慢查询日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -p /home/ubuntu/log/mysql</div><div class="line">$ chmod 755 /home/ubuntu/log/mysql/</div><div class="line">$ sudo chown mysql:mysql /home/ubuntu/log/mysql/</div></pre></td></tr></table></figure></p>
-<p>　　下面是和慢查询相关的配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/mysql/conf.d/mysql.cnf</div><div class="line">[mysqld]</div><div class="line">slow_query_log = ON</div><div class="line">slow_query_log_file = /home/ubuntu/log/mysql/mysql-slow.log</div><div class="line"></div><div class="line"># 若查询的耗时超过 2 秒，并且至少需要分析 100 行记录，才会被判定为慢查询</div><div class="line">long_query_time = 2</div><div class="line">min_examined_row_limit = 100</div><div class="line"></div><div class="line"># 若查询没有使用到索引，也会被判定为慢查询</div><div class="line">log-queries-not-using-indexes</div></pre></td></tr></table></figure></p>
-<p>　　在开启慢查询日志之后，可以借助<code>pt-query-digest</code>工具分析慢查询日志，生成剖析报告：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ pt-query-digest mysql-slow.log</div></pre></td></tr></table></figure></p>
-<p>　　生成的报告会对慢查询进行排序，比较严重的慢查询会排在前面：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># Profile</div><div class="line"># Rank Query ID           Response time Calls R/Call V/M   Item</div><div class="line"># ==== ================== ============= ===== ====== ===== ==============</div><div class="line">#    1 0x9F602236FBB89FCB  0.0169 98.7%     1 0.0169  0.00 SELECT payment</div><div class="line">#    2 0x5665CD6BAE86EAEC  0.0002  1.3%     1 0.0002  0.00 SELECT actor</div></pre></td></tr></table></figure></p>
-<p>　　如何解读这份报告呢？</p>
-<ul>
-<li><code>Response</code>：查询的响应时间。</li>
-<li><code>time</code>：查询占总时间的百分比。</li>
-<li><code>Calls</code>：查询的执行次数。</li>
-<li><code>R/Call</code>：单次查询的平均响应时间。</li>
-<li><code>V/M</code>：方差与平均值的比值。如果这个值较大，表示查询对应的执行时间变化较大。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/16/mysql-query-profiling/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -940,7 +934,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">58</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1014,7 +1008,7 @@
         <div class="copyright" >
   
   &copy;  2015 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

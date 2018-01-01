@@ -266,6 +266,138 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/07/redis-replication/" itemprop="url">
+                  Redis 主从复制的原理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-07T21:32:17+08:00" content="2017-04-07">
+              2017-04-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/07/redis-replication/" class="leancloud_visitors" data-flag-title="Redis 主从复制的原理">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="配置主从复制"><a href="#配置主从复制" class="headerlink" title="配置主从复制"></a>配置主从复制</h2><p>　　为了拓展 Redis 的读性能，通常我们可以为一个master实例增加一个或多个slave实例，这就是主从复制。另一方面，主从复制提供了数据冗余，这在一定程度上提高了 Redis 的可用性，例如，当master实例发生故障时，我们可以将其中一个slave实例提升为master，从而继续保证 Redis 的可用性。<br>　　设置主从复制很简单，只需要在slave实例的配置文件加入一行，然后重启slave实例：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># /etc/redis/redis.conf</span></div><div class="line">slaveof your_redis_master_ip 6379</div></pre></td></tr></table></figure></p>
+<h2 id="主从复制的原理"><a href="#主从复制的原理" class="headerlink" title="主从复制的原理"></a>主从复制的原理</h2><p>　　在设置好主从复制之后，一开始 slave 与 master 之间的数据是不同步的，为了让 slave 与 master 之间保存数据同步，slave 会发送一个 PSYNC 命令给 master。由于 slave 是初次连接上 master，所以 master 接收到 PSYNC 命令之后会执行完整重同步(full resynchronization)，具体的过程是这样的：</p>
+<ul>
+<li>首先 master 会执行 BGSAVE 命令，在后台生成一个 RDB 文件，与此同时开辟一个缓冲区用于存储 client 发来的命令。</li>
+<li>当 BGSAVE 执行成功之后，master 会将这个 RDB 文件发送给 slave，slave 在接收到这个 RDB 文件之后会将它加载到内存。</li>
+<li>接着 master 会将缓冲区内的所有命令发送给 slave 去执行。</li>
+</ul>
+<hr>
+<p>　　主从复制时还可能出现另一种情况，譬如说，master 与 slave 之间已经保持同步了，但是由于网络状况不好，导致 master 与 slave 断开连接，一段时间之后网络变好了，slave 又重新连上 master，但此时 slave 已经与 master 不同步了。那么为了让 slave 与 master 继续保持同步，这时候它们会怎么做呢？
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/04/07/redis-replication/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/03/25/网络编程中的zerocpoy技术/" itemprop="url">
                   浅谈 Linux 的 Zero Copy 技术
                 </a>
@@ -531,142 +663,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
-                  网络编程中的 SIGPIPE 信号
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
-              2017-03-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/03/02/sigpipe/" class="leancloud_visitors" data-flag-title="网络编程中的 SIGPIPE 信号">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="处理-SIGPIPE"><a href="#处理-SIGPIPE" class="headerlink" title="处理 SIGPIPE"></a>处理 SIGPIPE</h2><p>　　在网络编程中经常会遇到<code>SIGPIPE</code>信号，默认情况下这个信号会终止整个进程，当然你并不想让进程被<code>SIGPIPE</code>信号杀死。我们不禁会这样思考：</p>
-<ul>
-<li>在什么场景下会产生<code>SIGPIPE</code>信号？</li>
-<li>要怎样处理<code>SIGPIPE</code>信号？</li>
-</ul>
-<p>　　<code>SIGPIPE</code>产生的原因是这样的：如果一个 socket 在接收到了 RST packet 之后，程序仍然向这个 socket 写入数据，那么就会产生<code>SIGPIPE</code>信号。<br>　　这种现象是很常见的，譬如说，当 client 连接到 server 之后，这时候 server 准备向 client 发送<u>多条</u>消息，但在发送消息之前，client 进程意外奔溃了，那么接下来 server 在发送<u>多条</u>消息的过程中，就会出现<code>SIGPIPE</code>信号。下面我们看看 server 的代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handle_client</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 假设此时 client 奔溃, 那么 server 将接收到 client 发送的 FIN</span></div><div class="line">    sleep(<span class="number">5</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 写入第一条消息</span></div><div class="line">    <span class="keyword">char</span> msg1[MAXLINE] = &#123;<span class="string">"first message"</span>&#125;; </div><div class="line">    <span class="keyword">ssize_t</span> n = write(fd, msg1, <span class="built_in">strlen</span>(msg1));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"write %ld bytes\n"</span>, n);</div><div class="line"></div><div class="line">    <span class="comment">// 此时第一条消息发送成功，server 接收到 client 发送的 RST</span></div><div class="line">    sleep(<span class="number">1</span>); </div><div class="line"></div><div class="line">    <span class="comment">// 写入第二条消息，出现 SIGPIPE 信号，导致 server 被杀死</span></div><div class="line">    <span class="keyword">char</span> msg2[MAXLINE] = &#123;<span class="string">"second message"</span>&#125;;</div><div class="line">    n = write(fd, msg2, <span class="built_in">strlen</span>(msg2));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld, %s\n"</span>, n, strerror(errno));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> port = <span class="number">8888</span>;</div><div class="line">    <span class="keyword">struct</span> sockaddr_in server_addr;</div><div class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    server_addr.sin_family = AF_INET;</div><div class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</div><div class="line">    server_addr.sin_port = htons(port);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> listenfd = socket(AF_INET , SOCK_STREAM , <span class="number">0</span>);</div><div class="line">    bind(listenfd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    listen(listenfd, <span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> fd = accept(listenfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">    handle_client(fd);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　我们可以使用 Linux 的 nc 工具作为 client，当 client 连接到 server 之后，就立即杀死 client (模拟 client 的意外奔溃)。这时可以观察 server 的运行情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gcc -o server server.c </div><div class="line">$ ./server &amp;              <span class="comment"># 后台运行 server</span></div><div class="line">$ nc localhost 8888       <span class="comment"># 运行 nc 连接到 server</span></div><div class="line">^C                        <span class="comment"># Ctrl-C 杀死 nc</span></div><div class="line"></div><div class="line">write 13 bytes</div><div class="line">[1]+  Broken pipe             ./server</div></pre></td></tr></table></figure></p>
-<p>　　让我们分析一下整个过程：</p>
-<ul>
-<li>client 连接到 server 之后，client 进程意外奔溃，这时它会发送一个 FIN 给 server。</li>
-<li>此时 server 并不知道 client 已经奔溃了，所以它会发送第一条消息给 client。但 client 已经退出了，所以 client 的 TCP 协议栈会发送一个 RST 给 server。</li>
-<li>server 在接收到 RST 之后，继续写入第二条消息。往一个已经收到 RST 的 socket 继续写入数据，将导致<code>SIGPIPE</code>信号，从而杀死 server。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/03/02/linux-signal/" itemprop="url">
                   Linux 安全的信号处理方式
                 </a>
@@ -797,8 +793,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/02/26/cpp11_thread/" itemprop="url">
-                  C++ 多线程编程精要
+                <a class="post-title-link" href="/2017/03/02/sigpipe/" itemprop="url">
+                  网络编程中的 SIGPIPE 信号
                 </a>
               
             
@@ -811,8 +807,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-26T16:13:53+08:00" content="2017-02-26">
-              2017-02-26
+            <time itemprop="dateCreated" datetime="2017-03-02T14:40:46+08:00" content="2017-03-02">
+              2017-03-02
             </time>
           </span>
 
@@ -825,8 +821,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
                   </a>
                 </span>
 
@@ -845,7 +841,7 @@
 
           
           
-             <span id="/2017/02/26/cpp11_thread/" class="leancloud_visitors" data-flag-title="C++ 多线程编程精要">
+             <span id="/2017/03/02/sigpipe/" class="leancloud_visitors" data-flag-title="网络编程中的 SIGPIPE 信号">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -868,12 +864,21 @@
 
       
         
-          <h2 id="CPU-亲和性"><a href="#CPU-亲和性" class="headerlink" title="CPU 亲和性"></a>CPU 亲和性</h2><p>　　Linux 可以运行在多处理器的机器上，为了维持多个CPU之间的负载均衡，线程可能会被OS调度到其它CPU上，这种情况下线程就无法利用原先CPU上边的缓存了，也就降低了CPU cache的命中率了。所谓的CPU亲和性，就是让线程在指定的CPU上长时间运行而不被调度到其它CPU上边，以提高CPU cache的命中率。<br>　　在Linux中，可以使用<code>pthread_setaffinity_np()</code>为线程设置CPU的亲和性：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">pthread_setaffinity_np</span><span class="params">(<span class="keyword">pthread_t</span> thread, <span class="keyword">size_t</span> cpusetsize,</div><div class="line">                           <span class="keyword">const</span> <span class="keyword">cpu_set_t</span> *cpuset)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　注意到，它的第一个参数类型是<code>pthread_t</code>，代表 Linux 线程的ID。在C++中，每个<code>std::thread</code>都对应着底层操作系统的一个线程，不过我们可以使用<code>std::thread</code>的<code>native_handle()</code>函数来返回它对应的 OS 线程的ID，在Linux系统中，这个函数的返回值类型是<code>pthread_t</code>。<br>　　下面的例子，我们让线程绑定到 CPU-0 上：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sched.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">([]()</span> </span>&#123;</div><div class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::milliseconds(<span class="number">100</span>));</div><div class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Thread #"</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id()</div><div class="line">                      &lt;&lt; <span class="string">": on CPU"</span> &lt;&lt; sched_getcpu() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">cpu_set_t</span> cpuset;</div><div class="line">    CPU_ZERO(&amp;cpuset);</div><div class="line">    CPU_SET(<span class="number">0</span>, &amp;cpuset);</div><div class="line"></div><div class="line">    pthread_setaffinity_np(t.native_handle(), <span class="keyword">sizeof</span>(<span class="keyword">cpu_set_t</span>), &amp;cpuset);</div><div class="line">    t.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="改善-std-thread"><a href="#改善-std-thread" class="headerlink" title="改善 std::thread"></a>改善 std::thread</h2><p>　　在工程实践中，你会发现<code>std::thread</code>并不像想象中的那么完美。一个明显的问题是，当<code>std::thread</code>即将析构时，你要人为地确保实际的线程已经结束运行了或者已经分离了(可以分别调用它的<code>join()</code>和<code>detach()</code>成员函数)，否则程序将会抛出<code>std::terminate</code>异常。当然，由于<code>std::thread</code>的析构函数没有保证正确地释放资源，这也同时导致了<code>std::thread</code>不是异常安全的。<br>　　下面提供了一个<code>ThreadRAII</code>类，它在析构时会等待线程运行结束，或者直接分离线程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> ThreadRAII</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">enum</span> <span class="keyword">class</span> DtorAction &#123;join, detach&#125;;</div><div class="line"></div><div class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Ts&gt;</div><div class="line">    ThreadRAII(DtorAction a, Ts&amp;&amp;... params)</div><div class="line">        : action_(a), thread_(<span class="built_in">std</span>::forward&lt;Ts&gt;(params)...)</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ThreadRAII(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    ThreadRAII &amp;<span class="keyword">operator</span>=(ThreadRAII &amp;&amp;) = <span class="keyword">default</span>;</div><div class="line">    </div><div class="line">    ~ThreadRAII()</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (thread_.joinable()) &#123;</div><div class="line">            <span class="keyword">if</span> (action_ == DtorAction::join) &#123;</div><div class="line">                thread_.join();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                thread_.detach();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">	</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread &amp;<span class="title">get</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> thread_; &#125;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    DtorAction action_;</div><div class="line">    <span class="built_in">std</span>::thread thread_;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　创建<code>ThreadRAII</code>对象时，可以顺带指定它的析构行为，到底是等待线程运行结束呢还是直接分离线程。下面的例子中，程序退出时，<code>ThreadRAII</code>对象的析构函数会保证线程正常结束运行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123; <span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello"</span> &lt;&lt; <span class="built_in">endl</span>; &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    ThreadRAII t&#123;ThreadRAII::DtorAction::join, sayHello&#125;;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <h2 id="处理-SIGPIPE"><a href="#处理-SIGPIPE" class="headerlink" title="处理 SIGPIPE"></a>处理 SIGPIPE</h2><p>　　在网络编程中经常会遇到<code>SIGPIPE</code>信号，默认情况下这个信号会终止整个进程，当然你并不想让进程被<code>SIGPIPE</code>信号杀死。我们不禁会这样思考：</p>
+<ul>
+<li>在什么场景下会产生<code>SIGPIPE</code>信号？</li>
+<li>要怎样处理<code>SIGPIPE</code>信号？</li>
+</ul>
+<p>　　<code>SIGPIPE</code>产生的原因是这样的：如果一个 socket 在接收到了 RST packet 之后，程序仍然向这个 socket 写入数据，那么就会产生<code>SIGPIPE</code>信号。<br>　　这种现象是很常见的，譬如说，当 client 连接到 server 之后，这时候 server 准备向 client 发送<u>多条</u>消息，但在发送消息之前，client 进程意外奔溃了，那么接下来 server 在发送<u>多条</u>消息的过程中，就会出现<code>SIGPIPE</code>信号。下面我们看看 server 的代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handle_client</span><span class="params">(<span class="keyword">int</span> fd)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// 假设此时 client 奔溃, 那么 server 将接收到 client 发送的 FIN</span></div><div class="line">    sleep(<span class="number">5</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 写入第一条消息</span></div><div class="line">    <span class="keyword">char</span> msg1[MAXLINE] = &#123;<span class="string">"first message"</span>&#125;; </div><div class="line">    <span class="keyword">ssize_t</span> n = write(fd, msg1, <span class="built_in">strlen</span>(msg1));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"write %ld bytes\n"</span>, n);</div><div class="line"></div><div class="line">    <span class="comment">// 此时第一条消息发送成功，server 接收到 client 发送的 RST</span></div><div class="line">    sleep(<span class="number">1</span>); </div><div class="line"></div><div class="line">    <span class="comment">// 写入第二条消息，出现 SIGPIPE 信号，导致 server 被杀死</span></div><div class="line">    <span class="keyword">char</span> msg2[MAXLINE] = &#123;<span class="string">"second message"</span>&#125;;</div><div class="line">    n = write(fd, msg2, <span class="built_in">strlen</span>(msg2));</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld, %s\n"</span>, n, strerror(errno));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> port = <span class="number">8888</span>;</div><div class="line">    <span class="keyword">struct</span> sockaddr_in server_addr;</div><div class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    server_addr.sin_family = AF_INET;</div><div class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</div><div class="line">    server_addr.sin_port = htons(port);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> listenfd = socket(AF_INET , SOCK_STREAM , <span class="number">0</span>);</div><div class="line">    bind(listenfd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</div><div class="line">    listen(listenfd, <span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> fd = accept(listenfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</div><div class="line">    handle_client(fd);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　我们可以使用 Linux 的 nc 工具作为 client，当 client 连接到 server 之后，就立即杀死 client (模拟 client 的意外奔溃)。这时可以观察 server 的运行情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gcc -o server server.c </div><div class="line">$ ./server &amp;              <span class="comment"># 后台运行 server</span></div><div class="line">$ nc localhost 8888       <span class="comment"># 运行 nc 连接到 server</span></div><div class="line">^C                        <span class="comment"># Ctrl-C 杀死 nc</span></div><div class="line"></div><div class="line">write 13 bytes</div><div class="line">[1]+  Broken pipe             ./server</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下整个过程：</p>
+<ul>
+<li>client 连接到 server 之后，client 进程意外奔溃，这时它会发送一个 FIN 给 server。</li>
+<li>此时 server 并不知道 client 已经奔溃了，所以它会发送第一条消息给 client。但 client 已经退出了，所以 client 的 TCP 协议栈会发送一个 RST 给 server。</li>
+<li>server 在接收到 RST 之后，继续写入第二条消息。往一个已经收到 RST 的 socket 继续写入数据，将导致<code>SIGPIPE</code>信号，从而杀死 server。</li>
+</ul>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/26/cpp11_thread/#more" rel="contents">
+            <a class="btn" href="/2017/03/02/sigpipe/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -948,7 +953,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">58</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1022,7 +1027,7 @@
         <div class="copyright" >
   
   &copy;  2015 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

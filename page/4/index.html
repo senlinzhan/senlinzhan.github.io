@@ -266,6 +266,114 @@
             
               
                 
+                <a class="post-title-link" href="/2017/10/08/gtest/" itemprop="url">
+                  使用 Google Test 测试框架
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-08T21:14:00+08:00" content="2017-10-08">
+              2017-10-08
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/10/08/gtest/" class="leancloud_visitors" data-flag-title="使用 Google Test 测试框架">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>　　gtest 是谷歌的 C++ 单元测试框架，下面是安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> https://github.com/google/googletest.git</div><div class="line">$ <span class="built_in">cd</span> googletest</div><div class="line">$ mkdir build</div><div class="line">$ <span class="built_in">cd</span> build</div><div class="line">$ cmake ..</div><div class="line">$ make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
+<p>　　安装 gtest 之后，要怎样在 CMake 中使用 gtest 呢？让我们用一个简单的例子演示一下，首先编写项目的 CMakeLists.txt 文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">cmake_minimum_required (VERSION 2.8)</div><div class="line"></div><div class="line">project(code-for-blog)</div><div class="line"></div><div class="line"><span class="built_in">set</span>(CMAKE_CXX_FLAGS <span class="string">"<span class="variable">$&#123;CMAKE_CXX_FLAGS&#125;</span> -g -std=c++11 -Wall"</span>)</div><div class="line"></div><div class="line">find_package(GTest REQUIRED)</div><div class="line">find_package(Threads REQUIRED)</div><div class="line"></div><div class="line">include_directories(<span class="variable">$&#123;GTEST_INCLUDE_DIRS&#125;</span>)</div><div class="line"></div><div class="line">add_executable(MyTests test.cpp)</div><div class="line">target_link_libraries(MyTests <span class="variable">$&#123;GTEST_BOTH_LIBRARIES&#125;</span>)</div><div class="line">target_link_libraries(MyTests <span class="variable">$&#123;CMAKE_THREAD_LIBS_INIT&#125;</span>)</div><div class="line"></div><div class="line">add_test(Test MyTests)</div><div class="line">enable_testing()</div></pre></td></tr></table></figure></p>
+<p>　　接着编写一个简单的单元测试文件 test.cpp：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;gtest/gtest.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;numeric&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"></div><div class="line"><span class="comment">// 测试集为 MyTest，测试案例为 Sum</span></div><div class="line">TEST(MyTest, Sum)</div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</div><div class="line">    <span class="keyword">int</span> sum = <span class="built_in">std</span>::accumulate(vec.begin(), vec.end(), <span class="number">0</span>);</div><div class="line">    EXPECT_EQ(sum, <span class="number">15</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></div><div class="line"></span>&#123;</div><div class="line">    ::testing::InitGoogleTest(&amp;argc, argv);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> RUN_ALL_TESTS();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　编译好项目之后，使用命令<code>make test</code>就可以执行单元测试了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ make <span class="built_in">test</span></div><div class="line">Running tests...</div><div class="line">Test project /Users/senlin/my-test/build</div><div class="line">    Start 1: Test</div><div class="line">1/1 Test <span class="comment">#1: Test .............................   Passed    0.01 sec</span></div><div class="line"></div><div class="line">100% tests passed, 0 tests failed out of 1</div><div class="line"></div><div class="line">Total Test time (real) =   0.01 sec</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/10/08/gtest/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/10/07/glog/" itemprop="url">
                   使用 Google 的 glog 日志库
                 </a>
@@ -726,151 +834,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/09/09/grpc-dynamic-thread-pool/" itemprop="url">
-                  gRPC 的 C++ 动态线程池源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-09-09T21:54:51+08:00" content="2017-09-09">
-              2017-09-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/09/09/grpc-dynamic-thread-pool/" class="leancloud_visitors" data-flag-title="gRPC 的 C++ 动态线程池源码分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="固定线程池"><a href="#固定线程池" class="headerlink" title="固定线程池"></a>固定线程池</h2><p>　　提到线程池，通常说的都是<u>固定大小</u>的线程池，固定线程池的原理是这样的：</p>
-<ul>
-<li>线程池由一个线程安全的队列，以及多个 worker 线程组成。</li>
-<li>可以有多个 producer 线程，它们负责提交任务给线程池。</li>
-<li>接收到新任务之后，线程池会唤醒某个 worker 线程，worker 线程醒来后会取出任务并执行。</li>
-</ul>
-<p><div align="center"><img src="/images/linux/thread-pool.png" width="600" align=center /> </div><br>　　虽然固定线程池实现起来很简单，但却有着几个缺陷：</p>
-<ul>
-<li>无法动态扩容：worker 线程的个数是固定的，不能随着任务数的增长而增长。</li>
-<li>无法动态缩容：如果有很多 worker 线程处于<u>空闲状态</u>，就会造成资源的浪费。</li>
-</ul>
-<h2 id="动态线程池"><a href="#动态线程池" class="headerlink" title="动态线程池"></a>动态线程池</h2><p>　　对于线程池，我们希望它可以动态增长，这样才不会造成任务队列的堆积，另一反面，也希望它能适当回收一些空闲的线程，以节省系统资源。</p>
-<h4 id="线程池接口"><a href="#线程池接口" class="headerlink" title="线程池接口"></a>线程池接口</h4><p>　　gRPC 内部使用了动态线程池，它的接口长这样：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">class DynamicThreadPool</div><div class="line">&#123;</div><div class="line">public:</div><div class="line">    DynamicThreadPool(int reserve_threads);</div><div class="line">    ~DynamicThreadPool();</div><div class="line"></div><div class="line">    void Add(const std::function&lt;void()&gt; &amp;callback);    // 提交任务</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　那么<code>DynamicThreadPool</code>是怎样管理线程的呢？</p>
-<ul>
-<li><code>DynamicThreadPool</code>并不会限制线程的数量，理论上这意味着线程数量可以无限增长。</li>
-<li>构造函数接收一个参数<code>reserve_threads</code>，这个参数与线程池的缩容策略有关：它表示线程池最多只能有<code>reserve_threads</code>个空闲线程。也就是说，如果线程池的空闲线程数量多于这个值，那么多出来的那些线程就会被系统回收。</li>
-</ul>
-<h4 id="线程池的构造"><a href="#线程池的构造" class="headerlink" title="线程池的构造"></a>线程池的构造</h4><p>　　首先看看<code>DynamicThreadPool</code>的数据成员：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> DynamicThreadPool</div><div class="line">&#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="built_in">std</span>::mutex mu_;                                 <span class="comment">// 互斥锁，保护数据成员</span></div><div class="line">    <span class="built_in">std</span>::condition_variable cv_;                    <span class="comment">// 条件变量</span></div><div class="line">    <span class="built_in">std</span>::condition_variable shutdown_cv_;           <span class="comment">// 条件变量，与线程池析构相关</span></div><div class="line"></div><div class="line">    <span class="keyword">bool</span> shutdown_;                                 <span class="comment">// 线程池是否即将析构</span></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">queue</span>&lt;<span class="built_in">std</span>::function&lt;<span class="keyword">void</span>()&gt;&gt; callbacks_;   <span class="comment">// 任务队列 </span></div><div class="line">    <span class="keyword">int</span> reserve_threads_;                           <span class="comment">// 最大空闲线程数</span></div><div class="line">    <span class="keyword">int</span> nthreads_;                                  <span class="comment">// 当前线程数</span></div><div class="line">    <span class="keyword">int</span> threads_waiting_;                           <span class="comment">// 空闲线程数</span></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">list</span>&lt;DynamicThread*&gt; dead_threads_;        <span class="comment">// 保存已经终止的线程 </span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　<code>DynamicThreadPool</code>的构造函数会先创建<code>reserve_threads</code>个线程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">DynamicThreadPool::DynamicThreadPool(<span class="keyword">int</span> reserve_threads)</div><div class="line">    : shutdown_(<span class="literal">false</span>),</div><div class="line">      reserve_threads_(reserve_threads),</div><div class="line">      nthreads_(<span class="number">0</span>),</div><div class="line">      threads_waiting_(<span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; reserve_threads_; i++)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(mu_);</div><div class="line">        nthreads_++;</div><div class="line">        <span class="keyword">new</span> DynamicThread(<span class="keyword">this</span>);     <span class="comment">// 创建新线程</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，线程池不会直接使用<code>std::thread</code>，而是使用自己封装的<code>DynamicThread</code>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> DynamicThreadPool</div><div class="line">&#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">class</span> DynamicThread</div><div class="line">    &#123;</div><div class="line">    <span class="keyword">public</span>:</div><div class="line">        DynamicThread(DynamicThreadPool* pool);</div><div class="line">        ~DynamicThread();</div><div class="line"></div><div class="line">    <span class="keyword">private</span>:</div><div class="line">        DynamicThreadPool* pool_;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;<span class="built_in">std</span>::thread&gt; thd_;</div><div class="line">        <span class="function"><span class="keyword">void</span> <span class="title">ThreadFunc</span><span class="params">()</span></span>;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　与<code>std::thread</code>相比，<code>DynamicThread</code>遵循了 RAII 的原则：<code>DynamicThread</code>在析构时，会调用线程的<code>join()</code>函数，用来确保正确地释放线程资源：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">DynamicThreadPool::DynamicThread::DynamicThread(DynamicThreadPool *pool)</div><div class="line">    : pool_(pool),</div><div class="line">      thd_(<span class="keyword">new</span> <span class="built_in">std</span>::thread(&amp;DynamicThreadPool::DynamicThread::ThreadFunc, <span class="keyword">this</span>))</div><div class="line">&#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line">DynamicThreadPool::DynamicThread::~DynamicThread()</div><div class="line">&#123;</div><div class="line">    thd_-&gt;join();</div><div class="line">    thd_.reset();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/09/09/grpc-dynamic-thread-pool/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -916,7 +879,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">58</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -990,7 +953,7 @@
         <div class="copyright" >
   
   &copy;  2015 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
