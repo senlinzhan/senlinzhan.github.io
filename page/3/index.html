@@ -266,6 +266,131 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/17/mysql-transaction/" itemprop="url">
+                  MySQL InnoDB 的锁机制与事务模型
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-17T13:04:07+08:00" content="2017-12-17">
+              2017-12-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/17/mysql-transaction/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 的锁机制与事务模型">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。</p>
+<h4 id="未提交读"><a href="#未提交读" class="headerlink" title="未提交读"></a>未提交读</h4><p>　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提交的情况下，对其它事务来说都是可见的，因此会导致读的不一致性（也即脏读）。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/17/mysql-transaction/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/16/mysql-query-profiling/" itemprop="url">
                   MySQL 性能剖析
                 </a>
@@ -820,165 +945,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/27/k8s/" itemprop="url">
-                  Kubernetes 入门指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-11-27T15:44:42+08:00" content="2017-11-27">
-              2017-11-27
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
-                    <span itemprop="name">虚拟化</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/11/27/k8s/" class="leancloud_visitors" data-flag-title="Kubernetes 入门指南">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Pod-的介绍"><a href="#Pod-的介绍" class="headerlink" title="Pod 的介绍"></a>Pod 的介绍</h2><p>　　在 Kubernetes 中，Pod 是最小的调度单元，Pod 其实就是一个容器组，它可以包含一个或多个容器（Pod 翻译为豆荚，一个豆荚可以有多个豆子）。对于一个 Pod 来说，它会运行在某个宿主机上，当需要调度的时候，Kubernetes 会将 Pod 作为一个整体进行调度。<br>　　由于整个 Pod 是运行在一个宿主机上的，所以 Pod 中的所有容器共享这些资源：</p>
-<ul>
-<li>所有容器共享同一个 IP。</li>
-<li>所有容器共享同一个 hostname。</li>
-<li>当某个 Volume 被挂载到 Pod 的文件系统时，这个 Volume 可以被多个容器共享。</li>
-<li>容器之间可以通过 System V IPC 或 POSIX 消息队列进行通信。 </li>
-</ul>
-<p>　　思考一下，什么样的容器才适合放到同一个 Pod 中呢？</p>
-<h4 id="Pod-的配置"><a href="#Pod-的配置" class="headerlink" title="Pod 的配置"></a>Pod 的配置</h4><p>　　可以使用 yaml 配置文件去描述 Pod，并写清楚我们希望 Pod 达到的状态：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
-<p>　　使用下面的命令可以创建 Pod，用于运行 Nginx:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
-<p>　　也可以获取 Pod 的运行状态：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME      READY     STATUS    RESTARTS   AGE</div><div class="line">nginx     1/1       Running   0          8m</div></pre></td></tr></table></figure></p>
-<p>　　如果想要获取 Pod 中所有容器的运行状态，可以使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl  get pods nginx -o json</div></pre></td></tr></table></figure></p>
-<p>　　如果想获得 Pod 的更多详细信息（包括所有容器的信息，以及和 Pod 相关的事件），可以使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl describe pods nginx</div></pre></td></tr></table></figure></p>
-<p>　　删除 Pod 时，可以根据 Pod 的名称删除指定的 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete pods/nginx</div></pre></td></tr></table></figure></p>
-<p>　　也可以根据 yaml 配置文件删除 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
-<h4 id="Pod-的调试"><a href="#Pod-的调试" class="headerlink" title="Pod 的调试"></a>Pod 的调试</h4><p>　　在运行上面的 Nginx Pod 之后，如何判断 Nginx 正常工作呢？Kubernetes API 提供了端口转发的功能，可以在另一个终端执行下面的命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl port-forward nginx 8000:80</div></pre></td></tr></table></figure></p>
-<p>　　上面的命令会将<code>localhost:8000</code>的请求转发到 Nginx Pod 的<code>80</code>端口。可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl localhost:8000</div></pre></td></tr></table></figure></p>
-<p>　　如果没有差错，这个命令会输出 Nginx 首页的内容。</p>
-<hr>
-<p>　　另一种有效的调试手段，就是进入到容器内部去实地考察：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash</div></pre></td></tr></table></figure></p>
-<p>　　如果 Pod 中有多个容器，可以使用<code>-c</code>参数指定具体的容器：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash -c nginx</div></pre></td></tr></table></figure></p>
-<p>　　当然，更加经常使用的调试手段，就是观察容器的输出日志：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl logs nginx</div></pre></td></tr></table></figure></p>
-<h4 id="Pod-的健康检查"><a href="#Pod-的健康检查" class="headerlink" title="Pod 的健康检查"></a>Pod 的健康检查</h4><p>　　默认情况下，Kubernetes 会开启<u>进程的健康检查</u>：如果 Kubernetes 检测到容器里面的进程退出了，那么它就会重启这个容器。<br>　　只有进程级别的健康检查是远远不够的，设想一下，假设程序发生死锁了，此时进程仍然在运行，但是它已经不能正确输出响应了。为解决这个问题，还需要在<u>应用层</u>实现健康检查。<br>　　Kubernetes 提供了三种类型的健康检查：</p>
-<ul>
-<li>HTTP 健康检查：向容器的 HTTP 接口发起 HTTP 请求，如果返回的状态码在 [200, 400) 之间，就认为请求是成功的。</li>
-<li>TCP 健康检查：与容器的某个 port 建立 TCP 连接，如果连接建立成功，则说明容器是健康的。</li>
-<li>Exec 健康检查：在容器里面执行一个命令，如果返回 0 则认为是成功的，否则失败。</li>
-</ul>
-<p>　　需要注意的是，健康检查是容器级别的，而不是 Pod 级别的。这意味着一个 Pod 里面的每个容器，都需要配置不同的健康检查规则。<br>　　下面的例子使用的是 HTTP 健康检查：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    livenessProbe:</span></div><div class="line"><span class="attr">      httpGet:</span></div><div class="line"><span class="attr">        path:</span> /index.html</div><div class="line"><span class="attr">        port:</span> <span class="number">80</span></div><div class="line"><span class="attr">      initialDelaySeconds:</span> <span class="number">5</span></div><div class="line"><span class="attr">      timeoutSeconds:</span> <span class="number">1</span></div><div class="line"><span class="attr">      periodSeconds:</span> <span class="number">10</span></div><div class="line"><span class="attr">      failureThreshold:</span> <span class="number">3</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
-<p>　　下面解释一下各项配置的意义：</p>
-<ul>
-<li><code>initialDelaySeconds: 5</code>：使用 5 秒用来等待 Pod 的初始化。</li>
-<li><code>timeoutSeconds: 1</code>：为 HTTP 请求设置超时时间为 1 秒。</li>
-<li><code>periodSeconds: 10</code>：每 10 秒执行一次健康检查。</li>
-<li><code>failureThreshold: 3</code>：设置失败的阈值，如果超过 3 次健康检查都失败了，容器就会被重启。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/11/27/k8s/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1024,7 +990,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

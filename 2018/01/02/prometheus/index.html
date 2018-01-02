@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Kubernetes," />
 
 
 
@@ -102,16 +102,34 @@
 
 
 
-<meta name="description" content="高性能">
-<meta property="og:type" content="website">
-<meta property="og:title" content="tags">
-<meta property="og:url" content="http://senlinzhan.github.io/tags/index.html">
+<meta name="description" content="参考资料
+Kubernetes使用Prometheus搭建监控平台
+Prometheus报警AlertManager实战
+Flask application monitoring with Prometheus
+Prometheus on Kubernetes
+Monitoring Your Kubernetes Infrastructure with Prometheus
+Monitoring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Prometheus 监控 Kubernetes 集群">
+<meta property="og:url" content="http://senlinzhan.github.io/2018/01/02/prometheus/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="高性能">
-<meta property="og:updated_time" content="2016-11-02T14:11:10.000Z">
+<meta property="og:description" content="参考资料
+Kubernetes使用Prometheus搭建监控平台
+Prometheus报警AlertManager实战
+Flask application monitoring with Prometheus
+Prometheus on Kubernetes
+Monitoring Your Kubernetes Infrastructure with Prometheus
+Monitoring">
+<meta property="og:updated_time" content="2018-01-02T09:55:17.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="tags">
-<meta name="twitter:description" content="高性能">
+<meta name="twitter:title" content="使用 Prometheus 监控 Kubernetes 集群">
+<meta name="twitter:description" content="参考资料
+Kubernetes使用Prometheus搭建监控平台
+Prometheus报警AlertManager实战
+Flask application monitoring with Prometheus
+Prometheus on Kubernetes
+Monitoring Your Kubernetes Infrastructure with Prometheus
+Monitoring">
 
 
 
@@ -132,15 +150,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/tags/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2018/01/02/prometheus/"/>
 
-  <title>
-  
-
-  
-    标签 | Senlin's Blog
-  
-</title>
+  <title> 使用 Prometheus 监控 Kubernetes 集群 | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -161,7 +173,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -251,16 +263,157 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
     
-      <div class="tag-cloud">
-        <div class="tag-cloud-title">
-            目前共计 14 个标签
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用 Prometheus 监控 Kubernetes 集群
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-02T17:51:53+08:00" content="2018-01-02">
+              2018-01-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/01/02/prometheus/" class="leancloud_visitors" data-flag-title="使用 Prometheus 监控 Kubernetes 集群">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
         </div>
-        <div class="tag-cloud-tags">
-          <a href="/tags/Algorithms/" style="font-size: 15px; color: #adadad">Algorithms</a> <a href="/tags/C/" style="font-size: 18px; color: #8e8e8e">C++</a> <a href="/tags/Concurrency/" style="font-size: 21px; color: #6f6f6f">Concurrency</a> <a href="/tags/Data-Structures/" style="font-size: 15px; color: #adadad">Data Structures</a> <a href="/tags/Database/" style="font-size: 27px; color: #303030">Database</a> <a href="/tags/Kubernetes/" style="font-size: 18px; color: #8e8e8e">Kubernetes</a> <a href="/tags/Linker-and-Loader/" style="font-size: 12px; color: #ccc">Linker and Loader</a> <a href="/tags/Memory/" style="font-size: 12px; color: #ccc">Memory</a> <a href="/tags/Microservices/" style="font-size: 12px; color: #ccc">Microservices</a> <a href="/tags/Network/" style="font-size: 30px; color: #111">Network</a> <a href="/tags/Parallel/" style="font-size: 12px; color: #ccc">Parallel</a> <a href="/tags/Python/" style="font-size: 12px; color: #ccc">Python</a> <a href="/tags/Tools/" style="font-size: 12px; color: #ccc">Tools</a> <a href="/tags/工具链/" style="font-size: 24px; color: #4f4f4f">工具链</a>
-        </div>
-      </div>
+      </header>
     
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://blog.qikqiak.com/post/kubernetes-monitor-prometheus-grafana/" target="_blank" rel="external">Kubernetes使用Prometheus搭建监控平台</a></li>
+<li><a href="https://blog.qikqiak.com/post/alertmanager-of-prometheus-in-practice/" target="_blank" rel="external">Prometheus报警AlertManager实战</a></li>
+<li><a href="https://burhan.io/flask-application-monitoring-with-prometheus/" target="_blank" rel="external">Flask application monitoring with Prometheus</a></li>
+<li><a href="http://marselester.com/prometheus-on-kubernetes.html" target="_blank" rel="external">Prometheus on Kubernetes</a></li>
+<li><a href="https://www.weave.works/blog/monitoring-kubernetes-infrastructure/" target="_blank" rel="external">Monitoring Your Kubernetes Infrastructure with Prometheus</a></li>
+<li><a href="https://coreos.com/blog/monitoring-kubernetes-with-prometheus.html" target="_blank" rel="external">Monitoring Kubernetes with Prometheus | Prometheus Docker Monitoring</a></li>
+<li><a href="https://github.com/instrumentisto/grafana-dashboard-kubernetes-prometheus" target="_blank" rel="external">grafana-dashboard-kubernetes-prometheus</a></li>
+<li><a href="https://github.com/giantswarm/kubernetes-prometheus" target="_blank" rel="external">kubernetes-prometheus</a></li>
+<li><a href="https://coreos.com/blog/prometheus-and-kubernetes-up-and-running.html" target="_blank" rel="external">Prometheus Kubernetes | Up and Running with CoreOS</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Kubernetes/" rel="tag">#Kubernetes</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/01/gdb-on-multithreaded/" rel="next" title="使用 gdb 调试 C++ 多线程程序">
+                <i class="fa fa-chevron-left"></i> 使用 gdb 调试 C++ 多线程程序
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -471,6 +624,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
@@ -487,9 +644,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'http-senlinzhan-github-io';
-      var disqus_identifier = 'tags/index.html';
-      var disqus_title = "tags";
-      var disqus_url = 'http://senlinzhan.github.io/tags/index.html';
+      var disqus_identifier = '2018/01/02/prometheus/';
+      var disqus_title = "使用 Prometheus 监控 Kubernetes 集群";
+      var disqus_url = 'http://senlinzhan.github.io/2018/01/02/prometheus/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');
