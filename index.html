@@ -811,6 +811,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
+                    <span itemprop="name">性能剖析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -843,14 +862,18 @@
 
       
         
-          
-            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://www.brendangregg.com/blog/2016-08-09/gdb-example-ncurses.html" target="_blank" rel="external">gdb Debugging Full Example (Tutorial): ncurses</a></li>
-<li><a href="http://yusufonlinux.blogspot.com/2010/11/debugging-core-using-gdb.html" target="_blank" rel="external">Debugging core using gdb</a></li>
-<li><a href="https://www.cs.umd.edu/~srhuang/teaching/cmsc212/gdb-tutorial-handout.pdf" target="_blank" rel="external">GDB Tutorial A Walkthrough with Examples</a></li>
-</ul>
-
-          
+          <h2 id="查看调用栈"><a href="#查看调用栈" class="headerlink" title="查看调用栈"></a>查看调用栈</h2><p>　　可以使用<code>backtrace</code>命令查看当前函数的调用栈。下面用一个 C++ 程序演示一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#include &lt;iostream&gt;</span></div><div class="line"></div><div class="line">void <span class="function"><span class="title">bar</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"I'm bar!"</span> &lt;&lt; std::endl;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void <span class="function"><span class="title">foo</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"I'm foo!"</span> &lt;&lt; std::endl;</div><div class="line">    bar();</div><div class="line">&#125;</div><div class="line"></div><div class="line">int <span class="function"><span class="title">main</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; std::endl;</div><div class="line">    foo();</div><div class="line"></div><div class="line">    <span class="built_in">return</span> 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　编译这个程序，并使用 gdb 调试。我们在代码第 5 行设置断点（在<code>bar()</code>函数里面），运行程序之后，就可以使用<code>backtrace</code>命令查看<code>bar()</code>函数的调用栈：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o hello hello.cpp</div><div class="line">$ gdb ./hello -tui</div><div class="line">(gdb) <span class="built_in">break</span> 5</div><div class="line">Breakpoint 1 at 0x40084a: file hello.cpp, line 5.</div><div class="line">(gdb) run</div><div class="line">Starting program: /home/ubuntu/hello</div><div class="line">Hello, World!</div><div class="line">I<span class="string">'m foo!</div><div class="line"></div><div class="line">Breakpoint 1, bar () at hello.cpp:5</div><div class="line">(gdb) backtrace</div><div class="line">#0  bar () at hello.cpp:5</div><div class="line">#1  0x000000000040088e in foo () at hello.cpp:11</div><div class="line">#2  0x00000000004008b6 in main () at hello.cpp:17</span></div></pre></td></tr></table></figure></p>
+<h2 id="调试正在运行的程序"><a href="#调试正在运行的程序" class="headerlink" title="调试正在运行的程序"></a>调试正在运行的程序</h2><p>　　gdb 也可以用来调试正在运行的进程，例如下面的 C++ 程序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sleep</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">int</span> i = <span class="number">1000</span>;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        sleep();</div><div class="line"></div><div class="line">        i -= <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　编译并运行这个程序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o sleep sleep.cpp</div><div class="line">$ ./sleep &amp;</div><div class="line">[1] 5507</div></pre></td></tr></table></figure></p>
+<p>　　可以看到进程 ID 是<code>5507</code>，可以使用 gdb 调试这个进程：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ sudo gdb ./sleep 5507</div><div class="line">Attaching to program: /home/ubuntu/sleep, process 5507</div><div class="line">0x00007f227c95d740 <span class="keyword">in</span> __nanosleep_nocancel ()</div><div class="line">    at ../sysdeps/unix/syscall-template.S:84</div><div class="line">(gdb)</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>backtrace</code>命令查看调用栈：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">(gdb) backtrace</div><div class="line">#0  0x00007f227c95d740 in __nanosleep_nocancel ()</div><div class="line">    at ../sysdeps/unix/syscall-template.S:84</div><div class="line">#1  0x0000000000400d6e in std::this_thread::sleep_for&lt;long, std::ratio&lt;1l, 1l&gt; &gt; (</div><div class="line">    __rtime=...) at /usr/include/c++/5/thread:292</div><div class="line">#2  0x0000000000400943 in sleep () at sleep.cpp:7</div><div class="line">#3  0x000000000040098a in main () at sleep.cpp:17</div></pre></td></tr></table></figure></p>
+<p>　　在调试的时候，这个进程会暂停执行，当调试结束的时候，进程会恢复执行。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/31/gdb/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
