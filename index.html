@@ -393,6 +393,139 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/11/k8s-on-aws/" itemprop="url">
+                  使用 kops 在 AWS 部署 Kubernetes 集群
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-11T15:44:42+08:00" content="2018-01-11">
+              2018-01-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/01/11/k8s-on-aws/" class="leancloud_visitors" data-flag-title="使用 kops 在 AWS 部署 Kubernetes 集群">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>　　<a href="https://github.com/kubernetes/kops">kops</a> 是官方推荐的工具，用来在 AWS 生产环境中，快速地部署 Kubernetes 集群。</p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>　　在 1.6.2 版本之前，通过 kops 部署 K8s 集群，需要使用 AWS 的 Route53 来提供 DNS 服务的功能。但从 1.6.2 版本开始，kops 支持部署基于 gossip 的集群，不再依赖 Route53，这让部署操作变得更加简单。<br>　　在部署集群之前，需要安装 kubectl、kops 和 awscli 这些工具，下面是安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl <span class="_">-s</span> https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl &amp;&amp; chmod +x kubectl</div><div class="line">$ sudo mv kubectl /usr/<span class="built_in">local</span>/bin/</div><div class="line">$ wget https://github.com/kubernetes/kops/releases/download/1.8.0/kops-linux-amd64</div><div class="line">$ chmod +x kops-linux-amd64</div><div class="line">$ sudo mv kops-linux-amd64 /usr/<span class="built_in">local</span>/bin/kops</div><div class="line">$ sudo apt-get install awscli</div><div class="line">$ sudo pip install awscli</div></pre></td></tr></table></figure></p>
+<p>　　配置好 AWS 账号：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ aws configure</div><div class="line">AWS Access Key ID [None]: &lt;your-accesskeyID&gt;</div><div class="line">AWS Secret Access Key [None]: &lt;your-secretAccessKey&gt;</div><div class="line">Default region name [None]: ap-northeast-1</div><div class="line">Default output format [None]: json</div></pre></td></tr></table></figure></p>
+<p>　　为了使用 kops 部署集群，还需要为 kops 创建一个 IAM 用户<code>kops</code>，并分配相应的权限：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ aws iam create-group --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name kops</div><div class="line">$ aws iam create-user --user-name kops</div><div class="line">$ aws iam add-user-to-group --user-name kops --group-name kops</div></pre></td></tr></table></figure></p>
+<p>　　为<code>kops</code>用户创建密钥：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ aws iam create-access-key --user-name kops</div></pre></td></tr></table></figure></p>
+<p>　　上面的命令会返回<code>kops</code>用户的<code>AccessKeyID</code>和<code>SecretAccessKey</code>。接着我们就可以更新<code>awscli</code>的配置，让它使用新创建的<code>kops</code>用户的密钥：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ aws configure</div><div class="line">AWS Access Key ID [None]: &lt;accesskeyID-of-kops-user&gt;</div><div class="line">AWS Secret Access Key [None]: &lt;secretAccessKey-of-kops-user&gt;</div><div class="line">Default region name [None]: ap-northeast-1</div><div class="line">Default output format [None]: json</div></pre></td></tr></table></figure></p>
+<p>　　同时还需要将<code>kops</code>用户的密钥导出到命令行的环境变量：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)</div><div class="line">$ <span class="built_in">export</span> AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)</div><div class="line">$ <span class="built_in">export</span> AWS_REGION=$(aws configure get region)</div></pre></td></tr></table></figure></p>
+<p>　　最后是生成 SSH 密钥：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ssh-keygen</div></pre></td></tr></table></figure></p>
+<h2 id="配置-S3"><a href="#配置-S3" class="headerlink" title="配置 S3"></a>配置 S3</h2><p>　　需要注意，为了让 kops 创建基于 gossip 的集群，集群的命名需要使用<code>.k8s.local</code>作为后缀，例如，这里我们将集群命名为<code>cluster.k8s.local</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> NAME=cluster.k8s.local</div></pre></td></tr></table></figure></p>
+<p>　　接着创建一个 S3 bucket，用户存储集群的数据，例如，这里我们将这个 bucket 命名为<code>cluster.k8s.local-state.ym</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ aws s3api create-bucket --bucket <span class="variable">$&#123;NAME&#125;</span>-state.ym --create-bucket-configuration LocationConstraint=<span class="variable">$AWS_REGION</span></div><div class="line">$ <span class="built_in">export</span> KOPS_STATE_STORE=s3://cluster.k8s.local-state.ym</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/01/11/k8s-on-aws/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/01/02/prometheus/" itemprop="url">
                   使用 Prometheus 监控 Kubernetes 集群
                 </a>
@@ -770,141 +903,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/31/gdb/" itemprop="url">
-                  使用 gdb 调试 C++ 程序
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-31T18:32:10+08:00" content="2017-12-31">
-              2017-12-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
-                    <span itemprop="name">性能剖析</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/31/gdb/" class="leancloud_visitors" data-flag-title="使用 gdb 调试 C++ 程序">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="查看调用栈"><a href="#查看调用栈" class="headerlink" title="查看调用栈"></a>查看调用栈</h2><p>　　可以使用<code>backtrace</code>命令查看当前函数的调用栈。下面用一个 C++ 程序演示一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#include &lt;iostream&gt;</span></div><div class="line"></div><div class="line">void <span class="function"><span class="title">bar</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"I'm bar!"</span> &lt;&lt; std::endl;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void <span class="function"><span class="title">foo</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"I'm foo!"</span> &lt;&lt; std::endl;</div><div class="line">    bar();</div><div class="line">&#125;</div><div class="line"></div><div class="line">int <span class="function"><span class="title">main</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; std::endl;</div><div class="line">    foo();</div><div class="line"></div><div class="line">    <span class="built_in">return</span> 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　编译这个程序，并使用 gdb 调试。我们在代码第 5 行设置断点（在<code>bar()</code>函数里面），运行程序之后，就可以使用<code>backtrace</code>命令查看<code>bar()</code>函数的调用栈：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o hello hello.cpp</div><div class="line">$ gdb ./hello -tui</div><div class="line">(gdb) <span class="built_in">break</span> 5</div><div class="line">Breakpoint 1 at 0x40084a: file hello.cpp, line 5.</div><div class="line">(gdb) run</div><div class="line">Starting program: /home/ubuntu/hello</div><div class="line">Hello, World!</div><div class="line">I<span class="string">'m foo!</div><div class="line"></div><div class="line">Breakpoint 1, bar () at hello.cpp:5</div><div class="line">(gdb) backtrace</div><div class="line">#0  bar () at hello.cpp:5</div><div class="line">#1  0x000000000040088e in foo () at hello.cpp:11</div><div class="line">#2  0x00000000004008b6 in main () at hello.cpp:17</span></div></pre></td></tr></table></figure></p>
-<h2 id="调试正在运行的程序"><a href="#调试正在运行的程序" class="headerlink" title="调试正在运行的程序"></a>调试正在运行的程序</h2><p>　　gdb 也可以用来调试正在运行的进程，例如下面的 C++ 程序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sleep</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">int</span> i = <span class="number">1000</span>;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        sleep();</div><div class="line"></div><div class="line">        i -= <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　编译并运行这个程序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o sleep sleep.cpp</div><div class="line">$ ./sleep &amp;</div><div class="line">[1] 5507</div></pre></td></tr></table></figure></p>
-<p>　　可以看到进程 ID 是<code>5507</code>，可以使用 gdb 调试这个进程：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ sudo gdb ./sleep 5507</div><div class="line">Attaching to program: /home/ubuntu/sleep, process 5507</div><div class="line">0x00007f227c95d740 <span class="keyword">in</span> __nanosleep_nocancel ()</div><div class="line">    at ../sysdeps/unix/syscall-template.S:84</div><div class="line">(gdb)</div></pre></td></tr></table></figure></p>
-<p>　　使用<code>backtrace</code>命令查看调用栈：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">(gdb) backtrace</div><div class="line">#0  0x00007f227c95d740 in __nanosleep_nocancel ()</div><div class="line">    at ../sysdeps/unix/syscall-template.S:84</div><div class="line">#1  0x0000000000400d6e in std::this_thread::sleep_for&lt;long, std::ratio&lt;1l, 1l&gt; &gt; (</div><div class="line">    __rtime=...) at /usr/include/c++/5/thread:292</div><div class="line">#2  0x0000000000400943 in sleep () at sleep.cpp:7</div><div class="line">#3  0x000000000040098a in main () at sleep.cpp:17</div></pre></td></tr></table></figure></p>
-<p>　　在调试的时候，这个进程会暂停执行，当调试结束的时候，进程会恢复执行。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/31/gdb/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -945,7 +948,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

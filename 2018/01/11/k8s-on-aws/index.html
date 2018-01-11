@@ -1,0 +1,805 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|PT Serif:300,300italic,400,400italic,700,700italic|Lato:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Kubernetes," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="kops 是官方推荐的工具，用来在 AWS 生产环境中，快速地部署 Kubernetes 集群。
+环境准备　　在 1.6.2 版本之前，通过 kops 部署 K8s 集群，需要使用 AWS 的 Route53 来提供 DNS 服务的功能。但从 1.6.2 版本开始，kops 支持部署基于 gossip 的集群，不再依赖 Route53，这让部署操作变得更加简单。　　在部署集群之前，需要安装 k">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 kops 在 AWS 部署 Kubernetes 集群">
+<meta property="og:url" content="http://senlinzhan.github.io/2018/01/11/k8s-on-aws/index.html">
+<meta property="og:site_name" content="Senlin's Blog">
+<meta property="og:description" content="kops 是官方推荐的工具，用来在 AWS 生产环境中，快速地部署 Kubernetes 集群。
+环境准备　　在 1.6.2 版本之前，通过 kops 部署 K8s 集群，需要使用 AWS 的 Route53 来提供 DNS 服务的功能。但从 1.6.2 版本开始，kops 支持部署基于 gossip 的集群，不再依赖 Route53，这让部署操作变得更加简单。　　在部署集群之前，需要安装 k">
+<meta property="og:updated_time" content="2018-01-11T08:28:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用 kops 在 AWS 部署 Kubernetes 集群">
+<meta name="twitter:description" content="kops 是官方推荐的工具，用来在 AWS 生产环境中，快速地部署 Kubernetes 集群。
+环境准备　　在 1.6.2 版本之前，通过 kops 部署 K8s 集群，需要使用 AWS 的 Route53 来提供 DNS 服务的功能。但从 1.6.2 版本开始，kops 支持部署基于 gossip 的集群，不再依赖 Route53，这让部署操作变得更加简单。　　在部署集群之前，需要安装 k">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://senlinzhan.github.io/2018/01/11/k8s-on-aws/"/>
+
+  <title> 使用 kops 在 AWS 部署 Kubernetes 集群 | Senlin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Senlin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用 kops 在 AWS 部署 Kubernetes 集群
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-11T15:44:42+08:00" content="2018-01-11">
+              2018-01-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/01/11/k8s-on-aws/" class="leancloud_visitors" data-flag-title="使用 kops 在 AWS 部署 Kubernetes 集群">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>　　<a href="https://github.com/kubernetes/kops" target="_blank" rel="external">kops</a> 是官方推荐的工具，用来在 AWS 生产环境中，快速地部署 Kubernetes 集群。</p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>　　在 1.6.2 版本之前，通过 kops 部署 K8s 集群，需要使用 AWS 的 Route53 来提供 DNS 服务的功能。但从 1.6.2 版本开始，kops 支持部署基于 gossip 的集群，不再依赖 Route53，这让部署操作变得更加简单。<br>　　在部署集群之前，需要安装 kubectl、kops 和 awscli 这些工具，下面是安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl <span class="_">-s</span> https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl &amp;&amp; chmod +x kubectl</div><div class="line">$ sudo mv kubectl /usr/<span class="built_in">local</span>/bin/</div><div class="line">$ wget https://github.com/kubernetes/kops/releases/download/1.8.0/kops-linux-amd64</div><div class="line">$ chmod +x kops-linux-amd64</div><div class="line">$ sudo mv kops-linux-amd64 /usr/<span class="built_in">local</span>/bin/kops</div><div class="line">$ sudo apt-get install awscli</div><div class="line">$ sudo pip install awscli</div></pre></td></tr></table></figure></p>
+<p>　　配置好 AWS 账号：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ aws configure</div><div class="line">AWS Access Key ID [None]: &lt;your-accesskeyID&gt;</div><div class="line">AWS Secret Access Key [None]: &lt;your-secretAccessKey&gt;</div><div class="line">Default region name [None]: ap-northeast-1</div><div class="line">Default output format [None]: json</div></pre></td></tr></table></figure></p>
+<p>　　为了使用 kops 部署集群，还需要为 kops 创建一个 IAM 用户<code>kops</code>，并分配相应的权限：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ aws iam create-group --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name kops</div><div class="line">$ aws iam create-user --user-name kops</div><div class="line">$ aws iam add-user-to-group --user-name kops --group-name kops</div></pre></td></tr></table></figure></p>
+<p>　　为<code>kops</code>用户创建密钥：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ aws iam create-access-key --user-name kops</div></pre></td></tr></table></figure></p>
+<p>　　上面的命令会返回<code>kops</code>用户的<code>AccessKeyID</code>和<code>SecretAccessKey</code>。接着我们就可以更新<code>awscli</code>的配置，让它使用新创建的<code>kops</code>用户的密钥：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ aws configure</div><div class="line">AWS Access Key ID [None]: &lt;accesskeyID-of-kops-user&gt;</div><div class="line">AWS Secret Access Key [None]: &lt;secretAccessKey-of-kops-user&gt;</div><div class="line">Default region name [None]: ap-northeast-1</div><div class="line">Default output format [None]: json</div></pre></td></tr></table></figure></p>
+<p>　　同时还需要将<code>kops</code>用户的密钥导出到命令行的环境变量：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)</div><div class="line">$ <span class="built_in">export</span> AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)</div><div class="line">$ <span class="built_in">export</span> AWS_REGION=$(aws configure get region)</div></pre></td></tr></table></figure></p>
+<p>　　最后是生成 SSH 密钥：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ssh-keygen</div></pre></td></tr></table></figure></p>
+<h2 id="配置-S3"><a href="#配置-S3" class="headerlink" title="配置 S3"></a>配置 S3</h2><p>　　需要注意，为了让 kops 创建基于 gossip 的集群，集群的命名需要使用<code>.k8s.local</code>作为后缀，例如，这里我们将集群命名为<code>cluster.k8s.local</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> NAME=cluster.k8s.local</div></pre></td></tr></table></figure></p>
+<p>　　接着创建一个 S3 bucket，用户存储集群的数据，例如，这里我们将这个 bucket 命名为<code>cluster.k8s.local-state.ym</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ aws s3api create-bucket --bucket <span class="variable">$&#123;NAME&#125;</span>-state.ym --create-bucket-configuration LocationConstraint=<span class="variable">$AWS_REGION</span></div><div class="line">$ <span class="built_in">export</span> KOPS_STATE_STORE=s3://cluster.k8s.local-state.ym</div></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h2 id="创建集群"><a href="#创建集群" class="headerlink" title="创建集群"></a>创建集群</h2><p>　　下面的命令会创建集群的配置文件，并不会真正地创建集群：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ kops create cluster \</div><div class="line">    --name=<span class="variable">$&#123;NAME&#125;</span> \</div><div class="line">    --zones=ap-northeast-1b  \</div><div class="line">    --master-size=<span class="string">"t2.micro"</span> \</div><div class="line">    --node-size=<span class="string">"t2.micro"</span>  \</div><div class="line">    --ssh-public-key=<span class="string">"~/.ssh/id_rsa.pub"</span></div></pre></td></tr></table></figure></p>
+<p>　　在创建集群之前，可以检查集群的配置文件是否正确：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kops edit cluster cluster.k8s.local</div></pre></td></tr></table></figure></p>
+<p>　　如果确认没问题，就可以使用下面的命令创建集群：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kops update cluster <span class="variable">$&#123;NAME&#125;</span> --yes</div></pre></td></tr></table></figure></p>
+<p>　　创建集群之后，需要一段时间等待集群的初始化，等待集群起来之后，可以验证集群的状况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ kops validate cluster</div><div class="line">Using cluster from kubectl context: cluster.k8s.local</div><div class="line"></div><div class="line">Validating cluster cluster.k8s.local</div><div class="line"></div><div class="line">INSTANCE GROUPS</div><div class="line">NAME			ROLE	MACHINETYPE	MIN	MAX	SUBNETS</div><div class="line">master-ap-northeast-1b	Master	t2.micro	1	1	ap-northeast-1b</div><div class="line">nodes			Node	t2.micro	2	2	ap-northeast-1b</div><div class="line"></div><div class="line">NODE STATUS</div><div class="line">NAME							ROLE	READY</div><div class="line">ip-172-20-35-54.ap-northeast-1.compute.internal		master	True</div><div class="line">ip-172-20-41-246.ap-northeast-1.compute.internal	node	True</div><div class="line">ip-172-20-58-154.ap-northeast-1.compute.internal	node	True</div><div class="line"></div><div class="line">Your cluster cluster.k8s.local is ready</div></pre></td></tr></table></figure></p>
+<p>　　前面已经安装好了<code>kubectl</code>工具，这里也可以使用<code>kubectl</code>检查集群状况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl get nodes</div><div class="line">NAME                                               STATUS    ROLES     AGE       VERSION</div><div class="line">ip-172-20-35-54.ap-northeast-1.compute.internal    Ready     master    1h        v1.8.4</div><div class="line">ip-172-20-41-246.ap-northeast-1.compute.internal   Ready     node      1h        v1.8.4</div><div class="line">ip-172-20-58-154.ap-northeast-1.compute.internal   Ready     node      1h        v1.8.4</div></pre></td></tr></table></figure></p>
+<h2 id="销毁集群"><a href="#销毁集群" class="headerlink" title="销毁集群"></a>销毁集群</h2><p>　　在销毁集群之前，需要先确认一下 kops 会删除哪些资源：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kops delete cluster --name <span class="variable">$&#123;NAME&#125;</span></div></pre></td></tr></table></figure></p>
+<p>　　如果确认没问题，就可以真正删除集群：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kops delete cluster --name <span class="variable">$&#123;NAME&#125;</span> --yes</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://linoxide.com/containers/creating-kubernetes-cluster-kops/" target="_blank" rel="external">How to Create Kubernetes Cluster with Kops</a></li>
+<li><a href="https://dzone.com/articles/creating-a-gossip-based-kubernetes-cluster-on-aws" target="_blank" rel="external">Creating a Gossip-Based Kubernetes Cluster on AWS</a></li>
+<li><a href="https://ithelp.ithome.com.tw/articles/10195765" target="_blank" rel="external">在 AWS 上打造 Kubernetes Cluster</a></li>
+<li><a href="https://github.com/kubernetes/kops/blob/master/docs/aws-china.md" target="_blank" rel="external">How to use kops in AWS China Region</a></li>
+<li><a href="https://daemonza.github.io/2017/01/15/kubernetes-on-aws/" target="_blank" rel="external">Kubernetes on AWS</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Kubernetes/" rel="tag">#Kubernetes</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/02/prometheus/" rel="next" title="使用 Prometheus 监控 Kubernetes 集群">
+                <i class="fa fa-chevron-left"></i> 使用 Prometheus 监控 Kubernetes 集群
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+          <p class="site-description motion-element" itemprop="description">高性能</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/senlinzhan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/zongming" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">
+    &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;总访问量: <span id="busuanzi_value_site_pv"></span>
+</span>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'http-senlinzhan-github-io';
+      var disqus_identifier = '2018/01/11/k8s-on-aws/';
+      var disqus_title = "使用 kops 在 AWS 部署 Kubernetes 集群";
+      var disqus_url = 'http://senlinzhan.github.io/2018/01/11/k8s-on-aws/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("3hpOVboxSmUbrCIVNTjmjnfz-gzGzoHsz", "79f6dhW4lQNoYmUHPASfe44T");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

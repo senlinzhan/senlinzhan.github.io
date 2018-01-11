@@ -266,6 +266,135 @@
             
               
                 
+                <a class="post-title-link" href="/2017/10/03/boost-asio-coroutine/" itemprop="url">
+                  在 Boost.Asio 中使用协程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-03T20:48:18+08:00" content="2017-10-03">
+              2017-10-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/10/03/boost-asio-coroutine/" class="leancloud_visitors" data-flag-title="在 Boost.Asio 中使用协程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>　　从 1.54.0 版本开始，Boost.Asio 开始支持协程。异步编程是复杂的，协程可以让我们以<u>同步的方式</u>编写出异步的代码，在提高代码可读性的同时又不会丢失性能。<br>　　在 Boost.Asio 要怎样才能使用协程呢？可以使用<code>boost::asio::spawn()</code>开启一个协程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">boost::asio::spawn(strand, echo);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">echo</span><span class="params">(boost::asio::yield_context yield)</span>  <span class="comment">// 协程</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　<code>spawn()</code>的第一个参数可以是<code>io_service</code>，也可以是<code>strand</code>（如果需要在多线程中保证同步，就需要使用<code>strand</code>，具体可以参见 [<a href="http://senlinzhan.github.io/2017/09/17/boost-asio/">浅谈 Boost.Asio 的多线程模型</a>]）</p>
+<hr>
+<p>　　协程可以提供代码可读性，例如，如果没有使用协程，那么我们需要编写很多回调函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleRead</span><span class="params">(boost::system::error_code ec, <span class="built_in">std</span>::<span class="keyword">size_t</span> bytes_transferred)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">socket.async_read_some(boost::asio::buffer(buffer, buffer.size()),</div><div class="line">                       handleRead);</div></pre></td></tr></table></figure></p>
+<p>　　使用协程之后，就不需要回调函数了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> </div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">        boost::asio::buffer(buffer, buffer.size()), </div><div class="line">        yield</div><div class="line">    );</div><div class="line">&#125; </div><div class="line"><span class="keyword">catch</span> (<span class="built_in">std</span>::exception&amp; e)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　上面的代码，如果出现错误就会抛出异常。当然我们也可以使用错误码替代异常：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">boost::system::error_code ec;</div><div class="line"><span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">    boost::asio::buffer(data, data.size()), </div><div class="line">    yield[ec]</div><div class="line">);</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/10/03/boost-asio-coroutine/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/09/17/boost-asio/" itemprop="url">
                   浅谈 Boost.Asio 的多线程模型
                 </a>
@@ -811,142 +940,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/10/grpc-async/" itemprop="url">
-                  谈谈 gRPC 的 C++ 异步编程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-10T19:42:23+08:00" content="2017-08-10">
-              2017-08-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/08/10/grpc-async/" class="leancloud_visitors" data-flag-title="谈谈 gRPC 的 C++ 异步编程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>　　这篇文章我们会介绍 gRPC 的异步编程，如果读者没有使用过 gRPC 的经验，可以先阅读我之前写过的 <a href="http://senlinzhan.github.io/2017/04/20/grpc/">gRPC 编程指南</a>。 </p>
-<h2 id="异步-Client"><a href="#异步-Client" class="headerlink" title="异步 Client"></a>异步 Client</h2><p>　　gRPC 支持同步和异步两种编程方式。同步编程理解起来比较容易，譬如说，当一个同步的 client 调用 server 的某个方法时，它会一直处于阻塞状态，等待 server 发送回响应。<br>　　同步的代码编写起来也很简单，和一般的函数调用差不多：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 调用 server 的 SayHello 方法，阻塞中</span></div><div class="line">Status status = stub_-&gt;SayHello(&amp;context, request, &amp;reply);</div></pre></td></tr></table></figure></p>
-<p>　　然而对于同步的 client 来说，由于调用远程方法时会阻塞当前线程，所以它无法同时发送多个请求。如果需要同时发送多个请求，那么只能每次发送请求时都在<u>新的线程</u>中发送，而频繁地创建线程会带来不小的开销。<br>　　异步 client 成功地解决了这两个问题：它允许同时发送多个请求，并且每次发送请求时都不需要另外创建线程。异步 client 的解决思路很简单：</p>
-<ul>
-<li>gRPC 本身提供了异步 API，譬如说我们想调用 server 的<code>SayHello()</code>方法，我们可以调用它的异步版本<code>AsyncSayHello()</code>，调用之后会立即返回，不会阻塞。</li>
-<li>当方法调用成功时，我们可以让 gRPC <u>自动</u>将返回结果放到一个<code>CompletionQueue</code>的队列中（<code>CompletionQueue</code>是一个阻塞队列，并且是线程安全的）。</li>
-<li>程序可以启动一个线程，这个线程要做的事，就是不断地从队列中取出结果并处理。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/10/grpc-async/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -987,7 +985,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

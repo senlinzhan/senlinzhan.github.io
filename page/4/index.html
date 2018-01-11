@@ -266,6 +266,169 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/04/cpp-memory-order/" itemprop="url">
+                  理解 C++ 的 Memory Order
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-04T22:09:41+08:00" content="2017-12-04">
+              2017-12-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/04/cpp-memory-order/" class="leancloud_visitors" data-flag-title="理解 C++ 的 Memory Order">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="为什么需要-Memory-Order"><a href="#为什么需要-Memory-Order" class="headerlink" title="为什么需要 Memory Order"></a>为什么需要 Memory Order</h2><p>　　如果不使用任何同步机制（例如 mutex 或 atomic），在多线程中读写同一个变量，那么，程序的结果是难以预料的。简单来说，编译器以及 CPU 的一些行为，会影响到程序的执行结果：</p>
+<ul>
+<li>即使是简单的语句，C++ 也不保证是原子操作。</li>
+<li>CPU 可能会调整指令的执行顺序。</li>
+<li>在 CPU cache 的影响下，一个 CPU 执行了某个指令，不会立即被其它 CPU 看见。</li>
+</ul>
+<p>　　原子操作说的是，一个操作的状态要么就是<u>未执行</u>，要么就是<u>已完成</u>，不会看见中间状态。例如，在 C++11 中，下面程序的结果是未定义的：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">          int64_t i = 0;     // global variable</div><div class="line"></div><div class="line">Thread-1:              Thread-2:</div><div class="line">i = 100;               std::cout &lt;&lt; i;</div></pre></td></tr></table></figure></p>
+<p>　　C++ 并不保证<code>i = 100</code>是原子操作，因为在某些 CPU Architecture 中，写入<code>int64_t</code>需要两个 CPU 指令，所以 Thread-2 可能会读取到<code>i</code>在赋值过程的中间状态。</p>
+<hr>
+<p>　　另一方面，为了优化程序的执行性能，CPU 可能会调整指令的执行顺序。为阐述这一点，下面的例子中，让我们<u>假设</u>所有操作都是原子操作：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">          int x = 0;     // global variable</div><div class="line">          int y = 0;     // global variable</div><div class="line">		  </div><div class="line">Thread-1:              Thread-2:</div><div class="line">x = 100;               <span class="keyword">while</span> (y != 200)</div><div class="line">y = 200;                   ;</div><div class="line">                       std::cout &lt;&lt; x;</div></pre></td></tr></table></figure></p>
+<p>　　如果 CPU 没有乱序执行指令，那么 Thread-2 将输出<code>100</code>。然而，对于 Thread-1 来说，<code>x = 100;</code>和<code>y = 200;</code>这两个语句之间没有依赖关系，因此，Thread-1 允许调整语句的执行顺序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Thread-1:</div><div class="line">y = 200;</div><div class="line">x = 100;</div></pre></td></tr></table></figure></p>
+<p>　　在这种情况下，Thread-2 将输出<code>0</code>或<code>100</code>。</p>
+<hr>
+<p>　　CPU cache 也会影响到程序的行为。下面的例子中，<u>假设</u>从时间上来讲，A 操作先于 B 操作发生：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">          int x = 0;     // global variable</div><div class="line">		  </div><div class="line">Thread-1:                      Thread-2:</div><div class="line">x = 100;    // A               std::cout &lt;&lt; x;    // B</div></pre></td></tr></table></figure></p>
+<p>　　尽管从时间上来讲，A 先于 B，但 CPU cache 的影响下，Thread-2 <u>不能保证</u>立即看到 A 操作的结果，所以 Thread-2 可能输出<code>0</code>或<code>100</code>。</p>
+<hr>
+<p>　　从上面的三个例子可以看到，多线程读写同一变量需要使用同步机制，最常见的同步机制就是<code>std::mutex</code>和<code>std::atomic</code>。然而，从性能角度看，通常使用<code>std::atomic</code>会获得更好的性能。<br>　　C++11 为<code>std::atomic</code>提供了 4 种 memory ordering:</p>
+<ul>
+<li>Relaxed ordering</li>
+<li>Release-Acquire ordering</li>
+<li>Release-Consume ordering</li>
+<li>Sequentially-consistent ordering</li>
+</ul>
+<p>　　默认情况下，<code>std::atomic</code>使用的是 Sequentially-consistent ordering。但在某些场景下，合理使用其它三种 ordering，可以让编译器优化生成的代码，从而提高性能。</p>
+<h2 id="Relaxed-ordering"><a href="#Relaxed-ordering" class="headerlink" title="Relaxed ordering"></a>Relaxed ordering</h2><p>　　在这种模型下，<code>std::atomic</code>的<code>load()</code>和<code>store()</code>都要带上<code>memory_order_relaxed</code>参数。Relaxed ordering 仅仅保证<code>load()</code>和<code>store()</code>是原子操作，除此之外，不提供任何跨线程的同步。<br>　　先看看一个简单的例子：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">                   std::atomic&lt;int&gt; x = 0;     // global variable</div><div class="line">                   std::atomic&lt;int&gt; y = 0;     // global variable</div><div class="line">		  </div><div class="line">Thread-1:                                  Thread-2:</div><div class="line">r1 = y.load(memory_order_relaxed); // A    r2 = x.load(memory_order_relaxed); // C</div><div class="line">x.store(r1, memory_order_relaxed); // B    y.store(42, memory_order_relaxed); // D</div></pre></td></tr></table></figure></p>
+<p>　　执行完上面的程序，可能出现<code>r1 == r2 == 42</code>。理解这一点并不难，因为编译器允许调整 C 和 D 的执行顺序。如果程序的执行顺序是 D -&gt; A -&gt; B -&gt; C，那么就会出现<code>r1 == r2 == 42</code>。</p>
+<hr>
+<p>　　如果某个操作只要求是原子操作，除此之外，不需要其它同步的保障，就可以使用 Relaxed ordering。程序计数器是一种典型的应用场景：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::atomic&lt;<span class="keyword">int</span>&gt; cnt = &#123;<span class="number">0</span>&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">1000</span>; ++n) &#123;</div><div class="line">        cnt.fetch_add(<span class="number">1</span>, <span class="built_in">std</span>::memory_order_relaxed);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; v;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">10</span>; ++n) &#123;</div><div class="line">        v.emplace_back(f);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; t : v) &#123;</div><div class="line">        t.join();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    assert(cnt == <span class="number">10000</span>);    <span class="comment">// never failed</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="Release-Acquire-ordering"><a href="#Release-Acquire-ordering" class="headerlink" title="Release-Acquire ordering"></a>Release-Acquire ordering</h2><p>　　在这种模型下，<code>store()</code>使用<code>memory_order_release</code>，而<code>load()</code>使用<code>memory_order_acquire</code>。这种模型有两种效果，第一种是可以限制 CPU 指令的重排：</p>
+<ul>
+<li>在<code>store()</code>之前的所有读写操作，<u>不允许</u>被移动到这个<code>store()</code>的后面。</li>
+<li>在<code>load()</code>之后的所有读写操作，<u>不允许</u>被移动到这个<code>load()</code>的前面。</li>
+</ul>
+<p>　　除此之外，还有另一种效果：假设 Thread-1 <code>store()</code>的那个值，成功被 Thread-2 <code>load()</code>到了，那么 Thread-1 在<code>store()</code>之前对内存的<u>所有写入操作</u>，此时对 Thread-2 来说，都是可见的。<br>　　下面的例子阐述了这种模型的原理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::atomic&lt;<span class="keyword">bool</span>&gt; ready&#123; <span class="literal">false</span> &#125;;</div><div class="line"><span class="keyword">int</span> data = <span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">producer</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    data = <span class="number">100</span>;                                       <span class="comment">// A</span></div><div class="line">    ready.store(<span class="literal">true</span>, <span class="built_in">std</span>::memory_order_release);     <span class="comment">// B</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">consumer</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">while</span> (!ready.load(<span class="built_in">std</span>::memory_order_acquire))    <span class="comment">// C</span></div><div class="line">        ;</div><div class="line">    assert(data == <span class="number">100</span>); <span class="comment">// never failed              // D</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(producer)</span></span>;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t2</span><span class="params">(consumer)</span></span>;</div><div class="line"></div><div class="line">    t1.join();</div><div class="line">    t2.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下这个过程：</p>
+<ul>
+<li>首先 A 不允许被移动到 B 的后面。</li>
+<li>同样 D 也不允许被移动到 C 的前面。</li>
+<li>当 C 从 while 循环中退出了，说明 C 读取到了 B <code>store()</code>的那个值，此时，Thread-2 保证能够看见 Thread-1 执行 B 之前的所有写入操作（也即是 A）。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/04/cpp-memory-order/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/11/27/k8s/" itemprop="url">
                   Kubernetes 入门指南
                 </a>
@@ -725,140 +888,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/10/03/boost-asio-coroutine/" itemprop="url">
-                  在 Boost.Asio 中使用协程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-03T20:48:18+08:00" content="2017-10-03">
-              2017-10-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/10/03/boost-asio-coroutine/" class="leancloud_visitors" data-flag-title="在 Boost.Asio 中使用协程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>　　从 1.54.0 版本开始，Boost.Asio 开始支持协程。异步编程是复杂的，协程可以让我们以<u>同步的方式</u>编写出异步的代码，在提高代码可读性的同时又不会丢失性能。<br>　　在 Boost.Asio 要怎样才能使用协程呢？可以使用<code>boost::asio::spawn()</code>开启一个协程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">boost::asio::spawn(strand, echo);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">echo</span><span class="params">(boost::asio::yield_context yield)</span>  <span class="comment">// 协程</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　<code>spawn()</code>的第一个参数可以是<code>io_service</code>，也可以是<code>strand</code>（如果需要在多线程中保证同步，就需要使用<code>strand</code>，具体可以参见 [<a href="http://senlinzhan.github.io/2017/09/17/boost-asio/">浅谈 Boost.Asio 的多线程模型</a>]）</p>
-<hr>
-<p>　　协程可以提供代码可读性，例如，如果没有使用协程，那么我们需要编写很多回调函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleRead</span><span class="params">(boost::system::error_code ec, <span class="built_in">std</span>::<span class="keyword">size_t</span> bytes_transferred)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">socket.async_read_some(boost::asio::buffer(buffer, buffer.size()),</div><div class="line">                       handleRead);</div></pre></td></tr></table></figure></p>
-<p>　　使用协程之后，就不需要回调函数了：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> </div><div class="line">&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">        boost::asio::buffer(buffer, buffer.size()), </div><div class="line">        yield</div><div class="line">    );</div><div class="line">&#125; </div><div class="line"><span class="keyword">catch</span> (<span class="built_in">std</span>::exception&amp; e)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　上面的代码，如果出现错误就会抛出异常。当然我们也可以使用错误码替代异常：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">boost::system::error_code ec;</div><div class="line"><span class="built_in">std</span>::<span class="keyword">size_t</span> n = socket_.async_read_some(</div><div class="line">    boost::asio::buffer(data, data.size()), </div><div class="line">    yield[ec]</div><div class="line">);</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/10/03/boost-asio-coroutine/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -899,7 +933,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

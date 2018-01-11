@@ -266,6 +266,136 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/31/gdb/" itemprop="url">
+                  使用 gdb 调试 C++ 程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-31T18:32:10+08:00" content="2017-12-31">
+              2017-12-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
+                    <span itemprop="name">性能剖析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/31/gdb/" class="leancloud_visitors" data-flag-title="使用 gdb 调试 C++ 程序">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="查看调用栈"><a href="#查看调用栈" class="headerlink" title="查看调用栈"></a>查看调用栈</h2><p>　　可以使用<code>backtrace</code>命令查看当前函数的调用栈。下面用一个 C++ 程序演示一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#include &lt;iostream&gt;</span></div><div class="line"></div><div class="line">void <span class="function"><span class="title">bar</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"I'm bar!"</span> &lt;&lt; std::endl;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void <span class="function"><span class="title">foo</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"I'm foo!"</span> &lt;&lt; std::endl;</div><div class="line">    bar();</div><div class="line">&#125;</div><div class="line"></div><div class="line">int <span class="function"><span class="title">main</span></span>()</div><div class="line">&#123;</div><div class="line">    std::cout &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; std::endl;</div><div class="line">    foo();</div><div class="line"></div><div class="line">    <span class="built_in">return</span> 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　编译这个程序，并使用 gdb 调试。我们在代码第 5 行设置断点（在<code>bar()</code>函数里面），运行程序之后，就可以使用<code>backtrace</code>命令查看<code>bar()</code>函数的调用栈：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o hello hello.cpp</div><div class="line">$ gdb ./hello -tui</div><div class="line">(gdb) <span class="built_in">break</span> 5</div><div class="line">Breakpoint 1 at 0x40084a: file hello.cpp, line 5.</div><div class="line">(gdb) run</div><div class="line">Starting program: /home/ubuntu/hello</div><div class="line">Hello, World!</div><div class="line">I<span class="string">'m foo!</div><div class="line"></div><div class="line">Breakpoint 1, bar () at hello.cpp:5</div><div class="line">(gdb) backtrace</div><div class="line">#0  bar () at hello.cpp:5</div><div class="line">#1  0x000000000040088e in foo () at hello.cpp:11</div><div class="line">#2  0x00000000004008b6 in main () at hello.cpp:17</span></div></pre></td></tr></table></figure></p>
+<h2 id="调试正在运行的程序"><a href="#调试正在运行的程序" class="headerlink" title="调试正在运行的程序"></a>调试正在运行的程序</h2><p>　　gdb 也可以用来调试正在运行的进程，例如下面的 C++ 程序：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sleep</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">int</span> i = <span class="number">1000</span>;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">        sleep();</div><div class="line"></div><div class="line">        i -= <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　编译并运行这个程序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o sleep sleep.cpp</div><div class="line">$ ./sleep &amp;</div><div class="line">[1] 5507</div></pre></td></tr></table></figure></p>
+<p>　　可以看到进程 ID 是<code>5507</code>，可以使用 gdb 调试这个进程：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ sudo gdb ./sleep 5507</div><div class="line">Attaching to program: /home/ubuntu/sleep, process 5507</div><div class="line">0x00007f227c95d740 <span class="keyword">in</span> __nanosleep_nocancel ()</div><div class="line">    at ../sysdeps/unix/syscall-template.S:84</div><div class="line">(gdb)</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>backtrace</code>命令查看调用栈：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">(gdb) backtrace</div><div class="line">#0  0x00007f227c95d740 in __nanosleep_nocancel ()</div><div class="line">    at ../sysdeps/unix/syscall-template.S:84</div><div class="line">#1  0x0000000000400d6e in std::this_thread::sleep_for&lt;long, std::ratio&lt;1l, 1l&gt; &gt; (</div><div class="line">    __rtime=...) at /usr/include/c++/5/thread:292</div><div class="line">#2  0x0000000000400943 in sleep () at sleep.cpp:7</div><div class="line">#3  0x000000000040098a in main () at sleep.cpp:17</div></pre></td></tr></table></figure></p>
+<p>　　在调试的时候，这个进程会暂停执行，当调试结束的时候，进程会恢复执行。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/31/gdb/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/31/valgrind/" itemprop="url">
                   使用 Valgrind 检测 C++ 内存泄漏
                 </a>
@@ -762,145 +892,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/18/mysql-partition/" itemprop="url">
-                  MySQL 分区表
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-18T10:45:08+08:00" content="2017-12-18">
-              2017-12-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/18/mysql-partition/" class="leancloud_visitors" data-flag-title="MySQL 分区表">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="水平分区"><a href="#水平分区" class="headerlink" title="水平分区"></a>水平分区</h2><p>　　在 MySQL 中，如果一张表的数据量太大（例如包含百万行数据），为了让表变得方便管理，可以将表拆分成多个分区。MySQL 只支持水平分区，不支持垂直分区。如果使用水平分区，那么 MySQL 会根据用户定义的规则，将表中不同的行拆分到不同的分区。</p>
-<h2 id="分区的好处"><a href="#分区的好处" class="headerlink" title="分区的好处"></a>分区的好处</h2><p>　　通常来说，如果打算让一张表存储大量的数据，那么才值得对它进行分区，分区会带来一些好处：</p>
-<ul>
-<li>分区表的数据可以分布在文件系统的不同位置，甚至是多个磁盘，这使得分区表可以容纳更多数据。</li>
-<li>可以通过删除没有用的分区来删除数据，这种情况下可以很快地删除数据。</li>
-<li>可以加快查询的执行速度，因为对于某些查询来说，只需要查询某个分区即可。</li>
-</ul>
-<h2 id="分区的限制"><a href="#分区的限制" class="headerlink" title="分区的限制"></a>分区的限制</h2><p>　　在 MySQL 中，创建分区表时候有一个限制条件：分区表中的每个唯一索引（包括主键），都必须包含分区表达式中的所有列。让我们举个例子：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(<span class="keyword">id</span>),</div><div class="line">    <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> (username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>(<span class="keyword">TO_DAYS</span>(created))</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
-<p>　　执行这个 SQL 语句将会报错：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ERROR 1503 (HY000): A PRIMARY KEY must include all columns <span class="keyword">in</span> the table<span class="string">'s partitioning function</span></div></pre></td></tr></table></figure></p>
-<p>　　这个错误说的是，主键<code>id</code>并没有包含分区列<code>created</code>，所以导致建表失败。下面的建表语句则可以执行成功：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>( <span class="keyword">TO_DAYS</span>(created) )</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
-<p>　　这个表的主键<code>(username, created)</code>包含了分区列<code>created</code>，所以建表可以成功。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/18/mysql-partition/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -941,7 +937,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

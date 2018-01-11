@@ -266,6 +266,141 @@
             
               
                 
+                <a class="post-title-link" href="/2017/06/10/pthread-inside/" itemprop="url">
+                  深入 Linux 多线程编程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-06-10T22:49:15+08:00" content="2017-06-10">
+              2017-06-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/06/10/pthread-inside/" class="leancloud_visitors" data-flag-title="深入 Linux 多线程编程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="NPTL-线程模型"><a href="#NPTL-线程模型" class="headerlink" title="NPTL 线程模型"></a>NPTL 线程模型</h2><p>　　NPTL，也即 Native POSIX Thread Library，是 Linux 2.6 引入的新的线程库实现，用来替代旧的 LinuxThreads 线程库。在 NPTL 实现中，用户创建的每个线程都对应着一个<u>内核态</u>的线程，内核态线程也是 Linux 的最小调度单元。<br>　　在 NPTL 实现中，线程的创建相当于调用<code>clone()</code>，并指定下面的参数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">CLONE_VM | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_THREAD | CLONE_SETTLS | </div><div class="line">CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM</div></pre></td></tr></table></figure></p>
+<p>　　下面解释一下这些参数的含义：</p>
+<ul>
+<li><code>CLONE_VM</code> 所有线程都共享同一个<u>进程地址空间</u>。</li>
+<li><code>CLONE_FILES</code> 所有线程都共享进程的文件描述符列表 (file descriptor table)。</li>
+<li><code>CLONE_FS</code> 所有线程都共享同一个文件系统的信息。</li>
+<li><code>CLONE_SIGHAND</code> 所有线程都共享同一个信号 handler 列表。</li>
+<li><code>CLONE_THREAD</code> 所有线程都共享同一个进程 ID 以及 父进程 ID。</li>
+</ul>
+<p>　　在 Linux 可以通过下面命令查看线程库的实现方式：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ getconf GNU_LIBPTHREAD_VERSION</div><div class="line">NPTL 2.23</div></pre></td></tr></table></figure></p>
+<h2 id="线程的栈"><a href="#线程的栈" class="headerlink" title="线程的栈"></a>线程的栈</h2><p>　　在 Linux 中，一个进程可以包含多个线程，这些线程将共享进程的全局变量，以及进程的堆，但每个线程都拥有<u>它自己的栈</u>。正如下图所示：</p>
+<p><div align="center"><img src="/images/linux/thread-stack.png" width="490" align=center /> </div><br>　　在 64 位系统中，除了主线程之外，其它线程的栈默认大小为 8M，而主线程的栈则没有这个限制，因为主线程的栈可以动态增长。可以用下面的命令查看线程栈的大小：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> <span class="_">-s</span></div><div class="line">8192</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/06/10/pthread-inside/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/05/28/tcp-tuning/" itemprop="url">
                   Linux TCP/IP 性能调优
                 </a>
@@ -795,141 +930,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/08/redis-cluster/" itemprop="url">
-                  Redis Cluster
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-08T21:33:03+08:00" content="2017-04-08">
-              2017-04-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/08/redis-cluster/" class="leancloud_visitors" data-flag-title="Redis Cluster">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h2><p>　　Redis Cluster 能自动将数据在多个 master 节点之间分片，从而拓展了 Redis 的读写能力。集群中的每个 master 节点都对应着一个或多个 slave 节点，这也在一定程度上保证了 Redis 的可用性，譬如说，当某个 master 节点发生故障，那么它的其中一个 slave 节点可以提升成为新的 master 节点，从而保证整个集群继续可用。</p>
-<h2 id="数据分片"><a href="#数据分片" class="headerlink" title="数据分片"></a>数据分片</h2><p>　　整个集群固定地拥有 16384 个 hash slot，集群中的每个 master 节点都拥有若干个 slot，可以使用下面的算法计算某个 key 被分配到的哪个 slot 中：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HASH_SLOT = CRC16(key) mod 16384</div></pre></td></tr></table></figure></p>
-<h2 id="集群配置"><a href="#集群配置" class="headerlink" title="集群配置"></a>集群配置</h2><p>　　为了启动集群，每个节点的配置文件<code>redis.conf</code>都需要指定相应的集群配置信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">cluster-enabled yes               <span class="comment"># 开启集群功能</span></div><div class="line">cluster-config-file nodes.conf</div><div class="line">cluster-node-timeout 2000         <span class="comment"># 2秒</span></div><div class="line">cluster-slave-validity-factor 10</div><div class="line">cluster-migration-barrier 1</div><div class="line">cluster-require-full-coverage yes</div></pre></td></tr></table></figure></p>
-<p>　　对于每个节点来说，它都需要一个配置文件用于记录整个集群的信息。<code>cluster-config-file</code>选项指定了这个配置文件的路径，当集群信息更新时，节点会自动将集群的信息更新到这个配置文件中。<br>　　当集群的某个节点不可用(unavailable)，通常不会立即认定它发生故障了，因为说不定隔一段时间它就恢复可用了。<code>cluster-node-timeout</code>用来指定节点的最大不可用时间，也就是说当节点的不可用时间超过这个值时，集群就会认为这个节点发生故障了。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.amazon.com/Redis-Essentials-Maxwell-Dayvson-Silva" target="_blank" rel="external">Redis Essentials</a></li>
-<li><a href="https://redis.io/topics/cluster-tutorial" target="_blank" rel="external">Redis cluster tutorial</a></li>
-<li><a href="https://book.douban.com/subject/25900156/" target="_blank" rel="external">Redis设计与实现</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -970,7 +975,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
