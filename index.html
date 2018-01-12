@@ -393,6 +393,133 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/12/k8s-volumes/" itemprop="url">
+                  在 AWS 使用 Kubernetes 的持久化存储
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-12T15:44:42+08:00" content="2018-01-12">
+              2018-01-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/01/12/k8s-volumes/" class="leancloud_visitors" data-flag-title="在 AWS 使用 Kubernetes 的持久化存储">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="挂载-EBS-磁盘"><a href="#挂载-EBS-磁盘" class="headerlink" title="挂载 EBS 磁盘"></a>挂载 EBS 磁盘</h2><p>　　在 AWS 中，我们可以将 EBS 磁盘挂载到 Kubernetes 的 Pod 中。由于 EBS 是云磁盘，所以就算 Pod 被调度到其它宿主机，也仍然可以访问 EBS 中的数据。<br>　　在挂载磁盘之前，需要先创建 EBS 磁盘：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ aws ec2 create-volume \</div><div class="line">    --size 20 \</div><div class="line">    --region ap-northeast-1 \</div><div class="line">    --availability-zone ap-northeast-1b \</div><div class="line">    --volume-type gp2</div><div class="line">&#123;</div><div class="line">    <span class="string">"AvailabilityZone"</span>: <span class="string">"ap-northeast-1b"</span>,</div><div class="line">    <span class="string">"Encrypted"</span>: <span class="literal">false</span>,</div><div class="line">    <span class="string">"VolumeType"</span>: <span class="string">"gp2"</span>,</div><div class="line">    <span class="string">"VolumeId"</span>: <span class="string">"vol-0988ae4c8ead9dece"</span>,</div><div class="line">    <span class="string">"State"</span>: <span class="string">"creating"</span>,</div><div class="line">    <span class="string">"Iops"</span>: 100,</div><div class="line">    <span class="string">"SnapshotId"</span>: <span class="string">""</span>,</div><div class="line">    <span class="string">"CreateTime"</span>: <span class="string">"2018-01-12T07:16:01.002Z"</span>,</div><div class="line">    <span class="string">"Size"</span>: 20</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　注意，如果 Kubernetes 集群是通过 kops 1.8.0 版本安装的，那么在挂载之前，需要先为磁盘打上标签，否则会挂载失败：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> NAME=cluster.k8s.local      <span class="comment"># 集群的名称</span></div><div class="line">$ VOLUME_ID = vol-0988ae4c8ead9dece</div><div class="line">$ aws ec2 create-tags \</div><div class="line">    --resources <span class="variable">$&#123;VOLUME_ID&#125;</span> \</div><div class="line">    --tags Key=KubernetesCluster,Value=<span class="variable">$&#123;NAME&#125;</span></div></pre></td></tr></table></figure></p>
+<p>　　挂载磁盘很简单，例如，我们可以将磁盘挂载到 Nginx Pod 的<code>/data</code>目录下：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-pod.yaml</div><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div><div class="line"><span class="attr">    volumeMounts:</span></div><div class="line"><span class="attr">      - name:</span> aws-ebs-volumes</div><div class="line"><span class="attr">        mountPath:</span> /data</div><div class="line"><span class="attr">  volumes:</span></div><div class="line"><span class="attr">  - name:</span> aws-ebs-volumes</div><div class="line"><span class="attr">    awsElasticBlockStore:</span></div><div class="line"><span class="attr">      volumeID:</span> vol<span class="bullet">-0988</span>ae4c8ead9dece</div><div class="line">$ kubectl apply -f nginx-pod.yaml</div></pre></td></tr></table></figure></p>
+<p>　　通过这种方式挂载磁盘，有几个问题需要注意，首先，要保证 EBS 磁盘和 EC2 实例在同一个 AZ 里面，其次，EBS 磁盘只能挂载到一个 EC2 实例上。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/01/12/k8s-volumes/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/01/11/k8s-on-aws/" itemprop="url">
                   使用 kops 在 AWS 部署 Kubernetes 集群
                 </a>
@@ -768,141 +895,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/31/coredump/" itemprop="url">
-                  在 Linux 生成 core dump 文件
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-31T23:58:04+08:00" content="2017-12-31">
-              2017-12-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
-                    <span itemprop="name">性能剖析</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/31/coredump/" class="leancloud_visitors" data-flag-title="在 Linux 生成 core dump 文件">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="生成-core-dump-文件"><a href="#生成-core-dump-文件" class="headerlink" title="生成 core dump 文件"></a>生成 core dump 文件</h2><p>　　如果进程在运行期间发生奔溃，操作系统会为进程生成一个快照文件，这个文件就叫做 core dump。之后我们可以对 core dump 文件进行分析，弄清楚进程为什么会奔溃。<br>　　由于 core dump 文件会占据一定的磁盘空间，默认情况下，Linux 不允许生成 core dump 文件。例如，下面的命令显示，Linux 允许的最大 core dump 文件大小为 0：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> <span class="_">-a</span> | grep core</div><div class="line">core file size          (blocks, -c) 0</div></pre></td></tr></table></figure></p>
-<p>　　可以通过下面设置，允许 Linux 生成 core dump 文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> -c unlimited</div></pre></td></tr></table></figure></p>
-<p>　　注意到，这个设置只对当前登录回话有效。如果想要这个设置持久有效，可以把它写入到<code>/etc/security/limits.conf</code>文件中：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/security/limits.conf</div><div class="line">* soft core unlimited</div><div class="line">* soft hard unlimited</div></pre></td></tr></table></figure></p>
-<h2 id="core-dump-文件的路径"><a href="#core-dump-文件的路径" class="headerlink" title="core dump 文件的路径"></a>core dump 文件的路径</h2><p>　　那么 core dump 会存放在哪个目录呢？这是由系统参数<code>kernel.core_pattern</code>决定的。例如，在 Ubuntu 16.04 中，它的值如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/sys/kernel/core_pattern</div><div class="line">|/usr/share/apport/apport %p %s %c %P</div></pre></td></tr></table></figure></p>
-<p>　　开头的<code>I</code>表示，core dump 文件会交给 apport 程序去处理，而 apport 会将 core dump 文件保存在<code>/var/crash</code>目录下。<br>　　在实践中，更好的做法是自己指定 core dump 目录，以及 core dump 文件的命名方式：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">kernel.core_pattern=/var/crash/%E.%p.%t.%s</div><div class="line">$ sudo sysctl -p</div></pre></td></tr></table></figure></p>
-<p>　　我们设置 core dump 目录为<code>/var/crash</code>，core dump 的命名方式为<code>%E.%p.%t.%s</code>，它们的含义：</p>
-<ul>
-<li><code>%E</code>：程序文件的完整路径（路径中的<code>/</code>会被<code>!</code>替代）</li>
-<li><code>%p</code>：进程 ID</li>
-<li><code>%t</code>：进程奔溃的时间戳</li>
-<li><code>%s</code>：哪个信号让进程奔溃</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/31/coredump/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -948,7 +940,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
