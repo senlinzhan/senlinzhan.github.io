@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Linker and Loader," />
+  <meta name="keywords" content="Kubernetes," />
 
 
 
@@ -102,19 +102,16 @@
 
 
 
-<meta name="description" content="动态库的创建　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：12$ gcc -g -c -fPIC -Wall demo.c$ gcc -g -shared -o libdemo.so demo.o
-　　-fPIC选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定">
+<meta name="description" content="安装 Nginx Ingress　　在 AWS 推荐使用 kops 安装 Kubernetes 集群，具体可以参见这篇文章。接着，在 Kubernetes 集群安装 Nginx Ingress：1$ kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/ingress-nginx/v1.6">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如何设计动态链接库">
-<meta property="og:url" content="http://senlinzhan.github.io/2017/03/20/动态库/index.html">
+<meta property="og:title" content="在 AWS 使用 Kubernetes 的 Nginx Ingress">
+<meta property="og:url" content="http://senlinzhan.github.io/2018/02/07/k8s-nginx-ingress/index.html">
 <meta property="og:site_name" content="Senlin's Blog">
-<meta property="og:description" content="动态库的创建　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：12$ gcc -g -c -fPIC -Wall demo.c$ gcc -g -shared -o libdemo.so demo.o
-　　-fPIC选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定">
-<meta property="og:updated_time" content="2017-06-10T08:14:47.000Z">
+<meta property="og:description" content="安装 Nginx Ingress　　在 AWS 推荐使用 kops 安装 Kubernetes 集群，具体可以参见这篇文章。接着，在 Kubernetes 集群安装 Nginx Ingress：1$ kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/ingress-nginx/v1.6">
+<meta property="og:updated_time" content="2018-02-07T10:25:20.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如何设计动态链接库">
-<meta name="twitter:description" content="动态库的创建　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：12$ gcc -g -c -fPIC -Wall demo.c$ gcc -g -shared -o libdemo.so demo.o
-　　-fPIC选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定">
+<meta name="twitter:title" content="在 AWS 使用 Kubernetes 的 Nginx Ingress">
+<meta name="twitter:description" content="安装 Nginx Ingress　　在 AWS 推荐使用 kops 安装 Kubernetes 集群，具体可以参见这篇文章。接着，在 Kubernetes 集群安装 Nginx Ingress：1$ kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/ingress-nginx/v1.6">
 
 
 
@@ -135,9 +132,9 @@
 
 
 
-  <link rel="canonical" href="http://senlinzhan.github.io/2017/03/20/动态库/"/>
+  <link rel="canonical" href="http://senlinzhan.github.io/2018/02/07/k8s-nginx-ingress/"/>
 
-  <title> 如何设计动态链接库 | Senlin's Blog </title>
+  <title> 在 AWS 使用 Kubernetes 的 Nginx Ingress | Senlin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -267,7 +264,7 @@
             
             
               
-                如何设计动态链接库
+                在 AWS 使用 Kubernetes 的 Nginx Ingress
               
             
           </h1>
@@ -279,8 +276,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-20T20:23:09+08:00" content="2017-03-20">
-              2017-03-20
+            <time itemprop="dateCreated" datetime="2018-02-07T15:00:55+08:00" content="2018-02-07">
+              2018-02-07
             </time>
           </span>
 
@@ -293,8 +290,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/编译链接/" itemprop="url" rel="index">
-                    <span itemprop="name">编译链接</span>
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
                   </a>
                 </span>
 
@@ -313,7 +310,7 @@
 
           
           
-             <span id="/2017/03/20/动态库/" class="leancloud_visitors" data-flag-title="如何设计动态链接库">
+             <span id="/2018/02/07/k8s-nginx-ingress/" class="leancloud_visitors" data-flag-title="在 AWS 使用 Kubernetes 的 Nginx Ingress">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -335,20 +332,17 @@
       
 
       
-        <h2 id="动态库的创建"><a href="#动态库的创建" class="headerlink" title="动态库的创建"></a>动态库的创建</h2><p>　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -o libdemo.so demo.o</div></pre></td></tr></table></figure></p>
-<p>　　<code>-fPIC</code>选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定这个选项。</p>
-<h2 id="动态库规范"><a href="#动态库规范" class="headerlink" title="动态库规范"></a>动态库规范</h2><p>　　动态库的升级通常也分为小版本的升级和主版本的升级，通常来说主版本的升级是不兼容的，而小版本的升级则是兼容的。动态库通常有一种规范的命名方式，为的是能够清晰地了解不同版本之间的关系：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">libdemo.so.1.0.1    <span class="comment"># 主版本 1，小版本 0.1</span></div><div class="line">libdemo.so.1.0.2    <span class="comment"># 主版本 1，小版本 0.2</span></div><div class="line">libdemo.so.2.0.1    <span class="comment"># 主版本 2，小版本 0.1</span></div></pre></td></tr></table></figure></p>
-<p>　　在编译动态库的时候，通常会为动态库创建一个 soname，作为动态库的别名，例如，这里我们给动态库<code>libdemo.so.1.0.1</code>创建了一个 soname 叫做<code>libdemo.1</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -Wl,-soname,libdemo.so.1 -o libdemo.so.1.0.1 demo.o</div></pre></td></tr></table></figure></p>
-<p>　　在生产环境下，用户自己创建的动态库一般不能随便放置（防止找不到或者不小心被删除了），所以推荐放在系统目录<code>/usr/local/lib/</code>下面：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mv libdemo.so.1.0.1 /usr/<span class="built_in">local</span>/lib/</div></pre></td></tr></table></figure></p>
-<p>　　通常来说，系统会在<code>/etc/ld.so.cache</code>这个文件里面缓存系统的动态库列表。如果用户自己添加了动态库，那么还需要用<code>ldconfig</code>命令去更新系统的动态库缓存列表，同时这个命令会自动创建一个与 soname 同名的符号链接，指向对应的动态库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo ldconfig -v          <span class="comment"># 更新系统动态库缓存列表</span></div><div class="line">/usr/<span class="built_in">local</span>/lib:</div><div class="line">	libdemo.so.1 -&gt; libdemo.so.1.0.1 (changed)</div><div class="line">$ ls <span class="_">-l</span> /usr/<span class="built_in">local</span>/lib/</div><div class="line">lrwxrwxrwx 1 root root    16 Mar 21 22:54 libdemo.so.1 -&gt; libdemo.so.1.0.1</div><div class="line">-rwxr-xr-x 1 root root  8776 Mar 21 22:54 libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
-<p>　　通过这些步骤就顺利安装好了动态库了。那么还有一个问题，在编译程序时，怎么让 linker 找到动态库的位置呢？最简单的方法可以这样做：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall -o main main.c /usr/<span class="built_in">local</span>/lib/libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
-<p>　　在链接的过程中，如果动态库拥有 soname，那么 linker 会将这个 soname 嵌入到可执行文件中，如果动态库没有 soname，嵌入的则是动态库的真名。我们可以用<code>readelf</code>命令看到可执行文件<code>main</code>的 header 中是否包含动态库的信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">readelf <span class="_">-d</span> main | grep libdemo</div><div class="line"> 0x0000000000000001 (NEEDED)             Shared library: [libdemo.so.1]</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，可执行文件<code>main</code>中只记录动态库的 soname。<a id="more"></a></p>
-<hr>
-<p>　　上面的编译命令需要用户知道动态库的具体位置，然而用户在编译程序时，才不会想知道动态库的位置呢！解决这个问题很简单，我们可以创建一个符号链接，让它指向<code>libdemo.so.1</code>就好了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo ln <span class="_">-s</span> /usr/<span class="built_in">local</span>/lib/libdemo.so.1 /usr/<span class="built_in">local</span>/lib/libdemo.so</div></pre></td></tr></table></figure></p>
-<p>　　这样编译程序的时候就简单多了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall -o main main.c -ldemo</div></pre></td></tr></table></figure></p>
+        <h2 id="安装-Nginx-Ingress"><a href="#安装-Nginx-Ingress" class="headerlink" title="安装 Nginx Ingress"></a>安装 Nginx Ingress</h2><p>　　在 AWS 推荐使用 kops 安装 Kubernetes 集群，具体可以参见<a href="http://senlinzhan.github.io/2018/01/11/k8s-on-aws/">这篇文章</a>。接着，在 Kubernetes 集群安装 Nginx Ingress：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl create <span class="_">-f</span> https://raw.githubusercontent.com/kubernetes/kops/master/addons/ingress-nginx/v1.6.0.yaml</div></pre></td></tr></table></figure></p>
+<p>　　上面的操作会为 Nginx Ingress 创建一个 ELB，这个 ELB 工作在 4 层，即监听 TCP 的 80 和 443 端口：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get services ingress-nginx -n kube-ingress</div><div class="line">NAME            TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)                      AGE</div><div class="line">ingress-nginx   LoadBalancer   100.64.216.197   a81aaecb30bea...   80:32128/TCP,443:31454/TCP   1m</div></pre></td></tr></table></figure></p>
+<h2 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h2><p>　　Nginx Ingress 主要用来充当反向代理，它可以根据域名以及 URL 路径，将集群外部的流量路由到集群内部的 Service。下面部署一个简单的 Service：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/images/echoheaders/<span class="built_in">echo</span>-app.yaml</div></pre></td></tr></table></figure></p>
+<p>　　接着，为这个 Service 创建一个 Ingress 配置：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ cat echoheaders-ingress.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Ingress</div><div class="line">metadata:</div><div class="line">  name: echoheaders</div><div class="line">  annotations:</div><div class="line">    kubernetes.io/ingress.class: <span class="string">"nginx"</span></div><div class="line">spec:</div><div class="line">  rules:</div><div class="line">  - host: echoheaders.example.com</div><div class="line">    http:</div><div class="line">      paths:</div><div class="line">      - path: /</div><div class="line">        backend:</div><div class="line">          serviceName: echoheaders</div><div class="line">          servicePort: 80</div><div class="line">$ kubectl apply <span class="_">-f</span> echoheaders-ingress.yaml</div></pre></td></tr></table></figure></p>
+<p>　　可以查看这个 Ingress 对于的 ELB 地址：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get ing -o wide</div><div class="line">NAME          HOSTS                     ADDRESS                                                                      PORTS     AGE</div><div class="line">echoheaders   echoheaders.example.com   a81aaecb30bea11e8a3ea0295ea9b1d4-315454571.cn-north-1.elb.amazonaws.com.cn   80        6m</div></pre></td></tr></table></figure></p>
+<p>　　可以使用下面的命令检验 Ingree 是否正常工作：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl -H <span class="string">"Host: echoheaders.example.com"</span> http://a81aaecb30bea11e8a3ea0295ea9b1d4-315454571.cn-north-1.elb.amazonaws.com.cn</div></pre></td></tr></table></figure></p>
+<h2 id="使用-Let’s-Encrypt-和-kube-lego-配置-HTTPS-证书"><a href="#使用-Let’s-Encrypt-和-kube-lego-配置-HTTPS-证书" class="headerlink" title="使用 Let’s Encrypt 和 kube-lego 配置 HTTPS 证书"></a>使用 Let’s Encrypt 和 kube-lego 配置 HTTPS 证书</h2><p>　　可以使用 kube-lego 自动创建和更新 Let’s Encrypt 的证书，下面是 kube-lego 的安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> https://raw.githubusercontent.com/jetstack/kube-lego/master/examples/nginx/lego/00-namespace.yaml</div><div class="line">$ kubectl apply <span class="_">-f</span> https://raw.githubusercontent.com/jetstack/kube-lego/master/examples/nginx/lego/configmap.yaml</div><div class="line">$ kubectl apply <span class="_">-f</span> https://raw.githubusercontent.com/jetstack/kube-lego/master/examples/nginx/lego/service-account.yaml</div><div class="line">$ kubectl apply <span class="_">-f</span> https://raw.githubusercontent.com/jetstack/kube-lego/master/examples/nginx/lego/cluster-role.yaml</div><div class="line">$ kubectl apply <span class="_">-f</span> https://raw.githubusercontent.com/jetstack/kube-lego/master/examples/nginx/lego/cluster-role-binding.yaml</div><div class="line">$ kubectl apply <span class="_">-f</span> https://raw.githubusercontent.com/jetstack/kube-lego/master/examples/nginx/lego/deployment.yaml</div></pre></td></tr></table></figure></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200" target="_blank" rel="external">The Linux Programming Interface</a></li>
+<li><a href="https://vadosware.io/post/switch-from-ployst-docker-letsencrypt-to-kube-lego/" target="_blank" rel="external">Switch From ployst/docker-letsencrypt to Jetstack’s kube-lego</a></li>
+<li><a href="https://docs.bitnami.com/kubernetes/how-to/secure-kubernetes-services-with-ingress-tls-letsencrypt/" target="_blank" rel="external">Secure Kubernetes Services with Ingress, TLS and LetsEncrypt</a></li>
+<li><a href="https://blog.shanelee.name/2017/10/16/kubernetes-ingress-and-sticky-sessions/" target="_blank" rel="external">Kubernetes ingress and sticky sessions</a></li>
 </ul>
 
       
@@ -372,7 +366,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Linker-and-Loader/" rel="tag">#Linker and Loader</a>
+            <a href="/tags/Kubernetes/" rel="tag">#Kubernetes</a>
           
         </div>
       
@@ -381,17 +375,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/03/02/linux-signal/" rel="next" title="Linux 安全的信号处理方式">
-                <i class="fa fa-chevron-left"></i> Linux 安全的信号处理方式
+              <a href="/2018/01/12/k8s-volumes/" rel="next" title="在 AWS 使用 Kubernetes 的持久化存储">
+                <i class="fa fa-chevron-left"></i> 在 AWS 使用 Kubernetes 的持久化存储
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/03/25/网络编程中的zerocpoy技术/" rel="prev" title="浅谈 Linux 的 Zero Copy 技术">
-                浅谈 Linux 的 Zero Copy 技术 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -637,9 +627,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'http-senlinzhan-github-io';
-      var disqus_identifier = '2017/03/20/动态库/';
-      var disqus_title = "如何设计动态链接库";
-      var disqus_url = 'http://senlinzhan.github.io/2017/03/20/动态库/';
+      var disqus_identifier = '2018/02/07/k8s-nginx-ingress/';
+      var disqus_title = "在 AWS 使用 Kubernetes 的 Nginx Ingress";
+      var disqus_url = 'http://senlinzhan.github.io/2018/02/07/k8s-nginx-ingress/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');
