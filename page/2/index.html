@@ -792,8 +792,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/12/18/mysql-tuning/" itemprop="url">
-                  MySQL InnoDB 性能调优
+                <a class="post-title-link" href="/2017/12/18/mysql-partition/" itemprop="url">
+                  MySQL 分区表
                 </a>
               
             
@@ -806,7 +806,7 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-18T11:17:54+08:00" content="2017-12-18">
+            <time itemprop="dateCreated" datetime="2017-12-18T10:45:08+08:00" content="2017-12-18">
               2017-12-18
             </time>
           </span>
@@ -840,7 +840,7 @@
 
           
           
-             <span id="/2017/12/18/mysql-tuning/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 性能调优">
+             <span id="/2017/12/18/mysql-partition/" class="leancloud_visitors" data-flag-title="MySQL 分区表">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -863,16 +863,22 @@
 
       
         
-          
-            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.percona.com/blog/2014/01/28/10-mysql-performance-tuning-settings-after-installation/" target="_blank" rel="external">Ten MySQL performance tuning settings after installation</a></li>
-<li><a href="https://www.percona.com/blog/2016/05/03/best-practices-for-configuring-optimal-mysql-memory-usage/" target="_blank" rel="external">Best Practices for Configuring Optimal MySQL Memory Usage</a></li>
-<li><a href="https://www.slideshare.net/osscube/mysql-performance-tuning-top-10-tips" target="_blank" rel="external">MySQL Performance Tuning: Top 10 Tips</a></li>
-<li><a href="https://github.com/major/MySQLTuner-perl" target="_blank" rel="external">MySQLTuner-perl</a></li>
-<li><a href="http://www.jianshu.com/p/78b6b7e2bb7f" target="_blank" rel="external">我必须得告诉你的MySQL优化原理3</a></li>
+          <h2 id="水平分区"><a href="#水平分区" class="headerlink" title="水平分区"></a>水平分区</h2><p>　　在 MySQL 中，如果一张表的数据量太大（例如包含百万行数据），为了让表变得方便管理，可以将表拆分成多个分区。MySQL 只支持水平分区，不支持垂直分区。如果使用水平分区，那么 MySQL 会根据用户定义的规则，将表中不同的行拆分到不同的分区。</p>
+<h2 id="分区的好处"><a href="#分区的好处" class="headerlink" title="分区的好处"></a>分区的好处</h2><p>　　通常来说，如果打算让一张表存储大量的数据，那么才值得对它进行分区，分区会带来一些好处：</p>
+<ul>
+<li>分区表的数据可以分布在文件系统的不同位置，甚至是多个磁盘，这使得分区表可以容纳更多数据。</li>
+<li>可以通过删除没有用的分区来删除数据，这种情况下可以很快地删除数据。</li>
+<li>可以加快查询的执行速度，因为对于某些查询来说，只需要查询某个分区即可。</li>
 </ul>
-
-          
+<h2 id="分区的限制"><a href="#分区的限制" class="headerlink" title="分区的限制"></a>分区的限制</h2><p>　　在 MySQL 中，创建分区表时候有一个限制条件：分区表中的每个唯一索引（包括主键），都必须包含分区表达式中的所有列。让我们举个例子：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(<span class="keyword">id</span>),</div><div class="line">    <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> (username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>(<span class="keyword">TO_DAYS</span>(created))</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
+<p>　　执行这个 SQL 语句将会报错：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ERROR 1503 (HY000): A PRIMARY KEY must include all columns <span class="keyword">in</span> the table<span class="string">'s partitioning function</span></div></pre></td></tr></table></figure></p>
+<p>　　这个错误说的是，主键<code>id</code>并没有包含分区列<code>created</code>，所以导致建表失败。下面的建表语句则可以执行成功：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>( <span class="keyword">TO_DAYS</span>(created) )</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
+<p>　　这个表的主键<code>(username, created)</code>包含了分区列<code>created</code>，所以建表可以成功。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/18/mysql-partition/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -903,7 +909,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -944,7 +950,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

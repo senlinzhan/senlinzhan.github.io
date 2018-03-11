@@ -266,393 +266,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/12/18/mysql-indexes/" itemprop="url">
-                  MySQL 索引优化
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-18T10:45:19+08:00" content="2017-12-18">
-              2017-12-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/18/mysql-indexes/" class="leancloud_visitors" data-flag-title="MySQL 索引优化">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://www.vertabelo.com/blog/technical-articles/an-introduction-to-mysql-indexes" target="_blank" rel="external">An Introduction to MySQL Indexes</a></li>
-<li><a href="http://www.jianshu.com/p/d7665192aaaf" target="_blank" rel="external">我必须得告诉大家的MySQL优化原理</a></li>
-<li><a href="https://tech.meituan.com/mysql-index.html" target="_blank" rel="external">MySQL索引原理及慢查询优化</a></li>
-<li><a href="https://severalnines.com/blog/become-mysql-dba-blog-series-database-indexing" target="_blank" rel="external">Become a MySQL DBA blog series - Database Indexing</a></li>
-<li><a href="http://mysql.rjweb.org/doc.php/index_cookbook_mysql" target="_blank" rel="external">MySQL: Building the best INDEX for a given SELECT</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/18/mysql-partition/" itemprop="url">
-                  MySQL 分区表
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-18T10:45:08+08:00" content="2017-12-18">
-              2017-12-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/18/mysql-partition/" class="leancloud_visitors" data-flag-title="MySQL 分区表">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="水平分区"><a href="#水平分区" class="headerlink" title="水平分区"></a>水平分区</h2><p>　　在 MySQL 中，如果一张表的数据量太大（例如包含百万行数据），为了让表变得方便管理，可以将表拆分成多个分区。MySQL 只支持水平分区，不支持垂直分区。如果使用水平分区，那么 MySQL 会根据用户定义的规则，将表中不同的行拆分到不同的分区。</p>
-<h2 id="分区的好处"><a href="#分区的好处" class="headerlink" title="分区的好处"></a>分区的好处</h2><p>　　通常来说，如果打算让一张表存储大量的数据，那么才值得对它进行分区，分区会带来一些好处：</p>
-<ul>
-<li>分区表的数据可以分布在文件系统的不同位置，甚至是多个磁盘，这使得分区表可以容纳更多数据。</li>
-<li>可以通过删除没有用的分区来删除数据，这种情况下可以很快地删除数据。</li>
-<li>可以加快查询的执行速度，因为对于某些查询来说，只需要查询某个分区即可。</li>
-</ul>
-<h2 id="分区的限制"><a href="#分区的限制" class="headerlink" title="分区的限制"></a>分区的限制</h2><p>　　在 MySQL 中，创建分区表时候有一个限制条件：分区表中的每个唯一索引（包括主键），都必须包含分区表达式中的所有列。让我们举个例子：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(<span class="keyword">id</span>),</div><div class="line">    <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> (username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>(<span class="keyword">TO_DAYS</span>(created))</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
-<p>　　执行这个 SQL 语句将会报错：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ERROR 1503 (HY000): A PRIMARY KEY must include all columns <span class="keyword">in</span> the table<span class="string">'s partitioning function</span></div></pre></td></tr></table></figure></p>
-<p>　　这个错误说的是，主键<code>id</code>并没有包含分区列<code>created</code>，所以导致建表失败。下面的建表语句则可以执行成功：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>( <span class="keyword">TO_DAYS</span>(created) )</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
-<p>　　这个表的主键<code>(username, created)</code>包含了分区列<code>created</code>，所以建表可以成功。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/18/mysql-partition/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/17/mysql-transaction/" itemprop="url">
-                  MySQL InnoDB 的锁机制与事务模型
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-17T13:04:07+08:00" content="2017-12-17">
-              2017-12-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/17/mysql-transaction/" class="leancloud_visitors" data-flag-title="MySQL InnoDB 的锁机制与事务模型">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>　　事务的隔离级别也就是 ACID 中的 I。InnoDB 支持 4 种隔离级别，按从低到高排列，分别为：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE，默认的隔离级别为 REPEATABLE READ。</p>
-<h4 id="未提交读"><a href="#未提交读" class="headerlink" title="未提交读"></a>未提交读</h4><p>　　未提交读，即 READ UNCOMMITTED。在这种级别下，一个事务中的修改，在还没有提交的情况下，对其它事务来说都是可见的，因此会导致读的不一致性（也即脏读）。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/17/mysql-transaction/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/12/16/mysql-query-profiling/" itemprop="url">
                   MySQL 性能剖析
                 </a>
@@ -900,11 +513,477 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/08/k8s-deployments/" itemprop="url">
+                  如何在 Kubernetes 部署应用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-08T15:44:42+08:00" content="2017-12-08">
+              2017-12-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/08/k8s-deployments/" class="leancloud_visitors" data-flag-title="如何在 Kubernetes 部署应用">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="部署的难题"><a href="#部署的难题" class="headerlink" title="部署的难题"></a>部署的难题</h2><p>　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：</p>
+<ul>
+<li>如何在多台机器实现自动部署？</li>
+<li>在部署的过程，如何保证服务的高可用？</li>
+<li>如何知道新版本是否出现问题，健康检查要怎么做？</li>
+<li>如果新版本出现问题，能够做到回滚？</li>
+</ul>
+<p>　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。</p>
+<h2 id="如何部署应用"><a href="#如何部署应用" class="headerlink" title="如何部署应用"></a>如何部署应用</h2><p>　　下面的配置文件定义了一个 Deployment，其中包含两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server    <span class="comment"># 这个 Deployment 管理着那些拥有这个标签的 Pod </span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server  <span class="comment"># 为所有 Pod 都打上这个标签</span></div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.7.9</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
+<p>　　接着，创建这个 Deployment：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   2         2         2            2           5s</div></pre></td></tr></table></figure></p>
+<p>　　可以观察到，这个 Deployment 管理着两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME                                READY     STATUS    RESTARTS   AGE</div><div class="line">nginx-deployment-2569060349-2ph84   1/1       Running   0          2m</div><div class="line">nginx-deployment-2569060349-4wdsd   1/1       Running   0          2m</div></pre></td></tr></table></figure></p>
+<h2 id="比较-Deployment-与-ReplicaSet"><a href="#比较-Deployment-与-ReplicaSet" class="headerlink" title="比较 Deployment 与 ReplicaSet"></a>比较 Deployment 与 ReplicaSet</h2><p>　　在 <a href="http://senlinzhan.github.io/2017/11/27/k8s/">Kubernetes 入门指南</a> 我们说到了 ReplicaSet，ReplicaSet 也是用来管理多个 Pod 的副本，那么 Deployment 和 ReplicaSet 的区别在哪里呢？<br>　　当我们创建了 Deployment 之后，实际上也创建了 ReplicaSet，所以说 Deployment 管理着 ReplicaSet（实际上 Deployment 比 ReplicaSet 有着更多功能）。<br>　　这里可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   2         2         2         26m</div></pre></td></tr></table></figure></p>
+<p>　　由于 ReplicaSet 可以伸缩 Pod 的数量，因此 Deployment 也可以做到：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale deployments nginx-deployment --replicas=3</div><div class="line">deployment <span class="string">"nginx-deployment"</span> scaled</div></pre></td></tr></table></figure></p>
+<p>　　Deployment 管理着 ReplicaSet，因此当 Deployment 伸缩时，由它管理的 ReplicaSet 也会发生伸缩：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   3         3         3         30m</div></pre></td></tr></table></figure></p>
+<p>　　但反过来，如果我们直接伸缩 ReplicaSet，那么 Deployment 也会相应发生伸缩吗？答案是<u>不会的</u>。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale rs nginx-deployment-2569060349 --replicas=1</div><div class="line">replicaset <span class="string">"nginx-deployment-2569060349"</span> scaled</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   3         3         3            3           38m</div></pre></td></tr></table></figure></p>
+<h2 id="滚动更新"><a href="#滚动更新" class="headerlink" title="滚动更新"></a>滚动更新</h2><p>　　更新版本时，如何保证服务的高可用？可以借助 Deployment 的滚动更新功能，例如下面的例子中，我们将 Nginx 从<code>1.7.9</code>升级到<code>1.9.0</code>版本：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">  annotations:</div><div class="line">    kubernetes.io/change-cause: <span class="string">"Update nginx from 1.7.9 to 1.9.0"</span>   <span class="comment"># 注释</span></div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server</div><div class="line">  strategy:                    <span class="comment"># 更新策略</span></div><div class="line">    rollingUpdate:</div><div class="line">      maxSurge: 0</div><div class="line">      maxUnavailable: 1        <span class="comment"># 更新过程中，最多有一个 Pod 不可用</span></div><div class="line">    <span class="built_in">type</span>: RollingUpdate        <span class="comment"># 策略类型: 滚动更新</span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server</div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.9.0</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
+<p>　　上述的配置文件中，我们指定更新策略为<code>RollingUpdate</code>（即滚动更新）。在这种策略下，更新版本的过程是渐进性的，分多次进行，每次都只更新少数几个 Pod，直到所有 Pod 都更新完毕。<br>　　有两个参数可用用来配置滚动更新策略：</p>
+<ul>
+<li><code>maxUnavailable</code>表示在更新过程中，最多有多少个 Pod 不可用（这个数值也可以是百分比，例如 20% 表示最多有 20% 的 Pod 不可用）。譬如说，如果设置<code>maxUnavailable</code>为 1，那么更新过程会分多次进行，每次都是先销毁 1 个旧的 Pod，然后创建 1 个新的 Pod 替换它。</li>
+<li>在更新的过程，如果需要保证服务的 100% 可用，可以使用<code>maxSurge</code>，同时将<code>maxUnavailable</code>设置为 0。譬如说，将<code>maxSurge</code>设置为 1，同时将<code>maxUnavailable</code>设置为 0，那么更新过程会分多次进行，每次都是先创建 1 个新的 Pod，如果新的 Pod 可用了，这时才会替换掉旧的 Pod。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/08/k8s-deployments/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/04/cpp-memory-order/" itemprop="url">
+                  理解 C++ 的 Memory Order
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-04T22:09:41+08:00" content="2017-12-04">
+              2017-12-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/04/cpp-memory-order/" class="leancloud_visitors" data-flag-title="理解 C++ 的 Memory Order">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="为什么需要-Memory-Order"><a href="#为什么需要-Memory-Order" class="headerlink" title="为什么需要 Memory Order"></a>为什么需要 Memory Order</h2><p>　　如果不使用任何同步机制（例如 mutex 或 atomic），在多线程中读写同一个变量，那么，程序的结果是难以预料的。简单来说，编译器以及 CPU 的一些行为，会影响到程序的执行结果：</p>
+<ul>
+<li>即使是简单的语句，C++ 也不保证是原子操作。</li>
+<li>CPU 可能会调整指令的执行顺序。</li>
+<li>在 CPU cache 的影响下，一个 CPU 执行了某个指令，不会立即被其它 CPU 看见。</li>
+</ul>
+<p>　　原子操作说的是，一个操作的状态要么就是<u>未执行</u>，要么就是<u>已完成</u>，不会看见中间状态。例如，在 C++11 中，下面程序的结果是未定义的：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">          int64_t i = 0;     // global variable</div><div class="line"></div><div class="line">Thread-1:              Thread-2:</div><div class="line">i = 100;               std::cout &lt;&lt; i;</div></pre></td></tr></table></figure></p>
+<p>　　C++ 并不保证<code>i = 100</code>是原子操作，因为在某些 CPU Architecture 中，写入<code>int64_t</code>需要两个 CPU 指令，所以 Thread-2 可能会读取到<code>i</code>在赋值过程的中间状态。</p>
+<hr>
+<p>　　另一方面，为了优化程序的执行性能，CPU 可能会调整指令的执行顺序。为阐述这一点，下面的例子中，让我们<u>假设</u>所有操作都是原子操作：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">          int x = 0;     // global variable</div><div class="line">          int y = 0;     // global variable</div><div class="line">		  </div><div class="line">Thread-1:              Thread-2:</div><div class="line">x = 100;               <span class="keyword">while</span> (y != 200)</div><div class="line">y = 200;                   ;</div><div class="line">                       std::cout &lt;&lt; x;</div></pre></td></tr></table></figure></p>
+<p>　　如果 CPU 没有乱序执行指令，那么 Thread-2 将输出<code>100</code>。然而，对于 Thread-1 来说，<code>x = 100;</code>和<code>y = 200;</code>这两个语句之间没有依赖关系，因此，Thread-1 允许调整语句的执行顺序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Thread-1:</div><div class="line">y = 200;</div><div class="line">x = 100;</div></pre></td></tr></table></figure></p>
+<p>　　在这种情况下，Thread-2 将输出<code>0</code>或<code>100</code>。</p>
+<hr>
+<p>　　CPU cache 也会影响到程序的行为。下面的例子中，<u>假设</u>从时间上来讲，A 操作先于 B 操作发生：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">          int x = 0;     // global variable</div><div class="line">		  </div><div class="line">Thread-1:                      Thread-2:</div><div class="line">x = 100;    // A               std::cout &lt;&lt; x;    // B</div></pre></td></tr></table></figure></p>
+<p>　　尽管从时间上来讲，A 先于 B，但 CPU cache 的影响下，Thread-2 <u>不能保证</u>立即看到 A 操作的结果，所以 Thread-2 可能输出<code>0</code>或<code>100</code>。</p>
+<hr>
+<p>　　从上面的三个例子可以看到，多线程读写同一变量需要使用同步机制，最常见的同步机制就是<code>std::mutex</code>和<code>std::atomic</code>。然而，从性能角度看，通常使用<code>std::atomic</code>会获得更好的性能。<br>　　C++11 为<code>std::atomic</code>提供了 4 种 memory ordering:</p>
+<ul>
+<li>Relaxed ordering</li>
+<li>Release-Acquire ordering</li>
+<li>Release-Consume ordering</li>
+<li>Sequentially-consistent ordering</li>
+</ul>
+<p>　　默认情况下，<code>std::atomic</code>使用的是 Sequentially-consistent ordering。但在某些场景下，合理使用其它三种 ordering，可以让编译器优化生成的代码，从而提高性能。</p>
+<h2 id="Relaxed-ordering"><a href="#Relaxed-ordering" class="headerlink" title="Relaxed ordering"></a>Relaxed ordering</h2><p>　　在这种模型下，<code>std::atomic</code>的<code>load()</code>和<code>store()</code>都要带上<code>memory_order_relaxed</code>参数。Relaxed ordering 仅仅保证<code>load()</code>和<code>store()</code>是原子操作，除此之外，不提供任何跨线程的同步。<br>　　先看看一个简单的例子：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">                   std::atomic&lt;int&gt; x = 0;     // global variable</div><div class="line">                   std::atomic&lt;int&gt; y = 0;     // global variable</div><div class="line">		  </div><div class="line">Thread-1:                                  Thread-2:</div><div class="line">r1 = y.load(memory_order_relaxed); // A    r2 = x.load(memory_order_relaxed); // C</div><div class="line">x.store(r1, memory_order_relaxed); // B    y.store(42, memory_order_relaxed); // D</div></pre></td></tr></table></figure></p>
+<p>　　执行完上面的程序，可能出现<code>r1 == r2 == 42</code>。理解这一点并不难，因为编译器允许调整 C 和 D 的执行顺序。如果程序的执行顺序是 D -&gt; A -&gt; B -&gt; C，那么就会出现<code>r1 == r2 == 42</code>。</p>
+<hr>
+<p>　　如果某个操作只要求是原子操作，除此之外，不需要其它同步的保障，就可以使用 Relaxed ordering。程序计数器是一种典型的应用场景：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::atomic&lt;<span class="keyword">int</span>&gt; cnt = &#123;<span class="number">0</span>&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">1000</span>; ++n) &#123;</div><div class="line">        cnt.fetch_add(<span class="number">1</span>, <span class="built_in">std</span>::memory_order_relaxed);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; v;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">10</span>; ++n) &#123;</div><div class="line">        v.emplace_back(f);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; t : v) &#123;</div><div class="line">        t.join();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    assert(cnt == <span class="number">10000</span>);    <span class="comment">// never failed</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="Release-Acquire-ordering"><a href="#Release-Acquire-ordering" class="headerlink" title="Release-Acquire ordering"></a>Release-Acquire ordering</h2><p>　　在这种模型下，<code>store()</code>使用<code>memory_order_release</code>，而<code>load()</code>使用<code>memory_order_acquire</code>。这种模型有两种效果，第一种是可以限制 CPU 指令的重排：</p>
+<ul>
+<li>在<code>store()</code>之前的所有读写操作，<u>不允许</u>被移动到这个<code>store()</code>的后面。</li>
+<li>在<code>load()</code>之后的所有读写操作，<u>不允许</u>被移动到这个<code>load()</code>的前面。</li>
+</ul>
+<p>　　除此之外，还有另一种效果：假设 Thread-1 <code>store()</code>的那个值，成功被 Thread-2 <code>load()</code>到了，那么 Thread-1 在<code>store()</code>之前对内存的<u>所有写入操作</u>，此时对 Thread-2 来说，都是可见的。<br>　　下面的例子阐述了这种模型的原理：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::atomic&lt;<span class="keyword">bool</span>&gt; ready&#123; <span class="literal">false</span> &#125;;</div><div class="line"><span class="keyword">int</span> data = <span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">producer</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    data = <span class="number">100</span>;                                       <span class="comment">// A</span></div><div class="line">    ready.store(<span class="literal">true</span>, <span class="built_in">std</span>::memory_order_release);     <span class="comment">// B</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">consumer</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">while</span> (!ready.load(<span class="built_in">std</span>::memory_order_acquire))    <span class="comment">// C</span></div><div class="line">        ;</div><div class="line">    assert(data == <span class="number">100</span>); <span class="comment">// never failed              // D</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(producer)</span></span>;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t2</span><span class="params">(consumer)</span></span>;</div><div class="line"></div><div class="line">    t1.join();</div><div class="line">    t2.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　让我们分析一下这个过程：</p>
+<ul>
+<li>首先 A 不允许被移动到 B 的后面。</li>
+<li>同样 D 也不允许被移动到 C 的前面。</li>
+<li>当 C 从 while 循环中退出了，说明 C 读取到了 B <code>store()</code>的那个值，此时，Thread-2 保证能够看见 Thread-1 执行 B 之前的所有写入操作（也即是 A）。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/04/cpp-memory-order/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/11/27/k8s/" itemprop="url">
+                  Kubernetes 入门指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-11-27T15:44:42+08:00" content="2017-11-27">
+              2017-11-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/11/27/k8s/" class="leancloud_visitors" data-flag-title="Kubernetes 入门指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Pod-的介绍"><a href="#Pod-的介绍" class="headerlink" title="Pod 的介绍"></a>Pod 的介绍</h2><p>　　在 Kubernetes 中，Pod 是最小的调度单元，Pod 其实就是一个容器组，它可以包含一个或多个容器（Pod 翻译为豆荚，一个豆荚可以有多个豆子）。对于一个 Pod 来说，它会运行在某个宿主机上，当需要调度的时候，Kubernetes 会将 Pod 作为一个整体进行调度。<br>　　由于整个 Pod 是运行在一个宿主机上的，所以 Pod 中的所有容器共享这些资源：</p>
+<ul>
+<li>所有容器共享同一个 IP。</li>
+<li>所有容器共享同一个 hostname。</li>
+<li>当某个 Volume 被挂载到 Pod 的文件系统时，这个 Volume 可以被多个容器共享。</li>
+<li>容器之间可以通过 System V IPC 或 POSIX 消息队列进行通信。 </li>
+</ul>
+<p>　　思考一下，什么样的容器才适合放到同一个 Pod 中呢？</p>
+<h4 id="Pod-的配置"><a href="#Pod-的配置" class="headerlink" title="Pod 的配置"></a>Pod 的配置</h4><p>　　可以使用 yaml 配置文件去描述 Pod，并写清楚我们希望 Pod 达到的状态：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
+<p>　　使用下面的命令可以创建 Pod，用于运行 Nginx:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
+<p>　　也可以获取 Pod 的运行状态：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME      READY     STATUS    RESTARTS   AGE</div><div class="line">nginx     1/1       Running   0          8m</div></pre></td></tr></table></figure></p>
+<p>　　如果想要获取 Pod 中所有容器的运行状态，可以使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl  get pods nginx -o json</div></pre></td></tr></table></figure></p>
+<p>　　如果想获得 Pod 的更多详细信息（包括所有容器的信息，以及和 Pod 相关的事件），可以使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl describe pods nginx</div></pre></td></tr></table></figure></p>
+<p>　　删除 Pod 时，可以根据 Pod 的名称删除指定的 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete pods/nginx</div></pre></td></tr></table></figure></p>
+<p>　　也可以根据 yaml 配置文件删除 Pod:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl delete <span class="_">-f</span> pod-nginx.yaml</div></pre></td></tr></table></figure></p>
+<h4 id="Pod-的调试"><a href="#Pod-的调试" class="headerlink" title="Pod 的调试"></a>Pod 的调试</h4><p>　　在运行上面的 Nginx Pod 之后，如何判断 Nginx 正常工作呢？Kubernetes API 提供了端口转发的功能，可以在另一个终端执行下面的命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl port-forward nginx 8000:80</div></pre></td></tr></table></figure></p>
+<p>　　上面的命令会将<code>localhost:8000</code>的请求转发到 Nginx Pod 的<code>80</code>端口。可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl localhost:8000</div></pre></td></tr></table></figure></p>
+<p>　　如果没有差错，这个命令会输出 Nginx 首页的内容。</p>
+<hr>
+<p>　　另一种有效的调试手段，就是进入到容器内部去实地考察：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash</div></pre></td></tr></table></figure></p>
+<p>　　如果 Pod 中有多个容器，可以使用<code>-c</code>参数指定具体的容器：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl <span class="built_in">exec</span> -it nginx bash -c nginx</div></pre></td></tr></table></figure></p>
+<p>　　当然，更加经常使用的调试手段，就是观察容器的输出日志：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl logs nginx</div></pre></td></tr></table></figure></p>
+<h4 id="Pod-的健康检查"><a href="#Pod-的健康检查" class="headerlink" title="Pod 的健康检查"></a>Pod 的健康检查</h4><p>　　默认情况下，Kubernetes 会开启<u>进程的健康检查</u>：如果 Kubernetes 检测到容器里面的进程退出了，那么它就会重启这个容器。<br>　　只有进程级别的健康检查是远远不够的，设想一下，假设程序发生死锁了，此时进程仍然在运行，但是它已经不能正确输出响应了。为解决这个问题，还需要在<u>应用层</u>实现健康检查。<br>　　Kubernetes 提供了三种类型的健康检查：</p>
+<ul>
+<li>HTTP 健康检查：向容器的 HTTP 接口发起 HTTP 请求，如果返回的状态码在 [200, 400) 之间，就认为请求是成功的。</li>
+<li>TCP 健康检查：与容器的某个 port 建立 TCP 连接，如果连接建立成功，则说明容器是健康的。</li>
+<li>Exec 健康检查：在容器里面执行一个命令，如果返回 0 则认为是成功的，否则失败。</li>
+</ul>
+<p>　　需要注意的是，健康检查是容器级别的，而不是 Pod 级别的。这意味着一个 Pod 里面的每个容器，都需要配置不同的健康检查规则。<br>　　下面的例子使用的是 HTTP 健康检查：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    livenessProbe:</span></div><div class="line"><span class="attr">      httpGet:</span></div><div class="line"><span class="attr">        path:</span> /index.html</div><div class="line"><span class="attr">        port:</span> <span class="number">80</span></div><div class="line"><span class="attr">      initialDelaySeconds:</span> <span class="number">5</span></div><div class="line"><span class="attr">      timeoutSeconds:</span> <span class="number">1</span></div><div class="line"><span class="attr">      periodSeconds:</span> <span class="number">10</span></div><div class="line"><span class="attr">      failureThreshold:</span> <span class="number">3</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div></pre></td></tr></table></figure></p>
+<p>　　下面解释一下各项配置的意义：</p>
+<ul>
+<li><code>initialDelaySeconds: 5</code>：使用 5 秒用来等待 Pod 的初始化。</li>
+<li><code>timeoutSeconds: 1</code>：为 HTTP 请求设置超时时间为 1 秒。</li>
+<li><code>periodSeconds: 10</code>：每 10 秒执行一次健康检查。</li>
+<li><code>failureThreshold: 3</code>：设置失败的阈值，如果超过 3 次健康检查都失败了，容器就会被重启。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/11/27/k8s/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -945,7 +1024,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

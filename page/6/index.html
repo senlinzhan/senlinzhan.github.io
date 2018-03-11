@@ -266,412 +266,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/12/libevent/" itemprop="url">
-                  Libevent 编程指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-12T20:48:18+08:00" content="2017-08-12">
-              2017-08-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/08/12/libevent/" class="leancloud_visitors" data-flag-title="Libevent 编程指南">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>　　Libevent 是一个高性能，跨平台的 C 语言网络库。Libevent 当前最新的版本是 2.1.8，下面是在 Linux 安装 Libevent 的步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ wget https://github.com/libevent/libevent/releases/download/release-2.1.8-stable/libevent-2.1.8-stable.tar.gz</div><div class="line">$ tar -xzvf libevent-2.1.8-stable.tar.gz</div><div class="line">$ <span class="built_in">cd</span> libevent-2.1.8-stable</div><div class="line">$ ./configure</div><div class="line">$ make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>　　Libevent是基于 Reactor 模式的网络库，在 Reactor 模式中，通常都有一个事件循环(Event Loop)，在 Libevent 中，这个事件循环就是<code>event_base</code>结构体：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">struct</span> event_base *<span class="title">event_base_new</span><span class="params">(<span class="keyword">void</span>)</span></span>;           <span class="comment">// 创建事件循环</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">event_base_free</span><span class="params">(<span class="keyword">struct</span> event_base *base)</span></span>;     <span class="comment">// 销毁事件循环</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">event_base_dispatch</span><span class="params">(<span class="keyword">struct</span> event_base *base)</span></span>;  <span class="comment">// 运行事件循环</span></div></pre></td></tr></table></figure></p>
-<p>　　通常来说，事件循环主要有两个作用：</p>
-<ul>
-<li>用来管理事件，比如说添加我们感兴趣的事件，修改事件或删除事件。</li>
-<li>用来轮询它管理的所有事件，如果发现有事件活跃 (avtive)，就调用相应的回调函数去处理事件。</li>
-</ul>
-<hr>
-<p>　　Libevent 使用<code>event</code>结构体来代表事件，可以使用<code>event_new()</code>创建一个事件：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">struct</span> event *<span class="title">event_new</span><span class="params">(<span class="keyword">struct</span> event_base *base, <span class="comment">// 事件循环</span></div><div class="line">                        <span class="keyword">evutil_socket_t</span> fd,      <span class="comment">// 文件描述符</span></div><div class="line">                        <span class="keyword">short</span> what,              <span class="comment">// 事件类型</span></div><div class="line">                        event_callback_fn cb,    <span class="comment">// 回调函数</span></div><div class="line">                        <span class="keyword">void</span> *arg)</span></span>;              <span class="comment">// 传递给回调函数的参数</span></div></pre></td></tr></table></figure></p>
-<p>　　创建一个事件之后，要怎么把它加入到事件循环呢？可以使用<code>event_add()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">event_add</span><span class="params">(<span class="keyword">struct</span> event *ev,             <span class="comment">// 事件</span></div><div class="line">              <span class="keyword">const</span> <span class="keyword">struct</span> timeval *tv)</span></span>;    <span class="comment">// 超时时间</span></div></pre></td></tr></table></figure></p>
-<p>　　默认情况下，当一个事件变得活跃时，Libevent 会执行这个事件的回调函数，但同时也会将这个事件从事件循环中<u>移除</u>，例如，下面的程序，定时器只会触发一次：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;event2/event.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">timer_cb</span><span class="params">(<span class="keyword">evutil_socket_t</span> fd, <span class="keyword">short</span> what, <span class="keyword">void</span> *arg)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> str = <span class="keyword">static_cast</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span> *&gt;(arg);</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; *str &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> str = <span class="string">"Hello, World!"</span>;</div><div class="line">    <span class="keyword">auto</span> *base = event_base_new();</div><div class="line"></div><div class="line">    <span class="keyword">struct</span> timeval five_seconds = &#123;<span class="number">1</span>, <span class="number">0</span>&#125;;</div><div class="line">    <span class="keyword">auto</span> *ev = event_new(base, <span class="number">-1</span>, EV_TIMEOUT, timer_cb, (<span class="keyword">void</span> *)&amp;str);</div><div class="line"></div><div class="line">    event_add(ev, &amp;five_seconds);</div><div class="line">    event_base_dispatch(base);</div><div class="line"></div><div class="line">    event_free(ev);</div><div class="line">    event_base_free(base);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　那要怎么样才能让事件不被移除呢？当创建事件时，在事件类型加上<code>EV_PERSIST</code>就可以。让我们修改上面的程序，让定时器每秒就触发一次：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> *ev = event_new(base, <span class="number">-1</span>, EV_TIMEOUT|EV_PERSIST, timer_cb, (<span class="keyword">void</span> *)&amp;str);</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/12/libevent/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/10/grpc-async/" itemprop="url">
-                  谈谈 gRPC 的 C++ 异步编程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-10T19:42:23+08:00" content="2017-08-10">
-              2017-08-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/08/10/grpc-async/" class="leancloud_visitors" data-flag-title="谈谈 gRPC 的 C++ 异步编程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>　　这篇文章我们会介绍 gRPC 的异步编程，如果读者没有使用过 gRPC 的经验，可以先阅读我之前写过的 <a href="http://senlinzhan.github.io/2017/04/20/grpc/">gRPC 编程指南</a>。 </p>
-<h2 id="异步-Client"><a href="#异步-Client" class="headerlink" title="异步 Client"></a>异步 Client</h2><p>　　gRPC 支持同步和异步两种编程方式。同步编程理解起来比较容易，譬如说，当一个同步的 client 调用 server 的某个方法时，它会一直处于阻塞状态，等待 server 发送回响应。<br>　　同步的代码编写起来也很简单，和一般的函数调用差不多：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 调用 server 的 SayHello 方法，阻塞中</span></div><div class="line">Status status = stub_-&gt;SayHello(&amp;context, request, &amp;reply);</div></pre></td></tr></table></figure></p>
-<p>　　然而对于同步的 client 来说，由于调用远程方法时会阻塞当前线程，所以它无法同时发送多个请求。如果需要同时发送多个请求，那么只能每次发送请求时都在<u>新的线程</u>中发送，而频繁地创建线程会带来不小的开销。<br>　　异步 client 成功地解决了这两个问题：它允许同时发送多个请求，并且每次发送请求时都不需要另外创建线程。异步 client 的解决思路很简单：</p>
-<ul>
-<li>gRPC 本身提供了异步 API，譬如说我们想调用 server 的<code>SayHello()</code>方法，我们可以调用它的异步版本<code>AsyncSayHello()</code>，调用之后会立即返回，不会阻塞。</li>
-<li>当方法调用成功时，我们可以让 gRPC <u>自动</u>将返回结果放到一个<code>CompletionQueue</code>的队列中（<code>CompletionQueue</code>是一个阻塞队列，并且是线程安全的）。</li>
-<li>程序可以启动一个线程，这个线程要做的事，就是不断地从队列中取出结果并处理。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/10/grpc-async/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/03/oom-killer/" itemprop="url">
-                  Linux 的 OOM Killer 机制分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-07-03T21:33:12+08:00" content="2017-07-03">
-              2017-07-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/07/03/oom-killer/" class="leancloud_visitors" data-flag-title="Linux 的 OOM Killer 机制分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="按需分配物理页面"><a href="#按需分配物理页面" class="headerlink" title="按需分配物理页面"></a>按需分配物理页面</h2><p>　　很多情况下，一个进程会申请一块很大的内存，但只是用到其中的一小部分。为了避免内存的浪费，在分配页面时，Linux 采用的是<u>按需分配物理页面</u>的方式。譬如说，某个进程调用<code>malloc()</code>申请了一块小内存，这时内核会分配一个虚拟页面，但这个页面<u>不会映射</u>到实际的物理页面。<div align="center"> <img src="/images/linux/oom1.png" width="400" align=center /> </div><br>　　从图中可以看到，当程序首次访问这个虚拟页面时，会触发一个缺页异常 (page fault)。这时内核会分配一个物理页面，让虚拟页面映射到这个物理页面，同时更新进程的页表 (page table)。</p>
-<h2 id="Memory-Overcommit"><a href="#Memory-Overcommit" class="headerlink" title="Memory Overcommit"></a>Memory Overcommit</h2><p>　　这种按需分配物理页面的方式，可以大大节省物理内存的使用，但有时会导致 Memory Overcommit。所谓 Memory Overcommit，也就是说，所有进程使用的虚拟内存<u>超过了</u>系统的物理内存和交换空间的总和。默认情况下，Linux 是允许 Memory Overcommit 的。并且在大多数情况下，Memory Overcommit 也是安全的，因为很多进程只是申请了很多内存，但实际使用到的内存并不多。<br>　　但万一很多进程都使用了申请来的大部分内存，就可能导致物理内存和交换空间不够用了，这时内核的 OOM Killer 就会出马，它会选择杀掉一个或多个进程，这样就能腾出一些内存给其它进程使用。<br>　　在 Linux 中，可以通过内核参数<code>vm.overcommit_memory</code>去控制是否允许 overcommit：</p>
-<ul>
-<li>默认值是 0，在这种情况下，只允许轻微的 overcommit，而比较明显的 overcommit 将不被允许。</li>
-<li>如果设置为 1，表示总是允许 overcommit。</li>
-<li>如果设置为 2，则表示总是禁止 overcommit。也就是说，如果某个申请内存的操作将导致 overcommit，那么这个操作将<u>不会得逞</u>。</li>
-</ul>
-<p>　　那么对内核来说，怎样才算 overcommit 呢？Linux 设定了一个阈值，叫做 CommitLimit，如果所有进程申请的总内存超过了 CommitLimit，那就算是 overcommit 了。在<code>/proc/meminfo</code>中可以看到 CommitLimit 的大小：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/meminfo | grep CommitLimit</div><div class="line">CommitLimit:     3829768 kB</div></pre></td></tr></table></figure></p>
-<p>　　CommitLimit 的值是这样计算的：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CommitLimit = [swap size] + [RAM size] * vm.overcommit_ratio / 100</div></pre></td></tr></table></figure></p>
-<p>　　其中的<code>vm.overcommit_ratio</code>也是内核参数，它的默认值是 50。</p>
-<h2 id="OOM-Killer"><a href="#OOM-Killer" class="headerlink" title="OOM Killer"></a>OOM Killer</h2><p>　　当物理内存和交换空间不够用时，OOM Killer 就会选择杀死进程，那么它是怎样知道要先杀死哪个进程呢？其实 Linux 的每个进程都有一个 oom_score (位于<code>/proc/&lt;pid&gt;/oom_score</code>)，这个值越大，就越有可能被 OOM Killer 选中。oom_score 的值是由很多因素共同决定的，这里列举几个因素：</p>
-<ul>
-<li>如果进程消耗的内存越大，它的 oom_score 通常也会越大。 </li>
-<li>如果进程运行了很长时间，并且消耗很多 CPU 时间，那么通常它的 oom_score 会偏小。</li>
-<li>如果进程以 superuser 的身份运行，那么它的 oom_score 也会偏小。</li>
-</ul>
-<p>　　如何才能尽量防止某个重要的进程被杀死呢？Linux 每个进程都有一个 oom_adj (位于<code>/proc/&lt;pid&gt;/oom_adj</code>)，这个值的范围是 [-17, +15]，进程的 oom_adj 会影响 oom_score 的计算，也就是说，我们可以通过调小进程的 oom_adj 从而降低进程的 oom_score。对于一些比较重要的进程，例如 MySQL，我们想尽量避免它被 OOM Killer 杀死，这时候就可以调低它的 oom_adj 的值，例如：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo <span class="built_in">echo</span> -10 &gt; /proc/$(pidof mysqld)/oom_adj</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/07/03/oom-killer/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/07/02/linux-memory/" itemprop="url">
                   浅谈 Linux 的内存管理
                 </a>
@@ -913,11 +507,407 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/06/25/openmp/" itemprop="url">
+                  OpenMP 并行编程指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-06-25T19:25:03+08:00" content="2017-06-25">
+              2017-06-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并行计算/" itemprop="url" rel="index">
+                    <span itemprop="name">并行计算</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/06/25/openmp/" class="leancloud_visitors" data-flag-title="OpenMP 并行编程指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="并行计算"><a href="#并行计算" class="headerlink" title="并行计算"></a>并行计算</h2><p>　　对于 CPU 密集型的程序来说，可以考虑使用 OpenMP 加快程序的计算速度。OpenMP 是跨平台的，大部分现代的 C/C++ 编译器都支持 OpenMP。OpenMP 在一定程度上对并行算法进行了抽象，因此它使用起来很方便，程序员可以简单地通过编译器指令<code>#pragma omp</code>去控制程序的行为。<br>　　OpenMP 的语法很简单，它看起来是这样的：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">pragma</span> omp <span class="meta-string">&lt;directive&gt;</span> [clause[[,] clause] ...]</span></div></pre></td></tr></table></figure></p>
+<p>　　最常见的指令应该算是<code>parallel</code>指令了，紧接在<code>parallel</code>指令后面的那个代码块将会<u>并行地</u>执行：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="meta">#<span class="meta-keyword">pragma</span> omp parallel</span></div><div class="line">    &#123;</div><div class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello, World!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　程序会启用 N 个线程去执行<code>parallel</code>指令后面的那个代码块 (N 等同于 CPU 的核心数)，执行完这个代码块之后，程序又会变回单线程。编译时只需要提供<code>-fopenmp</code>参数，就可以让编译器启用 OpenMP。例如，下面在双核的机器上运行这个程序，将会打印两条消息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -fopenmp -o main main.cpp</div><div class="line">$ ./main</div><div class="line">Hello, World!</div><div class="line">Hello, World!</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　OpenMP 还提供了<code>parallel for</code>指令，它的作用就是将 for 循环拆分给 N 个线程去执行，这样每个线程都只需要执行整个 for 循环的<u>其中一部分</u>，所以可以实现并行计算。例如下面的例子，需要计算数组中每个元素的平方，我们可以将它拆分给 N 个线程去执行 (N 等同于 CPU 的核心数)：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdint&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> Int = <span class="keyword">uint64_t</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">constexpr</span> Int size = <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Int&gt; squares(size, <span class="number">0</span>);</div><div class="line"></div><div class="line">    <span class="meta">#<span class="meta-keyword">pragma</span> omp parallel for</span></div><div class="line">    <span class="keyword">for</span> (Int i = <span class="number">0</span>; i &lt; size; ++i)</div><div class="line">    &#123;</div><div class="line">        squares[i] = i * i;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/06/25/openmp/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/06/10/pthread-inside/" itemprop="url">
+                  深入 Linux 多线程编程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-06-10T22:49:15+08:00" content="2017-06-10">
+              2017-06-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/06/10/pthread-inside/" class="leancloud_visitors" data-flag-title="深入 Linux 多线程编程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="NPTL-线程模型"><a href="#NPTL-线程模型" class="headerlink" title="NPTL 线程模型"></a>NPTL 线程模型</h2><p>　　NPTL，也即 Native POSIX Thread Library，是 Linux 2.6 引入的新的线程库实现，用来替代旧的 LinuxThreads 线程库。在 NPTL 实现中，用户创建的每个线程都对应着一个<u>内核态</u>的线程，内核态线程也是 Linux 的最小调度单元。<br>　　在 NPTL 实现中，线程的创建相当于调用<code>clone()</code>，并指定下面的参数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">CLONE_VM | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_THREAD | CLONE_SETTLS | </div><div class="line">CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM</div></pre></td></tr></table></figure></p>
+<p>　　下面解释一下这些参数的含义：</p>
+<ul>
+<li><code>CLONE_VM</code> 所有线程都共享同一个<u>进程地址空间</u>。</li>
+<li><code>CLONE_FILES</code> 所有线程都共享进程的文件描述符列表 (file descriptor table)。</li>
+<li><code>CLONE_FS</code> 所有线程都共享同一个文件系统的信息。</li>
+<li><code>CLONE_SIGHAND</code> 所有线程都共享同一个信号 handler 列表。</li>
+<li><code>CLONE_THREAD</code> 所有线程都共享同一个进程 ID 以及 父进程 ID。</li>
+</ul>
+<p>　　在 Linux 可以通过下面命令查看线程库的实现方式：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ getconf GNU_LIBPTHREAD_VERSION</div><div class="line">NPTL 2.23</div></pre></td></tr></table></figure></p>
+<h2 id="线程的栈"><a href="#线程的栈" class="headerlink" title="线程的栈"></a>线程的栈</h2><p>　　在 Linux 中，一个进程可以包含多个线程，这些线程将共享进程的全局变量，以及进程的堆，但每个线程都拥有<u>它自己的栈</u>。正如下图所示：</p>
+<p><div align="center"><img src="/images/linux/thread-stack.png" width="490" align=center /> </div><br>　　在 64 位系统中，除了主线程之外，其它线程的栈默认大小为 8M，而主线程的栈则没有这个限制，因为主线程的栈可以动态增长。可以用下面的命令查看线程栈的大小：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">ulimit</span> <span class="_">-s</span></div><div class="line">8192</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/06/10/pthread-inside/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/05/28/tcp-tuning/" itemprop="url">
+                  Linux TCP/IP 性能调优
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-05-28T08:45:16+08:00" content="2017-05-28">
+              2017-05-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/28/tcp-tuning/" class="leancloud_visitors" data-flag-title="Linux TCP/IP 性能调优">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="再谈三次握手"><a href="#再谈三次握手" class="headerlink" title="再谈三次握手"></a>再谈三次握手</h2><p>　　Linux 提供了<code>listen()</code>系统调用，它的作用是在 server socket 上监听新的连接请求：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">listen</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">int</span> backlog)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　那么<code>listen()</code>的第二个参数<code>backlog</code>的作用是什么呢？让我们先回顾一下 TCP 的三次握手：<div align="center"><img src="/images/linux/tcp1.png" width="550" align=center /> </div><br>　　对于 server 来说，一个新的连接首先会经过 SYN_RECV 状态，然后才会进入 ESTABLISHED 状态。那么对于每个 server socket 来说，内核需要两个队列来保存所有连接的信息：</p>
+<ul>
+<li>一个是<u>半连接队列</u> (incompletely queue)，用来保存所有处在 SYN_RECV 状态的连接。</li>
+<li>另一个是<u>连接队列</u> (completely queue)，用来保存所有处在 ESTABLISHED 状态的连接。</li>
+</ul>
+<p>　　也就是说，当一个新的连接进入 SYNC_RECV 状态时，内核会将它放到<u>半连接队列</u>中。而当这个连接从 SYNC_RECV 状态进入到 ESTABLISHED 状态时，内核会将它从<u>半连接队列</u>中移动到<u>连接队列</u>中。最后当<code>accept()</code>返回时，这个连接也会从<u>连接队列</u>中移走。<br>　　<code>listen()</code>的<code>backlog</code>参数其实是用来指定<u>连接队列</u>的长度。而如果要改变<u>半连接队列</u>的长度，则需要改变内核参数：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">net.ipv4.tcp_max_syn_backlog = 1024   <span class="comment"># 半连接队列的长度</span></div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改变生效</span></div></pre></td></tr></table></figure></p>
+<p>　　在实际情况中，如果 server 的负载比较高，无法迅速地<code>accept()</code>新的连接，就可能导致<u>连接队列</u>满了，这时候就需要调高<code>listen()</code>的<code>backlog</code>参数。然而注意到，<code>backlog</code>参数有一个上限，这个上限由内核参数<code>net.core.somaxconn</code>决定，这个参数的默认值是<code>128</code>。也就是说，如果我们要让<code>backlog</code>的上限大于 128，就需要调高<code>net.core.somaxconn</code>这个内核参数的值：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo vi /etc/sysctl.conf</div><div class="line">net.core.somaxconn = 1024             <span class="comment"># listen backlog 的上限，默认值是 128</span></div><div class="line">$ sudo sysctl -p                      <span class="comment"># 使改变生效</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　让我们思考一个问题，对于 server 的一个连接来说，当它接收到 client 发送的 ACK segment 之后，就会从 SYNC_RECV 进入到 ESTABLISHED 状态，但如果这时<u>连接队列</u>满了，那么会发生什么事情呢？<br>　　默认情况下，server的 TCP 协议栈会丢弃这个 ACK segment。但此时这个连接仍然处在 SYNC_RECV 状态，所以 server 的 TCP 协议栈会重新发送 SYN/ACK 给 client。下图显示了进行一次重试的过程：<div align="center"><img src="/images/linux/tcp-synack-retry.png" width="450" align=center /> </div><br>　　最大的重传次数由内核参数<code>net.ipv4.tcp_synack_retries</code>规定，默认情况下，这个值是 5，重传 5 次的总耗时约为 180 秒。在某些情况下，我们可以调小这个值，以减小重传的超时时间。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/05/28/tcp-tuning/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -958,7 +948,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
