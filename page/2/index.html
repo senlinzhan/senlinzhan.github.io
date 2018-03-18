@@ -266,6 +266,137 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/01/gdb-on-multithreaded/" itemprop="url">
+                  使用 gdb 调试 C++ 多线程程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-01T19:31:43+08:00" content="2018-01-01">
+              2018-01-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
+                    <span itemprop="name">性能剖析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/01/01/gdb-on-multithreaded/" class="leancloud_visitors" data-flag-title="使用 gdb 调试 C++ 多线程程序">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="调试死锁程序"><a href="#调试死锁程序" class="headerlink" title="调试死锁程序"></a>调试死锁程序</h2><p>　　分析死锁问题是比较简单的，因为当发生死锁时，进程会僵住，这时我们只需要杀死进程，让系统产生一个 core dump 文件，然后再对这个 core dump 文件进行分析即可。至于如何才能在 Linux 生成 core dump 文件，可以参见<a href="http://senlinzhan.github.io/2017/12/31/coredump/">这篇文章</a>。<br>　　下面的 C++ 程序，有可能出现两个线程都在等待对方释放互斥锁，从而导致死锁：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::mutex m1, m2;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g1(m1);</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g2(m2);</div><div class="line"></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"I'm foo!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g1(m2);</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g2(m1);</div><div class="line"></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"I'm bar!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(foo)</span></span>;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t2</span><span class="params">(bar)</span></span>;</div><div class="line"></div><div class="line">    t1.join();</div><div class="line">    t2.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　编译好这个程序，并运行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o main main.cpp -lpthread</div><div class="line">$ <span class="keyword">while</span> <span class="literal">true</span> ; <span class="keyword">do</span></div><div class="line">&gt; ./main </div><div class="line">&gt; <span class="keyword">done</span> &amp;</div></pre></td></tr></table></figure></p>
+<p>　　查看发生死锁的进程 ID，杀死这个进程，让系统生成它的 core dump 文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ ps aux | grep main</div><div class="line">ubuntu    4184  0.0  0.1  31844  1792 pts/0    Sl   03:01   0:00 ./main</div><div class="line">$ <span class="built_in">kill</span> <span class="_">-s</span> SIGSEGV 4184</div><div class="line">$ ls /var/crash</div><div class="line">!home!ubuntu!main.4184.1514790137.11</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，系统生成了core dump 文件，放在了<code>/var/crash</code>目录下，这样就可以使用 gdb 进行分析：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gdb ./main /var/crash/\!home\!ubuntu\!main.4184.1514790137.11</div></pre></td></tr></table></figure></p>
+<p>　　查看进程有哪些线程正在执行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">(gdb) info threads</div><div class="line">  Id   Target Id         Frame</div><div class="line">* 1    Thread 0x7f109b2e4740 (LWP 4184) 0x00007f109aebd9dd <span class="keyword">in</span> pthread_join (</div><div class="line">    threadid=139709282297600, thread_return=0x0) at pthread_join.c:90</div><div class="line">  2    Thread 0x7f1099a49700 (LWP 4186) __lll_lock_wait ()</div><div class="line">    at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div><div class="line">  3    Thread 0x7f109a24a700 (LWP 4185) __lll_lock_wait ()</div><div class="line">    at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，线程 2 和线程 3 正在等待互斥锁，可以查看线程 2 的信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(gdb) thread 2</div><div class="line">[Switching to thread 2 (Thread 0x7f1099a49700 (LWP 4186))]</div><div class="line">#0  __lll_lock_wait () at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div></pre></td></tr></table></figure></p>
+<p>　　打印线程 2 的堆栈信息，可以看到是哪一行代码正在尝试获取锁：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">(gdb) backtrace</div><div class="line">#0  __lll_lock_wait () at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div><div class="line">#1  0x00007f109aebee0d in __GI___pthread_mutex_lock (mutex=0x6052e0 &lt;m1&gt;)</div><div class="line">    at ../nptl/pthread_mutex_lock.c:80</div><div class="line">#2  0x0000000000401007 in __gthread_mutex_lock (__mutex=0x6052e0 &lt;m1&gt;)</div><div class="line">    at /usr/include/x86_64-linux-gnu/c++/5/bits/gthr-default.h:748</div><div class="line">#3  0x0000000000401536 in std::mutex::lock (this=0x6052e0 &lt;m1&gt;)</div><div class="line">    at /usr/include/c++/5/mutex:135</div><div class="line">#4  0x00000000004015bc in std::lock_guard&lt;std::mutex&gt;::lock_guard (</div><div class="line">    this=0x7f1099a48e50, __m=...) at /usr/include/c++/5/mutex:386</div><div class="line">#5  0x00000000004011b7 in bar () at main.cpp:18</div><div class="line">#6  0x000000000040289f in std::_Bind_simple&lt;void (*())()&gt;::_M_invoke&lt;&gt;(std::_Index_tuple&lt;&gt;) (this=0x153bdb8) at /usr/include/c++/5/functional:1531</div><div class="line">#7  0x00000000004027f8 in std::_Bind_simple&lt;void (*())()&gt;::operator()() (</div><div class="line">    this=0x153bdb8) at /usr/include/c++/5/functional:1520</div><div class="line">#8  0x0000000000402788 in std::thread::_Impl&lt;std::_Bind_simple&lt;void (*())()&gt; &gt;::_M_run() (this=0x153bda0) at /usr/include/c++/5/thread:115</div><div class="line">#9  0x00007f109abebc80 in ?? () from /usr/lib/x86_64-linux-gnu/libstdc++.so.6</div><div class="line">#10 0x00007f109aebc70a in start_thread (arg=0x7f1099a49700) at pthread_create.c:333</div><div class="line">#11 0x00007f109a65a82d in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109</div></pre></td></tr></table></figure></p>
+<p>　　从上面的输出可以发现，线程 2 在<code>main.cpp</code>的第 18 行的位置等待互斥锁。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/01/01/gdb-on-multithreaded/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/31/coredump/" itemprop="url">
                   在 Linux 生成 core dump 文件
                 </a>
@@ -771,140 +902,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/18/mysql-partition/" itemprop="url">
-                  MySQL 分区表
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-18T10:45:08+08:00" content="2017-12-18">
-              2017-12-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/18/mysql-partition/" class="leancloud_visitors" data-flag-title="MySQL 分区表">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="水平分区"><a href="#水平分区" class="headerlink" title="水平分区"></a>水平分区</h2><p>　　在 MySQL 中，如果一张表的数据量太大（例如包含百万行数据），为了让表变得方便管理，可以将表拆分成多个分区。MySQL 只支持水平分区，不支持垂直分区。如果使用水平分区，那么 MySQL 会根据用户定义的规则，将表中不同的行拆分到不同的分区。</p>
-<h2 id="分区的好处"><a href="#分区的好处" class="headerlink" title="分区的好处"></a>分区的好处</h2><p>　　通常来说，如果打算让一张表存储大量的数据，那么才值得对它进行分区，分区会带来一些好处：</p>
-<ul>
-<li>分区表的数据可以分布在文件系统的不同位置，甚至是多个磁盘，这使得分区表可以容纳更多数据。</li>
-<li>可以通过删除没有用的分区来删除数据，这种情况下可以很快地删除数据。</li>
-<li>可以加快查询的执行速度，因为对于某些查询来说，只需要查询某个分区即可。</li>
-</ul>
-<h2 id="分区的限制"><a href="#分区的限制" class="headerlink" title="分区的限制"></a>分区的限制</h2><p>　　在 MySQL 中，创建分区表时候有一个限制条件：分区表中的每个唯一索引（包括主键），都必须包含分区表达式中的所有列。让我们举个例子：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(<span class="keyword">id</span>),</div><div class="line">    <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> (username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>(<span class="keyword">TO_DAYS</span>(created))</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
-<p>　　执行这个 SQL 语句将会报错：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ERROR 1503 (HY000): A PRIMARY KEY must include all columns <span class="keyword">in</span> the table<span class="string">'s partitioning function</span></div></pre></td></tr></table></figure></p>
-<p>　　这个错误说的是，主键<code>id</code>并没有包含分区列<code>created</code>，所以导致建表失败。下面的建表语句则可以执行成功：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> userslogs (</div><div class="line">    username <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    logdata <span class="built_in">BLOB</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    created DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span>(username, created)</div><div class="line">)</div><div class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">HASH</span>( <span class="keyword">TO_DAYS</span>(created) )</div><div class="line"><span class="keyword">PARTITIONS</span> <span class="number">10</span>;</div></pre></td></tr></table></figure></p>
-<p>　　这个表的主键<code>(username, created)</code>包含了分区列<code>created</code>，所以建表可以成功。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/18/mysql-partition/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -950,7 +947,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

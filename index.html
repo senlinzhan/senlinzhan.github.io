@@ -393,6 +393,122 @@
             
               
                 
+                <a class="post-title-link" href="/2018/03/18/perf/" itemprop="url">
+                  使用 Perf 和火焰图分析 CPU 性能
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-03-18T21:13:58+08:00" content="2018-03-18">
+              2018-03-18
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/03/18/perf/" class="leancloud_visitors" data-flag-title="使用 Perf 和火焰图分析 CPU 性能">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>　　在 Linux 我们可以使用 perf 工具分析 CPU 的性能，它可以将消耗 CPU 时间比较大的用户程序调用栈打印出来，并生成火焰图。首先，在 Ubuntu 安装 perf 工具：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>sudo perf list</code>命令可以看到 perf 支持的事件，事件有三种类型：Software event、Hardware event 和 Tracepoint event。使用<code>perf stat</code>可以对某个操作执行期间发生的事件作统计，例如我们可以对下面的命令进行统计：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ dd <span class="keyword">if</span>=/dev/zero of=/dev/null count=1000000</div></pre></td></tr></table></figure></p>
+<p>　　我们可以统计这个命令执行期间的 CPU 使用率，上下文切换次数等信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ perf <span class="built_in">stat</span> dd <span class="keyword">if</span>=/dev/zero of=/dev/null count=1000000</div><div class="line">1000000+0 records <span class="keyword">in</span></div><div class="line">1000000+0 records out</div><div class="line">512000000 bytes (512 MB) copied, 0.332629 s, 1.5 GB/s</div><div class="line"></div><div class="line"> Performance counter stats <span class="keyword">for</span> <span class="string">'dd if=/dev/zero of=/dev/null count=1000000'</span>:</div><div class="line"></div><div class="line">        331.923086 task-clock (msec)         <span class="comment">#    0.994 CPUs utilized</span></div><div class="line">               107 context-switches          <span class="comment">#    0.322 K/sec</span></div><div class="line">                 0 cpu-migrations            <span class="comment">#    0.000 K/sec</span></div><div class="line">               226 page-faults               <span class="comment">#    0.681 K/sec</span></div><div class="line">   &lt;not supported&gt; cycles</div><div class="line">   &lt;not supported&gt; stalled-cycles-frontend</div><div class="line">   &lt;not supported&gt; stalled-cycles-backend</div><div class="line">   &lt;not supported&gt; instructions</div><div class="line">   &lt;not supported&gt; branches</div><div class="line">   &lt;not supported&gt; branch-misses</div><div class="line"></div><div class="line">       0.334055984 seconds time elapsed</div></pre></td></tr></table></figure></p>
+<hr>
+<p>　　而<code>perf record</code>命令可以用来对事件进行采样，将采样的数据收集在一个 perf.data 的文件中，这将会带来一定的性能开销，不过这个命令很有用，可以用来找出最占 CPU 的进程。下面的命令对系统 CPU 事件做采样，采样时间为 60 秒，每秒采样 99 个事件，<code>-g</code>表示记录程序的调用栈。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo perf record -F 99 <span class="_">-a</span> -g -- sleep 60</div></pre></td></tr></table></figure></p>
+<p>　　执行这个命令将生成一个 perf.data 文件：</p>
+<ul>
+<li>执行<code>sudo perf report -n</code>可以生成报告的预览。</li>
+<li>执行<code>sudo perf report -n --stdio</code>可以生成一个详细的报告。</li>
+<li>执行<code>sudo perf script</code>可以 dump 出 perf.data 的内容。</li>
+</ul>
+<p>　　也可以记录某个进程的事件，例如记录进程号为 1641 的进程：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo perf record -F 99 -p 1641 -g -- sleep 60</div><div class="line">$ sudo perf script &gt; out.perf   <span class="comment"># 将 perf.data 的内容 dump 到 out.perf</span></div></pre></td></tr></table></figure></p>
+<p>　　通常的做法是将 out.perf 拷贝到本地机器，在本地生成火焰图：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> --depth 1 https://github.com/brendangregg/FlameGraph.git</div><div class="line"></div><div class="line"><span class="comment"># 折叠调用栈</span></div><div class="line">$ FlameGraph/stackcollapse-perf.pl out.perf &gt; out.folded</div><div class="line"></div><div class="line"><span class="comment"># 生成火焰图</span></div><div class="line">$ FlameGraph/flamegraph.pl out.folded &gt; out.svg</div></pre></td></tr></table></figure></p>
+<p>　　生成火焰图可以指定参数，–width 可以指定图片宽度，–height 指定每一个调用栈的高度，生成的火焰图，宽度越大就表示CPU耗时越多。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/02/07/k8s-nginx-ingress/" itemprop="url">
                   在 AWS 使用 Kubernetes 的 Nginx Ingress
                 </a>
@@ -764,137 +880,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/01/gdb-on-multithreaded/" itemprop="url">
-                  使用 gdb 调试 C++ 多线程程序
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2018-01-01T19:31:43+08:00" content="2018-01-01">
-              2018-01-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
-                    <span itemprop="name">性能剖析</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2018/01/01/gdb-on-multithreaded/" class="leancloud_visitors" data-flag-title="使用 gdb 调试 C++ 多线程程序">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="调试死锁程序"><a href="#调试死锁程序" class="headerlink" title="调试死锁程序"></a>调试死锁程序</h2><p>　　分析死锁问题是比较简单的，因为当发生死锁时，进程会僵住，这时我们只需要杀死进程，让系统产生一个 core dump 文件，然后再对这个 core dump 文件进行分析即可。至于如何才能在 Linux 生成 core dump 文件，可以参见<a href="http://senlinzhan.github.io/2017/12/31/coredump/">这篇文章</a>。<br>　　下面的 C++ 程序，有可能出现两个线程都在等待对方释放互斥锁，从而导致死锁：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;</span></span></div><div class="line"></div><div class="line"><span class="built_in">std</span>::mutex m1, m2;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g1(m1);</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g2(m2);</div><div class="line"></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"I'm foo!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g1(m2);</div><div class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; g2(m1);</div><div class="line"></div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"I'm bar!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(foo)</span></span>;</div><div class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t2</span><span class="params">(bar)</span></span>;</div><div class="line"></div><div class="line">    t1.join();</div><div class="line">    t2.join();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　编译好这个程序，并运行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ g++ -std=c++11 -g -o main main.cpp -lpthread</div><div class="line">$ <span class="keyword">while</span> <span class="literal">true</span> ; <span class="keyword">do</span></div><div class="line">&gt; ./main </div><div class="line">&gt; <span class="keyword">done</span> &amp;</div></pre></td></tr></table></figure></p>
-<p>　　查看发生死锁的进程 ID，杀死这个进程，让系统生成它的 core dump 文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ ps aux | grep main</div><div class="line">ubuntu    4184  0.0  0.1  31844  1792 pts/0    Sl   03:01   0:00 ./main</div><div class="line">$ <span class="built_in">kill</span> <span class="_">-s</span> SIGSEGV 4184</div><div class="line">$ ls /var/crash</div><div class="line">!home!ubuntu!main.4184.1514790137.11</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，系统生成了core dump 文件，放在了<code>/var/crash</code>目录下，这样就可以使用 gdb 进行分析：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gdb ./main /var/crash/\!home\!ubuntu\!main.4184.1514790137.11</div></pre></td></tr></table></figure></p>
-<p>　　查看进程有哪些线程正在执行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">(gdb) info threads</div><div class="line">  Id   Target Id         Frame</div><div class="line">* 1    Thread 0x7f109b2e4740 (LWP 4184) 0x00007f109aebd9dd <span class="keyword">in</span> pthread_join (</div><div class="line">    threadid=139709282297600, thread_return=0x0) at pthread_join.c:90</div><div class="line">  2    Thread 0x7f1099a49700 (LWP 4186) __lll_lock_wait ()</div><div class="line">    at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div><div class="line">  3    Thread 0x7f109a24a700 (LWP 4185) __lll_lock_wait ()</div><div class="line">    at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div></pre></td></tr></table></figure></p>
-<p>　　可以看到，线程 2 和线程 3 正在等待互斥锁，可以查看线程 2 的信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(gdb) thread 2</div><div class="line">[Switching to thread 2 (Thread 0x7f1099a49700 (LWP 4186))]</div><div class="line">#0  __lll_lock_wait () at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div></pre></td></tr></table></figure></p>
-<p>　　打印线程 2 的堆栈信息，可以看到是哪一行代码正在尝试获取锁：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">(gdb) backtrace</div><div class="line">#0  __lll_lock_wait () at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135</div><div class="line">#1  0x00007f109aebee0d in __GI___pthread_mutex_lock (mutex=0x6052e0 &lt;m1&gt;)</div><div class="line">    at ../nptl/pthread_mutex_lock.c:80</div><div class="line">#2  0x0000000000401007 in __gthread_mutex_lock (__mutex=0x6052e0 &lt;m1&gt;)</div><div class="line">    at /usr/include/x86_64-linux-gnu/c++/5/bits/gthr-default.h:748</div><div class="line">#3  0x0000000000401536 in std::mutex::lock (this=0x6052e0 &lt;m1&gt;)</div><div class="line">    at /usr/include/c++/5/mutex:135</div><div class="line">#4  0x00000000004015bc in std::lock_guard&lt;std::mutex&gt;::lock_guard (</div><div class="line">    this=0x7f1099a48e50, __m=...) at /usr/include/c++/5/mutex:386</div><div class="line">#5  0x00000000004011b7 in bar () at main.cpp:18</div><div class="line">#6  0x000000000040289f in std::_Bind_simple&lt;void (*())()&gt;::_M_invoke&lt;&gt;(std::_Index_tuple&lt;&gt;) (this=0x153bdb8) at /usr/include/c++/5/functional:1531</div><div class="line">#7  0x00000000004027f8 in std::_Bind_simple&lt;void (*())()&gt;::operator()() (</div><div class="line">    this=0x153bdb8) at /usr/include/c++/5/functional:1520</div><div class="line">#8  0x0000000000402788 in std::thread::_Impl&lt;std::_Bind_simple&lt;void (*())()&gt; &gt;::_M_run() (this=0x153bda0) at /usr/include/c++/5/thread:115</div><div class="line">#9  0x00007f109abebc80 in ?? () from /usr/lib/x86_64-linux-gnu/libstdc++.so.6</div><div class="line">#10 0x00007f109aebc70a in start_thread (arg=0x7f1099a49700) at pthread_create.c:333</div><div class="line">#11 0x00007f109a65a82d in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109</div></pre></td></tr></table></figure></p>
-<p>　　从上面的输出可以发现，线程 2 在<code>main.cpp</code>的第 18 行的位置等待互斥锁。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/01/01/gdb-on-multithreaded/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -940,7 +925,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
