@@ -110,7 +110,7 @@
 <meta property="og:site_name" content="Senlin's Blog">
 <meta property="og:description" content="CPU 性能分析　　在 Linux 我们可以使用 perf 工具分析 CPU 的性能，它可以将消耗 CPU 时间比较大的用户程序调用栈打印出来，并生成火焰图。首先，在 Ubuntu 安装 perf 工具：1$ sudo apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`
 　　使用sudo per">
-<meta property="og:updated_time" content="2018-03-18T13:58:07.000Z">
+<meta property="og:updated_time" content="2018-03-22T07:03:54.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用 Perf 和火焰图分析 CPU 性能">
 <meta name="twitter:description" content="CPU 性能分析　　在 Linux 我们可以使用 perf 工具分析 CPU 的性能，它可以将消耗 CPU 时间比较大的用户程序调用栈打印出来，并生成火焰图。首先，在 Ubuntu 安装 perf 工具：1$ sudo apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`
@@ -332,7 +332,7 @@
 <h2 id="生成火焰图"><a href="#生成火焰图" class="headerlink" title="生成火焰图"></a>生成火焰图</h2><p>　　通常的做法是将 out.perf 拷贝到本地机器，在本地生成火焰图：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> --depth 1 https://github.com/brendangregg/FlameGraph.git</div><div class="line"></div><div class="line"><span class="comment"># 折叠调用栈</span></div><div class="line">$ FlameGraph/stackcollapse-perf.pl out.perf &gt; out.folded</div><div class="line"></div><div class="line"><span class="comment"># 生成火焰图</span></div><div class="line">$ FlameGraph/flamegraph.pl out.folded &gt; out.svg</div></pre></td></tr></table></figure></p>
 <p>　　生成火焰图可以指定参数，–width 可以指定图片宽度，–height 指定每一个调用栈的高度，生成的火焰图，宽度越大就表示CPU耗时越多。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="www.brendangregg.com/perf.html">Linux perf Examples - Brendan Gregg</a></li>
+<li><a href="http://www.brendangregg.com/perf.html" target="_blank" rel="external">Linux perf Examples - Brendan Gregg</a></li>
 </ul>
 
       
