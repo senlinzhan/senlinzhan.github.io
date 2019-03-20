@@ -393,6 +393,115 @@
             
               
                 
+                <a class="post-title-link" href="/2019/03/20/dpdp-setup/" itemprop="url">
+                  未命名
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2019-03-20T22:51:58+08:00" content="2019-03-20">
+              2019-03-20
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2019/03/20/dpdp-setup/" class="leancloud_visitors" data-flag-title="">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="DPDK-快速上手"><a href="#DPDK-快速上手" class="headerlink" title="DPDK 快速上手"></a>DPDK 快速上手</h2><h4 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h4><p>编译 DPDK 要求 gcc 版本在 4.9 以上，安装相关的编译工具和依赖库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apt-get install build-essential libnuma-dev libssl-dev libcap-dev libpcap-dev -y</div></pre></td></tr></table></figure></p>
+<p>为 DPDK 预留大页内存：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> 1024 &gt; /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages</div><div class="line"><span class="built_in">echo</span> 1024 &gt; /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages</div></pre></td></tr></table></figure></p>
+<p>将大页内存挂载起来，才能被 DPDK 使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mkdir /mnt/huge</div><div class="line">mount -t hugetlbfs nodev /mnt/huge</div></pre></td></tr></table></figure></p>
+<p>下载 DPDK 源码并编译：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">wget https://fast.dpdk.org/rel/dpdk-17.11.2.tar.xz</div><div class="line">tar vxf dpdk-17.11.2.tar.xz</div><div class="line"><span class="built_in">cd</span> dpdk-stable-17.11.2</div><div class="line">make config T=x86_64-native-linuxapp-gcc</div><div class="line"><span class="built_in">export</span> RTE_TARGET=build</div><div class="line">make</div><div class="line"><span class="built_in">export</span> RTE_SDK=<span class="variable">$PWD</span></div></pre></td></tr></table></figure></p>
+<p>安装 DPDK 内核模块：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">modprobe uio</div><div class="line">insmod build/kmod/igb_uio.ko</div><div class="line">insmod build/kmod/rte_kni.ko</div></pre></td></tr></table></figure></p>
+<p>查看所有网卡的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ python installPkg/bin/dpdk-devbind.py --status</div><div class="line"></div><div class="line">Network devices using DPDK-compatible driver</div><div class="line">============================================</div><div class="line">&lt;none&gt;</div><div class="line"></div><div class="line">Network devices using kernel driver</div><div class="line">===================================</div><div class="line">0000:1a:00.0 <span class="string">'Device 37d0'</span> <span class="keyword">if</span>=eth0 drv=i40e unused= *Active*</div><div class="line">0000:1a:00.1 <span class="string">'Device 37d0'</span> <span class="keyword">if</span>=eth1 drv=i40e unused= *Active*</div><div class="line">0000:1a:00.2 <span class="string">'Device 37d1'</span> <span class="keyword">if</span>=eth2 drv=i40e unused= </div><div class="line">0000:1a:00.3 <span class="string">'Device 37d1'</span> <span class="keyword">if</span>=eth3 drv=i40e unused= </div><div class="line"></div><div class="line">Other network devices</div><div class="line">=====================</div><div class="line">&lt;none&gt;</div></pre></td></tr></table></figure></p>
+<p>其中 eth0 准备留给 DPDK 使用，我们记录下它的 PCI 号码为 0000:1a:00.0，网卡驱动为 i40e。关闭网卡 eth0，并将<code>igb_uio</code>驱动绑定到网卡 eth0：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ifconfig eth0 down</div><div class="line">./usertools/dpdk-devbind.py -b igb_uio 0000:1a:00.0</div></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/03/18/perf/" itemprop="url">
                   使用 Perf 和火焰图分析 CPU 性能
                 </a>
@@ -747,144 +856,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/11/k8s-on-aws/" itemprop="url">
-                  使用 kops 在 AWS 部署 Kubernetes 集群
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2018-01-11T15:44:42+08:00" content="2018-01-11">
-              2018-01-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
-                    <span itemprop="name">虚拟化</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2018/01/11/k8s-on-aws/" class="leancloud_visitors" data-flag-title="使用 kops 在 AWS 部署 Kubernetes 集群">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>　　<a href="https://github.com/kubernetes/kops">kops</a> 是官方推荐的工具，用来在 AWS 生产环境中，快速地部署 Kubernetes 集群。</p>
-<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>　　在 1.6.2 版本之前，通过 kops 部署 K8s 集群，需要使用 AWS 的 Route53 来提供 DNS 服务的功能。但从 1.6.2 版本开始，kops 支持部署基于 gossip 的集群，不再依赖 Route53，这让部署操作变得更加简单。<br>　　在部署集群之前，需要安装 kubectl、kops 和 awscli 这些工具，下面是安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl <span class="_">-s</span> https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl &amp;&amp; chmod +x kubectl</div><div class="line">$ sudo mv kubectl /usr/<span class="built_in">local</span>/bin/</div><div class="line">$ wget https://github.com/kubernetes/kops/releases/download/1.8.0/kops-linux-amd64</div><div class="line">$ chmod +x kops-linux-amd64</div><div class="line">$ sudo mv kops-linux-amd64 /usr/<span class="built_in">local</span>/bin/kops</div><div class="line">$ sudo apt-get install awscli</div><div class="line">$ sudo pip install awscli</div></pre></td></tr></table></figure></p>
-<p>　　配置好 AWS 账号：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ aws configure</div><div class="line">AWS Access Key ID [None]: &lt;your-accesskeyID&gt;</div><div class="line">AWS Secret Access Key [None]: &lt;your-secretAccessKey&gt;</div><div class="line">Default region name [None]: ap-northeast-1</div><div class="line">Default output format [None]: json</div></pre></td></tr></table></figure></p>
-<p>　　为了使用 kops 部署集群，还需要为 kops 创建一个 IAM 用户<code>kops</code>，并分配相应的权限：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ aws iam create-group --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name kops</div><div class="line">$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name kops</div><div class="line">$ aws iam create-user --user-name kops</div><div class="line">$ aws iam add-user-to-group --user-name kops --group-name kops</div></pre></td></tr></table></figure></p>
-<p>　　为<code>kops</code>用户创建密钥：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ aws iam create-access-key --user-name kops</div></pre></td></tr></table></figure></p>
-<p>　　上面的命令会返回<code>kops</code>用户的<code>AccessKeyID</code>和<code>SecretAccessKey</code>。接着我们就可以更新<code>awscli</code>的配置，让它使用新创建的<code>kops</code>用户的密钥：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ aws configure</div><div class="line">AWS Access Key ID [None]: &lt;accesskeyID-of-kops-user&gt;</div><div class="line">AWS Secret Access Key [None]: &lt;secretAccessKey-of-kops-user&gt;</div><div class="line">Default region name [None]: ap-northeast-1</div><div class="line">Default output format [None]: json</div></pre></td></tr></table></figure></p>
-<p>　　同时还需要将<code>kops</code>用户的密钥导出到命令行的环境变量：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)</div><div class="line">$ <span class="built_in">export</span> AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)</div><div class="line">$ <span class="built_in">export</span> AWS_REGION=$(aws configure get region)</div></pre></td></tr></table></figure></p>
-<p>　　最后是生成 SSH 密钥：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ssh-keygen</div></pre></td></tr></table></figure></p>
-<h2 id="配置-S3"><a href="#配置-S3" class="headerlink" title="配置 S3"></a>配置 S3</h2><p>　　需要注意，为了让 kops 创建基于 gossip 的集群，集群的命名需要使用<code>.k8s.local</code>作为后缀，例如，这里我们将集群命名为<code>cluster.k8s.local</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> NAME=cluster.k8s.local</div></pre></td></tr></table></figure></p>
-<p>　　接着创建一个 S3 bucket，用户存储集群的数据，例如，这里我们将这个 bucket 命名为<code>cluster.k8s.local-state.ym</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ aws s3api create-bucket --bucket <span class="variable">$&#123;NAME&#125;</span>-state.ym --create-bucket-configuration LocationConstraint=<span class="variable">$AWS_REGION</span></div><div class="line">$ <span class="built_in">export</span> KOPS_STATE_STORE=s3://cluster.k8s.local-state.ym</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/01/11/k8s-on-aws/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -925,7 +901,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -999,7 +975,7 @@
         <div class="copyright" >
   
   &copy;  2015 - 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
