@@ -266,6 +266,134 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/17/IO多路复用/" itemprop="url">
+                  几种 I/O Multiplexing 方式的比较
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-17T23:46:11+08:00" content="2017-02-17">
+              2017-02-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/17/IO多路复用/" class="leancloud_visitors" data-flag-title="几种 I/O Multiplexing 方式的比较">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="select-和-poll-的缺陷"><a href="#select-和-poll-的缺陷" class="headerlink" title="select 和 poll 的缺陷"></a>select 和 poll 的缺陷</h2><p>　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。<code>select()</code>是最早出现的I/O多路复用方式，然而由于早期<code>select()</code>的API设计不当，导致了<code>select()</code>存在不少缺陷。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds, </div><div class="line">           fd_set *exceptfds, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　从API层面来讲，<code>select()</code>使用<code>fd_set</code>来表示文件描述符的集合，而<code>fd_set</code>其实就是一个固定长度的位向量(bit vector)，在Linux上，这个固定长度是<code>FD_SETSIZE</code>，其数值是1024。这就带来了一个限制：凡是<code>select()</code>监听的文件描述符，它的大小必须小于1024。<br>　　<code>poll()</code>在某些程度上改进了<code>select()</code>存在的一些问题，例如<code>poll()</code>要求用户传递一个<code>pollfd</code>数组，但它不会限定这个数组的长度，所以理论上<code>poll()</code>可以监听任意数量的文件描述符（但实际上仍受限于进程最多能打开的文件描述符数量或系统的内存）。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</div></pre></td></tr></table></figure></p>
+<p>　　使用<code>select()</code>或<code>poll()</code>监听大量的文件描述符时，往往会遭遇到性能问题。当用户每次调用<code>select()</code>或<code>poll()</code>时，内核会对传入的所有文件描述符都检查一遍，并记录其中有哪些文件描述符存在I/O就绪，这个操作的耗时将随着文件描述符数量的增加而线性增长。<br>　　另一个重要因素也会影响<code>select()</code>和<code>poll()</code>的性能，例如用户每次调用<code>poll()</code>时，都需要传递一个<code>pollfd</code>数组，而<code>poll()</code>会将这个数组从用户空间拷贝到内核空间，当内核对这个数组作了修改之后，<code>poll()</code>又会将这个数组从内核空间拷贝到用户空间。随着<code>pollfd</code>数组长度的增加，每次拷贝的时间也会线性增长，一旦<code>poll()</code>需要监听大量的文件描述符，每次调用<code>poll()</code>时，这个拷贝操作将带来不小的开销。这个问题的根源在于<code>select()</code>和<code>poll()</code>的API设计不当，例如，对于应用程序来说，它每次调用<code>poll()</code>所监听的文件描述符集合应该是差不多的，所以我们不禁这样想，如果内核愿意提供一个数据结构，记录程序所要监听的文件描述符集合，这样每次用户调用<code>poll()</code>时，<code>poll()</code>就不需要将<code>pollfd</code>数组拷贝来拷贝去了（没错，epoll 就是这样解决的）。</p>
+<h2 id="epoll-的救赎"><a href="#epoll-的救赎" class="headerlink" title="epoll 的救赎"></a>epoll 的救赎</h2><p>　　epoll 很好地解决了<code>select()</code>和<code>poll()</code>中存在的问题，从API层面来讲，epoll 使用 3 个调用来完成原本由<code>select()</code>或<code>poll()</code>所做的事，首先<code>epoll_create()</code>负责在内核中创建一个<code>eventpoll</code>类型的数据结构：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> eventpoll </div><div class="line">&#123;</div><div class="line">    <span class="comment">// 红黑树，用来记录进程所要监听的文件描述符（及其要监听的事件）</span></div><div class="line">    <span class="keyword">struct</span> rb_root rbr;</div><div class="line">	</div><div class="line">    <span class="comment">// 双向链表，用来记录有哪些文件描述符已经就绪了</span></div><div class="line">    <span class="keyword">struct</span> list_head rdllist;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>　　<code>epoll_ctl()</code>负责增加、删除或修改红黑树上的节点，而<code>epoll_wait()</code>则负责返回双向链表中就绪的文件描述符(及其事件)。说到这里，我们不禁要问，epoll是怎么知道有哪些文件描述符已经就绪的呢？难道是遍历一次红黑树，逐个检查文件描述符？不可能，这效率太低了。<br>　　与<code>select()</code>或<code>poll()</code>不同，epoll 是事件驱动的，简单来说，当网卡收到一个 packet 的时候，会触发一个硬件中断，这导致内核调用相应的中断 handler，从网卡中读入数据放到协议栈，当数据量满足一定条件时，内核将回调<code>ep_poll_callback()</code>这个方法，它负责把这个就绪的文件描述符添加到双向链表中。这样当用户调用<code>epoll_wait()</code>时，<code>epoll_wait()</code>所做的就只是检查双向链表是否为空，如果不为空，就把文件描述符和数量返回给用户即可。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/17/IO多路复用/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/10/Linux的TCP-CORK/" itemprop="url">
                   Nagle 算法与 TCP socket 选项 TCP_CORK
                 </a>
@@ -760,133 +888,6 @@ bind(sockfd, ...);
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/15/为connect设置超时/" itemprop="url">
-                  为 connect 设置连接超时
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-15T22:03:18+08:00" content="2016-08-15">
-              2016-08-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/08/15/为connect设置超时/" class="leancloud_visitors" data-flag-title="为 connect 设置连接超时">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="连接超时"><a href="#连接超时" class="headerlink" title="连接超时"></a>连接超时</h2><p>　　调用<code>connect</code>连接到远程主机时，若网络发生拥塞，TCP可能会执行多次超时重传，这将耗费不短的时间，所以我们会想要为<code>connect</code>设置连接的超时。考虑到<code>select</code>可以设置一个超时时间，所以我们会使用<code>select</code>来实现这个功能。</p>
-<p>　　我们实现一个函数<code>connect_timeout</code>：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Return 1 on success, 0 on timeout and -1 on failed</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect_timeout</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *addr, </div><div class="line">                    <span class="keyword">socklen_t</span> addrlen, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　其实现并不复杂，首先我们将 socket 设置成非阻塞的，然后调用<code>connect</code>，如果<code>connect</code>返回<code>0</code>就说明连接已经建立了，如果返回<code>-1</code>并且错误码是<code>EINPROGRESS</code>，这说明<code>connect</code>正处在建立连接的过程中，返回其它错误码则表示<code>connect</code>调用失败。</p>
-<p>　　很明显，既然<code>connect</code>正在建立连接，那么它就有可能成功也有可能失败。那么我们可以调用<code>select</code>并且设置一个超时，等待<code>connect</code>建立连接、超时或失败。如果<code>connect</code>成功建立连接，则需要将 socket 重新设置成阻塞的。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/08/15/为connect设置超时/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -932,7 +933,7 @@ bind(sockfd, ...);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

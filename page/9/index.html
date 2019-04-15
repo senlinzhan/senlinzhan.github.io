@@ -266,6 +266,138 @@
             
               
                 
+                <a class="post-title-link" href="/2017/03/20/动态库/" itemprop="url">
+                  如何设计动态链接库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-20T20:23:09+08:00" content="2017-03-20">
+              2017-03-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编译链接/" itemprop="url" rel="index">
+                    <span itemprop="name">编译链接</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/20/动态库/" class="leancloud_visitors" data-flag-title="如何设计动态链接库">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="动态库的创建"><a href="#动态库的创建" class="headerlink" title="动态库的创建"></a>动态库的创建</h2><p>　　Linux 系统上经常见到的 *.so 文件其实就是动态库，将一个 *.c 文件编译成动态库很简单：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -o libdemo.so demo.o</div></pre></td></tr></table></figure></p>
+<p>　　<code>-fPIC</code>选项用来指导编译器生成位置无关代码(position-independent code)，在Linux/x86-64系统上必须指定这个选项。</p>
+<h2 id="动态库规范"><a href="#动态库规范" class="headerlink" title="动态库规范"></a>动态库规范</h2><p>　　动态库的升级通常也分为小版本的升级和主版本的升级，通常来说主版本的升级是不兼容的，而小版本的升级则是兼容的。动态库通常有一种规范的命名方式，为的是能够清晰地了解不同版本之间的关系：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">libdemo.so.1.0.1    <span class="comment"># 主版本 1，小版本 0.1</span></div><div class="line">libdemo.so.1.0.2    <span class="comment"># 主版本 1，小版本 0.2</span></div><div class="line">libdemo.so.2.0.1    <span class="comment"># 主版本 2，小版本 0.1</span></div></pre></td></tr></table></figure></p>
+<p>　　在编译动态库的时候，通常会为动态库创建一个 soname，作为动态库的别名，例如，这里我们给动态库<code>libdemo.so.1.0.1</code>创建了一个 soname 叫做<code>libdemo.1</code>：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -c <span class="_">-f</span>PIC -Wall demo.c</div><div class="line">$ gcc -g -shared -Wl,-soname,libdemo.so.1 -o libdemo.so.1.0.1 demo.o</div></pre></td></tr></table></figure></p>
+<p>　　在生产环境下，用户自己创建的动态库一般不能随便放置（防止找不到或者不小心被删除了），所以推荐放在系统目录<code>/usr/local/lib/</code>下面：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mv libdemo.so.1.0.1 /usr/<span class="built_in">local</span>/lib/</div></pre></td></tr></table></figure></p>
+<p>　　通常来说，系统会在<code>/etc/ld.so.cache</code>这个文件里面缓存系统的动态库列表。如果用户自己添加了动态库，那么还需要用<code>ldconfig</code>命令去更新系统的动态库缓存列表，同时这个命令会自动创建一个与 soname 同名的符号链接，指向对应的动态库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo ldconfig -v          <span class="comment"># 更新系统动态库缓存列表</span></div><div class="line">/usr/<span class="built_in">local</span>/lib:</div><div class="line">	libdemo.so.1 -&gt; libdemo.so.1.0.1 (changed)</div><div class="line">$ ls <span class="_">-l</span> /usr/<span class="built_in">local</span>/lib/</div><div class="line">lrwxrwxrwx 1 root root    16 Mar 21 22:54 libdemo.so.1 -&gt; libdemo.so.1.0.1</div><div class="line">-rwxr-xr-x 1 root root  8776 Mar 21 22:54 libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
+<p>　　通过这些步骤就顺利安装好了动态库了。那么还有一个问题，在编译程序时，怎么让 linker 找到动态库的位置呢？最简单的方法可以这样做：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall -o main main.c /usr/<span class="built_in">local</span>/lib/libdemo.so.1.0.1</div></pre></td></tr></table></figure></p>
+<p>　　在链接的过程中，如果动态库拥有 soname，那么 linker 会将这个 soname 嵌入到可执行文件中，如果动态库没有 soname，嵌入的则是动态库的真名。我们可以用<code>readelf</code>命令看到可执行文件<code>main</code>的 header 中是否包含动态库的信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">readelf <span class="_">-d</span> main | grep libdemo</div><div class="line"> 0x0000000000000001 (NEEDED)             Shared library: [libdemo.so.1]</div></pre></td></tr></table></figure></p>
+<p>　　可以看到，可执行文件<code>main</code>中只记录动态库的 soname。
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/03/20/动态库/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/03/02/linux-signal/" itemprop="url">
                   Linux 安全的信号处理方式
                 </a>
@@ -770,134 +902,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/17/IO多路复用/" itemprop="url">
-                  几种 I/O Multiplexing 方式的比较
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-17T23:46:11+08:00" content="2017-02-17">
-              2017-02-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index">
-                    <span itemprop="name">网络编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/17/IO多路复用/" class="leancloud_visitors" data-flag-title="几种 I/O Multiplexing 方式的比较">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="select-和-poll-的缺陷"><a href="#select-和-poll-的缺陷" class="headerlink" title="select 和 poll 的缺陷"></a>select 和 poll 的缺陷</h2><p>　　I/O多路复用允许进程同时监听多个文件描述符，这样进程就可以知道哪些文件描述符存在I/O就绪了。<code>select()</code>是最早出现的I/O多路复用方式，然而由于早期<code>select()</code>的API设计不当，导致了<code>select()</code>存在不少缺陷。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds, </div><div class="line">           fd_set *exceptfds, <span class="keyword">struct</span> timeval *timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　从API层面来讲，<code>select()</code>使用<code>fd_set</code>来表示文件描述符的集合，而<code>fd_set</code>其实就是一个固定长度的位向量(bit vector)，在Linux上，这个固定长度是<code>FD_SETSIZE</code>，其数值是1024。这就带来了一个限制：凡是<code>select()</code>监听的文件描述符，它的大小必须小于1024。<br>　　<code>poll()</code>在某些程度上改进了<code>select()</code>存在的一些问题，例如<code>poll()</code>要求用户传递一个<code>pollfd</code>数组，但它不会限定这个数组的长度，所以理论上<code>poll()</code>可以监听任意数量的文件描述符（但实际上仍受限于进程最多能打开的文件描述符数量或系统的内存）。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</div></pre></td></tr></table></figure></p>
-<p>　　使用<code>select()</code>或<code>poll()</code>监听大量的文件描述符时，往往会遭遇到性能问题。当用户每次调用<code>select()</code>或<code>poll()</code>时，内核会对传入的所有文件描述符都检查一遍，并记录其中有哪些文件描述符存在I/O就绪，这个操作的耗时将随着文件描述符数量的增加而线性增长。<br>　　另一个重要因素也会影响<code>select()</code>和<code>poll()</code>的性能，例如用户每次调用<code>poll()</code>时，都需要传递一个<code>pollfd</code>数组，而<code>poll()</code>会将这个数组从用户空间拷贝到内核空间，当内核对这个数组作了修改之后，<code>poll()</code>又会将这个数组从内核空间拷贝到用户空间。随着<code>pollfd</code>数组长度的增加，每次拷贝的时间也会线性增长，一旦<code>poll()</code>需要监听大量的文件描述符，每次调用<code>poll()</code>时，这个拷贝操作将带来不小的开销。这个问题的根源在于<code>select()</code>和<code>poll()</code>的API设计不当，例如，对于应用程序来说，它每次调用<code>poll()</code>所监听的文件描述符集合应该是差不多的，所以我们不禁这样想，如果内核愿意提供一个数据结构，记录程序所要监听的文件描述符集合，这样每次用户调用<code>poll()</code>时，<code>poll()</code>就不需要将<code>pollfd</code>数组拷贝来拷贝去了（没错，epoll 就是这样解决的）。</p>
-<h2 id="epoll-的救赎"><a href="#epoll-的救赎" class="headerlink" title="epoll 的救赎"></a>epoll 的救赎</h2><p>　　epoll 很好地解决了<code>select()</code>和<code>poll()</code>中存在的问题，从API层面来讲，epoll 使用 3 个调用来完成原本由<code>select()</code>或<code>poll()</code>所做的事，首先<code>epoll_create()</code>负责在内核中创建一个<code>eventpoll</code>类型的数据结构：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> eventpoll </div><div class="line">&#123;</div><div class="line">    <span class="comment">// 红黑树，用来记录进程所要监听的文件描述符（及其要监听的事件）</span></div><div class="line">    <span class="keyword">struct</span> rb_root rbr;</div><div class="line">	</div><div class="line">    <span class="comment">// 双向链表，用来记录有哪些文件描述符已经就绪了</span></div><div class="line">    <span class="keyword">struct</span> list_head rdllist;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
-<p>　　<code>epoll_ctl()</code>负责增加、删除或修改红黑树上的节点，而<code>epoll_wait()</code>则负责返回双向链表中就绪的文件描述符(及其事件)。说到这里，我们不禁要问，epoll是怎么知道有哪些文件描述符已经就绪的呢？难道是遍历一次红黑树，逐个检查文件描述符？不可能，这效率太低了。<br>　　与<code>select()</code>或<code>poll()</code>不同，epoll 是事件驱动的，简单来说，当网卡收到一个 packet 的时候，会触发一个硬件中断，这导致内核调用相应的中断 handler，从网卡中读入数据放到协议栈，当数据量满足一定条件时，内核将回调<code>ep_poll_callback()</code>这个方法，它负责把这个就绪的文件描述符添加到双向链表中。这样当用户调用<code>epoll_wait()</code>时，<code>epoll_wait()</code>所做的就只是检查双向链表是否为空，如果不为空，就把文件描述符和数量返回给用户即可。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/17/IO多路复用/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -943,7 +947,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
