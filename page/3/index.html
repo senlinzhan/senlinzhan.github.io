@@ -266,138 +266,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/12/31/valgrind/" itemprop="url">
-                  使用 Valgrind 检测 C++ 内存泄漏
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-31T11:53:01+08:00" content="2017-12-31">
-              2017-12-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/性能剖析/" itemprop="url" rel="index">
-                    <span itemprop="name">性能剖析</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/12/31/valgrind/" class="leancloud_visitors" data-flag-title="使用 Valgrind 检测 C++ 内存泄漏">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Valgrind-的介绍"><a href="#Valgrind-的介绍" class="headerlink" title="Valgrind 的介绍"></a>Valgrind 的介绍</h2><p>　　Valgrind 可以用来检测程序是否有非法使用内存的问题，例如访问未初始化的内存、访问数组时越界、忘记释放动态内存等问题。在 Linux 可以使用下面的命令安装 Valgrind：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ wget ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2</div><div class="line">$ bzip2 <span class="_">-d</span> valgrind-3.13.0.tar.bz2</div><div class="line">$ tar -xf valgrind-3.13.0.tar</div><div class="line">$ <span class="built_in">cd</span> valgrind-3.13.0</div><div class="line">$ ./configure &amp;&amp; make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
-<h2 id="检测内存泄漏"><a href="#检测内存泄漏" class="headerlink" title="检测内存泄漏"></a>检测内存泄漏</h2><p>　　Valgrind 可以用来检测程序在哪个位置发生内存泄漏，例如下面的程序：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">int</span> *<span class="built_in">array</span> = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">int</span>));</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　编译程序时，需要加上<code>-g</code>选项：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -o main_c main.c</div></pre></td></tr></table></figure></p>
-<p>　　使用 Valgrind 检测内存使用情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">$ valgrind --tool=memcheck --leak-check=full  ./main_c</div><div class="line">==31416== Memcheck, a memory error detector</div><div class="line">==31416== Copyright (C) 2002-2017, and GNU GPL<span class="string">'d, by Julian Seward et al.</div><div class="line">==31416== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info</div><div class="line">==31416== Command: ./main_c</div><div class="line">==31416==</div><div class="line">==31416==</div><div class="line">==31416== HEAP SUMMARY:</div><div class="line">==31416==     in use at exit: 4 bytes in 1 blocks</div><div class="line">==31416==   total heap usage: 1 allocs, 0 frees, 4 bytes allocated</div><div class="line">==31416==</div><div class="line">==31416== 4 bytes in 1 blocks are definitely lost in loss record 1 of 1</div><div class="line">==31416==    at 0x4C2DBF6: malloc (vg_replace_malloc.c:299)</div><div class="line">==31416==    by 0x400537: main (main.c:5)</div><div class="line">==31416==</div><div class="line">==31416== LEAK SUMMARY:</div><div class="line">==31416==    definitely lost: 4 bytes in 1 blocks</div><div class="line">==31416==    indirectly lost: 0 bytes in 0 blocks</div><div class="line">==31416==      possibly lost: 0 bytes in 0 blocks</div><div class="line">==31416==    still reachable: 0 bytes in 0 blocks</div><div class="line">==31416==         suppressed: 0 bytes in 0 blocks</div><div class="line">==31416==</div><div class="line">==31416== For counts of detected and suppressed errors, rerun with: -v</div><div class="line">==31416== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)</span></div></pre></td></tr></table></figure></p>
-<p>　　先看看输出信息中的<code>HEAP SUMMARY</code>，它表示程序在堆上分配内存的情况，其中的<code>1 allocs</code>表示程序分配了 1 次内存，<code>0 frees</code>表示程序释放了 0 次内存，<code>4 bytes allocated</code>表示分配了 4 个字节的内存。<br>　　另外，Valgrind 也会报告程序是在哪个位置发生内存泄漏。例如，从下面的信息可以看到，程序发生了一次内存泄漏，位置是<code>main.c</code>文件的第 5 行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">==31416== 4 bytes <span class="keyword">in</span> 1 blocks are definitely lost <span class="keyword">in</span> loss record 1 of 1</div><div class="line">==31416==    at 0x4C2DBF6: malloc (vg_replace_malloc.c:299)</div><div class="line">==31416==    by 0x400537: main (main.c:5)</div></pre></td></tr></table></figure></p>
-<hr>
-<p>　　Valgrind 也可以用来检测 C++ 程序的内存泄漏，下面是一个正常的 C++ 程序，没有发生内存泄漏：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> ptr = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>(<span class="string">"Hello, World!"</span>);</div><div class="line">    <span class="keyword">delete</span> ptr;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>　　使用 Valgrind 分析这段程序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">$ valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./main_cpp</div><div class="line">==31438== Memcheck, a memory error detector</div><div class="line">==31438== Copyright (C) 2002-2017, and GNU GPL<span class="string">'d, by Julian Seward et al.</div><div class="line">==31438== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info</div><div class="line">==31438== Command: ./main_cpp</div><div class="line">==31438==</div><div class="line">==31438==</div><div class="line">==31438== HEAP SUMMARY:</div><div class="line">==31438==     in use at exit: 72,704 bytes in 1 blocks</div><div class="line">==31438==   total heap usage: 2 allocs, 1 frees, 72,736 bytes allocated</div><div class="line">==31438==</div><div class="line">==31438== 72,704 bytes in 1 blocks are still reachable in loss record 1 of 1</div><div class="line">==31438==    at 0x4C2DBF6: malloc (vg_replace_malloc.c:299)</div><div class="line">==31438==    by 0x4EC3EFF: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)</div><div class="line">==31438==    by 0x40104E9: call_init.part.0 (dl-init.c:72)</div><div class="line">==31438==    by 0x40105FA: call_init (dl-init.c:30)</div><div class="line">==31438==    by 0x40105FA: _dl_init (dl-init.c:120)</div><div class="line">==31438==    by 0x4000CF9: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)</div><div class="line">==31438==</div><div class="line">==31438== LEAK SUMMARY:</div><div class="line">==31438==    definitely lost: 0 bytes in 0 blocks</div><div class="line">==31438==    indirectly lost: 0 bytes in 0 blocks</div><div class="line">==31438==      possibly lost: 0 bytes in 0 blocks</div><div class="line">==31438==    still reachable: 72,704 bytes in 1 blocks</div><div class="line">==31438==         suppressed: 0 bytes in 0 blocks</div><div class="line">==31438==</div><div class="line">==31438== For counts of detected and suppressed errors, rerun with: -v</div><div class="line">==31438== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)</span></div></pre></td></tr></table></figure></p>
-<p>　　使用 Valgrind 分析 C++ 程序时，有一些问题需要留意。例如，这个程序并没有发生内存泄漏，但是从<code>HEAP SUMMARY</code>可以看到，程序分配了 2 次内存，但却只释放了 1 次内存，为什么会这样呢？<br>　　实际上这是由于 C++ 在分配内存时，为了提高效率，使用了它自己的内存池。当程序终止时，内存池的内存才会被操作系统回收，所以 Valgrind 会将这部分内存报告为 reachable 的，需要注意，reachable 的内存<u>不代表</u>内存泄漏，例如，从上面的输出中可以看到，有 72704 个字节是 reachable 的，但没有报告内存泄漏。
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/31/valgrind/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/12/25/envoy/" itemprop="url">
                   Envoy Proxy 与微服务实践
                 </a>
@@ -908,6 +776,150 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/08/k8s-deployments/" itemprop="url">
+                  如何在 Kubernetes 部署应用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-08T15:44:42+08:00" content="2017-12-08">
+              2017-12-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/08/k8s-deployments/" class="leancloud_visitors" data-flag-title="如何在 Kubernetes 部署应用">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="部署的难题"><a href="#部署的难题" class="headerlink" title="部署的难题"></a>部署的难题</h2><p>　　对开发人员来说，在部署程序的新版本之前，需要考虑很多事情：</p>
+<ul>
+<li>如何在多台机器实现自动部署？</li>
+<li>在部署的过程，如何保证服务的高可用？</li>
+<li>如何知道新版本是否出现问题，健康检查要怎么做？</li>
+<li>如果新版本出现问题，能够做到回滚？</li>
+</ul>
+<p>　　很幸运，Kubernetes 提供了 Deployment 功能，帮助开发人员解决这些问题。</p>
+<h2 id="如何部署应用"><a href="#如何部署应用" class="headerlink" title="如何部署应用"></a>如何部署应用</h2><p>　　下面的配置文件定义了一个 Deployment，其中包含两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server    <span class="comment"># 这个 Deployment 管理着那些拥有这个标签的 Pod </span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server  <span class="comment"># 为所有 Pod 都打上这个标签</span></div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.7.9</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
+<p>　　接着，创建这个 Deployment：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl apply <span class="_">-f</span> nginx-deployment.yaml</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   2         2         2            2           5s</div></pre></td></tr></table></figure></p>
+<p>　　可以观察到，这个 Deployment 管理着两个 Nginx Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pods</div><div class="line">NAME                                READY     STATUS    RESTARTS   AGE</div><div class="line">nginx-deployment-2569060349-2ph84   1/1       Running   0          2m</div><div class="line">nginx-deployment-2569060349-4wdsd   1/1       Running   0          2m</div></pre></td></tr></table></figure></p>
+<h2 id="比较-Deployment-与-ReplicaSet"><a href="#比较-Deployment-与-ReplicaSet" class="headerlink" title="比较 Deployment 与 ReplicaSet"></a>比较 Deployment 与 ReplicaSet</h2><p>　　在 <a href="http://senlinzhan.github.io/2017/11/27/k8s/">Kubernetes 入门指南</a> 我们说到了 ReplicaSet，ReplicaSet 也是用来管理多个 Pod 的副本，那么 Deployment 和 ReplicaSet 的区别在哪里呢？<br>　　当我们创建了 Deployment 之后，实际上也创建了 ReplicaSet，所以说 Deployment 管理着 ReplicaSet（实际上 Deployment 比 ReplicaSet 有着更多功能）。<br>　　这里可以验证一下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   2         2         2         26m</div></pre></td></tr></table></figure></p>
+<p>　　由于 ReplicaSet 可以伸缩 Pod 的数量，因此 Deployment 也可以做到：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale deployments nginx-deployment --replicas=3</div><div class="line">deployment <span class="string">"nginx-deployment"</span> scaled</div></pre></td></tr></table></figure></p>
+<p>　　Deployment 管理着 ReplicaSet，因此当 Deployment 伸缩时，由它管理的 ReplicaSet 也会发生伸缩：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl get rs --selector=app=nginx-server</div><div class="line">NAME                          DESIRED   CURRENT   READY     AGE</div><div class="line">nginx-deployment-2569060349   3         3         3         30m</div></pre></td></tr></table></figure></p>
+<p>　　但反过来，如果我们直接伸缩 ReplicaSet，那么 Deployment 也会相应发生伸缩吗？答案是<u>不会的</u>。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ kubectl scale rs nginx-deployment-2569060349 --replicas=1</div><div class="line">replicaset <span class="string">"nginx-deployment-2569060349"</span> scaled</div><div class="line">$ kubectl get deployments</div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">nginx-deployment   3         3         3            3           38m</div></pre></td></tr></table></figure></p>
+<h2 id="滚动更新"><a href="#滚动更新" class="headerlink" title="滚动更新"></a>滚动更新</h2><p>　　更新版本时，如何保证服务的高可用？可以借助 Deployment 的滚动更新功能，例如下面的例子中，我们将 Nginx 从<code>1.7.9</code>升级到<code>1.9.0</code>版本：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-deployment.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: Deployment</div><div class="line">metadata:</div><div class="line">  name: nginx-deployment</div><div class="line">  annotations:</div><div class="line">    kubernetes.io/change-cause: <span class="string">"Update nginx from 1.7.9 to 1.9.0"</span>   <span class="comment"># 注释</span></div><div class="line">spec:</div><div class="line">  replicas: 2</div><div class="line">  selector:</div><div class="line">    matchLabels:</div><div class="line">      app: nginx-server</div><div class="line">  strategy:                    <span class="comment"># 更新策略</span></div><div class="line">    rollingUpdate:</div><div class="line">      maxSurge: 0</div><div class="line">      maxUnavailable: 1        <span class="comment"># 更新过程中，最多有一个 Pod 不可用</span></div><div class="line">    <span class="built_in">type</span>: RollingUpdate        <span class="comment"># 策略类型: 滚动更新</span></div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        app: nginx-server</div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: nginx:1.9.0</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div></pre></td></tr></table></figure></p>
+<p>　　上述的配置文件中，我们指定更新策略为<code>RollingUpdate</code>（即滚动更新）。在这种策略下，更新版本的过程是渐进性的，分多次进行，每次都只更新少数几个 Pod，直到所有 Pod 都更新完毕。<br>　　有两个参数可用用来配置滚动更新策略：</p>
+<ul>
+<li><code>maxUnavailable</code>表示在更新过程中，最多有多少个 Pod 不可用（这个数值也可以是百分比，例如 20% 表示最多有 20% 的 Pod 不可用）。譬如说，如果设置<code>maxUnavailable</code>为 1，那么更新过程会分多次进行，每次都是先销毁 1 个旧的 Pod，然后创建 1 个新的 Pod 替换它。</li>
+<li>在更新的过程，如果需要保证服务的 100% 可用，可以使用<code>maxSurge</code>，同时将<code>maxUnavailable</code>设置为 0。譬如说，将<code>maxSurge</code>设置为 1，同时将<code>maxUnavailable</code>设置为 0，那么更新过程会分多次进行，每次都是先创建 1 个新的 Pod，如果新的 Pod 可用了，这时才会替换掉旧的 Pod。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/08/k8s-deployments/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -953,7 +965,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

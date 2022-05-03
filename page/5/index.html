@@ -266,112 +266,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/10/07/gflags/" itemprop="url">
-                  使用 Google gflags 解析命令行参数
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-07T11:14:00+08:00" content="2017-10-07">
-              2017-10-07
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/10/07/gflags/" class="leancloud_visitors" data-flag-title="使用 Google gflags 解析命令行参数">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>　　gflags 是一个 C++ 库，用于解析命令行参数。下面是安装步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git <span class="built_in">clone</span> https://github.com/gflags/gflags.git</div><div class="line">$ <span class="built_in">cd</span> gflags</div><div class="line">$ mkdir build-dir</div><div class="line">$ <span class="built_in">cd</span> build-dir</div><div class="line">$ cmake ..</div><div class="line">$ make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
-<p>　　安装之后要怎么使用 gflags 呢？如果程序是使用 CMake 构建的，那么只要在 CMakeListsx.txt 里面加上下面几行配置就可以了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">find_package (gflags REQUIRED)</div><div class="line">include_directories (<span class="variable">$&#123;gflags_INCLUDE_DIR&#125;</span>)</div><div class="line"></div><div class="line">add_executable (main main.cpp)</div><div class="line">target_link_libraries (main gflags)</div></pre></td></tr></table></figure></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/10/07/gflags/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/10/03/boost-asio-coroutine/" itemprop="url">
                   在 Boost.Asio 中使用协程
                 </a>
@@ -911,6 +805,141 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/08/12/libevent/" itemprop="url">
+                  Libevent 编程指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-12T20:48:18+08:00" content="2017-08-12">
+              2017-08-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/12/libevent/" class="leancloud_visitors" data-flag-title="Libevent 编程指南">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>　　Libevent 是一个高性能，跨平台的 C 语言网络库。Libevent 当前最新的版本是 2.1.8，下面是在 Linux 安装 Libevent 的步骤：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ wget https://github.com/libevent/libevent/releases/download/release-2.1.8-stable/libevent-2.1.8-stable.tar.gz</div><div class="line">$ tar -xzvf libevent-2.1.8-stable.tar.gz</div><div class="line">$ <span class="built_in">cd</span> libevent-2.1.8-stable</div><div class="line">$ ./configure</div><div class="line">$ make</div><div class="line">$ sudo make install</div></pre></td></tr></table></figure></p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>　　Libevent是基于 Reactor 模式的网络库，在 Reactor 模式中，通常都有一个事件循环(Event Loop)，在 Libevent 中，这个事件循环就是<code>event_base</code>结构体：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">struct</span> event_base *<span class="title">event_base_new</span><span class="params">(<span class="keyword">void</span>)</span></span>;           <span class="comment">// 创建事件循环</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">event_base_free</span><span class="params">(<span class="keyword">struct</span> event_base *base)</span></span>;     <span class="comment">// 销毁事件循环</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">event_base_dispatch</span><span class="params">(<span class="keyword">struct</span> event_base *base)</span></span>;  <span class="comment">// 运行事件循环</span></div></pre></td></tr></table></figure></p>
+<p>　　通常来说，事件循环主要有两个作用：</p>
+<ul>
+<li>用来管理事件，比如说添加我们感兴趣的事件，修改事件或删除事件。</li>
+<li>用来轮询它管理的所有事件，如果发现有事件活跃 (avtive)，就调用相应的回调函数去处理事件。</li>
+</ul>
+<hr>
+<p>　　Libevent 使用<code>event</code>结构体来代表事件，可以使用<code>event_new()</code>创建一个事件：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">struct</span> event *<span class="title">event_new</span><span class="params">(<span class="keyword">struct</span> event_base *base, <span class="comment">// 事件循环</span></div><div class="line">                        <span class="keyword">evutil_socket_t</span> fd,      <span class="comment">// 文件描述符</span></div><div class="line">                        <span class="keyword">short</span> what,              <span class="comment">// 事件类型</span></div><div class="line">                        event_callback_fn cb,    <span class="comment">// 回调函数</span></div><div class="line">                        <span class="keyword">void</span> *arg)</span></span>;              <span class="comment">// 传递给回调函数的参数</span></div></pre></td></tr></table></figure></p>
+<p>　　创建一个事件之后，要怎么把它加入到事件循环呢？可以使用<code>event_add()</code>函数：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">event_add</span><span class="params">(<span class="keyword">struct</span> event *ev,             <span class="comment">// 事件</span></div><div class="line">              <span class="keyword">const</span> <span class="keyword">struct</span> timeval *tv)</span></span>;    <span class="comment">// 超时时间</span></div></pre></td></tr></table></figure></p>
+<p>　　默认情况下，当一个事件变得活跃时，Libevent 会执行这个事件的回调函数，但同时也会将这个事件从事件循环中<u>移除</u>，例如，下面的程序，定时器只会触发一次：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;event2/event.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">timer_cb</span><span class="params">(<span class="keyword">evutil_socket_t</span> fd, <span class="keyword">short</span> what, <span class="keyword">void</span> *arg)</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="keyword">auto</span> str = <span class="keyword">static_cast</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span> *&gt;(arg);</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; *str &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></div><div class="line"></span>&#123;</div><div class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> str = <span class="string">"Hello, World!"</span>;</div><div class="line">    <span class="keyword">auto</span> *base = event_base_new();</div><div class="line"></div><div class="line">    <span class="keyword">struct</span> timeval five_seconds = &#123;<span class="number">1</span>, <span class="number">0</span>&#125;;</div><div class="line">    <span class="keyword">auto</span> *ev = event_new(base, <span class="number">-1</span>, EV_TIMEOUT, timer_cb, (<span class="keyword">void</span> *)&amp;str);</div><div class="line"></div><div class="line">    event_add(ev, &amp;five_seconds);</div><div class="line">    event_base_dispatch(base);</div><div class="line"></div><div class="line">    event_free(ev);</div><div class="line">    event_base_free(base);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　那要怎么样才能让事件不被移除呢？当创建事件时，在事件类型加上<code>EV_PERSIST</code>就可以。让我们修改上面的程序，让定时器每秒就触发一次：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">auto</span> *ev = event_new(base, <span class="number">-1</span>, EV_TIMEOUT|EV_PERSIST, timer_cb, (<span class="keyword">void</span> *)&amp;str);</div></pre></td></tr></table></figure></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/12/libevent/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -956,7 +985,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

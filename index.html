@@ -393,115 +393,6 @@
             
               
                 
-                <a class="post-title-link" href="/2022/05/03/dpdp-setup/" itemprop="url">
-                  未命名
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2022-05-03T11:11:22+08:00" content="2022-05-03">
-              2022-05-03
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2022/05/03/dpdp-setup/" class="leancloud_visitors" data-flag-title="">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="DPDK-快速上手"><a href="#DPDK-快速上手" class="headerlink" title="DPDK 快速上手"></a>DPDK 快速上手</h2><h4 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h4><p>编译 DPDK 要求 gcc 版本在 4.9 以上，安装相关的编译工具和依赖库：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apt-get install build-essential libnuma-dev libssl-dev libcap-dev libpcap-dev -y</div></pre></td></tr></table></figure></p>
-<p>为 DPDK 预留大页内存：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> 1024 &gt; /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages</div><div class="line"><span class="built_in">echo</span> 1024 &gt; /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages</div></pre></td></tr></table></figure></p>
-<p>将大页内存挂载起来，才能被 DPDK 使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mkdir /mnt/huge</div><div class="line">mount -t hugetlbfs nodev /mnt/huge</div></pre></td></tr></table></figure></p>
-<p>下载 DPDK 源码并编译：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">wget https://fast.dpdk.org/rel/dpdk-17.11.2.tar.xz</div><div class="line">tar vxf dpdk-17.11.2.tar.xz</div><div class="line"><span class="built_in">cd</span> dpdk-stable-17.11.2</div><div class="line">make config T=x86_64-native-linuxapp-gcc</div><div class="line"><span class="built_in">export</span> RTE_TARGET=build</div><div class="line">make</div><div class="line"><span class="built_in">export</span> RTE_SDK=<span class="variable">$PWD</span></div></pre></td></tr></table></figure></p>
-<p>安装 DPDK 内核模块：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">modprobe uio</div><div class="line">insmod build/kmod/igb_uio.ko</div><div class="line">insmod build/kmod/rte_kni.ko</div></pre></td></tr></table></figure></p>
-<p>查看所有网卡的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ python installPkg/bin/dpdk-devbind.py --status</div><div class="line"></div><div class="line">Network devices using DPDK-compatible driver</div><div class="line">============================================</div><div class="line">&lt;none&gt;</div><div class="line"></div><div class="line">Network devices using kernel driver</div><div class="line">===================================</div><div class="line">0000:1a:00.0 <span class="string">'Device 37d0'</span> <span class="keyword">if</span>=eth0 drv=i40e unused= *Active*</div><div class="line">0000:1a:00.1 <span class="string">'Device 37d0'</span> <span class="keyword">if</span>=eth1 drv=i40e unused= *Active*</div><div class="line">0000:1a:00.2 <span class="string">'Device 37d1'</span> <span class="keyword">if</span>=eth2 drv=i40e unused= </div><div class="line">0000:1a:00.3 <span class="string">'Device 37d1'</span> <span class="keyword">if</span>=eth3 drv=i40e unused= </div><div class="line"></div><div class="line">Other network devices</div><div class="line">=====================</div><div class="line">&lt;none&gt;</div></pre></td></tr></table></figure></p>
-<p>其中 eth0 准备留给 DPDK 使用，我们记录下它的 PCI 号码为 0000:1a:00.0，网卡驱动为 i40e。关闭网卡 eth0，并将<code>igb_uio</code>驱动绑定到网卡 eth0：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ifconfig eth0 down</div><div class="line">./usertools/dpdk-devbind.py -b igb_uio 0000:1a:00.0</div></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2019/04/15/linux-loss-delay/" itemprop="url">
                   Linux 模拟网络丢包和延迟
                 </a>
@@ -837,6 +728,133 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/01/12/k8s-volumes/" itemprop="url">
+                  在 AWS 使用 Kubernetes 的持久化存储
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-12T15:44:42+08:00" content="2018-01-12">
+              2018-01-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/虚拟化/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟化</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/01/12/k8s-volumes/" class="leancloud_visitors" data-flag-title="在 AWS 使用 Kubernetes 的持久化存储">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="挂载-EBS-磁盘"><a href="#挂载-EBS-磁盘" class="headerlink" title="挂载 EBS 磁盘"></a>挂载 EBS 磁盘</h2><p>　　在 AWS 中，我们可以将 EBS 磁盘挂载到 Kubernetes 的 Pod 中。由于 EBS 是云磁盘，所以就算 Pod 被调度到其它宿主机，也仍然可以访问 EBS 中的数据。<br>　　在挂载磁盘之前，需要先创建 EBS 磁盘：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ aws ec2 create-volume \</div><div class="line">    --size 20 \</div><div class="line">    --region ap-northeast-1 \</div><div class="line">    --availability-zone ap-northeast-1b \</div><div class="line">    --volume-type gp2</div><div class="line">&#123;</div><div class="line">    <span class="string">"AvailabilityZone"</span>: <span class="string">"ap-northeast-1b"</span>,</div><div class="line">    <span class="string">"Encrypted"</span>: <span class="literal">false</span>,</div><div class="line">    <span class="string">"VolumeType"</span>: <span class="string">"gp2"</span>,</div><div class="line">    <span class="string">"VolumeId"</span>: <span class="string">"vol-0988ae4c8ead9dece"</span>,</div><div class="line">    <span class="string">"State"</span>: <span class="string">"creating"</span>,</div><div class="line">    <span class="string">"Iops"</span>: 100,</div><div class="line">    <span class="string">"SnapshotId"</span>: <span class="string">""</span>,</div><div class="line">    <span class="string">"CreateTime"</span>: <span class="string">"2018-01-12T07:16:01.002Z"</span>,</div><div class="line">    <span class="string">"Size"</span>: 20</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>　　注意，如果 Kubernetes 集群是通过 kops 1.8.0 版本安装的，那么在挂载之前，需要先为磁盘打上标签，否则会挂载失败：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> NAME=cluster.k8s.local      <span class="comment"># 集群的名称</span></div><div class="line">$ VOLUME_ID = vol-0988ae4c8ead9dece</div><div class="line">$ aws ec2 create-tags \</div><div class="line">    --resources <span class="variable">$&#123;VOLUME_ID&#125;</span> \</div><div class="line">    --tags Key=KubernetesCluster,Value=<span class="variable">$&#123;NAME&#125;</span></div></pre></td></tr></table></figure></p>
+<p>　　挂载磁盘很简单，例如，我们可以将磁盘挂载到 Nginx Pod 的<code>/data</code>目录下：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ cat nginx-pod.yaml</div><div class="line"><span class="attr">apiVersion:</span> v1</div><div class="line"><span class="attr">kind:</span> Pod</div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> nginx</div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  containers:</span></div><div class="line"><span class="attr">  - name:</span> nginx</div><div class="line"><span class="attr">    image:</span> nginx:<span class="number">1.7</span><span class="number">.9</span></div><div class="line"><span class="attr">    ports:</span></div><div class="line"><span class="attr">    - containerPort:</span> <span class="number">80</span></div><div class="line"><span class="attr">    volumeMounts:</span></div><div class="line"><span class="attr">      - name:</span> aws-ebs-volumes</div><div class="line"><span class="attr">        mountPath:</span> /data</div><div class="line"><span class="attr">  volumes:</span></div><div class="line"><span class="attr">  - name:</span> aws-ebs-volumes</div><div class="line"><span class="attr">    awsElasticBlockStore:</span></div><div class="line"><span class="attr">      volumeID:</span> vol<span class="bullet">-0988</span>ae4c8ead9dece</div><div class="line">$ kubectl apply -f nginx-pod.yaml</div></pre></td></tr></table></figure></p>
+<p>　　通过这种方式挂载磁盘，有几个问题需要注意，首先，要保证 EBS 磁盘和 EC2 实例在同一个 AZ 里面，其次，EBS 磁盘只能挂载到一个 EC2 实例上。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/01/12/k8s-volumes/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -882,7 +900,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
